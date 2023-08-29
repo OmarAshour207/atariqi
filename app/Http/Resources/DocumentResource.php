@@ -6,14 +6,14 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class DocumentResource extends JsonResource
 {
-    /**
-     * Transform the resource into an array.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return array|\Illuminate\Contracts\Support\Arrayable|\JsonSerializable
-     */
     public function toArray($request)
     {
-        return parent::toArray($request);
+        return [
+            'title-ar'      => $this->{"title-ar"},
+            'title-eng'     => $this->{"title-eng"},
+            'file-link'     => url($this->{"file-link"}),
+            'date-of-add'   => $this->{"date-of-add"},
+            'date-of-edit'  => $this->{"date-of-edit"}
+        ];
     }
 }

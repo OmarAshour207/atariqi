@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -20,4 +21,11 @@ class Document extends Model
         'date-of-add',
         'date-of-edit',
     ];
+
+    protected function fileLink(): Attribute
+    {
+        return Attribute::make(
+            get: fn(string $value)  => url($value)
+        );
+    }
 }
