@@ -66,13 +66,14 @@ class UserController extends BaseController
 
         $code = $this->generateCode();
 
-        $phoneNumber = $user->callingKey->{"call-key"} . $phoneNumber;
+        $phoneNumber = '+' . $user->callingKey->{"call-key"} . $phoneNumber;
+        Log::info("Phone Number: " . $phoneNumber);
 
         $this->sendSMS($phoneNumber, $code);
 
         $user->update(['code' => $code]);
 
-        return $this->sendResponse('s_codeNotSent', __('Verification code sent'));
+        return $this->sendResponse('s_codeSent', __('Verification code sent'));
     }
 
     public function verifyCode(Request $request)
