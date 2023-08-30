@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Twilio\Exceptions\TwilioException;
 use Twilio\Rest\Client;
+use Vonage\Client\Exception\Exception;
 
 class UserController extends BaseController
 {
@@ -39,10 +40,7 @@ class UserController extends BaseController
         $user = User::create($data);
         $success['user'] = $user;
 
-        $phoneNumber = $user->{"phone-no"};
-        // check if phone number already starts with calling key
-        if(!str_starts_with($user->{"phone-no"}, $user->callingKey->{"call-key"}))
-            $phoneNumber = $user->callingKey->{"call-key"} . $phoneNumber;
+        $phoneNumber = '+' . $user->callingKey->{"call-key"} . $user->{"phone-no"};
 
         $this->sendSMS($phoneNumber, $code);
 
@@ -67,7 +65,6 @@ class UserController extends BaseController
         $code = $this->generateCode();
 
         $phoneNumber = '+' . $user->callingKey->{"call-key"} . $phoneNumber;
-        Log::info("Phone Number: " . $phoneNumber);
 
         $this->sendSMS($phoneNumber, $code);
 
@@ -116,21 +113,49 @@ class UserController extends BaseController
 
     public function sendSMS($userNumber, $code)
     {
-        $accountSID = config('services.twilio.account_sid');
-        $token = config('services.twilio.auth_token');
-        $twilioPhoneNumber = config('services.twilio.phone_number');
+        $provider = 'twilio';
+//        $provider = 'nexmo';
+        if ($provider == 'twilio') {
+            $accountSID = config('services.twilio.account_sid');
+            $token = config('services.twilio.auth_token');
+            $twilioPhoneNumber = config('services.twilio.phone_number');
 
-        $client = new Client($accountSID, $token);
+            $client = new Client($accountSID, $token);
 
-        try {
-            $client->messages->create(
-                $userNumber, [
-                    'from'      => $twilioPhoneNumber,
-                    'body'      => __('Your Atariqi verification code is: ') . $code
-                ]
-            );
-        } catch (TwilioException $e) {
-            Log::error($e->getMessage());
+            try {
+                $client->messages->create(
+                    $userNumber, [
+                        'from'      => $twilioPhoneNumber,
+                        'body'      => __('Your Atariqi verification code is: ') . $code
+                    ]
+                );
+            } catch (TwilioException $e) {
+                Log::error($e->getMessage());
+            }
+        }
+        if ($provider == 'nexmo') {
+
+            $key = config('services.nexmo.key');
+            $secret = config('services.nexmo.secret');
+
+            $basic  = new \Vonage\Client\Credentials\Basic($key, $secret);
+            $client = new \Vonage\Client($basic);
+
+            try {
+                $response = $client->sms()->send(
+                    new \Vonage\SMS\Message\SMS($userNumber, __('Atariqi'), (__('Your Atariqi verification code is: ') . $code))
+                );
+
+                $message = $response->current();
+                if ($message->getStatus() == 0) {
+                    Log::info("The message was sent successfully");
+                } else {
+                    Log::error("The message failed with status: " . $message->getStatus());
+                }
+
+            } catch (Exception $e) {
+                Log::error($e->getMessage());
+            }
         }
     }
 

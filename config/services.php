@@ -36,4 +36,9 @@ return [
         'phone_number' => env('TWILIO_PHONE_NUMBER')
     ],
 
+    'nexmo'  => [
+        'key'       => env('NEXMO_KEY'),
+        'secret'    => env('NEXMO_SECRET'),
+    ],
+
 ];
