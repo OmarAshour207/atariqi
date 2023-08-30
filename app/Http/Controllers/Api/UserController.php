@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Models\User;
+use App\Models\UserLogin;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
@@ -65,15 +66,13 @@ class UserController extends BaseController
 
         $code = $this->generateCode();
 
-        // check if phone number already starts with calling key
-        if(!str_starts_with($user->{"phone-no"}, $user->callingKey->{"call-key"}))
-            $phoneNumber = $user->callingKey->{"call-key"} . $phoneNumber;
+        $phoneNumber = $user->callingKey->{"call-key"} . $phoneNumber;
 
         $this->sendSMS($phoneNumber, $code);
 
         $user->update(['code' => $code]);
 
-        return $this->sendResponse(__('Verification code sent'), __('Verification code sent'));
+        return $this->sendResponse('s_codeNotSent', __('Verification code sent'));
     }
 
     public function verifyCode(Request $request)
@@ -92,14 +91,20 @@ class UserController extends BaseController
         $user = User::where('phone-no', $phoneNumber)->first();
 
         if(!$user)
-            return $this->sendError(__("User doesn't exist"), [__("User doesn't exist")], 401);
+            return $this->sendError(__("s_userNotExist"), [__("User doesn't exist")], 401);
 
         if($user->code != $code)
-            return $this->sendError(__('Invalid Code'), [__('Invalid Code')], 401);
+            return $this->sendError(__('s_invalidCode'), [__('Invalid Code')], 401);
 
         $user->update([
             'code'      => null,
             'fcm_token' => $data['fcm_token']
+        ]);
+
+        UserLogin::create([
+            'user-id'       => $user->id,
+            'date-time'     => now(),
+            'login-logout'  => 1
         ]);
 
         $success['token'] = $user->createToken('atariqi')->plainTextToken;
