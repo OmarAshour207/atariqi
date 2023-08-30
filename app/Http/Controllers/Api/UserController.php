@@ -54,13 +54,14 @@ class UserController extends BaseController
             'phone-no'      => 'required|string',
         ]);
 
-        $phoneNumber = $validator->validated()['phone-no'];
         if($validator->fails())
             return $this->sendError(__('Validation Error.'), $validator->errors()->getMessages(), 422);
 
+        $phoneNumber = $validator->validated()['phone-no'];
         $user = User::with('callingKey')->where('phone-no', $phoneNumber)->first();
+
         if(!$user)
-            return $this->sendError(__("User doesn't exist"), [__("User doesn't exist")], 401);
+            return $this->sendError("s_userNotExist", [__("User doesn't exist")], 401);
 
         $code = $this->generateCode();
 
