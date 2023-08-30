@@ -35,5 +35,8 @@ class User extends Authenticatable
     ];
 
     // Relations
-
+    public function callingKey()
+    {
+        return $this->belongsTo(CallingKey::class, 'call-key-id');
+    }
 }

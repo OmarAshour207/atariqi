@@ -38,27 +38,37 @@ class UserController extends BaseController
         $user = User::create($data);
         $success['user'] = $user;
 
-        $this->sendSMS($data['phone-no'], $code);
+        $phoneNumber = $user->{"phone-no"};
+        // check if phone number already starts with calling key
+        if(!str_starts_with($user->{"phone-no"}, $user->callingKey->{"call-key"}))
+            $phoneNumber = $user->callingKey->{"call-key"} . $phoneNumber;
+
+        $this->sendSMS($phoneNumber, $code);
 
         return $this->sendResponse($success, __('User Registered Successfully.'));
     }
 
-
-    public function login(Request $request)
+    public function send(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'phone-no'      => 'required|string',
-            'fcm_token'     => 'sometimes|nullable'
         ]);
 
+        $phoneNumber = $validator->validated()['phone-no'];
         if($validator->fails())
             return $this->sendError(__('Validation Error.'), $validator->errors()->getMessages(), 422);
 
+        $user = User::with('callingKey')->where('phone-no', $phoneNumber)->first();
+        if(!$user)
+            return $this->sendError(__("User doesn't exist"), [__("User doesn't exist")], 401);
 
-        $user = User::where('phone-no', $validator->validated()['phone-no'])->first();
         $code = $this->generateCode();
 
-        $this->sendSMS($validator->validated()['phone-no'], $code);
+        // check if phone number already starts with calling key
+        if(!str_starts_with($user->{"phone-no"}, $user->callingKey->{"call-key"}))
+            $phoneNumber = $user->callingKey->{"call-key"} . $phoneNumber;
+
+        $this->sendSMS($phoneNumber, $code);
 
         $user->update(['code' => $code]);
 
@@ -70,7 +80,7 @@ class UserController extends BaseController
         $validator = Validator::make($request->all(), [
             'phone-no'      => 'required|string',
             'code'          => 'required|string',
-            'fcm_token'     => 'sometimes|nullable|string'
+            'fcm_token'     => 'required|nullable|string'
         ]);
 
         $data = $validator->validated();
@@ -88,10 +98,12 @@ class UserController extends BaseController
 
         $user->update([
             'code'      => null,
-            'fcm_token' => isset($data['fcm_token']) ? $data['fcm_token'] : null
+            'fcm_token' => $data['fcm_token']
         ]);
 
         $success['token'] = $user->createToken('atariqi')->plainTextToken;
+        $success['user'] = $user;
+
         return $this->sendResponse($success, __('User Logged Successfully.'));
     }
 

@@ -10,7 +10,7 @@ Route::group([
 
     Route::controller(\App\Http\Controllers\Api\UserController::class)->group(function() {
         Route::post('user/register', 'register');
-        Route::post('user/login', 'login');
+        Route::post('user/send', 'send');
         Route::post('user/verify', 'verifyCode');
     });
 
