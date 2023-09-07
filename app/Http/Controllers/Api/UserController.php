@@ -89,10 +89,6 @@ class UserController extends BaseController
 
         $user = User::where('phone-no', $phoneNumber)->first();
 
-        $success['user'] = new UserResource($user);
-
-        return $this->sendResponse($success, __('User Logged Successfully.'));
-
         if(!$user)
             return $this->sendError(__("s_userNotExist"), [__("User doesn't exist")], 401);
 
