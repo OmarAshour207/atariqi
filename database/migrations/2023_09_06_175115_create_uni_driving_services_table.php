@@ -13,8 +13,11 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->string('code')->nullable();
+        Schema::create('uni-driving-services', function (Blueprint $table) {
+            $table->bigInteger('id');
+            $table->bigInteger('university-id');
+            $table->bigInteger('service-id');
+            $table->dateTime('date-of-add')->useCurrent();
         });
     }
 
@@ -25,8 +28,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('users', function (Blueprint $table) {
-            //
-        });
+        Schema::dropIfExists('uni-driving-services');
     }
 };

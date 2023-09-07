@@ -13,8 +13,12 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('users', function (Blueprint $table) {
-            //
+        Schema::create('counter', function (Blueprint $table) {
+            $table->bigInteger('id')->primary();
+            $table->string('counting-feild', 50);
+            $table->bigInteger('count');
+            $table->dateTime('date-of-add')->useCurrent();
+            $table->dateTime('date-of-edit')->nullable();
         });
     }
 
@@ -25,8 +29,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('users', function (Blueprint $table) {
-            //
-        });
+        Schema::dropIfExists('counter');
     }
 };

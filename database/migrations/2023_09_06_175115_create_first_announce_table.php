@@ -13,11 +13,12 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('document', function (Blueprint $table) {
+        Schema::create('first-announce', function (Blueprint $table) {
             $table->bigInteger('id', true);
-            $table->string('title-ar', 100);
-            $table->string('title-eng', 100);
-            $table->string('file-link');
+            $table->char('title-ar');
+            $table->char('title-eng');
+            $table->text('contant-ar');
+            $table->text('contant-eng');
             $table->dateTime('date-of-add')->useCurrent();
             $table->dateTime('date-of-edit')->nullable();
         });
@@ -30,6 +31,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('document');
+        Schema::dropIfExists('first-announce');
     }
 };

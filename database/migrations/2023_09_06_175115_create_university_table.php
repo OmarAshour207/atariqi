@@ -15,8 +15,8 @@ return new class extends Migration
     {
         Schema::create('university', function (Blueprint $table) {
             $table->bigInteger('id', true);
-            $table->string('name-ar');
-            $table->string('name-eng');
+            $table->char('name-ar');
+            $table->char('name-eng');
             $table->string('country', 100);
             $table->string('city', 100);
             $table->text('location');

@@ -17,8 +17,19 @@ class University extends Model
         'name-eng',
         'country',
         'city',
+        'city_id',
         'location',
         'date-of-add',
         'date-of-edit'
     ];
+
+    public function neighbours()
+    {
+        return $this->hasMany(Neighbour::class, 'city_id', 'id');
+    }
+
+    public function cityUni()
+    {
+        return $this->belongsTo(City::class, 'city_id');
+    }
 }

@@ -13,8 +13,11 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('user-login', function (Blueprint $table) {
-            $table->foreign(['user-id'], 'user-login_ibfk_1')->references(['id'])->on('users');
+        Schema::create('drivers-neighborhoods', function (Blueprint $table) {
+            $table->bigInteger('id')->primary();
+            $table->bigInteger('driver-id')->index('user-id');
+            $table->text('neighborhoods-to');
+            $table->text('neighborhoods-from');
         });
     }
 
@@ -25,8 +28,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('user-login', function (Blueprint $table) {
-            $table->dropForeign('user-login_ibfk_1');
-        });
+        Schema::dropIfExists('drivers-neighborhoods');
     }
 };

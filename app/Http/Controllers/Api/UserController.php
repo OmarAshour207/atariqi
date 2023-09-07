@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Resources\UserResource;
 use App\Models\User;
 use App\Models\UserLogin;
 use Illuminate\Http\Request;
@@ -88,6 +89,10 @@ class UserController extends BaseController
 
         $user = User::where('phone-no', $phoneNumber)->first();
 
+        $success['user'] = new UserResource($user);
+
+        return $this->sendResponse($success, __('User Logged Successfully.'));
+
         if(!$user)
             return $this->sendError(__("s_userNotExist"), [__("User doesn't exist")], 401);
 
@@ -106,7 +111,7 @@ class UserController extends BaseController
         ]);
 
         $success['token'] = $user->createToken('atariqi')->plainTextToken;
-        $success['user'] = $user;
+        $success['user'] = new UserResource($user);
 
         return $this->sendResponse($success, __('User Logged Successfully.'));
     }

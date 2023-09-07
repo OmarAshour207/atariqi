@@ -39,4 +39,15 @@ class User extends Authenticatable
     {
         return $this->belongsTo(CallingKey::class, 'call-key-id');
     }
+
+    public function university()
+    {
+        return $this->belongsTo(University::class, 'university-id');
+    }
+
+    public function stage()
+    {
+        return $this->belongsTo(Stage::class, 'user-stage-id');
+    }
+
 }
