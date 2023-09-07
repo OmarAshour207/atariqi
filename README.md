@@ -9,6 +9,7 @@
 - Clone the repo using `git clone https://github.com/OmarAshour207/atariqi.git`.
 - Run `cd /atariqi` then `composer install`.
 - Make copy from .env.example file called .env .
-- Make database and put database name,username and password in .env file.
+- Make new database or import the `atariqi.sql' manually and skip next steps
+- Put database name,username and password in .env file.
 - Run `php artisan migrate --seed`.
 - Congrats.
