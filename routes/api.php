@@ -15,7 +15,7 @@ Route::group([
     });
 
     Route::middleware(['auth:sanctum'])->group(function () {
-
+        Route::post('drivers/immediate/transport', [\App\Http\Controllers\Api\ImmediateDriverController::class, 'get']);
     });
 });
 

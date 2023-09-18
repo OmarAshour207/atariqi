@@ -9,6 +9,7 @@ class NeighbourResource extends JsonResource
     public function toArray($request)
     {
         return [
+            'id'                => $this->id,
             'neighborhood-ar'   => $this->{"neighborhood-ar"},
             'neighborhood-eng'  => $this->{"neighborhood-eng"}
         ];

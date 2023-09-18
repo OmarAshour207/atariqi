@@ -25,7 +25,7 @@ class UserController extends BaseController
             'user-stage-id'     => 'required|numeric',
             'email'             => 'required|email|max:50',
             'approval'          => 'required|numeric',
-            'user-type'         => 'required|string|max:50',
+            'user-type'         => 'required|string|in:passenger,driver',
             'call-key-id'       => 'required|numeric'
         ]);
 
