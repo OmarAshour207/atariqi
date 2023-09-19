@@ -52,7 +52,7 @@ class ImmediateDriverController extends BaseController
 
         if(!count($drivers)) {
             RideBooking::create([
-                'passenger-id'      => $data['passenger-id'],
+                'passenger-id'      => $data['passenger_id'],
                 'neighborhood-id'   => $data['university_id'],
                 'lat'               => $data['lat'],
                 'lng'               => $data['lng'],
@@ -82,7 +82,7 @@ class ImmediateDriverController extends BaseController
 
         if(!count($foundDrivers)) {
             RideBooking::create([
-                'passenger-id'      => $data['passenger-id'],
+                'passenger-id'      => $data['passenger_id'],
                 'neighborhood-id'   => $data['university_id'],
                 'lat'               => $data['lat'],
                 'lng'               => $data['lng'],
@@ -113,7 +113,7 @@ class ImmediateDriverController extends BaseController
         if(count($suggestDriverId)) {
 
             RideBooking::create([
-                'passenger-id'      => $data['passenger-id'],
+                'passenger-id'      => $data['passenger_id'],
                 'neighborhood-id'   => $data['university_id'],
                 'lat'               => $data['lat'],
                 'lng'               => $data['lng'],
@@ -139,7 +139,7 @@ class ImmediateDriverController extends BaseController
             }
         } else {
             RideBooking::create([
-                'passenger-id'      => $data['passenger-id'],
+                'passenger-id'      => $data['passenger_id'],
                 'neighborhood-id'   => $data['university_id'],
                 'lat'               => $data['lat'],
                 'lng'               => $data['lng'],
