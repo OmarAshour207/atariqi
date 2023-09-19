@@ -13,8 +13,9 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('driver-info', function (Blueprint $table) {
-            $table->foreign(['driver-id'], 'driver-info_ibfk_1')->references(['id'])->on('users');
+        Schema::table('ride-booking', function (Blueprint $table) {
+            $table->string('lat')->nullable();
+            $table->string('lng')->nullable();
         });
     }
 
@@ -25,8 +26,8 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('driver-info', function (Blueprint $table) {
-            $table->dropForeign('driver-info_ibfk_1');
+        Schema::table('ride_booking', function (Blueprint $table) {
+            //
         });
     }
 };
