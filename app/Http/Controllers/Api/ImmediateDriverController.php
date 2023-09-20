@@ -3,11 +3,14 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\DriverInfoResource;
 use App\Http\Resources\UserResource;
 use App\Models\DriverInfo;
 use App\Models\DriversServices;
+use App\Models\Neighbour;
 use App\Models\RideBooking;
 use App\Models\SuggestionDriver;
+use App\Models\University;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -28,6 +31,7 @@ class ImmediateDriverController extends BaseController
             'now_day'           => 'required|string',
             'lat'               => 'required|string',
             'lng'               => 'required|string',
+            'locale'            => 'sometimes|nullable|string'
         ]);
 
         if($validator->fails())
@@ -38,6 +42,12 @@ class ImmediateDriverController extends BaseController
         $data['now_datetime'] = now();
         $rideTypeId = $data['ride_type_id'];
         $universityId = $data['university_id'];
+        $neighborhoodId = $data['neighborhood_id'];
+        $passengerId = $data['passenger_id'];
+        $roadWay = $data['road_way'];
+        $now = Carbon::now();
+        $nowDay = $data['now_day'];
+        $locale = $data['locale'] ?? 'eng';
 
         $drivers = User::select('users.id as driver_id')
             ->join('university', 'users.university-id', '=', 'university.id')
@@ -67,8 +77,7 @@ class ImmediateDriverController extends BaseController
         foreach ($drivers as $driver) {
             $driverIds[] = $driver['driver_id'];
         }
-        $neighborhoodId = $data['neighborhood_id'];
-        $roadWay = $data['road_way'];
+
 
         $foundDrivers = DriversServices::select('drivers-services.driver-id AS Found-driver-id')
             ->join('drivers-neighborhoods', function ($join) use ($neighborhoodId, $roadWay) {
@@ -98,8 +107,6 @@ class ImmediateDriverController extends BaseController
             $foundDriverId[] = $foundDriver['Found-driver-id'];
         }
 
-        $now = Carbon::now();
-        $nowDay = $data['now_day'];
 
         $suggestDriverId = DB::table('drivers-schedule')
             ->select('driver-id AS suggest-driver-id')
@@ -123,12 +130,15 @@ class ImmediateDriverController extends BaseController
             ]);
 
             $rideBooking = RideBooking::select('id as booking-id')
-                ->where('passenger-id', $data['passenger_id'])
+                ->where('passenger-id', $passengerId)
                 ->where('date-of-add', $now)
                 ->first();
 
+            $finalDriversId = array();
+
             if($rideBooking) {
                 foreach ($suggestDriverId as $driver) {
+                    $finalDriversId[] = $driver->{"suggest-driver-id"};
                     SuggestionDriver::create([
                         'booking-id'    => $rideBooking->{"booking-id"},
                         'driver-id'     => $driver->{"suggest-driver-id"},
@@ -137,6 +147,10 @@ class ImmediateDriverController extends BaseController
                     ]);
                 }
             }
+
+            $drivers = DriverInfo::with('driver')
+                ->whereIn('driver-id', $finalDriversId)
+                ->get();
         } else {
             RideBooking::create([
                 'passenger-id'      => $data['passenger_id'],
@@ -148,8 +162,27 @@ class ImmediateDriverController extends BaseController
                 'date-of-add'       => $data['now_datetime']
             ]);
 
-            $drivers = DriverInfo::whereIn('driver-id', $foundDriverId)->get();
-            return $this->sendResponse($drivers, __('Drivers'));
+            $drivers = DriverInfo::with('driver')
+                ->whereIn('driver-id', $foundDriverId)
+                ->get();
         }
+
+        $success['drivers'] = DriverInfoResource::collection($drivers);
+
+        $neighborhood = Neighbour::findOrFail($neighborhoodId);
+        $university = University::whereId($universityId)->first();
+        // from neighbourhood to Uni
+        if($roadWay == 'from') {
+            $from = $neighborhood->{"neighborhood-$locale"};
+            $to = $university->{"name-$locale"};
+        } else {
+            $to = $neighborhood->{"neighborhood-$locale"};
+            $from = $university->{"name-$locale"};
+        }
+        $success['to'] = $to;
+        $success['from'] = $from;
+        $success['estimated_time'] = 15;
+
+        return $this->sendResponse($success, __('Drivers'));
     }
 }

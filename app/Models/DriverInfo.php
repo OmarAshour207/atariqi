@@ -27,4 +27,11 @@ class DriverInfo extends Model
         'date-of-add',
         'date-of-edit'
     ];
+
+
+    // relations
+    public function driver()
+    {
+        return $this->belongsTo(User::class, 'driver-id');
+    }
 }
