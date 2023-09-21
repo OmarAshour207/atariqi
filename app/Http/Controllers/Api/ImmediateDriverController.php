@@ -48,6 +48,8 @@ class ImmediateDriverController extends BaseController
         $now = Carbon::now();
         $nowDay = $data['now_day'];
         $locale = $data['locale'] ?? 'eng';
+        if($locale == 'en')
+            $locale = 'eng';
 
         $drivers = User::select('users.id as driver_id')
             ->join('university', 'users.university-id', '=', 'university.id')

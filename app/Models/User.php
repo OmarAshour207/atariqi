@@ -23,6 +23,7 @@ class User extends Authenticatable
         'email',
         'approval',
         'user-type',
+        'image',
         'date-of-add',
         'date-of-edit',
         'code',
