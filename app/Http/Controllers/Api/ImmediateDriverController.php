@@ -28,7 +28,7 @@ class ImmediateDriverController extends BaseController
             'road_way'          => 'required|string',
             'ride_type_id'      => 'required|numeric',
             'passenger_id'      => 'required|numeric',
-            'now_day'           => 'required|string',
+            'now_day'           => 'required|string|not_in:Friday',
             'lat'               => 'required|string',
             'lng'               => 'required|string',
             'locale'            => 'sometimes|nullable|string'
