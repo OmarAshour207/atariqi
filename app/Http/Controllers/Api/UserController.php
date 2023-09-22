@@ -6,6 +6,7 @@ use App\Http\Resources\UserResource;
 use App\Models\User;
 use App\Models\UserLogin;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Twilio\Exceptions\TwilioException;
@@ -67,7 +68,9 @@ class UserController extends BaseController
 
         $phoneNumber = '+' . $user->callingKey->{"call-key"} . $phoneNumber;
 
-        $this->sendSMS($phoneNumber, $code);
+        $response = $this->sendSMS($phoneNumber, $code);
+        if(!$response)
+            return $this->sendError('s_unexpected_error', [__('Unexpected Error!')], 422);
 
         $user->update(['code' => $code]);
 
@@ -114,8 +117,7 @@ class UserController extends BaseController
 
     public function sendSMS($userNumber, $code)
     {
-        $provider = 'twilio';
-//        $provider = 'nexmo';
+        $provider = 'msegat';
         if ($provider == 'twilio') {
             $accountSID = config('services.twilio.account_sid');
             $token = config('services.twilio.auth_token');
@@ -157,6 +159,30 @@ class UserController extends BaseController
             } catch (Exception $e) {
                 Log::error($e->getMessage());
             }
+        }
+        if ($provider == 'msegat') {
+            $config = array();
+            $config['userName'] = config('services.msegat.user_name');
+            $config['numbers'] = $userNumber;
+            $config['userSender'] = config('services.msegat.user_sender');
+            $config['apiKey'] = config('services.msegat.api_key');
+            $config['msg'] = __('Vssserification Code: ') . $code;
+
+            try {
+                $response = Http::post('https://www.msegat.com/gw/sendsms.php', $config);
+                $response = $response->body();
+                $response = json_decode($response, true);
+                $messageCode = $response['code'];
+                if ($messageCode != 1 || $messageCode != 'M0000') {
+                    Log::error("Msegat error API: " . $response['message']);
+                    return false;
+                }
+            } catch (Exception $e) {
+                Log::error($e->getMessage());
+                return false;
+            }
+
+            return true;
         }
     }
 

@@ -115,5 +115,7 @@
     "Verification code sent": "تم أرسال الرمز بنجاح",
     "User doesn't exist": "المستخدم غير موجود",
     "Invalid Code": "رمز غير صحيح",
-    "Your Atariqi verification code is: ": "رمز ع طريقي هو : "
+    "Your Atariqi verification code is: ": "رمز ع طريقي هو : ",
+    "Verification Code: ": "رمز التحقق:",
+    "Unexpected Error!": "خطأ غير متوقع, برجاء المحاوله مره اخري!"
 }

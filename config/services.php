@@ -42,4 +42,11 @@ return [
         'secret'    => env('NEXMO_SECRET'),
     ],
 
+    'msegat'  => [
+        'api_key'        => env('APIKEY'),
+        'user_sender'    => env('USER_SENDER'),
+        'user_name'      => env('USER_NAME'),
+        'msg_encoding'   => env('MSG_ENCODING', 'UTF8'),
+    ],
+
 ];
