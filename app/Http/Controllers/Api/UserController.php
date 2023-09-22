@@ -166,7 +166,7 @@ class UserController extends BaseController
             $config['numbers'] = $userNumber;
             $config['userSender'] = config('services.msegat.user_sender');
             $config['apiKey'] = config('services.msegat.api_key');
-            $config['msg'] = __('Verification Code: ') . $code;
+            $config['msg'] = __('Verification Code:') . $code;
 
             try {
                 $codes = [1, 'M0000'];
