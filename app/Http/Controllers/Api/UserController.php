@@ -169,11 +169,12 @@ class UserController extends BaseController
             $config['msg'] = __('Vssserification Code: ') . $code;
 
             try {
+                $codes = [1, 'M0000'];
                 $response = Http::post('https://www.msegat.com/gw/sendsms.php', $config);
                 $response = $response->body();
                 $response = json_decode($response, true);
                 $messageCode = $response['code'];
-                if ($messageCode != 1 || $messageCode != 'M0000') {
+                if (!in_array($messageCode, $codes)) {
                     Log::error("Msegat error API: " . $response['message']);
                     return false;
                 }
