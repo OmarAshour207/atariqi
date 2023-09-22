@@ -32,6 +32,8 @@ class ImmediateDriverController extends BaseController
             'lat'               => 'required|string',
             'lng'               => 'required|string',
             'locale'            => 'sometimes|nullable|string'
+        ], [
+            'now_day'   => __('Not Available Immediate transport in Friday')
         ]);
 
         if($validator->fails())
