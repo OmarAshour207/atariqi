@@ -53,6 +53,12 @@ class ImmediateDriverController extends BaseController
         if($locale == 'en')
             $locale = 'eng';
 
+        $success['drivers'] = new \stdClass();
+        $success['to'] = null;
+        $success['from'] = null;
+        $success['estimated_time'] = null;
+
+
         $drivers = User::select('users.id as driver_id')
             ->join('university', 'users.university-id', '=', 'university.id')
             ->join('uni-driving-services', function ($join) use ($rideTypeId, $universityId) {
@@ -74,7 +80,7 @@ class ImmediateDriverController extends BaseController
                 'action'            => 1,
                 'date-of-add'       => $data['now_datetime']
             ]);
-            return $this->sendResponse(new \stdClass(), __('Drivers'));
+            return $this->sendResponse($success, __('Drivers'));
         }
 
         $driverIds = array();
@@ -102,7 +108,7 @@ class ImmediateDriverController extends BaseController
                 'action'            => 2,
                 'date-of-add'       => $data['now_datetime']
             ]);
-            return $this->sendResponse(new \stdClass(), __('Found Drivers'));
+            return $this->sendResponse($success, __('Found Drivers'));
         }
 
         $foundDriverId = array();
