@@ -74,14 +74,13 @@ class ImmediateDriverController extends BaseController
                 'action'            => 1,
                 'date-of-add'       => $data['now_datetime']
             ]);
-            return $this->sendResponse($drivers, __('Drivers'));
+            return $this->sendResponse(new \stdClass(), __('Drivers'));
         }
 
         $driverIds = array();
         foreach ($drivers as $driver) {
             $driverIds[] = $driver['driver_id'];
         }
-
 
         $foundDrivers = DriversServices::select('drivers-services.driver-id AS Found-driver-id')
             ->join('drivers-neighborhoods', function ($join) use ($neighborhoodId, $roadWay) {
@@ -103,14 +102,13 @@ class ImmediateDriverController extends BaseController
                 'action'            => 2,
                 'date-of-add'       => $data['now_datetime']
             ]);
-            return $this->sendResponse($foundDrivers, __('Found Drivers'));
+            return $this->sendResponse(new \stdClass(), __('Found Drivers'));
         }
 
         $foundDriverId = array();
         foreach ($foundDrivers as $foundDriver) {
             $foundDriverId[] = $foundDriver['Found-driver-id'];
         }
-
 
         $suggestDriverId = DB::table('drivers-schedule')
             ->select('driver-id AS suggest-driver-id')
@@ -175,7 +173,6 @@ class ImmediateDriverController extends BaseController
 
         $neighborhood = Neighbour::findOrFail($neighborhoodId);
         $university = University::whereId($universityId)->first();
-        // from neighbourhood to Uni
         if($roadWay == 'from') {
             $from = $neighborhood->{"neighborhood-$locale"};
             $to = $university->{"name-$locale"};
