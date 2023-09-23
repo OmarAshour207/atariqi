@@ -55,10 +55,11 @@ class ImmediateDriverController extends BaseController
             $locale = 'eng';
 
         $success = array();
-        $success['drivers'] = new \stdClass();
+        $success['drivers'] = [];
         $success['to'] = null;
         $success['from'] = null;
         $success['estimated_time'] = null;
+        $success['trip'] = [];
 
 
         $drivers = User::select('users.id as driver_id')
@@ -73,7 +74,7 @@ class ImmediateDriverController extends BaseController
             ->toArray();
 
         if(!count($drivers)) {
-            RideBooking::create([
+            $rideBooking = RideBooking::create([
                 'passenger-id'      => $data['passenger_id'],
                 'neighborhood-id'   => $data['university_id'],
                 'lat'               => $data['lat'],
@@ -82,6 +83,7 @@ class ImmediateDriverController extends BaseController
                 'action'            => 1,
                 'date-of-add'       => $data['now_datetime']
             ]);
+            $success['trip'] = $rideBooking;
             return $this->sendResponse($success, __('Drivers'));
         }
 
@@ -101,7 +103,7 @@ class ImmediateDriverController extends BaseController
             ->toArray();
 
         if(!count($foundDrivers)) {
-            RideBooking::create([
+            $rideBooking = RideBooking::create([
                 'passenger-id'      => $data['passenger_id'],
                 'neighborhood-id'   => $data['university_id'],
                 'lat'               => $data['lat'],
@@ -110,6 +112,7 @@ class ImmediateDriverController extends BaseController
                 'action'            => 2,
                 'date-of-add'       => $data['now_datetime']
             ]);
+            $success['trip'] = $rideBooking;
             return $this->sendResponse($success, __('Found Drivers'));
         }
 
@@ -162,7 +165,7 @@ class ImmediateDriverController extends BaseController
                 ->whereIn('driver-id', $finalDriversId)
                 ->get();
         } else {
-            RideBooking::create([
+            $rideBooking = RideBooking::create([
                 'passenger-id'      => $data['passenger_id'],
                 'neighborhood-id'   => $data['university_id'],
                 'lat'               => $data['lat'],
@@ -191,6 +194,7 @@ class ImmediateDriverController extends BaseController
         $success['to'] = $to;
         $success['from'] = $from;
         $success['estimated_time'] = 15;
+        $success['trip'] = $rideBooking;
 
         return $this->sendResponse($success, __('Drivers'));
     }
