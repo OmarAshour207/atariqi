@@ -25,5 +25,18 @@ class RideBooking extends Model
     ];
 
     // relations
+    public function passenger()
+    {
+        return $this->belongsTo(User::class, 'passenger-id');
+    }
 
+    public function neighborhood()
+    {
+        return $this->belongsTo(Neighbour::class, 'neighborhood-id');
+    }
+
+    public function service()
+    {
+        return $this->belongsTo(Service::class, 'service-id');
+    }
 }

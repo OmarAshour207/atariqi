@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\DriverInfoResource;
+use App\Http\Resources\RideBookingResource;
 use App\Http\Resources\UserResource;
 use App\Models\DriverInfo;
 use App\Models\DriversServices;
@@ -20,7 +21,7 @@ use Illuminate\Support\Facades\Validator;
 
 class ImmediateDriverController extends BaseController
 {
-    public function get(Request $request)
+    public function getDrivers(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'neighborhood_id'   => 'required|numeric',
@@ -53,6 +54,7 @@ class ImmediateDriverController extends BaseController
         if($locale == 'en')
             $locale = 'eng';
 
+        $success = array();
         $success['drivers'] = new \stdClass();
         $success['to'] = null;
         $success['from'] = null;
@@ -191,5 +193,73 @@ class ImmediateDriverController extends BaseController
         $success['estimated_time'] = 15;
 
         return $this->sendResponse($success, __('Drivers'));
+    }
+
+    public function get(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'id'        => 'required|numeric',
+            'locale'    => 'sometimes|nullable|string'
+        ]);
+
+        if($validator->fails())
+            return $this->sendError(__('Validation Error.'), $validator->errors()->getMessages(), 422);
+
+        $data = $validator->validated();
+
+        $trip = RideBooking::whereId($data['id'])->first();
+
+        if ($trip)
+            $trip = new RideBookingResource($trip);
+
+        return $this->sendResponse($trip, __('Trip Details'));
+    }
+
+    public function accept(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'neighborhood_id'   => 'required|numeric',
+            'driver_id'     => 'required|numeric',
+            'road_way'          => 'required|string',
+            'ride_type_id'      => 'required|numeric',
+            'passenger_id'      => 'required|numeric',
+            'lat'               => 'required|string',
+            'lng'               => 'required|string',
+            'locale'            => 'sometimes|nullable|string'
+        ]);
+
+        if($validator->fails())
+            return $this->sendError(__('Validation Error.'), $validator->errors()->getMessages(), 422);
+
+        $data = $validator->validated();
+    }
+
+    public function rate(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'rate'      => 'required|numeric|max:5',
+            'driver-id' => 'required|numeric',
+            'locale'    => 'sometimes|nullable|string'
+        ]);
+
+        if($validator->fails())
+            return $this->sendError(__('Validation Error.'), $validator->errors()->getMessages(), 422);
+
+        $data = $validator->validated();
+        $driverId = $data['driver-id'];
+        $rate = $data['rate'];
+
+        $driverInfo = DriverInfo::where('driver-id', $driverId)->first();
+
+        if (!$driverInfo)
+            return $this->sendError(__('Driver not found'), [__('Driver not found')]);
+
+        $newRate = ($driverInfo->{"driver-rate"} + $rate ) / 2;
+
+        $driverInfo->update([
+            'driver-rate' => $newRate
+        ]);
+
+        return $this->sendResponse(new DriverInfoResource($driverInfo), __('Updated successfully'));
     }
 }

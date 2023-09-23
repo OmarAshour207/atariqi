@@ -119,5 +119,7 @@
     "Verification Code: ": "رمز التحقق:",
     "Pin Code is: ": "رمز التحقق:",
     "Unexpected Error!": "خطأ غير متوقع, برجاء المحاوله مره اخري!",
-    "Not Available Immediate transport in Friday": "غير متاح التوصيل اللحظي يوم الجمعه"
+    "Not Available Immediate transport in Friday": "غير متاح التوصيل اللحظي يوم الجمعه",
+    "Driver not found": "السائق غير موجود",
+    "Updated successfully": "تم التحديث بنجاح"
 }
