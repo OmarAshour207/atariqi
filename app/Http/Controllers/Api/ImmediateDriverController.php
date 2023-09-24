@@ -219,23 +219,30 @@ class ImmediateDriverController extends BaseController
         return $this->sendResponse($trip, __('Trip Details'));
     }
 
-    public function accept(Request $request)
+    public function changeStatus(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'neighborhood_id'   => 'required|numeric',
-            'driver_id'     => 'required|numeric',
-            'road_way'          => 'required|string',
-            'ride_type_id'      => 'required|numeric',
-            'passenger_id'      => 'required|numeric',
-            'lat'               => 'required|string',
-            'lng'               => 'required|string',
-            'locale'            => 'sometimes|nullable|string'
+            'id'        => 'required|numeric',
+            'status'    => 'required|numeric',
         ]);
 
         if($validator->fails())
             return $this->sendError(__('Validation Error.'), $validator->errors()->getMessages(), 422);
 
         $data = $validator->validated();
+        $id = $data['id'];
+        $status = $data['status'];
+
+        $trip = RideBooking::whereId($id)->first();
+
+        if(!$trip)
+            return $this->sendError(__('Trip not found'), [__('Trip not found')]);
+
+        $trip->update([
+            'status' => $status
+        ]);
+
+        return $this->sendResponse(new RideBookingResource($trip), __('Updated successfully'));
     }
 
     public function rate(Request $request)
