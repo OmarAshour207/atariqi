@@ -54,12 +54,12 @@ class ImmediateDriverController extends BaseController
 
         if($nowDay == 'Friday')
             return $this->sendError(__('Validation Error.'), [__('Not Available Immediate transport in Friday')], 422);
+
         $success = array();
         $success['drivers'] = [];
         $success['to'] = null;
         $success['from'] = null;
         $success['estimated_time'] = null;
-        $success['trip'] = [];
 
 
         $drivers = User::select('users.id as driver_id')
@@ -184,12 +184,18 @@ class ImmediateDriverController extends BaseController
 
         $neighborhood = Neighbour::findOrFail($neighborhoodId);
         $university = University::whereId($universityId)->first();
+        $from = array();
+        $to = array();
         if($roadWay == 'from') {
-            $from = $neighborhood->{"neighborhood-$locale"};
-            $to = $university->{"name-$locale"};
+            $from['ar'] = $neighborhood->{"neighborhood-ar"};
+            $from['en'] = $neighborhood->{"neighborhood-eng"};
+            $to['ar'] = $university->{"name-ar"};
+            $to['en'] = $university->{"name-eng"};
         } else {
-            $to = $neighborhood->{"neighborhood-$locale"};
-            $from = $university->{"name-$locale"};
+            $from['ar'] = $university->{"name-ar"};
+            $from['en'] = $university->{"name-eng"};
+            $to['ar'] = $neighborhood->{"neighborhood-ar"};
+            $to['en'] = $neighborhood->{"neighborhood-eng"};
         }
         $success['to'] = $to;
         $success['from'] = $from;
