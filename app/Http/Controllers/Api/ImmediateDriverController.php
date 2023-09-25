@@ -29,12 +29,9 @@ class ImmediateDriverController extends BaseController
             'road_way'          => 'required|string',
             'ride_type_id'      => 'required|numeric',
             'passenger_id'      => 'required|numeric',
-            'now_day'           => 'required|string|not_in:Friday',
             'lat'               => 'required|string',
             'lng'               => 'required|string',
             'locale'            => 'sometimes|nullable|string'
-        ], [
-            'now_day'   => __('Not Available Immediate transport in Friday')
         ]);
 
         if($validator->fails())
@@ -43,6 +40,7 @@ class ImmediateDriverController extends BaseController
         $data = $validator->validated();
 
         $data['now_datetime'] = now();
+        $data['now_day'] = Carbon::now()->format('l');
         $rideTypeId = $data['ride_type_id'];
         $universityId = $data['university_id'];
         $neighborhoodId = $data['neighborhood_id'];
@@ -54,6 +52,8 @@ class ImmediateDriverController extends BaseController
         if($locale == 'en')
             $locale = 'eng';
 
+        if($nowDay == 'Friday')
+            return $this->sendError(__('Validation Error.'), [__('Not Available Immediate transport in Friday')], 422);
         $success = array();
         $success['drivers'] = [];
         $success['to'] = null;
