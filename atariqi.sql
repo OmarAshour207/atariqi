@@ -65,7 +65,7 @@ INSERT INTO `cities` (`id`, `city-ar`, `city-en`) VALUES
 
 -- Dumping structure for table atariqi.counter
 CREATE TABLE IF NOT EXISTS `counter` (
-  `id` bigint(20) NOT NULL,
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `counting-feild` varchar(50) NOT NULL,
   `count` bigint(20) NOT NULL,
   `date-of-add` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -79,7 +79,7 @@ CREATE TABLE IF NOT EXISTS `counter` (
 
 -- Dumping structure for table atariqi.document
 CREATE TABLE IF NOT EXISTS `document` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `title-ar` varchar(100) NOT NULL,
   `title-eng` varchar(100) NOT NULL,
   `file-link` char(255) NOT NULL,
@@ -97,7 +97,7 @@ INSERT INTO `document` (`id`, `title-ar`, `title-eng`, `file-link`, `date-of-add
 
 -- Dumping structure for table atariqi.driver-info
 CREATE TABLE IF NOT EXISTS `driver-info` (
-  `id` bigint(20) NOT NULL,
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `driver-id` bigint(20) NOT NULL,
   `car-brand` varchar(50) NOT NULL,
   `car-model` bigint(20) NOT NULL,
@@ -113,7 +113,7 @@ CREATE TABLE IF NOT EXISTS `driver-info` (
   PRIMARY KEY (`id`),
   KEY `driver-id` (`driver-id`),
   CONSTRAINT `driver-info_ibfk_1` FOREIGN KEY (`driver-id`) REFERENCES `users` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4;
 
 -- Dumping data for table atariqi.driver-info: ~0 rows (approximately)
 /*!40000 ALTER TABLE `driver-info` DISABLE KEYS */;
@@ -123,14 +123,14 @@ INSERT INTO `driver-info` (`id`, `driver-id`, `car-brand`, `car-model`, `car-num
 
 -- Dumping structure for table atariqi.drivers-neighborhoods
 CREATE TABLE IF NOT EXISTS `drivers-neighborhoods` (
-  `id` bigint(20) NOT NULL,
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `driver-id` bigint(20) NOT NULL,
   `neighborhoods-to` text NOT NULL,
   `neighborhoods-from` text NOT NULL,
   PRIMARY KEY (`id`),
   KEY `user-id` (`driver-id`),
   CONSTRAINT `drivers-neighborhoods_ibfk_1` FOREIGN KEY (`driver-id`) REFERENCES `users` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4;
 
 -- Dumping data for table atariqi.drivers-neighborhoods: ~0 rows (approximately)
 /*!40000 ALTER TABLE `drivers-neighborhoods` DISABLE KEYS */;
@@ -140,7 +140,7 @@ INSERT INTO `drivers-neighborhoods` (`id`, `driver-id`, `neighborhoods-to`, `nei
 
 -- Dumping structure for table atariqi.drivers-schedule
 CREATE TABLE IF NOT EXISTS `drivers-schedule` (
-  `id` bigint(20) NOT NULL,
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `driver-id` bigint(20) NOT NULL,
   `Saturday-to` time DEFAULT NULL,
   `Saturday-from` time DEFAULT NULL,
@@ -159,17 +159,17 @@ CREATE TABLE IF NOT EXISTS `drivers-schedule` (
   PRIMARY KEY (`id`),
   KEY `user-id` (`driver-id`),
   CONSTRAINT `drivers-schedule_ibfk_1` FOREIGN KEY (`driver-id`) REFERENCES `users` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4;
 
 -- Dumping data for table atariqi.drivers-schedule: ~0 rows (approximately)
 /*!40000 ALTER TABLE `drivers-schedule` DISABLE KEYS */;
 INSERT INTO `drivers-schedule` (`id`, `driver-id`, `Saturday-to`, `Saturday-from`, `Sunday-to`, `Sunday-from`, `Monday-to`, `Monday-from`, `Tuesday-to`, `Tuesday-from`, `Wednesday-to`, `Wednesday-from`, `Thursday-to`, `Thursday-from`, `date-of-add`, `date-of-edit`) VALUES
-	(1, 2, '21:00:00', '14:00:00', '08:00:00', '14:00:00', '09:00:00', '15:00:00', '08:00:00', '13:00:00', '08:00:00', '13:00:00', NULL, NULL, '2023-08-16 17:07:19', NULL);
+	(1, 2, '21:00:00', '14:00:00', '08:00:00', '14:00:00', '23:30:00', '15:00:00', '00:45:00', '13:00:00', '08:00:00', '13:00:00', NULL, NULL, '2023-08-16 17:07:19', NULL);
 /*!40000 ALTER TABLE `drivers-schedule` ENABLE KEYS */;
 
 -- Dumping structure for table atariqi.drivers-services
 CREATE TABLE IF NOT EXISTS `drivers-services` (
-  `id` bigint(20) NOT NULL,
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `driver-id` bigint(20) NOT NULL,
   `service-id` bigint(20) NOT NULL,
   `date-of-add` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -178,7 +178,7 @@ CREATE TABLE IF NOT EXISTS `drivers-services` (
   KEY `service-id` (`service-id`),
   CONSTRAINT `drivers-services_ibfk_1` FOREIGN KEY (`driver-id`) REFERENCES `users` (`id`),
   CONSTRAINT `drivers-services_ibfk_2` FOREIGN KEY (`service-id`) REFERENCES `services` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4;
 
 -- Dumping data for table atariqi.drivers-services: ~2 rows (approximately)
 /*!40000 ALTER TABLE `drivers-services` DISABLE KEYS */;
@@ -264,14 +264,14 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
 
 -- Dumping structure for table atariqi.neighborhoods
 CREATE TABLE IF NOT EXISTS `neighborhoods` (
-  `id` bigint(20) NOT NULL,
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `neighborhood-ar` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
   `neighborhood-eng` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
   `city_id` bigint(20) unsigned DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `neighborhoods_city_id_foreign` (`city_id`),
   CONSTRAINT `neighborhoods_city_id_foreign` FOREIGN KEY (`city_id`) REFERENCES `cities` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Dumping data for table atariqi.neighborhoods: ~10 rows (approximately)
 /*!40000 ALTER TABLE `neighborhoods` DISABLE KEYS */;
@@ -331,7 +331,7 @@ CREATE TABLE IF NOT EXISTS `personal_access_tokens` (
 INSERT INTO `personal_access_tokens` (`id`, `tokenable_type`, `tokenable_id`, `name`, `token`, `abilities`, `last_used_at`, `created_at`, `updated_at`) VALUES
 	(1, 'App\\Models\\User', 3, 'atariqi', '8c0ce2bbadef1a5b6365fb88b1dbbfc17818708c46ad8a1a39d9d568ad8d2abc', '["*"]', NULL, '2023-08-29 00:29:48', '2023-08-29 00:29:48'),
 	(2, 'App\\Models\\User', 4, 'atariqi', 'fcf0383807aab8d374ca8d8d7d0b81ab04ee321aab49b340e842a6478a9c93ff', '["*"]', NULL, '2023-09-07 12:55:35', '2023-09-07 12:55:35'),
-	(3, 'App\\Models\\User', 4, 'atariqi', '01d97313f5469996d5236618bd2216c271bfa90d4cab0bc78cd744217cf05fdf', '["*"]', '2023-09-23 23:20:03', '2023-09-18 18:52:35', '2023-09-23 23:20:03');
+	(3, 'App\\Models\\User', 4, 'atariqi', '01d97313f5469996d5236618bd2216c271bfa90d4cab0bc78cd744217cf05fdf', '["*"]', '2023-09-26 00:25:36', '2023-09-18 18:52:35', '2023-09-26 00:25:36');
 /*!40000 ALTER TABLE `personal_access_tokens` ENABLE KEYS */;
 
 -- Dumping structure for table atariqi.ride-booking
@@ -348,26 +348,10 @@ CREATE TABLE IF NOT EXISTS `ride-booking` (
   PRIMARY KEY (`id`),
   KEY `passenger-id` (`passenger-id`),
   KEY `service-id` (`service-id`)
-) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=29 DEFAULT CHARSET=utf8mb4;
 
--- Dumping data for table atariqi.ride-booking: ~15 rows (approximately)
+-- Dumping data for table atariqi.ride-booking: ~27 rows (approximately)
 /*!40000 ALTER TABLE `ride-booking` DISABLE KEYS */;
-INSERT INTO `ride-booking` (`id`, `passenger-id`, `neighborhood-id`, `location`, `service-id`, `action`, `date-of-add`, `lat`, `lng`) VALUES
-	(2, 1, 1, NULL, 1, 3, '2023-09-21 00:15:01', '123', '1234'),
-	(3, 1, 1, NULL, 1, 3, '2023-09-21 01:33:03', '123', '1234'),
-	(4, 1, 1, NULL, 1, 3, '2023-09-21 01:35:23', '123', '1234'),
-	(5, 1, 1, NULL, 1, 3, '2023-09-21 01:35:40', '123', '1234'),
-	(6, 1, 1, NULL, 1, 2, '2023-09-23 17:53:58', '123', '1234'),
-	(7, 1, 1, NULL, 1, 2, '2023-09-23 17:54:37', '123', '1234'),
-	(8, 1, 1, NULL, 1, 2, '2023-09-23 18:00:12', '123', '1234'),
-	(9, 1, 1, NULL, 1, 3, '2023-09-23 18:08:23', '123', '1234'),
-	(10, 1, 1, NULL, 1, 2, '2023-09-23 18:30:33', '123', '1234'),
-	(11, 1, 1, NULL, 1, 2, '2023-09-23 18:32:07', '123', '1234'),
-	(12, 1, 1, NULL, 1, 2, '2023-09-23 23:17:17', '123', '1234'),
-	(13, 1, 1, NULL, 1, 3, '2023-09-23 23:18:23', '123', '1234'),
-	(14, 1, 1, NULL, 1, 2, '2023-09-23 23:18:32', '123', '1234'),
-	(15, 1, 1, NULL, 1, 2, '2023-09-23 23:19:28', '123', '1234'),
-	(16, 1, 1, NULL, 1, 3, '2023-09-23 23:20:03', '123', '1234');
 /*!40000 ALTER TABLE `ride-booking` ENABLE KEYS */;
 
 -- Dumping structure for table atariqi.services
@@ -414,12 +398,13 @@ INSERT INTO `stages` (`id`, `name-ar`, `name-eng`, `date-of-add`, `date-of-edit`
 
 -- Dumping structure for table atariqi.suggestions-drivers
 CREATE TABLE IF NOT EXISTS `suggestions-drivers` (
-  `id` bigint(20) NOT NULL,
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `booking-id` bigint(20) NOT NULL,
   `driver-id` bigint(20) NOT NULL,
   `action` int(11) NOT NULL DEFAULT '0',
   `date-of-add` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `date-of-edit` datetime DEFAULT NULL
+  `date-of-edit` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- Dumping data for table atariqi.suggestions-drivers: ~0 rows (approximately)
@@ -428,11 +413,12 @@ CREATE TABLE IF NOT EXISTS `suggestions-drivers` (
 
 -- Dumping structure for table atariqi.uni-driving-services
 CREATE TABLE IF NOT EXISTS `uni-driving-services` (
-  `id` bigint(20) NOT NULL,
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `university-id` bigint(20) NOT NULL,
   `service-id` bigint(20) NOT NULL,
-  `date-of-add` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+  `date-of-add` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4;
 
 -- Dumping data for table atariqi.uni-driving-services: ~2 rows (approximately)
 /*!40000 ALTER TABLE `uni-driving-services` DISABLE KEYS */;

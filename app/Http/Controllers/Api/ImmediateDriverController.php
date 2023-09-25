@@ -17,6 +17,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 class ImmediateDriverController extends BaseController
@@ -121,18 +122,18 @@ class ImmediateDriverController extends BaseController
             $foundDriverId[] = $foundDriver['Found-driver-id'];
         }
 
+        Log::info("Sub Minutes: " . Carbon::now()->subMinutes(15)->format('H:i:s'));
+        Log::info("Add Hour: " . Carbon::now()->addHour()->format('H:i:s'));
+
         $suggestDriverId = DB::table('drivers-schedule')
             ->select('driver-id AS suggest-driver-id')
-            ->where(function ($query) use ($now, $nowDay, $roadWay, $foundDriverId) {
-                $query->where("$nowDay-$roadWay", '>', $now->subMinutes(15)->format('H:i:s'));
-                $query->where("$nowDay-$roadWay", '<', $now->addMinutes(1)->format('H:i:s'));
-                $query->whereIn('driver-id', $foundDriverId);
-            })
+            ->where("$nowDay-$roadWay", '>', Carbon::now()->subMinutes(15)->format('H:i:s'))
+            ->where("$nowDay-$roadWay", '<', Carbon::now()->addHour()->format("H:i:s"))
+            ->whereIn('driver-id', $foundDriverId)
             ->get();
 
         if(count($suggestDriverId)) {
-
-            RideBooking::create([
+            $rideBooking = RideBooking::create([
                 'passenger-id'      => $data['passenger_id'],
                 'neighborhood-id'   => $data['university_id'],
                 'lat'               => $data['lat'],
@@ -142,23 +143,16 @@ class ImmediateDriverController extends BaseController
                 'date-of-add'       => $data['now_datetime']
             ]);
 
-            $rideBooking = RideBooking::select('id as booking-id')
-                ->where('passenger-id', $passengerId)
-                ->where('date-of-add', $now)
-                ->first();
-
             $finalDriversId = array();
 
-            if($rideBooking) {
-                foreach ($suggestDriverId as $driver) {
-                    $finalDriversId[] = $driver->{"suggest-driver-id"};
-                    SuggestionDriver::create([
-                        'booking-id'    => $rideBooking->{"booking-id"},
-                        'driver-id'     => $driver->{"suggest-driver-id"},
-                        'action'        => 0,
-                        'date-of-add'   => $now
-                    ]);
-                }
+            foreach ($suggestDriverId as $driver) {
+                $finalDriversId[] = $driver->{"suggest-driver-id"};
+                SuggestionDriver::create([
+                    'booking-id'    => $rideBooking->id,
+                    'driver-id'     => $driver->{"suggest-driver-id"},
+                    'action'        => 0,
+                    'date-of-add'   => $now
+                ]);
             }
 
             $drivers = DriverInfo::with('driver')

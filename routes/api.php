@@ -2,6 +2,10 @@
 
 use Illuminate\Support\Facades\Route;
 
+Route::get('/clear/cache', function () {
+    return \Illuminate\Support\Facades\Artisan::call('config:cache');
+});
+
 Route::group([
     'middleware'    => 'locale'
 ], function () {
