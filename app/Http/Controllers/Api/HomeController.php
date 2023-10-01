@@ -12,6 +12,7 @@ use App\Models\CallingKey;
 use App\Models\Document;
 use App\Models\Opening;
 use App\Models\Service;
+use App\Models\Social;
 use App\Models\Stage;
 use App\Models\University;
 
@@ -25,6 +26,7 @@ class HomeController extends BaseController
         $university = University::all();
         $stages = Stage::all();
         $documents = Document::all();
+        $socials = Social::all();
 
         $data['services'] = ServiceResource::collection($services);
         $data['opening'] = OpeningResource::collection($opening);
@@ -32,6 +34,7 @@ class HomeController extends BaseController
         $data['universities'] = UniversityResource::collection($university);
         $data['stages'] = StageResource::collection($stages);
         $data['documents'] = DocumentResource::collection($documents);
+        $data['socials'] = $socials;
 
         return $this->sendResponse($data, __('Data'));
     }

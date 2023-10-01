@@ -19,6 +19,8 @@ class University extends Model
         'city',
         'city_id',
         'location',
+        'lat',
+        'lng',
         'date-of-add',
         'date-of-edit'
     ];

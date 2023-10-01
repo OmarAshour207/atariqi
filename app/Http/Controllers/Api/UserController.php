@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Resources\UserResource;
+use App\Models\Neighbour;
+use App\Models\University;
 use App\Models\User;
 use App\Models\UserLogin;
 use Illuminate\Http\Request;
@@ -91,6 +93,8 @@ class UserController extends BaseController
         $phoneNumber = $data['phone-no'];
 
         $user = User::where('phone-no', $phoneNumber)->first();
+
+        $success['user'] = new UserResource($user);
 
         if(!$user)
             return $this->sendError(__("s_userNotExist"), [__("User doesn't exist")], 401);

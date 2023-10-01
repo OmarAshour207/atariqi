@@ -24,8 +24,7 @@ class UserResource extends JsonResource
             'image'             => url($this->image),
             'date-of-add'       => $this->{"date-of-add"},
             'date-of-edit'      => $this->{"date-of-edit"},
-            'code'              => $this->code,
-            'neighbourhoods'    => NeighbourResource::collection($this->university->neighbours)
+            'neighbourhoods'    => NeighbourResource::collection($this->university->cityUni->neighbours),
         ];
     }
 }
