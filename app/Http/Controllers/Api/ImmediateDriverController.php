@@ -32,7 +32,8 @@ class ImmediateDriverController extends BaseController
             'passenger_id'      => 'required|numeric',
             'lat'               => 'required|string',
             'lng'               => 'required|string',
-            'locale'            => 'sometimes|nullable|string'
+            'locale'            => 'sometimes|nullable|string',
+            'fake'              => 'sometimes|nullable|string'
         ]);
 
         if($validator->fails())
@@ -49,28 +50,35 @@ class ImmediateDriverController extends BaseController
         $roadWay = $data['road_way'];
         $now = Carbon::now();
         $nowDay = $data['now_day'];
-        $locale = $data['locale'] ?? 'eng';
-        if($locale == 'en')
-            $locale = 'eng';
 
         if($nowDay == 'Friday')
             return $this->sendError(__('Validation Error.'), [__('Not Available Immediate transport in Friday')], 422);
 
-        $fake = $data['fake'];
         $success = array();
         $success['drivers'] = [];
         $success['to'] = null;
         $success['from'] = null;
         $success['estimated_time'] = null;
 
-        if ($fake) {
-            $finalDriversId = User::select('id')->where('user-type', 'driver')->get();
+        if (isset($data['fake'])) {
+            $finalDriversId = User::select('users.id')
+                ->where('user-type', 'driver')
+                ->get()
+                ->toArray();
+
+            $ids = array();
+
+            foreach ($finalDriversId as $driver) {
+                $ids[] = $driver['id'];
+            }
 
             $drivers = DriverInfo::with('driver')
-                ->whereIn('driver-id', $finalDriversId)
+                ->whereIn('driver-id', $ids)
                 ->get();
+
             $neighborhood = Neighbour::findOrFail($neighborhoodId);
             $university = University::whereId($universityId)->first();
+
             $from = array();
             $to = array();
             if($roadWay == 'from') {
