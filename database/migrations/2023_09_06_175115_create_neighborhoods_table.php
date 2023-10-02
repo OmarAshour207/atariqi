@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         Schema::create('neighborhoods', function (Blueprint $table) {
-            $table->bigInteger('id')->primary();
+            $table->id();
             $table->string('neighborhood-ar', 100);
             $table->string('neighborhood-eng', 100);
             $table->unsignedBigInteger('city_id')->nullable();

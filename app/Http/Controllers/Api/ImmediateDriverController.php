@@ -56,12 +56,39 @@ class ImmediateDriverController extends BaseController
         if($nowDay == 'Friday')
             return $this->sendError(__('Validation Error.'), [__('Not Available Immediate transport in Friday')], 422);
 
+        $fake = $data['fake'];
         $success = array();
         $success['drivers'] = [];
         $success['to'] = null;
         $success['from'] = null;
         $success['estimated_time'] = null;
 
+        if ($fake) {
+            $neighborhood = Neighbour::findOrFail($neighborhoodId);
+            $university = University::whereId($universityId)->first();
+            $from = array();
+            $to = array();
+            if($roadWay == 'from') {
+                $from['ar'] = $neighborhood->{"neighborhood-ar"};
+                $from['en'] = $neighborhood->{"neighborhood-eng"};
+                $to['ar'] = $university->{"name-ar"};
+                $to['en'] = $university->{"name-eng"};
+                $success['destination_lat'] = '30.127311112435166';
+                $success['destination_lng'] = '31.32493490450467';
+            } else {
+                $from['ar'] = $university->{"name-ar"};
+                $from['en'] = $university->{"name-eng"};
+                $to['ar'] = $neighborhood->{"neighborhood-ar"};
+                $to['en'] = $neighborhood->{"neighborhood-eng"};
+                $success['destination_lat'] = $university->lat;
+                $success['destination_lng'] = $university->lng;
+            }
+            $success['to'] = $to;
+            $success['from'] = $from;
+            $success['estimated_time'] = 15;
+            $success['trip'] = [];
+            return $this->sendResponse($success, __('Drivers'));
+        }
 
         $drivers = User::select('users.id as driver_id')
             ->join('university', 'users.university-id', '=', 'university.id')
@@ -172,8 +199,8 @@ class ImmediateDriverController extends BaseController
                 $from['en'] = $neighborhood->{"neighborhood-eng"};
                 $to['ar'] = $university->{"name-ar"};
                 $to['en'] = $university->{"name-eng"};
-                $success['destination_lat'] = 30.127311112435166;
-                $success['destination_lng'] = 31.32493490450467;
+                $success['destination_lat'] = '30.127311112435166';
+                $success['destination_lng'] = '31.32493490450467';
             } else {
                 $from['ar'] = $university->{"name-ar"};
                 $from['en'] = $university->{"name-eng"};
@@ -190,6 +217,7 @@ class ImmediateDriverController extends BaseController
             return $this->sendResponse($success, __('Drivers'));
 
         }
+
         $rideBooking = RideBooking::create([
             'passenger-id'      => $data['passenger_id'],
             'neighborhood-id'   => $data['university_id'],
