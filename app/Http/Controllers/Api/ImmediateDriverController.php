@@ -64,6 +64,11 @@ class ImmediateDriverController extends BaseController
         $success['estimated_time'] = null;
 
         if ($fake) {
+            $finalDriversId = User::select('id')->where('user-type', 'driver')->get();
+
+            $drivers = DriverInfo::with('driver')
+                ->whereIn('driver-id', $finalDriversId)
+                ->get();
             $neighborhood = Neighbour::findOrFail($neighborhoodId);
             $university = University::whereId($universityId)->first();
             $from = array();
@@ -87,6 +92,7 @@ class ImmediateDriverController extends BaseController
             $success['from'] = $from;
             $success['estimated_time'] = 15;
             $success['trip'] = [];
+            $success['drivers'] = DriverInfoResource::collection($drivers);;
             return $this->sendResponse($success, __('Drivers'));
         }
 
