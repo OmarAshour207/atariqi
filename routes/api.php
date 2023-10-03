@@ -25,6 +25,7 @@ Route::group([
         Route::post('drivers/rate', [\App\Http\Controllers\Api\ImmediateDriverController::class, 'rate']);
 
         Route::post('drivers/daily/transport', [\App\Http\Controllers\Api\DailyDriverController::class, 'getDrivers']);
+        Route::post('drivers/daily/select', [\App\Http\Controllers\Api\DailyDriverController::class, 'selectDriver']);
     });
 });
 

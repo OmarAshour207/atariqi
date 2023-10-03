@@ -10,6 +10,7 @@ use App\Models\DayRideBooking;
 use App\Models\DriverInfo;
 use App\Models\DriversServices;
 use App\Models\Neighbour;
+use App\Models\SugDayDriver;
 use App\Models\University;
 use App\Models\User;
 use Carbon\Carbon;
@@ -178,5 +179,70 @@ class DailyDriverController extends BaseController
         $success['back'] = $timeBack;
 
         return $this->sendResponse($success, __('Drivers'));
+    }
+
+    public function selectDriver(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'passenger_id'      => 'required|numeric',
+            'lat'               => 'required|string',
+            'lng'               => 'required|string',
+            'neighborhood_id'   => 'required|numeric',
+            'driver_id'         => 'required|numeric',
+            'ride_type_id'      => 'required|numeric',
+            'date'              => 'required|string',
+            'time_go'           => 'sometimes|nullable|string',
+            'time_back'         => 'sometimes|nullable|string',
+            'road_way'          => 'required|string',
+            'locale'            => 'sometimes|nullable|string'
+        ]);
+
+        if($validator->fails())
+            return $this->sendError(__('Validation Error.'), $validator->errors()->getMessages(), 422);
+
+        $data = $validator->validated();
+//        $data['date'] = Carbon::now()->format('l');
+
+        $rideTypeId = $data['ride_type_id'];
+        $passengerId = $data['passenger_id'];
+        $neighborhoodId = $data['neighborhood_id'];
+        $driverId = $data['driver_id'];
+        $roadWay = $data['road_way'];
+        $date = $data['date'];
+        $timeBack = $data['time_back'];
+        $timeGo = $data['time_go'];
+        $dayRideBooking = '';
+
+        $savingData = [
+            'passenger-id'      => $passengerId,
+            'neighborhood-id'   => $neighborhoodId,
+            'service-id'        => $rideTypeId,
+            'date-of-ser'       => $date,
+            'road-way'          => $roadWay,
+            'action'            => 0,
+            'date-of-add'       => Carbon::now()
+        ];
+
+        if ($roadWay == 'to' || $roadWay == 'both') {
+            $savingData['time-go'] = $timeGo;
+            $dayRideBooking = DayRideBooking::create($savingData);
+        }
+        if ($roadWay == 'from' || $roadWay == 'both') {
+            $savingData['time-back'] = $timeBack;
+            $dayRideBooking = DayRideBooking::create($savingData);
+        }
+
+        $sugDayDriver = SugDayDriver::create([
+            'booking-id'        => $dayRideBooking->id,
+            'driver-id'         => $driverId,
+            'action'            => 0,
+            'date-of-add'       => Carbon::now()
+        ]);
+
+        $success = [];
+        $success['trip'] = $dayRideBooking;
+        $success['sug_day_driver'] = $sugDayDriver;
+
+        return $this->sendResponse($success, __('Success'));
     }
 }

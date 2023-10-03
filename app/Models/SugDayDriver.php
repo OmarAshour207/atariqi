@@ -9,7 +9,7 @@ class SugDayDriver extends Model
 {
     use HasFactory;
 
-    protected $table = 'sug-day-driver';
+    protected $table = 'sug-day-drivers';
 
     public $timestamps = false;
 
