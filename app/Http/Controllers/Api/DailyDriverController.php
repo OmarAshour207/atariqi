@@ -183,6 +183,7 @@ class DailyDriverController extends BaseController
         $success['university'] = new UniversityResource($university);
         $success['go'] = $timeGo;
         $success['back'] = $timeBack;
+        $success['roadWay'] = $roadWay;
 
         return $this->sendResponse($success, __('Drivers'));
     }
