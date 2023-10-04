@@ -403,8 +403,10 @@ class DailyDriverController extends BaseController
         if ($ride) {
             $sugDayDriver = SugDayDriver::where([
                 ['booking-id', $ride->id],
-                ['action', 3]
+                ['action', 3],
+                ['passenger-id', $passengerId]
             ])->first();
+
             $success = [];
             $success['sug_day_driver'] = new SugDayDrivingResource($sugDayDriver);
             sendNotification([
@@ -412,17 +414,12 @@ class DailyDriverController extends BaseController
                 'body'      => __("an order from Atariqi to accept the ride"),
                 'tokens'    => [auth()->user()->fcm_token]
             ]);
+
             return $this->sendResponse($success, __("an order from Atariqi to accept the ride"));
         }
-        $suggestedDrivers = SugDayDriver::with('driver', 'booking')
-            ->where('passenger-id', $passengerId)
-            ->where('viewed', 0)
-            ->get();
 
-        $success = [];
-        $success['trips'] = SugDayDrivingResource::collection($suggestedDrivers);
+        return $this->sendResponse([], __("Empty order"));
     }
-
     public function changeAction(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -446,5 +443,29 @@ class DailyDriverController extends BaseController
         $success['sug_day_drivers'] = new SugDayDrivingResource($sugDayDriver);
 
         return $this->sendResponse($success, __('Success'));
+    }
+
+    public function getTripDetails(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'sug_day_driver_id' => 'required|numeric',
+            'locale'            => 'sometimes|nullable|string'
+        ]);
+
+        if($validator->fails())
+            return $this->sendError(__('Validation Error.'), $validator->errors()->getMessages(), 422);
+
+        $data = $validator->validated();
+        $id = $data['sug_day_driver_id'];
+
+        $sugDayDriver = SugDayDriver::whereId($id)->first();
+
+        if (!$sugDayDriver)
+            return $this->sendError(__('Trip not found!'), [__('Trip not found')]);
+
+        if ($sugDayDriver->action == 6)
+            return $this->sendResponse(new SugDayDrivingResource($sugDayDriver), __('Success'));
+
+        return $this->sendResponse([], __('Trip still in progress'));
     }
 }

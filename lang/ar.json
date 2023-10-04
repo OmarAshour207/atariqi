@@ -126,5 +126,6 @@
     "Your trip accepted at date": "تم قبول رحلتك بتاريخ",
     "Your trip rejected at date": "تم رفض رحلتك بتاريخ",
     "with Driver": "مع قائد المركبة",
-    "an order from Atariqi to accept the ride": "طلب الموافقة علي بدء الرحلة في تطبيق عطريقي"
+    "an order from Atariqi to accept the ride": "طلب الموافقة علي بدء الرحلة في تطبيق عطريقي",
+    "Trip not found": "الرحلة غير موجوده"
 }

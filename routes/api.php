@@ -30,6 +30,8 @@ Route::group([
 
         Route::post('daily/transport/check/action', [\App\Http\Controllers\Api\DailyDriverController::class, 'checkActionAndSendNotify']);
 
+        Route::post('daily/transport/trip', [\App\Http\Controllers\Api\DailyDriverController::class, 'getTripDetails']);
+
         Route::post('daily/transport/execute', [\App\Http\Controllers\Api\DailyDriverController::class, 'executeRide']);
         Route::post('daily/transport/change/action', [\App\Http\Controllers\Api\DailyDriverController::class, 'changeAction']);
 
