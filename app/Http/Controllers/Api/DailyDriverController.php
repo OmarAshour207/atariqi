@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\DayRideBookingResource;
 use App\Http\Resources\DriverInfoResource;
 use App\Http\Resources\NeighbourResource;
+use App\Http\Resources\SugDayDrivingResource;
 use App\Http\Resources\UniversityResource;
 use App\Models\DayRideBooking;
 use App\Models\DriverInfo;
@@ -40,7 +42,6 @@ class DailyDriverController extends BaseController
             return $this->sendError(__('Validation Error.'), $validator->errors()->getMessages(), 422);
 
         $data = $validator->validated();
-        $data['date'] = Carbon::now()->format('l');
 
         $rideTypeId = $data['ride_type_id'];
         $universityId = $data['university_id'];
@@ -49,6 +50,7 @@ class DailyDriverController extends BaseController
         $date = $data['date'];
         $timeBack = $data['time_back'];
         $timeGo = $data['time_go'];
+        $dateDay = Carbon::parse($date)->format('l');
 
         // First Query
         $driversIds = User::select('users.id')
@@ -74,7 +76,7 @@ class DailyDriverController extends BaseController
                 'action'            => 1,
                 'date-of-add'       => Carbon::now()
             ]);
-            $success['trip'] = $dayRideBooking;
+            $success['trip'] = new DayRideBookingResource($dayRideBooking);
             return $this->sendResponse($success, __('No Drivers'));
         }
 
@@ -110,7 +112,7 @@ class DailyDriverController extends BaseController
                 'action'            => 2,
                 'date-of-add'       => Carbon::now()
             ]);
-            $success['trip'] = $dayRideBooking;
+            $success['trip'] = new DayRideBookingResource($dayRideBooking);
             return $this->sendResponse($success, __('No Drivers'));
         }
 
@@ -120,26 +122,26 @@ class DailyDriverController extends BaseController
         if ($roadWay == 'to') {
             $driversSchedule = DB::table('drivers-schedule')
                 ->select("driver-id AS suggest-driver-id")
-                ->where("$date-to" , '<=', "$timeGo")
-                ->whereRaw('`' . "$date-to" . '` + INTERVAL 2 HOUR >= ?', [$timeGo] )
+                ->where("$dateDay-to" , '<=', "$timeGo")
+                ->whereRaw('`' . "$dateDay-to" . '` + INTERVAL 2 HOUR >= ?', [$timeGo] )
                 ->whereIn('driver-id', $rideTypeDrivers)
                 ->get()
                 ->toArray();
         } elseif ($roadWay == 'from') {
             $driversSchedule =  DB::table('drivers-schedule')
                 ->select("driver-id AS suggest-driver-id")
-                ->where("$date-from" , '>=', "$timeGo")
-                ->whereRaw('`' . "$date-from" . '` - INTERVAL 2 HOUR <= ?', [$timeGo] )
+                ->where("$dateDay-from" , '>=', "$timeGo")
+                ->whereRaw('`' . "$dateDay-from" . '` - INTERVAL 2 HOUR <= ?', [$timeGo] )
                 ->whereIn('driver-id', $rideTypeDrivers)
                 ->get()
                 ->toArray();
         } elseif ($roadWay == 'both') {
             $driversSchedule =  DB::table('drivers-schedule')
                 ->select("driver-id AS suggest-driver-id")
-                ->where("$date-to" , '<=', "$timeGo")
-                ->whereRaw('`' . "$date-to" . '` + INTERVAL 2 HOUR >= ?', [$timeGo] )
-                ->where("$date-from" , '>=', "$timeGo")
-                ->whereRaw('`' . "$date-from" . '` - INTERVAL 2 HOUR <= ?', [$timeGo] )
+                ->where("$dateDay-to" , '<=', "$timeGo")
+                ->whereRaw('`' . "$dateDay-to" . '` + INTERVAL 2 HOUR >= ?', [$timeGo] )
+                ->where("$dateDay-from" , '>=', "$timeGo")
+                ->whereRaw('`' . "$dateDay-from" . '` - INTERVAL 2 HOUR <= ?', [$timeGo] )
                 ->whereIn('driver-id', $rideTypeDrivers)
                 ->get()
                 ->toArray();
@@ -157,7 +159,8 @@ class DailyDriverController extends BaseController
                 'action'            => 3,
                 'date-of-add'       => Carbon::now()
             ]);
-            $success['trip'] = $dayRideBooking;
+            $success['trip'] = new DayRideBookingResource($dayRideBooking);
+
             return $this->sendResponse($success, __('No Drivers'));
         }
 
@@ -180,7 +183,6 @@ class DailyDriverController extends BaseController
 
         return $this->sendResponse($success, __('Drivers'));
     }
-
     public function selectDriver(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -201,7 +203,6 @@ class DailyDriverController extends BaseController
             return $this->sendError(__('Validation Error.'), $validator->errors()->getMessages(), 422);
 
         $data = $validator->validated();
-//        $data['date'] = Carbon::now()->format('l');
 
         $rideTypeId = $data['ride_type_id'];
         $passengerId = $data['passenger_id'];
@@ -235,13 +236,172 @@ class DailyDriverController extends BaseController
         $sugDayDriver = SugDayDriver::create([
             'booking-id'        => $dayRideBooking->id,
             'driver-id'         => $driverId,
+            'passenger-id'      => $passengerId,
             'action'            => 0,
             'date-of-add'       => Carbon::now()
         ]);
 
         $success = [];
-        $success['trip'] = $dayRideBooking;
-        $success['sug_day_driver'] = $sugDayDriver;
+        $success['trip'] = new DayRideBookingResource($dayRideBooking);
+        $success['sug_day_driver'] = new SugDayDrivingResource($sugDayDriver);
+
+        return $this->sendResponse($success, __('Success'));
+    }
+    public function sendToAllDrivers(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'passenger_id'      => 'required|numeric',
+            'neighborhood_id'   => 'required|numeric',
+            'ride_type_id'      => 'required|numeric',
+            'date'              => 'required|string',
+            'time_go'           => 'sometimes|nullable|string',
+            'time_back'         => 'sometimes|nullable|string',
+            'road_way'          => 'required|string',
+            'locale'            => 'sometimes|nullable|string'
+        ]);
+
+        if($validator->fails())
+            return $this->sendError(__('Validation Error.'), $validator->errors()->getMessages(), 422);
+
+        $data = $validator->validated();
+        $roadWay = $data['road_way'];
+        $date = $data['date'];
+        $rideTypeId = $data['ride_type_id'];
+        $neighborhoodId = $data['neighborhood_id'];
+        $passengerId = $data['passenger_id'];
+        $timeGo = $data['time_go'];
+        $timeBack = $data['time_back'];
+
+        $dayRideBooking = DayRideBooking::create([
+            'passenger-id'      => $passengerId,
+            'neighborhood-id'   => $neighborhoodId,
+            'service-id'        => $rideTypeId,
+            'date-of-ser'       => $date,
+            'road-way'          => $roadWay,
+            'action'            => 4,
+            'time-go'           => $timeGo,
+            'time-back'         => $timeBack,
+            'date-of-add'       => Carbon::now()
+        ]);
+
+        $success['trip'] = new DayRideBookingResource($dayRideBooking);
+
+        return $this->sendResponse($success, __('Success'));
+    }
+    public function checkSuggestDrivers(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'passenger_id'  => 'required|numeric',
+            'locale'        => 'sometimes|nullable|string'
+        ]);
+
+        if($validator->fails())
+            return $this->sendError(__('Validation Error.'), $validator->errors()->getMessages(), 422);
+
+        $data = $validator->validated();
+        $passengerId = $data['passenger_id'];
+        $date = Carbon::now()->format('H:i:s');
+        $date = Carbon::now()->format('H:i:s');
+        $date = Carbon::now()->format('H:i:s');
+
+//        DayRideBooking::where('')
+    }
+    public function checkActionAndSendNotify(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'passenger_id'  => 'required|numeric',
+            'locale'        => 'sometimes|nullable|string'
+        ]);
+
+        if($validator->fails())
+            return $this->sendError(__('Validation Error.'), $validator->errors()->getMessages(), 422);
+
+        $data = $validator->validated();
+        $passengerId = $data['passenger_id'];
+
+        $suggestedDrivers = SugDayDriver::with('driver', 'booking')
+            ->where('passenger-id', $passengerId)
+            ->where('viewed', 0)
+            ->get();
+
+        $success = [];
+        $success['trips'] = SugDayDrivingResource::collection($suggestedDrivers);
+
+        // send notification
+        $message = '';
+        $title = __('You have a notification from Atariqi');
+        foreach ($suggestedDrivers as $suggestedDriver) {
+            if ($suggestedDriver->action == 1)
+                $message = __('Your trip accepted at date') . " " . $suggestedDriver->booking->{"date-of-ser"} . "\n" . __('with Driver') . " " . $suggestedDriver->driver->{"user-first-name"} . " " . $suggestedDriver->driver->{"user-last-name"};
+            elseif ($suggestedDriver->action == 2)
+                $message = __('Your trip rejected at date') . " " . $suggestedDriver->booking->{"date-of-ser"} . "\n" . __('with Driver') . " " . $suggestedDriver->driver->{"user-first-name"} . " " . $suggestedDriver->driver->{"user-last-name"};
+            if (!empty($message))
+                sendNotification(['title' => $title, 'body' => $message, 'tokens' => auth()->user()->fcm_token]);
+            $suggestedDriver->update(['viewed' => 1]);
+        }
+
+        return $this->sendResponse($success, __('Trips'));
+    }
+    public function executeRide(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'passenger_id'  => 'required|numeric',
+            'locale'        => 'sometimes|nullable|string'
+        ]);
+
+        if($validator->fails())
+            return $this->sendError(__('Validation Error.'), $validator->errors()->getMessages(), 422);
+
+        $data = $validator->validated();
+        $passengerId = $data['passenger_id'];
+        $nowDate = Carbon::now()->format('Y-m-d');
+        $nowTime = Carbon::now()->format('H:i:s');
+
+        $ride = DayRideBooking::where('date-of-ser', $nowDate)
+            ->where(function ($query) use ($nowTime) {
+                $query->where('time-go', $nowTime)
+                    ->orWhere('time-back', $nowTime);
+            })
+            ->first();
+
+        if ($ride) {
+            $sugDayDriver = SugDayDriver::where([
+                ['booking-id', $ride->id],
+                ['action', 3]
+            ])->first();
+            $success = [];
+            $success['sug_day_driver'] = new SugDayDrivingResource($sugDayDriver);
+            return $this->sendResponse($success, __("Success"));
+        }
+        $suggestedDrivers = SugDayDriver::with('driver', 'booking')
+            ->where('passenger-id', $passengerId)
+            ->where('viewed', 0)
+            ->get();
+
+        $success = [];
+        $success['trips'] = SugDayDrivingResource::collection($suggestedDrivers);
+    }
+
+    public function changeAction(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'sug_day_driver_id' => 'required|numeric',
+            'action'            => 'required|numeric',
+            'locale'            => 'sometimes|nullable|string'
+        ]);
+
+        if($validator->fails())
+            return $this->sendError(__('Validation Error.'), $validator->errors()->getMessages(), 422);
+
+        $data = $validator->validated();
+        $action = $data['action'];
+        $id = (int) $data['sug_day_driver_id'];
+
+        $sugDayDriver = SugDayDriver::where('id', $id)->first();
+        $sugDayDriver->update(['action' => $action]);
+
+        $success = array();
+        $success['sug_day_drivers'] = new SugDayDrivingResource($sugDayDriver);
 
         return $this->sendResponse($success, __('Success'));
     }

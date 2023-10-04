@@ -49,4 +49,7 @@ return [
         'msg_encoding'   => env('MSG_ENCODING', 'UTF8'),
     ],
 
+    'firebase'  => [
+        'apikey'       => env('FIREBASE_API_KEY')
+    ]
 ];

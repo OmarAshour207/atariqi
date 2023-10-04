@@ -26,6 +26,13 @@ Route::group([
 
         Route::post('drivers/daily/transport', [\App\Http\Controllers\Api\DailyDriverController::class, 'getDrivers']);
         Route::post('drivers/daily/select', [\App\Http\Controllers\Api\DailyDriverController::class, 'selectDriver']);
+        Route::post('drivers/daily/send/all', [\App\Http\Controllers\Api\DailyDriverController::class, 'sendToAllDrivers']);
+
+        Route::post('daily/transport/check/action', [\App\Http\Controllers\Api\DailyDriverController::class, 'checkActionAndSendNotify']);
+
+        Route::post('daily/transport/execute', [\App\Http\Controllers\Api\DailyDriverController::class, 'executeRide']);
+        Route::post('daily/transport/change/action', [\App\Http\Controllers\Api\DailyDriverController::class, 'changeAction']);
+
     });
 });
 

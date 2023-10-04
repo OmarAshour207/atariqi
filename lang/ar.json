@@ -121,5 +121,9 @@
     "Unexpected Error!": "خطأ غير متوقع, برجاء المحاوله مره اخري!",
     "Not Available Immediate transport in Friday": "غير متاح التوصيل اللحظي يوم الجمعه",
     "Driver not found": "السائق غير موجود",
-    "Updated successfully": "تم التحديث بنجاح"
+    "Updated successfully": "تم التحديث بنجاح",
+    "You have a notification from Atariqi": "لديك اشعار من تطبيق عطريقي",
+    "Your trip accepted at date": "تم قبول رحلتك بتاريخ",
+    "Your trip rejected at date": "تم رفض رحلتك بتاريخ",
+    "with Driver": "مع قائد المركبة"
 }

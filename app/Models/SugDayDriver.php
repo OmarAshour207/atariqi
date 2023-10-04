@@ -16,12 +16,18 @@ class SugDayDriver extends Model
     protected $fillable = [
         'booking-id',
         'driver-id',
+        'passenger-id',
         'action',
         'date-of-add',
-        'date-of-edit'
+        'date-of-edit',
+        'viewed'
     ];
 
     // relations
+    public function passenger()
+    {
+        return $this->belongsTo(User::class, 'passenger-id');
+    }
     public function driver()
     {
         return $this->belongsTo(User::class, 'driver-id');
