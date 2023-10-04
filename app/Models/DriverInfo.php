@@ -34,4 +34,9 @@ class DriverInfo extends Model
     {
         return $this->belongsTo(User::class, 'driver-id');
     }
+
+    public function schedule()
+    {
+        return $this->hasOne(DriverSchedule::class, 'driver-id', 'driver-id');
+    }
 }

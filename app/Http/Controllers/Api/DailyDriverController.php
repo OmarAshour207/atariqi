@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\DayRideBookingResource;
+use App\Http\Resources\DriverInfoDayRideResource;
 use App\Http\Resources\DriverInfoResource;
 use App\Http\Resources\NeighbourResource;
 use App\Http\Resources\SugDayDrivingResource;
@@ -43,6 +44,7 @@ class DailyDriverController extends BaseController
 
         $data = $validator->validated();
 
+        $passengerId = $data['passenger_id'];
         $rideTypeId = $data['ride_type_id'];
         $universityId = $data['university_id'];
         $neighborhoodId = $data['neighborhood_id'];
@@ -50,6 +52,8 @@ class DailyDriverController extends BaseController
         $date = $data['date'];
         $timeBack = $data['time_back'];
         $timeGo = $data['time_go'];
+        $lat = $data['lat'];
+        $lng = $data['lng'];
         $dateDay = Carbon::parse($date)->format('l');
 
         if ($dateDay == 'Friday')
@@ -69,14 +73,16 @@ class DailyDriverController extends BaseController
 
         if(!count($driversIds)) {
             $dayRideBooking = DayRideBooking::create([
-                'passenger-id'      => $data['passenger_id'],
-                'neighborhood-id'   => $data['neighborhood_id'],
-                'service-id'        => $data['ride_type_id'],
-                'date-of-ser'       => $data['date'],
-                'road-way'          => $data['road_way'],
-                'time-go'           => $data['time_go'] ?? null,
-                'time-back'         => $data['time_back'] ?? null,
+                'passenger-id'      => $passengerId,
+                'neighborhood-id'   => $neighborhoodId,
+                'service-id'        => $rideTypeId,
+                'date-of-ser'       => $date,
+                'road-way'          => $roadWay,
+                'time-go'           => $timeGo ?? null,
+                'time-back'         => $timeBack ?? null,
                 'action'            => 1,
+                'lat'               => $lat,
+                'lng'               => $lng,
                 'date-of-add'       => Carbon::now()
             ]);
             $success['trip'] = new DayRideBookingResource($dayRideBooking);
@@ -105,13 +111,15 @@ class DailyDriverController extends BaseController
 
         if(!count($rideTypeDrivers)) {
             $dayRideBooking = DayRideBooking::create([
-                'passenger-id'      => $data['passenger_id'],
-                'neighborhood-id'   => $data['neighborhood_id'],
-                'service-id'        => $data['ride_type_id'],
-                'date-of-ser'       => $data['date'],
-                'road-way'          => $data['road_way'],
-                'time-go'           => $data['time_go'] ?? null,
-                'time-back'         => $data['time_back'] ?? null,
+                'passenger-id'      => $passengerId,
+                'neighborhood-id'   => $neighborhoodId,
+                'service-id'        => $rideTypeId,
+                'date-of-ser'       => $date,
+                'road-way'          => $roadWay,
+                'time-go'           => $timeGo ?? null,
+                'time-back'         => $timeBack ?? null,
+                'lat'               => $lat,
+                'lng'               => $lng,
                 'action'            => 2,
                 'date-of-add'       => Carbon::now()
             ]);
@@ -152,14 +160,16 @@ class DailyDriverController extends BaseController
 
         if(!count($driversSchedule)) {
             $dayRideBooking = DayRideBooking::create([
-                'passenger-id'      => $data['passenger_id'],
-                'neighborhood-id'   => $data['neighborhood_id'],
-                'service-id'        => $data['ride_type_id'],
-                'date-of-ser'       => $data['date'],
-                'road-way'          => $data['road_way'],
-                'time-go'           => $data['time_go'] ?? null,
-                'time-back'         => $data['time_back'] ?? null,
+                'passenger-id'      => $passengerId,
+                'neighborhood-id'   => $neighborhoodId,
+                'service-id'        => $rideTypeId,
+                'date-of-ser'       => $date,
+                'road-way'          => $roadWay,
+                'time-go'           => $timeGo ?? null,
+                'time-back'         => $timeBack ?? null,
                 'action'            => 3,
+                'lat'               => $lat,
+                'lng'               => $lng,
                 'date-of-add'       => Carbon::now()
             ]);
             $success['trip'] = new DayRideBookingResource($dayRideBooking);
@@ -174,16 +184,38 @@ class DailyDriverController extends BaseController
 
         $neighborhood = Neighbour::whereId($neighborhoodId)->first();
         $university = University::whereId($universityId)->first();
-        $drivers = DriverInfo::with('driver')
+        $drivers = DriverInfo::with(['driver', 'schedule' => function($query) use ($dateDay) {
+                $query->select("id", "driver-id", "$dateDay-to AS to", "$dateDay-from as from");
+            }])
             ->whereIn('driver-id', $driversIds)
             ->get();
 
-        $success['drivers'] = DriverInfoResource::collection($drivers);
+        $success['drivers'] = DriverInfoDayRideResource::collection($drivers);
         $success['neighborhood'] = new NeighbourResource($neighborhood);
         $success['university'] = new UniversityResource($university);
-        $success['go'] = $timeGo;
-        $success['back'] = $timeBack;
         $success['roadWay'] = $roadWay;
+
+        $to = array();
+        $from = array();
+
+        if($roadWay == 'from') {
+            $to['ar'] = $neighborhood->{"neighborhood-ar"};
+            $to['en'] = $neighborhood->{"neighborhood-eng"};
+            $from['ar'] = $university->{"name-ar"};
+            $from['en'] = $university->{"name-eng"};
+            $success['destination_lat'] = $lat;
+            $success['destination_lng'] = $lng;
+        } elseif ($roadWay == 'to') {
+            $to['ar'] = $university->{"name-ar"};
+            $to['en'] = $university->{"name-eng"};
+            $from['ar'] = $neighborhood->{"neighborhood-ar"};
+            $from['en'] = $neighborhood->{"neighborhood-eng"};
+            $success['destination_lat'] = $university->lat;
+            $success['destination_lng'] = $university->lng;
+        }
+
+        $success['to'] = $to;
+        $success['from'] = $from;
 
         return $this->sendResponse($success, __('Drivers'));
     }
@@ -375,7 +407,12 @@ class DailyDriverController extends BaseController
             ])->first();
             $success = [];
             $success['sug_day_driver'] = new SugDayDrivingResource($sugDayDriver);
-            return $this->sendResponse($success, __("Success"));
+            sendNotification([
+                'title'     => __('You have a notification from Atariqi'),
+                'body'      => __("an order from Atariqi to accept the ride"),
+                'tokens'    => [auth()->user()->fcm_token]
+            ]);
+            return $this->sendResponse($success, __("an order from Atariqi to accept the ride"));
         }
         $suggestedDrivers = SugDayDriver::with('driver', 'booking')
             ->where('passenger-id', $passengerId)
@@ -405,6 +442,7 @@ class DailyDriverController extends BaseController
         $sugDayDriver->update(['action' => $action]);
 
         $success = array();
+        // return trip and driver details
         $success['sug_day_drivers'] = new SugDayDrivingResource($sugDayDriver);
 
         return $this->sendResponse($success, __('Success'));

@@ -22,7 +22,9 @@ class DayRideBooking extends Model
         'time-go',
         'time-back',
         'action',
-        'date-of-add'
+        'date-of-add',
+        'lat',
+        'lng'
     ];
 
     // relations

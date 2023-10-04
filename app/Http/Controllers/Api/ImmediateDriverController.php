@@ -41,14 +41,15 @@ class ImmediateDriverController extends BaseController
 
         $data = $validator->validated();
 
-        $data['now_datetime'] = now();
         $data['now_day'] = Carbon::now()->format('l');
+
         $rideTypeId = $data['ride_type_id'];
         $universityId = $data['university_id'];
         $neighborhoodId = $data['neighborhood_id'];
         $passengerId = $data['passenger_id'];
+        $lat = $data['lat'];
+        $lng = $data['lng'];
         $roadWay = $data['road_way'];
-        $now = Carbon::now();
         $nowDay = $data['now_day'];
 
         if($nowDay == 'Friday')
@@ -82,17 +83,17 @@ class ImmediateDriverController extends BaseController
             $from = array();
             $to = array();
             if($roadWay == 'from') {
-                $from['ar'] = $neighborhood->{"neighborhood-ar"};
-                $from['en'] = $neighborhood->{"neighborhood-eng"};
-                $to['ar'] = $university->{"name-ar"};
-                $to['en'] = $university->{"name-eng"};
-                $success['destination_lat'] = '30.127311112435166';
-                $success['destination_lng'] = '31.32493490450467';
-            } else {
-                $from['ar'] = $university->{"name-ar"};
-                $from['en'] = $university->{"name-eng"};
                 $to['ar'] = $neighborhood->{"neighborhood-ar"};
                 $to['en'] = $neighborhood->{"neighborhood-eng"};
+                $from['ar'] = $university->{"name-ar"};
+                $from['en'] = $university->{"name-eng"};
+                $success['destination_lat'] = $lat;
+                $success['destination_lng'] = $lng;
+            } elseif ($roadWay == 'to') {
+                $to['ar'] = $university->{"name-ar"};
+                $to['en'] = $university->{"name-eng"};
+                $from['ar'] = $neighborhood->{"neighborhood-ar"};
+                $from['en'] = $neighborhood->{"neighborhood-eng"};
                 $success['destination_lat'] = $university->lat;
                 $success['destination_lng'] = $university->lng;
             }
@@ -117,13 +118,13 @@ class ImmediateDriverController extends BaseController
 
         if(!count($drivers)) {
             $rideBooking = RideBooking::create([
-                'passenger-id'      => $data['passenger_id'],
-                'neighborhood-id'   => $data['university_id'],
-                'lat'               => $data['lat'],
-                'lng'               => $data['lng'],
-                'service-id'        => $data['ride_type_id'],
+                'passenger-id'      => $passengerId,
+                'neighborhood-id'   => $universityId,
+                'lat'               => $lat,
+                'lng'               => $lng,
+                'service-id'        => $rideTypeId,
                 'action'            => 1,
-                'date-of-add'       => $data['now_datetime']
+                'date-of-add'       => Carbon::now()
             ]);
             $success['trip'] = $rideBooking;
             return $this->sendResponse($success, __('Drivers'));
@@ -146,13 +147,13 @@ class ImmediateDriverController extends BaseController
 
         if(!count($foundDrivers)) {
             $rideBooking = RideBooking::create([
-                'passenger-id'      => $data['passenger_id'],
-                'neighborhood-id'   => $data['university_id'],
-                'lat'               => $data['lat'],
-                'lng'               => $data['lng'],
-                'service-id'        => $data['ride_type_id'],
+                'passenger-id'      => $passengerId,
+                'neighborhood-id'   => $universityId,
+                'lat'               => $lat,
+                'lng'               => $lng,
+                'service-id'        => $rideTypeId,
                 'action'            => 2,
-                'date-of-add'       => $data['now_datetime']
+                'date-of-add'       => Carbon::now()
             ]);
             $success['trip'] = $rideBooking;
             return $this->sendResponse($success, __('Found Drivers'));
@@ -178,13 +179,13 @@ class ImmediateDriverController extends BaseController
 
         if(count($suggestDriverId)) {
             $rideBooking = RideBooking::create([
-                'passenger-id'      => $data['passenger_id'],
-                'neighborhood-id'   => $data['university_id'],
-                'lat'               => $data['lat'],
-                'lng'               => $data['lng'],
-                'service-id'        => $data['ride_type_id'],
+                'passenger-id'      => $passengerId,
+                'neighborhood-id'   => $universityId,
+                'lat'               => $lat,
+                'lng'               => $lng,
+                'service-id'        => $rideTypeId,
                 'action'            => 0,
-                'date-of-add'       => $data['now_datetime']
+                'date-of-add'       => Carbon::now()
             ]);
 
             $finalDriversId = array();
@@ -195,7 +196,7 @@ class ImmediateDriverController extends BaseController
                     'booking-id'    => $rideBooking->id,
                     'driver-id'     => $driver->{"suggest-driver-id"},
                     'action'        => 0,
-                    'date-of-add'   => $now
+                    'date-of-add'   => Carbon::now()
                 ]);
             }
 
@@ -208,38 +209,39 @@ class ImmediateDriverController extends BaseController
             $university = University::whereId($universityId)->first();
             $from = array();
             $to = array();
+
             if($roadWay == 'from') {
-                $from['ar'] = $neighborhood->{"neighborhood-ar"};
-                $from['en'] = $neighborhood->{"neighborhood-eng"};
-                $to['ar'] = $university->{"name-ar"};
-                $to['en'] = $university->{"name-eng"};
-                $success['destination_lat'] = '30.127311112435166';
-                $success['destination_lng'] = '31.32493490450467';
-            } else {
-                $from['ar'] = $university->{"name-ar"};
-                $from['en'] = $university->{"name-eng"};
                 $to['ar'] = $neighborhood->{"neighborhood-ar"};
                 $to['en'] = $neighborhood->{"neighborhood-eng"};
+                $from['ar'] = $university->{"name-ar"};
+                $from['en'] = $university->{"name-eng"};
+                $success['destination_lat'] = $lat;
+                $success['destination_lng'] = $lng;
+            } elseif ($roadWay == 'to') {
+                $to['ar'] = $university->{"name-ar"};
+                $to['en'] = $university->{"name-eng"};
+                $from['ar'] = $neighborhood->{"neighborhood-ar"};
+                $from['en'] = $neighborhood->{"neighborhood-eng"};
                 $success['destination_lat'] = $university->lat;
                 $success['destination_lng'] = $university->lng;
             }
+
             $success['to'] = $to;
             $success['from'] = $from;
             $success['estimated_time'] = 15;
             $success['trip'] = $rideBooking;
 
             return $this->sendResponse($success, __('Drivers'));
-
         }
 
         $rideBooking = RideBooking::create([
-            'passenger-id'      => $data['passenger_id'],
-            'neighborhood-id'   => $data['university_id'],
-            'lat'               => $data['lat'],
-            'lng'               => $data['lng'],
-            'service-id'        => $data['ride_type_id'],
+            'passenger-id'      => $passengerId,
+            'neighborhood-id'   => $universityId,
+            'lat'               => $lat,
+            'lng'               => $lng,
+            'service-id'        => $rideTypeId,
             'action'            => 3,
-            'date-of-add'       => $data['now_datetime']
+            'date-of-add'       => Carbon::now()
         ]);
         $success['trip'] = $rideBooking;
         return $this->sendResponse($success, __('No Drivers!'));
