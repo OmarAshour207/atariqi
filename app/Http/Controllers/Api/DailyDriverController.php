@@ -199,19 +199,19 @@ class DailyDriverController extends BaseController
         $from = array();
 
         if($roadWay == 'from') {
-            $to['ar'] = $neighborhood->{"neighborhood-ar"};
-            $to['en'] = $neighborhood->{"neighborhood-eng"};
-            $from['ar'] = $university->{"name-ar"};
-            $from['en'] = $university->{"name-eng"};
-            $success['destination_lat'] = $lat;
-            $success['destination_lng'] = $lng;
-        } elseif ($roadWay == 'to') {
             $to['ar'] = $university->{"name-ar"};
             $to['en'] = $university->{"name-eng"};
             $from['ar'] = $neighborhood->{"neighborhood-ar"};
             $from['en'] = $neighborhood->{"neighborhood-eng"};
             $success['destination_lat'] = $university->lat;
             $success['destination_lng'] = $university->lng;
+        } else {
+            $to['ar'] = $neighborhood->{"neighborhood-ar"};
+            $to['en'] = $neighborhood->{"neighborhood-eng"};
+            $from['ar'] = $university->{"name-ar"};
+            $from['en'] = $university->{"name-eng"};
+            $success['destination_lat'] = $lat;
+            $success['destination_lng'] = $lng;
         }
 
         $success['to'] = $to;
