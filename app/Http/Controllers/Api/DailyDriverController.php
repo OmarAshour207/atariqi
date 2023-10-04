@@ -39,7 +39,7 @@ class DailyDriverController extends BaseController
         ]);
 
         if($validator->fails())
-            return $this->sendError(__('Validation Error.'), $validator->errors()->getMessages(), 422);
+            return $this->sendError(__('Validation Error.'), [__('Not Available Immediate transport in Friday')], 422);
 
         $data = $validator->validated();
 
@@ -51,6 +51,9 @@ class DailyDriverController extends BaseController
         $timeBack = $data['time_back'];
         $timeGo = $data['time_go'];
         $dateDay = Carbon::parse($date)->format('l');
+
+        if ($dateDay == 'Friday')
+            return $this->sendError(__('Validation Error.'), [ __('')], 422);
 
         // First Query
         $driversIds = User::select('users.id')
