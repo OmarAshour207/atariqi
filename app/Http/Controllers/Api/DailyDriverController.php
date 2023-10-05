@@ -289,7 +289,7 @@ class DailyDriverController extends BaseController
             'passenger_id'      => 'required|numeric',
             'neighborhood_id'   => 'required|numeric',
             'ride_type_id'      => 'required|numeric',
-            'date'              => 'required|string',
+            'date'              => 'required|date_format:Y-m-d',
             'time_go'           => 'sometimes|nullable|string',
             'time_back'         => 'sometimes|nullable|string',
             'road_way'          => 'required|string',
