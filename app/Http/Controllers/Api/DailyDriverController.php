@@ -40,7 +40,7 @@ class DailyDriverController extends BaseController
         ]);
 
         if($validator->fails())
-            return $this->sendError(__('Validation Error.'), [__('Not Available Daily transport at Friday')], 422);
+            return $this->sendError(__('Validation Error.'), $validator->errors()->getMessages(), 422);
 
         $data = $validator->validated();
 
