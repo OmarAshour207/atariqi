@@ -20,6 +20,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 class DailyDriverController extends BaseController
 {
@@ -32,10 +33,10 @@ class DailyDriverController extends BaseController
             'passenger_id'      => 'required|numeric',
             'lat'               => 'required|string',
             'lng'               => 'required|string',
-            'date'              => 'required|string',
-            'time_go'           => 'required|string',
-            'time_back'         => 'required|string',
+            'date'              => 'required|date_format:Y-m-d',
             'road_way'          => 'required|string',
+            'time_go'           => Rule::requiredIf($request->request->get('road_way') == 'to' || $request->request->get('road_way') == 'both'),
+            'time_back'         => Rule::requiredIf($request->request->get('road_way') == 'from' || $request->request->get('road_way') == 'both'),
             'locale'            => 'sometimes|nullable|string'
         ]);
 
@@ -50,8 +51,8 @@ class DailyDriverController extends BaseController
         $neighborhoodId = $data['neighborhood_id'];
         $roadWay = $data['road_way'];
         $date = $data['date'];
-        $timeBack = $data['time_back'];
-        $timeGo = $data['time_go'];
+        $timeBack = isset($data['time_back']) ? $data['time_back'] : null;
+        $timeGo =  isset($data['time_go']) ? $data['time_go'] : null;
         $lat = $data['lat'];
         $lng = $data['lng'];
         $dateDay = Carbon::parse($date)->format('l');
