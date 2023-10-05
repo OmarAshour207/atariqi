@@ -40,7 +40,7 @@ class DailyDriverController extends BaseController
         ]);
 
         if($validator->fails())
-            return $this->sendError(__('Validation Error.'), [__('Not Available Immediate transport in Friday')], 422);
+            return $this->sendError(__('Validation Error.'), [__('Not Available Daily transport at Friday')], 422);
 
         $data = $validator->validated();
 
@@ -340,7 +340,11 @@ class DailyDriverController extends BaseController
         $date = Carbon::now()->format('H:i:s');
         $date = Carbon::now()->format('H:i:s');
 
-//        DayRideBooking::where('')
+        DayRideBooking::where('passenger-id', $passengerId)
+            ->where(function ($query) {
+                $query->where('action', 1)
+                    ->orWhere('action', 2);
+            })->first();
     }
     public function checkActionAndSendNotify(Request $request)
     {
@@ -444,7 +448,6 @@ class DailyDriverController extends BaseController
 
         return $this->sendResponse($success, __('Success'));
     }
-
     public function getTripDetails(Request $request)
     {
         $validator = Validator::make($request->all(), [
