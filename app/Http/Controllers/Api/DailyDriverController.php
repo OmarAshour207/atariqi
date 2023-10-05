@@ -57,7 +57,7 @@ class DailyDriverController extends BaseController
         $dateDay = Carbon::parse($date)->format('l');
 
         if ($dateDay == 'Friday')
-            return $this->sendError(__('Validation Error.'), [ __('')], 422);
+            return $this->sendError(__('Validation Error.'), [ __('Not Available Daily transport in Friday')], 422);
 
         // First Query
         $driversIds = User::select('users.id')
