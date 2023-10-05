@@ -60,6 +60,12 @@ class DailyDriverController extends BaseController
         if ($dateDay == 'Friday')
             return $this->sendError(__('Validation Error.'), [ __('Not Available Daily transport in Friday')], 422);
 
+        $success = array();
+        $success['drivers'] = array();
+        $success['trip'] = array();
+        $success['to'] = array();
+        $success['from'] = array();
+
         // First Query
         $driversIds = User::select('users.id')
             ->join('university', 'users.university-id', '=', 'university.id')
@@ -195,9 +201,6 @@ class DailyDriverController extends BaseController
         $success['neighborhood'] = new NeighbourResource($neighborhood);
         $success['university'] = new UniversityResource($university);
         $success['roadWay'] = $roadWay;
-
-        $to = array();
-        $from = array();
 
         if($roadWay == 'from') {
             $to['ar'] = $university->{"name-ar"};
