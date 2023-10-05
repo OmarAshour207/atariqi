@@ -61,10 +61,10 @@ class DailyDriverController extends BaseController
             return $this->sendError(__('Validation Error.'), [ __('Not Available Daily transport in Friday')], 422);
 
         $success = array();
+        $to = array();
+        $from = array();
         $success['drivers'] = array();
         $success['trip'] = array();
-        $success['to'] = array();
-        $success['from'] = array();
 
         $neighborhood = Neighbour::whereId($neighborhoodId)->first();
         $university = University::whereId($universityId)->first();
@@ -102,7 +102,7 @@ class DailyDriverController extends BaseController
             ->where('users.university-id', '=', $universityId)
             ->get()
             ->toArray();
-
+        
         if(!count($driversIds)) {
             $dayRideBooking = DayRideBooking::create([
                 'passenger-id'      => $passengerId,
@@ -224,6 +224,7 @@ class DailyDriverController extends BaseController
 
         return $this->sendResponse($success, __('Drivers'));
     }
+
     public function selectDriver(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -288,6 +289,7 @@ class DailyDriverController extends BaseController
 
         return $this->sendResponse($success, __('Success'));
     }
+
     public function sendToAllDrivers(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -329,6 +331,7 @@ class DailyDriverController extends BaseController
 
         return $this->sendResponse($success, __('Success'));
     }
+
     public function checkSuggestDrivers(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -351,6 +354,7 @@ class DailyDriverController extends BaseController
                     ->orWhere('action', 2);
             })->first();
     }
+
     public function checkActionAndSendNotify(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -387,6 +391,7 @@ class DailyDriverController extends BaseController
 
         return $this->sendResponse($success, __('Trips'));
     }
+
     public function executeRide(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -429,6 +434,7 @@ class DailyDriverController extends BaseController
 
         return $this->sendResponse([], __("Empty order"));
     }
+
     public function changeAction(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -453,6 +459,7 @@ class DailyDriverController extends BaseController
 
         return $this->sendResponse($success, __('Success'));
     }
+
     public function getTripDetails(Request $request)
     {
         $validator = Validator::make($request->all(), [
