@@ -66,6 +66,29 @@ class DailyDriverController extends BaseController
         $success['to'] = array();
         $success['from'] = array();
 
+        $neighborhood = Neighbour::whereId($neighborhoodId)->first();
+        $university = University::whereId($universityId)->first();
+
+        $success['neighborhood'] = new NeighbourResource($neighborhood);
+        $success['university'] = new UniversityResource($university);
+        $success['roadWay'] = $roadWay;
+
+        if($roadWay == 'from') {
+            $to['ar'] = $university->{"name-ar"};
+            $to['en'] = $university->{"name-eng"};
+            $from['ar'] = $neighborhood->{"neighborhood-ar"};
+            $from['en'] = $neighborhood->{"neighborhood-eng"};
+            $success['destination_lat'] = $university->lat;
+            $success['destination_lng'] = $university->lng;
+        } else {
+            $to['ar'] = $neighborhood->{"neighborhood-ar"};
+            $to['en'] = $neighborhood->{"neighborhood-eng"};
+            $from['ar'] = $university->{"name-ar"};
+            $from['en'] = $university->{"name-eng"};
+            $success['destination_lat'] = $lat;
+            $success['destination_lng'] = $lng;
+        }
+
         // First Query
         $driversIds = User::select('users.id')
             ->join('university', 'users.university-id', '=', 'university.id')
@@ -189,8 +212,6 @@ class DailyDriverController extends BaseController
             $driversIds[] = $driverSchedule->{'suggest-driver-id'};
         }
 
-        $neighborhood = Neighbour::whereId($neighborhoodId)->first();
-        $university = University::whereId($universityId)->first();
         $drivers = DriverInfo::with(['driver', 'schedule' => function($query) use ($dateDay) {
                 $query->select("id", "driver-id", "$dateDay-to AS to", "$dateDay-from as from");
             }])
@@ -198,28 +219,6 @@ class DailyDriverController extends BaseController
             ->get();
 
         $success['drivers'] = DriverInfoDayRideResource::collection($drivers);
-        $success['neighborhood'] = new NeighbourResource($neighborhood);
-        $success['university'] = new UniversityResource($university);
-        $success['roadWay'] = $roadWay;
-
-        if($roadWay == 'from') {
-            $to['ar'] = $university->{"name-ar"};
-            $to['en'] = $university->{"name-eng"};
-            $from['ar'] = $neighborhood->{"neighborhood-ar"};
-            $from['en'] = $neighborhood->{"neighborhood-eng"};
-            $success['destination_lat'] = $university->lat;
-            $success['destination_lng'] = $university->lng;
-        } else {
-            $to['ar'] = $neighborhood->{"neighborhood-ar"};
-            $to['en'] = $neighborhood->{"neighborhood-eng"};
-            $from['ar'] = $university->{"name-ar"};
-            $from['en'] = $university->{"name-eng"};
-            $success['destination_lat'] = $lat;
-            $success['destination_lng'] = $lng;
-        }
-
-        $success['to'] = $to;
-        $success['from'] = $from;
 
         return $this->sendResponse($success, __('Drivers'));
     }
