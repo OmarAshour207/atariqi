@@ -2,10 +2,8 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
 use App\Http\Resources\DayRideBookingResource;
 use App\Http\Resources\DriverInfoDayRideResource;
-use App\Http\Resources\DriverInfoResource;
 use App\Http\Resources\NeighbourResource;
 use App\Http\Resources\SugDayDrivingResource;
 use App\Http\Resources\UniversityResource;
