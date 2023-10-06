@@ -28,7 +28,7 @@ class DailyDriverController extends BaseController
             'neighborhood_id'   => 'required|numeric',
             'university_id'     => 'required|numeric',
             'ride_type_id'      => 'required|numeric',
-            'passenger_id'      => 'required|numeric',
+            'passenger_id'      => 'sometimes|nullable|numeric',
             'lat'               => 'required|string',
             'lng'               => 'required|string',
             'date'              => 'required|date_format:Y-m-d',
@@ -229,7 +229,7 @@ class DailyDriverController extends BaseController
     public function selectDriver(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'passenger_id'      => 'required|numeric',
+            'passenger_id'      => 'sometimes|nullable|numeric',
             'lat'               => 'required|string',
             'lng'               => 'required|string',
             'neighborhood_id'   => 'required|numeric',
@@ -449,7 +449,7 @@ class DailyDriverController extends BaseController
             return $this->sendResponse($success, __("an order from Atariqi to accept the ride"));
         }
 
-        return $this->sendResponse([], __("Empty order"));
+        return $this->sendResponse([], __("Not found trips"));
     }
 
     public function getTripDetails(Request $request)

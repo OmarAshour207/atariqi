@@ -194,7 +194,8 @@ return [
         "fcm_token"             => 'عنوان الجهاز',
         'now_day'               => 'اليوم',
         'time_go'               => 'وقت الذهاب',
-        'time_back'             => 'وقت العوده'
+        'time_back'             => 'وقت العوده',
+        'university_id'         => "الجامعة"
     ],
 
 ];
