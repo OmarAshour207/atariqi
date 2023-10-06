@@ -28,7 +28,8 @@ Route::group([
         Route::post('drivers/daily/select', [\App\Http\Controllers\Api\DailyDriverController::class, 'selectDriver']);
         Route::post('drivers/daily/send/all', [\App\Http\Controllers\Api\DailyDriverController::class, 'sendToAllDrivers']);
 
-        Route::post('daily/transport/check/action', [\App\Http\Controllers\Api\DailyDriverController::class, 'checkActionAndSendNotify']);
+        Route::post('daily/transport/get/notifications', [\App\Http\Controllers\Api\DailyDriverController::class, 'getUserNotification']);
+        Route::post('daily/transport/get/summary', [\App\Http\Controllers\Api\DailyDriverController::class, 'getUserSummary']);
 
         Route::post('daily/transport/trip', [\App\Http\Controllers\Api\DailyDriverController::class, 'getTripDetails']);
 

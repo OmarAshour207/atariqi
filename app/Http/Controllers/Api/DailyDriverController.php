@@ -102,16 +102,17 @@ class DailyDriverController extends BaseController
             ->where('users.university-id', '=', $universityId)
             ->get()
             ->toArray();
-        
+
         if(!count($driversIds)) {
             $dayRideBooking = DayRideBooking::create([
                 'passenger-id'      => $passengerId,
                 'neighborhood-id'   => $neighborhoodId,
+                'university-id'     => $universityId,
                 'service-id'        => $rideTypeId,
                 'date-of-ser'       => $date,
                 'road-way'          => $roadWay,
-                'time-go'           => $timeGo ?? null,
-                'time-back'         => $timeBack ?? null,
+                'time-go'           => $timeGo,
+                'time-back'         => $timeBack,
                 'action'            => 1,
                 'lat'               => $lat,
                 'lng'               => $lng,
@@ -145,11 +146,12 @@ class DailyDriverController extends BaseController
             $dayRideBooking = DayRideBooking::create([
                 'passenger-id'      => $passengerId,
                 'neighborhood-id'   => $neighborhoodId,
+                'university-id'     => $universityId,
                 'service-id'        => $rideTypeId,
                 'date-of-ser'       => $date,
                 'road-way'          => $roadWay,
-                'time-go'           => $timeGo ?? null,
-                'time-back'         => $timeBack ?? null,
+                'time-go'           => $timeGo,
+                'time-back'         => $timeBack,
                 'lat'               => $lat,
                 'lng'               => $lng,
                 'action'            => 2,
@@ -194,11 +196,12 @@ class DailyDriverController extends BaseController
             $dayRideBooking = DayRideBooking::create([
                 'passenger-id'      => $passengerId,
                 'neighborhood-id'   => $neighborhoodId,
+                'university-id'     => $universityId,
                 'service-id'        => $rideTypeId,
                 'date-of-ser'       => $date,
                 'road-way'          => $roadWay,
-                'time-go'           => $timeGo ?? null,
-                'time-back'         => $timeBack ?? null,
+                'time-go'           => $timeGo,
+                'time-back'         => $timeBack,
                 'action'            => 3,
                 'lat'               => $lat,
                 'lng'               => $lng,
@@ -232,6 +235,7 @@ class DailyDriverController extends BaseController
             'lat'               => 'required|string',
             'lng'               => 'required|string',
             'neighborhood_id'   => 'required|numeric',
+            'university_id'     => 'required|numeric',
             'driver_id'         => 'required|numeric',
             'ride_type_id'      => 'required|numeric',
             'date'              => 'required|string',
@@ -249,6 +253,7 @@ class DailyDriverController extends BaseController
         $rideTypeId = $data['ride_type_id'];
         $passengerId = $data['passenger_id'];
         $neighborhoodId = $data['neighborhood_id'];
+        $universityId = $data['university_id'];
         $driverId = $data['driver_id'];
         $roadWay = $data['road_way'];
         $date = $data['date'];
@@ -259,6 +264,7 @@ class DailyDriverController extends BaseController
         $savingData = [
             'passenger-id'      => $passengerId,
             'neighborhood-id'   => $neighborhoodId,
+            'university-id'     => $universityId,
             'service-id'        => $rideTypeId,
             'date-of-ser'       => $date,
             'road-way'          => $roadWay,
@@ -295,6 +301,7 @@ class DailyDriverController extends BaseController
         $validator = Validator::make($request->all(), [
             'passenger_id'      => 'required|numeric',
             'neighborhood_id'   => 'required|numeric',
+            'university_id'     => 'required|numeric',
             'ride_type_id'      => 'required|numeric',
             'date'              => 'required|date_format:Y-m-d',
             'time_go'           => 'sometimes|nullable|string',
@@ -311,6 +318,7 @@ class DailyDriverController extends BaseController
         $date = $data['date'];
         $rideTypeId = $data['ride_type_id'];
         $neighborhoodId = $data['neighborhood_id'];
+        $universityId = $data['university_id'];
         $passengerId = $data['passenger_id'];
         $timeGo = $data['time_go'];
         $timeBack = $data['time_back'];
@@ -318,6 +326,7 @@ class DailyDriverController extends BaseController
         $dayRideBooking = DayRideBooking::create([
             'passenger-id'      => $passengerId,
             'neighborhood-id'   => $neighborhoodId,
+            'university-id'     => $universityId,
             'service-id'        => $rideTypeId,
             'date-of-ser'       => $date,
             'road-way'          => $roadWay,
@@ -332,30 +341,7 @@ class DailyDriverController extends BaseController
         return $this->sendResponse($success, __('Success'));
     }
 
-    public function checkSuggestDrivers(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'passenger_id'  => 'required|numeric',
-            'locale'        => 'sometimes|nullable|string'
-        ]);
-
-        if($validator->fails())
-            return $this->sendError(__('Validation Error.'), $validator->errors()->getMessages(), 422);
-
-        $data = $validator->validated();
-        $passengerId = $data['passenger_id'];
-        $date = Carbon::now()->format('H:i:s');
-        $date = Carbon::now()->format('H:i:s');
-        $date = Carbon::now()->format('H:i:s');
-
-        DayRideBooking::where('passenger-id', $passengerId)
-            ->where(function ($query) {
-                $query->where('action', 1)
-                    ->orWhere('action', 2);
-            })->first();
-    }
-
-    public function checkActionAndSendNotify(Request $request)
+    public function getUserNotification(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'passenger_id'  => 'required|numeric',
@@ -374,7 +360,8 @@ class DailyDriverController extends BaseController
             ->get();
 
         $success = [];
-        $success['trips'] = SugDayDrivingResource::collection($suggestedDrivers);
+//        $success['trips'] = SugDayDrivingResource::collection($suggestedDrivers);
+        $messages = array();
 
         // send notification
         $message = '';
@@ -384,10 +371,37 @@ class DailyDriverController extends BaseController
                 $message = __('Your trip accepted at date') . " " . $suggestedDriver->booking->{"date-of-ser"} . "\n" . __('with Driver') . " " . $suggestedDriver->driver->{"user-first-name"} . " " . $suggestedDriver->driver->{"user-last-name"};
             elseif ($suggestedDriver->action == 2)
                 $message = __('Your trip rejected at date') . " " . $suggestedDriver->booking->{"date-of-ser"} . "\n" . __('with Driver') . " " . $suggestedDriver->driver->{"user-first-name"} . " " . $suggestedDriver->driver->{"user-last-name"};
-            if (!empty($message))
+
+            if (!empty($message)) {
                 sendNotification(['title' => $title, 'body' => $message, 'tokens' => auth()->user()->fcm_token]);
-            $suggestedDriver->update(['viewed' => 1]);
+                $suggestedDriver->update(['viewed' => 1]);
+                $messages[] = $message;
+            }
         }
+
+        $success['messages'] = $messages;
+        return $this->sendResponse($success, __('Trips'));
+    }
+
+    public function getUserSummary(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'passenger_id'  => 'required|numeric',
+            'locale'        => 'sometimes|nullable|string'
+        ]);
+
+        if($validator->fails())
+            return $this->sendError(__('Validation Error.'), $validator->errors()->getMessages(), 422);
+
+        $data = $validator->validated();
+        $passengerId = $data['passenger_id'];
+
+        $suggestedDrivers = SugDayDriver::with('driver', 'booking')
+            ->where('passenger-id', $passengerId)
+            ->get();
+
+        $success = [];
+        $success['trips'] = SugDayDrivingResource::collection($suggestedDrivers);
 
         return $this->sendResponse($success, __('Trips'));
     }
@@ -423,6 +437,17 @@ class DailyDriverController extends BaseController
 
             $success = [];
             $success['sug_day_driver'] = new SugDayDrivingResource($sugDayDriver);
+            if ($ride->{"road-way"} == 'from') {
+                $success['destination_lat'] = $ride->lat;
+                $success['destination_lng'] = $ride->lat;
+                $success['source_lat'] = $ride->university->lat;
+                $success['source_lng'] = $ride->university->lng;
+            } else {
+                $success['destination_lat'] = $ride->university->lat;
+                $success['destination_lng'] = $ride->university->lng;
+                $success['source_lat'] = $ride->lat;
+                $success['source_lng'] = $ride->lng;
+            }
             sendNotification([
                 'title'     => __('You have a notification from Atariqi'),
                 'body'      => __("an order from Atariqi to accept the ride"),
@@ -433,6 +458,27 @@ class DailyDriverController extends BaseController
         }
 
         return $this->sendResponse([], __("Empty order"));
+    }
+
+    public function getTripDetails(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'sug_day_driver_id' => 'required|numeric',
+            'locale'            => 'sometimes|nullable|string'
+        ]);
+
+        if($validator->fails())
+            return $this->sendError(__('Validation Error.'), $validator->errors()->getMessages(), 422);
+
+        $data = $validator->validated();
+        $id = $data['sug_day_driver_id'];
+
+        $sugDayDriver = SugDayDriver::whereId($id)->first();
+
+        if (!$sugDayDriver)
+            return $this->sendError(__('Trip not found!'), [__('Trip not found')]);
+
+        return $this->sendResponse(new SugDayDrivingResource($sugDayDriver), __('Success'));
     }
 
     public function changeAction(Request $request)
@@ -454,33 +500,9 @@ class DailyDriverController extends BaseController
         $sugDayDriver->update(['action' => $action]);
 
         $success = array();
-        // return trip and driver details
         $success['sug_day_drivers'] = new SugDayDrivingResource($sugDayDriver);
 
         return $this->sendResponse($success, __('Success'));
     }
 
-    public function getTripDetails(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'sug_day_driver_id' => 'required|numeric',
-            'locale'            => 'sometimes|nullable|string'
-        ]);
-
-        if($validator->fails())
-            return $this->sendError(__('Validation Error.'), $validator->errors()->getMessages(), 422);
-
-        $data = $validator->validated();
-        $id = $data['sug_day_driver_id'];
-
-        $sugDayDriver = SugDayDriver::whereId($id)->first();
-
-        if (!$sugDayDriver)
-            return $this->sendError(__('Trip not found!'), [__('Trip not found')]);
-
-        if ($sugDayDriver->action == 6)
-            return $this->sendResponse(new SugDayDrivingResource($sugDayDriver), __('Success'));
-
-        return $this->sendResponse([], __('Trip still in progress'));
-    }
 }

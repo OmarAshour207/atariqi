@@ -16,6 +16,7 @@ class DayRideBooking extends Model
     protected $fillable = [
         'passenger-id',
         'neighborhood-id',
+        'university-id',
         'service-id',
         'date-of-ser',
         'road-way',
@@ -36,6 +37,10 @@ class DayRideBooking extends Model
     public function neighborhood()
     {
         return $this->belongsTo(Neighbour::class, 'neighborhood-id');
+    }
+    public function university()
+    {
+        return $this->belongsTo(University::class, 'university-id');
     }
 
     public function service()
