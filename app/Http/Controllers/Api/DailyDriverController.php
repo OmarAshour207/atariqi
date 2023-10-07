@@ -484,7 +484,7 @@ class DailyDriverController extends BaseController
             ->first();
 
         if ($ride) {
-            $sugDayDriver = SugDayDriver::with('trip', 'driverinfo')->where([
+            $sugDayDriver = SugDayDriver::with('booking', 'driverinfo')->where([
                 ['booking-id', $ride->id],
                 ['action', 3],
                 ['passenger-id', $passengerId]
@@ -538,7 +538,7 @@ class DailyDriverController extends BaseController
         $data = $validator->validated();
         $id = $data['sug_day_driver_id'];
 
-        $sugDayDriver = SugDayDriver::with('trip', 'driverinfo')->whereId($id)
+        $sugDayDriver = SugDayDriver::with('booking', 'driverinfo')->whereId($id)
             ->where('passenger-id', auth()->user()->id)
             ->first();
 
@@ -563,7 +563,7 @@ class DailyDriverController extends BaseController
         $action = $data['action'];
         $id = (int) $data['sug_day_driver_id'];
 
-        $sugDayDriver = SugDayDriver::with('trip')->where('id', $id)
+        $sugDayDriver = SugDayDriver::with('booking')->where('id', $id)
             ->where('passenger-id', auth()->user()->id)
             ->first();
         if (!$sugDayDriver)
