@@ -287,6 +287,10 @@ class DailyDriverController extends BaseController
             'date-of-add'       => Carbon::now()
         ]);
 
+        $sugDayDriver = SugDayDriver::with('driverinfo', 'driver')
+            ->whereId($sugDayDriver->id)
+            ->first();
+
         $success = [];
         $success['trip'] = new DayRideBookingResource($dayRideBooking);
         $success['sug_day_driver'] = new SugDayDrivingResource($sugDayDriver);
@@ -423,9 +427,10 @@ class DailyDriverController extends BaseController
 
         if ($fake) {
             $ride = DayRideBooking::where('passenger-id', $passengerId)->first();
-            $sugDayDriver = SugDayDriver::where([
-                ['booking-id', $ride->id],
-                ['passenger-id', $passengerId]
+            $sugDayDriver = SugDayDriver::with('booking', 'driverinfo')
+                ->where([
+                    ['booking-id', $ride->id],
+                    ['passenger-id', $passengerId]
             ])->first();
 
             $success['sug_day_driver'] = new SugDayDrivingResource($sugDayDriver);
@@ -460,7 +465,7 @@ class DailyDriverController extends BaseController
             ->first();
 
         if ($ride) {
-            $sugDayDriver = SugDayDriver::where([
+            $sugDayDriver = SugDayDriver::with('trip', 'driverinfo')->where([
                 ['booking-id', $ride->id],
                 ['action', 3],
                 ['passenger-id', $passengerId]
@@ -503,7 +508,7 @@ class DailyDriverController extends BaseController
         $data = $validator->validated();
         $id = $data['sug_day_driver_id'];
 
-        $sugDayDriver = SugDayDriver::whereId($id)
+        $sugDayDriver = SugDayDriver::with('trip', 'driverinfo')->whereId($id)
             ->where('passenger-id', auth()->user()->id)
             ->first();
 
@@ -528,7 +533,7 @@ class DailyDriverController extends BaseController
         $action = $data['action'];
         $id = (int) $data['sug_day_driver_id'];
 
-        $sugDayDriver = SugDayDriver::where('id', $id)
+        $sugDayDriver = SugDayDriver::with('trip')->where('id', $id)
             ->where('passenger-id', auth()->user()->id)
             ->first();
         if (!$sugDayDriver)

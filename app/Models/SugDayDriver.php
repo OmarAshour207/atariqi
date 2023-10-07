@@ -33,6 +33,10 @@ class SugDayDriver extends Model
         return $this->belongsTo(User::class, 'driver-id');
     }
 
+    public function driverinfo()
+    {
+        return $this->hasOne(DriverInfo::class, 'driver-id', 'driver-id');
+    }
     public function booking()
     {
         return $this->belongsTo(DayRideBooking::class, 'booking-id');

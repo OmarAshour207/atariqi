@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Models\DriverInfo;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class SugDayDrivingResource extends JsonResource
@@ -14,7 +15,8 @@ class SugDayDrivingResource extends JsonResource
             'date-of-add'   => $this->{"date-of-add"},
             'viewed'        => $this->viewed,
             'trip'          => new DayRideBookingResource($this->booking),
-            'driver'        => new UserSampleResource($this->driver)
+            'driver'        => new UserSampleResource($this->whenLoaded('driver')),
+            'driverinfo'    => new DriverInfoResource($this->whenLoaded('driverinfo'))
         ];
     }
 }
