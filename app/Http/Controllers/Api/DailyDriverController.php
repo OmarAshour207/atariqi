@@ -492,7 +492,7 @@ class DailyDriverController extends BaseController
             return $this->sendResponse($success, __("an order from Atariqi to accept the ride"));
         }
 
-        return $this->sendResponse([], __("Not found trips"));
+        return $this->sendResponse($success, __("Not found trips"));
     }
 
     public function getTripDetails(Request $request)
