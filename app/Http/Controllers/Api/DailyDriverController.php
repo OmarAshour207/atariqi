@@ -403,21 +403,60 @@ class DailyDriverController extends BaseController
     public function executeRide(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'locale'        => 'sometimes|nullable|string'
+            'locale'        => 'sometimes|nullable|string',
+            'fake'          => 'sometimes|nullable|string'
         ]);
 
         if($validator->fails())
             return $this->sendError(__('Validation Error.'), $validator->errors()->getMessages(), 422);
 
+        $success = array();
+        $success['destination_lat'] = null;
+        $success['destination_lng'] = null;
+        $success['source_lat'] = null;
+        $success['source_lng'] = null;
+
         $passengerId = auth()->user()->id;
         $nowDate = Carbon::now()->format('Y-m-d');
-        $nowTime = Carbon::now()->format('H:i:s');
+        $nowTime = Carbon::now()->format('H:i');
+        $fake = isset($validator->validated()['fake']) ? $validator->validated()['fake'] : false;
+
+        if ($fake) {
+            $ride = DayRideBooking::where('passenger-id', $passengerId)->first();
+            $sugDayDriver = SugDayDriver::where([
+                ['booking-id', $ride->id],
+                ['passenger-id', $passengerId]
+            ])->first();
+
+            $success['sug_day_driver'] = new SugDayDrivingResource($sugDayDriver);
+
+            if ($ride->{"road-way"} == 'from') {
+                $success['destination_lat'] = $ride->lat;
+                $success['destination_lng'] = $ride->lat;
+                $success['source_lat'] = $ride->university->lat;
+                $success['source_lng'] = $ride->university->lng;
+            } else {
+                $success['destination_lat'] = $ride->university->lat;
+                $success['destination_lng'] = $ride->university->lng;
+                $success['source_lat'] = $ride->lat;
+                $success['source_lng'] = $ride->lng;
+            }
+
+            sendNotification([
+                'title'     => __('You have a notification from Atariqi'),
+                'body'      => __("an order from Atariqi to accept the ride"),
+                'tokens'    => [auth()->user()->fcm_token]
+            ]);
+
+            return $this->sendResponse($success, __("an order from Atariqi to accept the ride"));
+        }
 
         $ride = DayRideBooking::where('date-of-ser', $nowDate)
             ->where(function ($query) use ($nowTime) {
                 $query->where('time-go', $nowTime)
                     ->orWhere('time-back', $nowTime);
             })
+            ->where('passenger-id', $passengerId)
             ->first();
 
         if ($ride) {
@@ -427,7 +466,6 @@ class DailyDriverController extends BaseController
                 ['passenger-id', $passengerId]
             ])->first();
 
-            $success = [];
             $success['sug_day_driver'] = new SugDayDrivingResource($sugDayDriver);
             if ($ride->{"road-way"} == 'from') {
                 $success['destination_lat'] = $ride->lat;
