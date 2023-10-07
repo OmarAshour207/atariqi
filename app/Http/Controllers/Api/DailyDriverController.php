@@ -415,11 +415,17 @@ class DailyDriverController extends BaseController
             return $this->sendError(__('Validation Error.'), $validator->errors()->getMessages(), 422);
 
         $success = array();
+        $to = array();
+        $from = array();
+
+        $success['sug_day_driver'] = null;
+        $success['to'] = $to;
+        $success['from'] = $from;
         $success['destination_lat'] = null;
         $success['destination_lng'] = null;
         $success['source_lat'] = null;
         $success['source_lng'] = null;
-        $success['sug_day_driver'] = null;
+        $success['estimated_time'] = 0;
 
         $passengerId = auth()->user()->id;
         $nowDate = Carbon::now()->format('Y-m-d');
@@ -427,7 +433,9 @@ class DailyDriverController extends BaseController
         $fake = isset($validator->validated()['fake']) ? $validator->validated()['fake'] : false;
 
         if ($fake) {
-            $ride = DayRideBooking::where('passenger-id', $passengerId)->first();
+            $ride = DayRideBooking::with('university', 'neighborhood')
+                ->where('passenger-id', $passengerId)
+                ->first();
             $sugDayDriver = SugDayDriver::with('booking', 'driverinfo')
                 ->where([
                     ['booking-id', $ride->id],
@@ -437,16 +445,26 @@ class DailyDriverController extends BaseController
             $success['sug_day_driver'] = new SugDayDrivingResource($sugDayDriver);
 
             if ($ride->{"road-way"} == 'from') {
+                $from['ar'] = $ride->university->{"name-ar"};
+                $from['en'] = $ride->university->{"name-eng"};
+                $to['ar'] = $ride->neighborhood->{"neighborhood-ar"};
+                $to['en'] = $ride->neighborhood->{"neighborhood-eng"};
                 $success['destination_lat'] = $ride->lat;
                 $success['destination_lng'] = $ride->lat;
                 $success['source_lat'] = $ride->university->lat;
                 $success['source_lng'] = $ride->university->lng;
             } else {
+                $from['ar'] = $ride->neighborhood->{"neighborhood-ar"};
+                $from['en'] = $ride->neighborhood->{"neighborhood-eng"};
+                $to['ar'] = $ride->university->{"name-ar"};
+                $to['en'] = $ride->university->{"name-eng"};
                 $success['destination_lat'] = $ride->university->lat;
                 $success['destination_lng'] = $ride->university->lng;
                 $success['source_lat'] = $ride->lat;
                 $success['source_lng'] = $ride->lng;
             }
+            $success['to'] = $to;
+            $success['from'] = $from;
 
             sendNotification([
                 'title'     => __('You have a notification from Atariqi'),
@@ -474,16 +492,27 @@ class DailyDriverController extends BaseController
 
             $success['sug_day_driver'] = new SugDayDrivingResource($sugDayDriver);
             if ($ride->{"road-way"} == 'from') {
+                $from['ar'] = $ride->university->{"name-ar"};
+                $from['en'] = $ride->university->{"name-eng"};
+                $to['ar'] = $ride->neighborhood->{"neighborhood-ar"};
+                $to['en'] = $ride->neighborhood->{"neighborhood-eng"};
                 $success['destination_lat'] = $ride->lat;
                 $success['destination_lng'] = $ride->lat;
                 $success['source_lat'] = $ride->university->lat;
                 $success['source_lng'] = $ride->university->lng;
             } else {
+                $from['ar'] = $ride->neighborhood->{"neighborhood-ar"};
+                $from['en'] = $ride->neighborhood->{"neighborhood-eng"};
+                $to['ar'] = $ride->university->{"name-ar"};
+                $to['en'] = $ride->university->{"name-eng"};
                 $success['destination_lat'] = $ride->university->lat;
                 $success['destination_lng'] = $ride->university->lng;
                 $success['source_lat'] = $ride->lat;
                 $success['source_lng'] = $ride->lng;
             }
+            $success['to'] = $to;
+            $success['from'] = $from;
+
             sendNotification([
                 'title'     => __('You have a notification from Atariqi'),
                 'body'      => __("an order from Atariqi to accept the ride"),
