@@ -265,8 +265,10 @@ class ImmediateDriverController extends BaseController
 
         if ($trip) {
             $success['trip'] = new RideBookingResource($trip);
-            $suggestDriver = SuggestionDriver::where('booking-id', $trip->id)->first();
-            $success['driverinfo'] = new DriverInfoResource($suggestDriver);
+            $suggestDriver = SuggestionDriver::with('driverinfo')
+                ->where('booking-id', $trip->id)
+                ->first();
+            $success['driverinfo'] = new DriverInfoResource($suggestDriver->driverinfo);
         }
 
         return $this->sendResponse($success, __('Trip Details'));

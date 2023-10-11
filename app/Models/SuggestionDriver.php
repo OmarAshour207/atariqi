@@ -20,4 +20,14 @@ class SuggestionDriver extends Model
         'date-of-add',
         'date-of-edit'
     ];
+
+    public function driver()
+    {
+        return $this->belongsTo(User::class, 'driver-id');
+    }
+
+    public function driverinfo()
+    {
+        return $this->hasOne(DriverInfo::class, 'driver-id', 'driver-id');
+    }
 }
