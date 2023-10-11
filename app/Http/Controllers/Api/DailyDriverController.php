@@ -528,15 +528,15 @@ class DailyDriverController extends BaseController
     public function getTripDetails(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'sug_day_driver_id' => 'required|numeric',
-            'locale'            => 'sometimes|nullable|string'
+            'id'        => 'required|numeric',
+            'locale'    => 'sometimes|nullable|string'
         ]);
 
         if($validator->fails())
             return $this->sendError(__('Validation Error.'), $validator->errors()->getMessages(), 422);
 
         $data = $validator->validated();
-        $id = $data['sug_day_driver_id'];
+        $id = $data['id'];
 
         $sugDayDriver = SugDayDriver::with('booking', 'driverinfo')->whereId($id)
             ->where('passenger-id', auth()->user()->id)
