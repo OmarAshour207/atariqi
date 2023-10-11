@@ -60,7 +60,7 @@ class ImmediateDriverController extends BaseController
         $success['to'] = null;
         $success['from'] = null;
         $success['estimated_time'] = null;
-        $success['action'] = url('api/immediate/transport/trips');
+        $success['action'] = 'immediate/transport/trips';
 
         if (isset($data['fake'])) {
             $finalDriversId = User::select('users.id')

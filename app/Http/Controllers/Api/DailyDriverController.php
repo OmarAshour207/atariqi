@@ -70,7 +70,7 @@ class DailyDriverController extends BaseController
         $success['neighborhood'] = new NeighbourResource($neighborhood);
         $success['university'] = new UniversityResource($university);
         $success['roadWay'] = $roadWay;
-        $success['action'] = url('api/daily/transport/trip');
+        $success['action'] = 'daily/transport/trip';
 
         if($roadWay == 'from') {
             $from['ar'] = $university->{"name-ar"};
