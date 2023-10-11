@@ -254,6 +254,7 @@ class ImmediateDriverController extends BaseController
             'id'        => 'required|numeric',
             'locale'    => 'sometimes|nullable|string'
         ]);
+        $success = [];
 
         if($validator->fails())
             return $this->sendError(__('Validation Error.'), $validator->errors()->getMessages(), 422);
@@ -262,10 +263,13 @@ class ImmediateDriverController extends BaseController
 
         $trip = RideBooking::whereId($data['id'])->first();
 
-        if ($trip)
-            $trip = new RideBookingResource($trip);
+        if ($trip) {
+            $success['trip'] = new RideBookingResource($trip);
+            $suggestDriver = SuggestionDriver::where('booking-id', $trip->id)->first();
+            $success['driverinfo'] = new DriverInfoResource($suggestDriver);
+        }
 
-        return $this->sendResponse($trip, __('Trip Details'));
+        return $this->sendResponse($success, __('Trip Details'));
     }
 
     public function changeStatus(Request $request)
