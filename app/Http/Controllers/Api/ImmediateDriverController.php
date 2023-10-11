@@ -171,8 +171,8 @@ class ImmediateDriverController extends BaseController
                 $query->where("$nowDay-$roadWay", '<=', Carbon::now()->addHour()->format("H:i:s"));
             })
             ->when($roadWay == 'from', function ($query) use ($nowDay, $roadWay) {
-                $query->where("$nowDay-$roadWay", '<=', Carbon::now()->subMinutes(15)->format('H:i:s'));
-                $query->where("$nowDay-$roadWay", '>=', Carbon::now()->addHour()->format("H:i:s"));
+                $query->where("$nowDay-$roadWay", '<=', Carbon::now()->addHour()->format('H:i:s'));
+                $query->where("$nowDay-$roadWay", '>=', Carbon::now()->subMinutes(15)->format("H:i:s"));
             })
             ->whereIn('driver-id', $foundDriverId)
             ->get();
@@ -203,7 +203,7 @@ class ImmediateDriverController extends BaseController
             $drivers = DriverInfo::with('driver')
                 ->whereIn('driver-id', $finalDriversId)
                 ->get();
-            $success['drivers'] = [];//DriverInfoResource::collection($drivers);
+            $success['drivers'] = DriverInfoResource::collection($drivers);
 
             $neighborhood = Neighbour::findOrFail($neighborhoodId);
             $university = University::whereId($universityId)->first();
@@ -230,6 +230,7 @@ class ImmediateDriverController extends BaseController
             $success['from'] = $from;
             $success['estimated_time'] = 15;
             $success['trip'] = $rideBooking;
+            $success['action'] = url('api/immediate/transport/trips');
 
             return $this->sendResponse($success, __('Drivers'));
         }

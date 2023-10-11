@@ -16,6 +16,7 @@
 CREATE DATABASE IF NOT EXISTS `atariqi` /*!40100 DEFAULT CHARACTER SET utf8mb4 */;
 USE `atariqi`;
 
+
 -- Dumping structure for table atariqi.announce
 CREATE TABLE IF NOT EXISTS `announce` (
   `id` bigint(20) NOT NULL,
@@ -31,6 +32,28 @@ CREATE TABLE IF NOT EXISTS `announce` (
 -- Dumping data for table atariqi.announce: ~0 rows (approximately)
 /*!40000 ALTER TABLE `announce` DISABLE KEYS */;
 /*!40000 ALTER TABLE `announce` ENABLE KEYS */;
+
+-- Dumping structure for table atariqi.services
+CREATE TABLE IF NOT EXISTS `services` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `service` varchar(100) NOT NULL,
+  `cost` bigint(20) NOT NULL,
+  `date-of-add` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `date-of-edit` datetime DEFAULT NULL,
+  `service-ar` varchar(255) DEFAULT NULL,
+  `service-eng` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4;
+
+-- Dumping data for table atariqi.services: ~5 rows (approximately)
+/*!40000 ALTER TABLE `services` DISABLE KEYS */;
+INSERT INTO `services` (`id`, `service`, `cost`, `date-of-add`, `date-of-edit`, `service-ar`, `service-eng`) VALUES
+	(1, 'immediately drive | توصيل لحظي', 20, '2023-08-16 16:51:58', NULL, 'توصيل لحظي', 'immediately drive'),
+	(2, 'daily drive (go or back) | توصيل يومي (ذهاب أو عودة)', 18, '2023-08-16 16:51:58', NULL, 'توصيل يومي (ذهاب أو عودة)', 'daily drive (go or back)'),
+	(3, 'daily drive (go and back) | توصيل يومي (ذهاب و عودة)', 30, '2023-08-16 16:51:58', NULL, 'توصيل يومي (ذهاب و عودة)', 'daily drive (go and back)'),
+	(4, 'weekly drive (go or back) | توصيل أسبوعي (ذهاب أو عودة)', 150, '2023-08-16 16:51:58', NULL, 'توصيل أسبوعي (ذهاب أو عودة)', 'weekly drive (go or back)'),
+	(5, 'weekly drive (go and back) | توصيل أسبوعي (ذهاب و عودة)', 300, '2023-08-16 16:51:58', NULL, 'توصيل أسبوعي (ذهاب و عودة)', 'weekly drive (go and back)');
+/*!40000 ALTER TABLE `services` ENABLE KEYS */;
 
 -- Dumping structure for table atariqi.calling-key
 CREATE TABLE IF NOT EXISTS `calling-key` (
@@ -63,6 +86,58 @@ INSERT INTO `cities` (`id`, `city-ar`, `city-en`) VALUES
 	(1, 'الرياض', 'Riyadh');
 /*!40000 ALTER TABLE `cities` ENABLE KEYS */;
 
+-- Dumping structure for table atariqi.university
+CREATE TABLE IF NOT EXISTS `university` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `name-ar` char(255) NOT NULL,
+  `name-eng` char(255) NOT NULL,
+  `country` varchar(100) NOT NULL,
+  `city` varchar(100) NOT NULL,
+  `city_id` bigint(20) unsigned DEFAULT NULL,
+  `location` text NOT NULL,
+  `date-of-add` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `date-of-edit` datetime DEFAULT NULL,
+  `lat` varchar(255) DEFAULT NULL,
+  `lng` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `university_city_id_foreign` (`city_id`),
+  CONSTRAINT `university_city_id_foreign` FOREIGN KEY (`city_id`) REFERENCES `cities` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4;
+
+-- Dumping data for table atariqi.university: ~2 rows (approximately)
+/*!40000 ALTER TABLE `university` DISABLE KEYS */;
+INSERT INTO `university` (`id`, `name-ar`, `name-eng`, `country`, `city`, `city_id`, `location`, `date-of-add`, `date-of-edit`, `lat`, `lng`) VALUES
+	(1, 'جامعة الملك سعود', 'King Saud University', 'Saudi Arabia', 'riyadh', 1, 'https://goo.gl/maps/XuXVx5GHLDzA3p9M9', '2023-08-16 16:34:53', NULL, '123', '123'),
+	(2, 'جامعة الملكه نوره', 'Queen Noura', 'Saudi Arabia', 'riyadh', 1, 'https://goo.gl/maps/XuXVx5GHLDzA3p9M9', '2023-08-16 16:34:53', NULL, '123', '123');
+/*!40000 ALTER TABLE `university` ENABLE KEYS */;
+
+
+-- Dumping structure for table atariqi.neighborhoods
+CREATE TABLE IF NOT EXISTS `neighborhoods` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `neighborhood-ar` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `neighborhood-eng` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `city_id` bigint(20) unsigned DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `neighborhoods_city_id_foreign` (`city_id`),
+  CONSTRAINT `neighborhoods_city_id_foreign` FOREIGN KEY (`city_id`) REFERENCES `cities` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Dumping data for table atariqi.neighborhoods: ~10 rows (approximately)
+/*!40000 ALTER TABLE `neighborhoods` DISABLE KEYS */;
+INSERT INTO `neighborhoods` (`id`, `neighborhood-ar`, `neighborhood-eng`, `city_id`) VALUES
+	(1, 'حي الربيع', 'Al-Rabiea', 1),
+	(2, 'حي الندى', 'Al-Nada', 1),
+	(3, 'حي الصحافة', 'Al-Sahafa', 1),
+	(4, 'حي النرجس', 'Al-Narges', 1),
+	(5, 'حي النفل', 'Al-Nafl', 1),
+	(6, 'حي العقيق', 'Al-Aqiq', 1),
+	(7, 'حي الوادي', 'Al-Wadi', 1),
+	(8, 'حي الغدير', 'Al-Ghadeer', 1),
+	(9, 'حي الياسمين', 'Al-Yasamin', 1),
+	(10, 'حي العارض', 'Al-Arid', 1);
+/*!40000 ALTER TABLE `neighborhoods` ENABLE KEYS */;
+
 -- Dumping structure for table atariqi.counter
 CREATE TABLE IF NOT EXISTS `counter` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
@@ -76,39 +151,6 @@ CREATE TABLE IF NOT EXISTS `counter` (
 -- Dumping data for table atariqi.counter: ~0 rows (approximately)
 /*!40000 ALTER TABLE `counter` DISABLE KEYS */;
 /*!40000 ALTER TABLE `counter` ENABLE KEYS */;
-
--- Dumping structure for table atariqi.day-ride-booking
-CREATE TABLE IF NOT EXISTS `day-ride-booking` (
-  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `passenger-id` bigint(20) NOT NULL,
-  `neighborhood-id` bigint(20) unsigned NOT NULL,
-  `university-id` bigint(20) DEFAULT NULL,
-  `service-id` bigint(20) NOT NULL,
-  `date-of-ser` date DEFAULT NULL,
-  `road-way` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `time-go` time DEFAULT NULL,
-  `time-back` time DEFAULT NULL,
-  `action` tinyint(4) NOT NULL DEFAULT '0',
-  `date-of-add` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `lat` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `lng` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `day_ride_booking_passenger_id_foreign` (`passenger-id`),
-  KEY `day_ride_booking_neighborhood_id_foreign` (`neighborhood-id`),
-  KEY `day_ride_booking_service_id_foreign` (`service-id`),
-  KEY `day_ride_booking_university_id_foreign` (`university-id`),
-  CONSTRAINT `day_ride_booking_neighborhood_id_foreign` FOREIGN KEY (`neighborhood-id`) REFERENCES `neighborhoods` (`id`) ON DELETE CASCADE,
-  CONSTRAINT `day_ride_booking_passenger_id_foreign` FOREIGN KEY (`passenger-id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
-  CONSTRAINT `day_ride_booking_service_id_foreign` FOREIGN KEY (`service-id`) REFERENCES `services` (`id`) ON DELETE CASCADE,
-  CONSTRAINT `day_ride_booking_university_id_foreign` FOREIGN KEY (`university-id`) REFERENCES `university` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- Dumping data for table atariqi.day-ride-booking: ~2 rows (approximately)
-/*!40000 ALTER TABLE `day-ride-booking` DISABLE KEYS */;
-INSERT INTO `day-ride-booking` (`id`, `passenger-id`, `neighborhood-id`, `university-id`, `service-id`, `date-of-ser`, `road-way`, `time-go`, `time-back`, `action`, `date-of-add`, `lat`, `lng`) VALUES
-	(22, 4, 1, 1, 3, '2023-10-03', 'to', '22:30:00', NULL, 0, '2023-10-06 20:50:46', NULL, NULL),
-	(23, 4, 1, 1, 3, '2023-10-03', 'to', '22:30:00', NULL, 0, '2023-10-06 20:51:44', NULL, NULL);
-/*!40000 ALTER TABLE `day-ride-booking` ENABLE KEYS */;
 
 -- Dumping structure for table atariqi.document
 CREATE TABLE IF NOT EXISTS `document` (
@@ -127,6 +169,62 @@ INSERT INTO `document` (`id`, `title-ar`, `title-eng`, `file-link`, `date-of-add
 	(1, 'الشروط  و الأحكام', 'Terms and Conditions', 'documents/conditions.pdf', '2023-08-25 14:38:49', NULL),
 	(2, 'سياسة الخصوصية', 'privacy policy', 'documents/policies.pdf', '2023-08-25 14:38:49', NULL);
 /*!40000 ALTER TABLE `document` ENABLE KEYS */;
+
+-- Dumping structure for table atariqi.stages
+CREATE TABLE IF NOT EXISTS `stages` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `name-ar` varchar(50) NOT NULL,
+  `name-eng` varchar(50) NOT NULL,
+  `date-of-add` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `date-of-edit` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4;
+
+-- Dumping data for table atariqi.stages: ~5 rows (approximately)
+/*!40000 ALTER TABLE `stages` DISABLE KEYS */;
+INSERT INTO `stages` (`id`, `name-ar`, `name-eng`, `date-of-add`, `date-of-edit`) VALUES
+	(1, 'طالب', 'student', '2023-08-16 16:39:27', NULL),
+	(2, 'دكتور جامعي', 'Professor', '2023-08-16 16:39:27', NULL),
+	(3, 'مساعد دكتور', 'assistant', '2023-08-16 16:39:27', NULL),
+	(4, 'موظف', 'employee', '2023-08-16 16:39:27', NULL),
+	(5, 'إداري', 'administrative', '2023-08-16 16:39:27', NULL);
+/*!40000 ALTER TABLE `stages` ENABLE KEYS */;
+
+-- Dumping structure for table atariqi.users
+CREATE TABLE IF NOT EXISTS `users` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `user-first-name` varchar(20) NOT NULL,
+  `user-last-name` varchar(20) NOT NULL,
+  `call-key-id` bigint(20) NOT NULL,
+  `phone-no` varchar(20) NOT NULL,
+  `gender` varchar(50) NOT NULL,
+  `university-id` bigint(20) NOT NULL,
+  `user-stage-id` bigint(20) NOT NULL,
+  `email` char(255) NOT NULL,
+  `approval` tinyint(1) NOT NULL DEFAULT '1',
+  `user-type` varchar(50) NOT NULL,
+  `image` varchar(255) DEFAULT NULL,
+  `date-of-add` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `date-of-edit` datetime DEFAULT NULL,
+  `code` varchar(255) DEFAULT NULL,
+  `fcm_token` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `university-id` (`university-id`),
+  KEY `user-stage-id` (`user-stage-id`),
+  KEY `call-key-id` (`call-key-id`),
+  CONSTRAINT `users_ibfk_1` FOREIGN KEY (`university-id`) REFERENCES `university` (`id`),
+  CONSTRAINT `users_ibfk_2` FOREIGN KEY (`user-stage-id`) REFERENCES `stages` (`id`),
+  CONSTRAINT `users_ibfk_3` FOREIGN KEY (`call-key-id`) REFERENCES `calling-key` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4;
+
+-- Dumping data for table atariqi.users: ~4 rows (approximately)
+/*!40000 ALTER TABLE `users` DISABLE KEYS */;
+INSERT INTO `users` (`id`, `user-first-name`, `user-last-name`, `call-key-id`, `phone-no`, `gender`, `university-id`, `user-stage-id`, `email`, `approval`, `user-type`, `image`, `date-of-add`, `date-of-edit`, `code`, `fcm_token`) VALUES
+	(1, 'user1', 'family', 1, '504444444', 'girl', 1, 1, '123456@seu.edu.sa', 1, 'passenger', NULL, '2023-08-16 16:41:05', NULL, NULL, NULL),
+	(2, 'haneen', 'almaliki', 1, '504774391', 'girl', 1, 1, '123@ksu.edu.sa', 1, 'driver', 'avatar.png', '2023-09-03 23:07:05', NULL, NULL, NULL),
+	(4, 'Omar', 'Zizo', 2, '1007958185', 'male', 1, 1, 'omarzizo207@gmail.com', 1, 'passenger', NULL, '2023-08-29 18:43:00', NULL, '6377', 'sda'),
+	(5, 'Nabawy', 'Hussein', 2, '1141949039', 'male', 1, 1, 'Nabawy@gmail.com', 1, 'passenger', NULL, '2023-09-26 23:11:14', NULL, '3900', 'sda');
+/*!40000 ALTER TABLE `users` ENABLE KEYS */;
 
 -- Dumping structure for table atariqi.driver-info
 CREATE TABLE IF NOT EXISTS `driver-info` (
@@ -302,31 +400,38 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
 	(55, '2023_10_06_180428_add_university_id_to_day_ride_booking_table', 13);
 /*!40000 ALTER TABLE `migrations` ENABLE KEYS */;
 
--- Dumping structure for table atariqi.neighborhoods
-CREATE TABLE IF NOT EXISTS `neighborhoods` (
+-- Dumping structure for table atariqi.day-ride-booking
+CREATE TABLE IF NOT EXISTS `day-ride-booking` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `neighborhood-ar` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `neighborhood-eng` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `city_id` bigint(20) unsigned DEFAULT NULL,
+  `passenger-id` bigint(20) NOT NULL,
+  `neighborhood-id` bigint(20) unsigned NOT NULL,
+  `university-id` bigint(20) DEFAULT NULL,
+  `service-id` bigint(20) NOT NULL,
+  `date-of-ser` date DEFAULT NULL,
+  `road-way` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `time-go` time DEFAULT NULL,
+  `time-back` time DEFAULT NULL,
+  `action` tinyint(4) NOT NULL DEFAULT '0',
+  `date-of-add` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `lat` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `lng` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `neighborhoods_city_id_foreign` (`city_id`),
-  CONSTRAINT `neighborhoods_city_id_foreign` FOREIGN KEY (`city_id`) REFERENCES `cities` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  KEY `day_ride_booking_passenger_id_foreign` (`passenger-id`),
+  KEY `day_ride_booking_neighborhood_id_foreign` (`neighborhood-id`),
+  KEY `day_ride_booking_service_id_foreign` (`service-id`),
+  KEY `day_ride_booking_university_id_foreign` (`university-id`),
+  CONSTRAINT `day_ride_booking_neighborhood_id_foreign` FOREIGN KEY (`neighborhood-id`) REFERENCES `neighborhoods` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `day_ride_booking_passenger_id_foreign` FOREIGN KEY (`passenger-id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `day_ride_booking_service_id_foreign` FOREIGN KEY (`service-id`) REFERENCES `services` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `day_ride_booking_university_id_foreign` FOREIGN KEY (`university-id`) REFERENCES `university` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table atariqi.neighborhoods: ~10 rows (approximately)
-/*!40000 ALTER TABLE `neighborhoods` DISABLE KEYS */;
-INSERT INTO `neighborhoods` (`id`, `neighborhood-ar`, `neighborhood-eng`, `city_id`) VALUES
-	(1, 'حي الربيع', 'Al-Rabiea', 1),
-	(2, 'حي الندى', 'Al-Nada', 1),
-	(3, 'حي الصحافة', 'Al-Sahafa', 1),
-	(4, 'حي النرجس', 'Al-Narges', 1),
-	(5, 'حي النفل', 'Al-Nafl', 1),
-	(6, 'حي العقيق', 'Al-Aqiq', 1),
-	(7, 'حي الوادي', 'Al-Wadi', 1),
-	(8, 'حي الغدير', 'Al-Ghadeer', 1),
-	(9, 'حي الياسمين', 'Al-Yasamin', 1),
-	(10, 'حي العارض', 'Al-Arid', 1);
-/*!40000 ALTER TABLE `neighborhoods` ENABLE KEYS */;
+-- Dumping data for table atariqi.day-ride-booking: ~2 rows (approximately)
+/*!40000 ALTER TABLE `day-ride-booking` DISABLE KEYS */;
+INSERT INTO `day-ride-booking` (`id`, `passenger-id`, `neighborhood-id`, `university-id`, `service-id`, `date-of-ser`, `road-way`, `time-go`, `time-back`, `action`, `date-of-add`, `lat`, `lng`) VALUES
+	(22, 4, 1, 1, 3, '2023-10-03', 'to', '22:30:00', NULL, 0, '2023-10-06 20:50:46', NULL, NULL),
+	(23, 4, 1, 1, 3, '2023-10-03', 'to', '22:30:00', NULL, 0, '2023-10-06 20:51:44', NULL, NULL);
+/*!40000 ALTER TABLE `day-ride-booking` ENABLE KEYS */;
 
 -- Dumping structure for table atariqi.opening
 CREATE TABLE IF NOT EXISTS `opening` (
@@ -400,28 +505,6 @@ INSERT INTO `ride-booking` (`id`, `passenger-id`, `neighborhood-id`, `location`,
 	(32, 6, 1, NULL, 1, 2, '2023-10-03 01:50:48', '123', '1234');
 /*!40000 ALTER TABLE `ride-booking` ENABLE KEYS */;
 
--- Dumping structure for table atariqi.services
-CREATE TABLE IF NOT EXISTS `services` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `service` varchar(100) NOT NULL,
-  `cost` bigint(20) NOT NULL,
-  `date-of-add` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `date-of-edit` datetime DEFAULT NULL,
-  `service-ar` varchar(255) DEFAULT NULL,
-  `service-eng` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4;
-
--- Dumping data for table atariqi.services: ~5 rows (approximately)
-/*!40000 ALTER TABLE `services` DISABLE KEYS */;
-INSERT INTO `services` (`id`, `service`, `cost`, `date-of-add`, `date-of-edit`, `service-ar`, `service-eng`) VALUES
-	(1, 'immediately drive | توصيل لحظي', 20, '2023-08-16 16:51:58', NULL, 'توصيل لحظي', 'immediately drive'),
-	(2, 'daily drive (go or back) | توصيل يومي (ذهاب أو عودة)', 18, '2023-08-16 16:51:58', NULL, 'توصيل يومي (ذهاب أو عودة)', 'daily drive (go or back)'),
-	(3, 'daily drive (go and back) | توصيل يومي (ذهاب و عودة)', 30, '2023-08-16 16:51:58', NULL, 'توصيل يومي (ذهاب و عودة)', 'daily drive (go and back)'),
-	(4, 'weekly drive (go or back) | توصيل أسبوعي (ذهاب أو عودة)', 150, '2023-08-16 16:51:58', NULL, 'توصيل أسبوعي (ذهاب أو عودة)', 'weekly drive (go or back)'),
-	(5, 'weekly drive (go and back) | توصيل أسبوعي (ذهاب و عودة)', 300, '2023-08-16 16:51:58', NULL, 'توصيل أسبوعي (ذهاب و عودة)', 'weekly drive (go and back)');
-/*!40000 ALTER TABLE `services` ENABLE KEYS */;
-
 -- Dumping structure for table atariqi.socials
 CREATE TABLE IF NOT EXISTS `socials` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
@@ -438,26 +521,6 @@ CREATE TABLE IF NOT EXISTS `socials` (
 -- Dumping data for table atariqi.socials: ~0 rows (approximately)
 /*!40000 ALTER TABLE `socials` DISABLE KEYS */;
 /*!40000 ALTER TABLE `socials` ENABLE KEYS */;
-
--- Dumping structure for table atariqi.stages
-CREATE TABLE IF NOT EXISTS `stages` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `name-ar` varchar(50) NOT NULL,
-  `name-eng` varchar(50) NOT NULL,
-  `date-of-add` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `date-of-edit` datetime DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4;
-
--- Dumping data for table atariqi.stages: ~5 rows (approximately)
-/*!40000 ALTER TABLE `stages` DISABLE KEYS */;
-INSERT INTO `stages` (`id`, `name-ar`, `name-eng`, `date-of-add`, `date-of-edit`) VALUES
-	(1, 'طالب', 'student', '2023-08-16 16:39:27', NULL),
-	(2, 'دكتور جامعي', 'Professor', '2023-08-16 16:39:27', NULL),
-	(3, 'مساعد دكتور', 'assistant', '2023-08-16 16:39:27', NULL),
-	(4, 'موظف', 'employee', '2023-08-16 16:39:27', NULL),
-	(5, 'إداري', 'administrative', '2023-08-16 16:39:27', NULL);
-/*!40000 ALTER TABLE `stages` ENABLE KEYS */;
 
 -- Dumping structure for table atariqi.sug-day-drivers
 CREATE TABLE IF NOT EXISTS `sug-day-drivers` (
@@ -522,30 +585,6 @@ INSERT INTO `uni-driving-services` (`id`, `university-id`, `service-id`, `date-o
 	(5, 2, 2, '2023-08-16 16:56:16');
 /*!40000 ALTER TABLE `uni-driving-services` ENABLE KEYS */;
 
--- Dumping structure for table atariqi.university
-CREATE TABLE IF NOT EXISTS `university` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `name-ar` char(255) NOT NULL,
-  `name-eng` char(255) NOT NULL,
-  `country` varchar(100) NOT NULL,
-  `city` varchar(100) NOT NULL,
-  `city_id` bigint(20) unsigned DEFAULT NULL,
-  `location` text NOT NULL,
-  `date-of-add` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `date-of-edit` datetime DEFAULT NULL,
-  `lat` varchar(255) DEFAULT NULL,
-  `lng` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `university_city_id_foreign` (`city_id`),
-  CONSTRAINT `university_city_id_foreign` FOREIGN KEY (`city_id`) REFERENCES `cities` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4;
-
--- Dumping data for table atariqi.university: ~2 rows (approximately)
-/*!40000 ALTER TABLE `university` DISABLE KEYS */;
-INSERT INTO `university` (`id`, `name-ar`, `name-eng`, `country`, `city`, `city_id`, `location`, `date-of-add`, `date-of-edit`, `lat`, `lng`) VALUES
-	(1, 'جامعة الملك سعود', 'King Saud University', 'Saudi Arabia', 'riyadh', 1, 'https://goo.gl/maps/XuXVx5GHLDzA3p9M9', '2023-08-16 16:34:53', NULL, '123', '123'),
-	(2, 'جامعة الملكه نوره', 'Queen Noura', 'Saudi Arabia', 'riyadh', 1, 'https://goo.gl/maps/XuXVx5GHLDzA3p9M9', '2023-08-16 16:34:53', NULL, '123', '123');
-/*!40000 ALTER TABLE `university` ENABLE KEYS */;
 
 -- Dumping structure for table atariqi.user-login
 CREATE TABLE IF NOT EXISTS `user-login` (
@@ -565,42 +604,6 @@ INSERT INTO `user-login` (`id`, `user-id`, `date-time`, `login-logout`) VALUES
 	(2, 4, '2023-09-18 18:52:35', 1),
 	(3, 5, '2023-09-26 23:12:05', 1);
 /*!40000 ALTER TABLE `user-login` ENABLE KEYS */;
-
--- Dumping structure for table atariqi.users
-CREATE TABLE IF NOT EXISTS `users` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `user-first-name` varchar(20) NOT NULL,
-  `user-last-name` varchar(20) NOT NULL,
-  `call-key-id` bigint(20) NOT NULL,
-  `phone-no` varchar(20) NOT NULL,
-  `gender` varchar(50) NOT NULL,
-  `university-id` bigint(20) NOT NULL,
-  `user-stage-id` bigint(20) NOT NULL,
-  `email` char(255) NOT NULL,
-  `approval` tinyint(1) NOT NULL DEFAULT '1',
-  `user-type` varchar(50) NOT NULL,
-  `image` varchar(255) DEFAULT NULL,
-  `date-of-add` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `date-of-edit` datetime DEFAULT NULL,
-  `code` varchar(255) DEFAULT NULL,
-  `fcm_token` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `university-id` (`university-id`),
-  KEY `user-stage-id` (`user-stage-id`),
-  KEY `call-key-id` (`call-key-id`),
-  CONSTRAINT `users_ibfk_1` FOREIGN KEY (`university-id`) REFERENCES `university` (`id`),
-  CONSTRAINT `users_ibfk_2` FOREIGN KEY (`user-stage-id`) REFERENCES `stages` (`id`),
-  CONSTRAINT `users_ibfk_3` FOREIGN KEY (`call-key-id`) REFERENCES `calling-key` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4;
-
--- Dumping data for table atariqi.users: ~4 rows (approximately)
-/*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` (`id`, `user-first-name`, `user-last-name`, `call-key-id`, `phone-no`, `gender`, `university-id`, `user-stage-id`, `email`, `approval`, `user-type`, `image`, `date-of-add`, `date-of-edit`, `code`, `fcm_token`) VALUES
-	(1, 'user1', 'family', 1, '504444444', 'girl', 1, 1, '123456@seu.edu.sa', 1, 'passenger', NULL, '2023-08-16 16:41:05', NULL, NULL, NULL),
-	(2, 'haneen', 'almaliki', 1, '504774391', 'girl', 1, 1, '123@ksu.edu.sa', 1, 'driver', 'avatar.png', '2023-09-03 23:07:05', NULL, NULL, NULL),
-	(4, 'Omar', 'Zizo', 2, '1007958185', 'male', 1, 1, 'omarzizo207@gmail.com', 1, 'passenger', NULL, '2023-08-29 18:43:00', NULL, '6377', 'sda'),
-	(5, 'Nabawy', 'Hussein', 2, '1141949039', 'male', 1, 1, 'Nabawy@gmail.com', 1, 'passenger', NULL, '2023-09-26 23:11:14', NULL, '3900', 'sda');
-/*!40000 ALTER TABLE `users` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
 /*!40014 SET FOREIGN_KEY_CHECKS=IF(@OLD_FOREIGN_KEY_CHECKS IS NULL, 1, @OLD_FOREIGN_KEY_CHECKS) */;
