@@ -452,8 +452,8 @@ class DailyDriverController extends BaseController
                 $to['en'] = $ride->neighborhood->{"neighborhood-eng"};
                 $success['destination_lat'] = $ride->lat;
                 $success['destination_lng'] = $ride->lat;
-                $success['source_lat'] = $ride->university->lat;
-                $success['source_lng'] = $ride->university->lng;
+                $success['source_lat'] = "30.127199758351413";
+                $success['source_lng'] = "31.32598633042837";
             } else {
                 $from['ar'] = $ride->neighborhood->{"neighborhood-ar"};
                 $from['en'] = $ride->neighborhood->{"neighborhood-eng"};
@@ -461,8 +461,8 @@ class DailyDriverController extends BaseController
                 $to['en'] = $ride->university->{"name-eng"};
                 $success['destination_lat'] = $ride->university->lat;
                 $success['destination_lng'] = $ride->university->lng;
-                $success['source_lat'] = $ride->lat;
-                $success['source_lng'] = $ride->lng;
+                $success['source_lat'] = "30.127199758351413";
+                $success['source_lng'] = "31.32598633042837";
             }
             $success['to'] = $to;
             $success['from'] = $from;
