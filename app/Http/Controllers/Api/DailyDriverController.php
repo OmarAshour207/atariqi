@@ -427,6 +427,7 @@ class DailyDriverController extends BaseController
         $success['source_lat'] = null;
         $success['source_lng'] = null;
         $success['estimated_time'] = 0;
+        $success['action'] = 'daily/transport/trip';
 
         $passengerId = auth()->user()->id;
         $nowDate = Carbon::now()->format('Y-m-d');
