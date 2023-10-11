@@ -60,6 +60,7 @@ class ImmediateDriverController extends BaseController
         $success['to'] = null;
         $success['from'] = null;
         $success['estimated_time'] = null;
+        $success['action'] = url('api/immediate/transport/trips');
 
         if (isset($data['fake'])) {
             $finalDriversId = User::select('users.id')
@@ -230,7 +231,6 @@ class ImmediateDriverController extends BaseController
             $success['from'] = $from;
             $success['estimated_time'] = 15;
             $success['trip'] = $rideBooking;
-            $success['action'] = url('api/immediate/transport/trips');
 
             return $this->sendResponse($success, __('Drivers'));
         }
