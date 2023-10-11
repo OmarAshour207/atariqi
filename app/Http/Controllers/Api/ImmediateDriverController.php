@@ -63,19 +63,8 @@ class ImmediateDriverController extends BaseController
         $success['action'] = 'immediate/transport/trips';
 
         if (isset($data['fake'])) {
-            $finalDriversId = User::select('users.id')
-                ->where('user-type', 'driver')
-                ->get()
-                ->toArray();
-
-            $ids = array();
-
-            foreach ($finalDriversId as $driver) {
-                $ids[] = $driver['id'];
-            }
-
             $drivers = DriverInfo::with('driver')
-                ->whereIn('driver-id', $ids)
+                ->whereIn('driver-id', [2])
                 ->get();
 
             $neighborhood = Neighbour::findOrFail($neighborhoodId);
@@ -83,6 +72,17 @@ class ImmediateDriverController extends BaseController
 
             $from = array();
             $to = array();
+            $rideBooking = RideBooking::create([
+                'passenger-id'      => $passengerId,
+                'neighborhood-id'   => $universityId,
+                'lat'               => $lat,
+                'lng'               => $lng,
+                'service-id'        => $rideTypeId,
+                'action'            => 1,
+                'date-of-add'       => Carbon::now()
+            ]);
+            $success['trip'] = $rideBooking;
+
             if($roadWay == 'from') {
                 $to['ar'] = $neighborhood->{"neighborhood-ar"};
                 $to['en'] = $neighborhood->{"neighborhood-eng"};
@@ -101,7 +101,6 @@ class ImmediateDriverController extends BaseController
             $success['to'] = $to;
             $success['from'] = $from;
             $success['estimated_time'] = 15;
-            $success['trip'] = [];
             $success['drivers'] = DriverInfoResource::collection($drivers);;
             return $this->sendResponse($success, __('Drivers'));
         }
