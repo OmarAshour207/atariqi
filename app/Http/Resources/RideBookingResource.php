@@ -10,7 +10,7 @@ class RideBookingResource extends JsonResource
     {
         return [
             'id'            => $this->id,
-            'passenger-id'  => new UserSampleResource($this->passenger),
+            'passenger'     => new UserSampleResource($this->passenger),
             'neighborhood'  => new NeighbourResource($this->neighborhood),
             'service'       => new ServiceResource($this->service),
             'lat'           => $this->lat,
