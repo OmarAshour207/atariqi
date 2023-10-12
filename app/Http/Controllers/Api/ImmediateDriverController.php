@@ -260,7 +260,9 @@ class ImmediateDriverController extends BaseController
 
         $data = $validator->validated();
 
-        $trip = RideBooking::whereId($data['id'])->first();
+        $trip = RideBooking::with('passenger', 'neighborhood', 'service')
+            ->whereId($data['id'])
+            ->first();
 
         if ($trip) {
             $success['trip'] = new RideBookingResource($trip);
@@ -268,7 +270,7 @@ class ImmediateDriverController extends BaseController
             $suggestDriver = SuggestionDriver::with('driverinfo')
                 ->where('booking-id', $trip->id)
                 ->first();
-            $success['driverinfo'] = new DriverInfoResource($suggestDriver->driverinfo);
+            $success['driverinfo'] = $suggestDriver ? new DriverInfoResource($suggestDriver->driverinfo) : new \stdClass();
         }
 
         return $this->sendResponse($success, __('Trip Details'));
