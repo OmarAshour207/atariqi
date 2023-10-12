@@ -68,7 +68,7 @@ class ImmediateDriverController extends BaseController
         $success['to'] = $to;
         $success['from'] = $from;
         $success['trip'] = $suggestedDriver->booking;
-        $success['driver'] = new DriverInfoResource($suggestedDriver->driverinfo);
+        $success['drivers'] = new DriverInfoResource($suggestedDriver->driverinfo);
 
         return $this->sendResponse($success, __('Drivers'));
     }
