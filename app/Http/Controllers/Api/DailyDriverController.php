@@ -31,7 +31,7 @@ class DailyDriverController extends BaseController
             'passenger_id'      => 'sometimes|nullable|numeric',
             'lat'               => 'required|string',
             'lng'               => 'required|string',
-            'date'              => 'required|date_format:Y-m-d',
+            'date'              => 'required',
             'road_way'          => 'required|string',
             'time_go'           => Rule::requiredIf($request->request->get('road_way') == 'to' || $request->request->get('road_way') == 'both'),
             'time_back'         => Rule::requiredIf($request->request->get('road_way') == 'from' || $request->request->get('road_way') == 'both'),
@@ -49,8 +49,12 @@ class DailyDriverController extends BaseController
         $neighborhoodId = $data['neighborhood_id'];
         $roadWay = $data['road_way'];
         $date = $data['date'];
-        $timeBack = isset($data['time_back']) ? $data['time_back'] : null;
-        $timeGo =  isset($data['time_go']) ? $data['time_go'] : null;
+
+        $date = convertArabicDateToEnglish($date);
+        $date = Carbon::createFromFormat('Y-m-d', $date)->format('Y-m-d');
+        $timeBack = isset($data['time_back']) ? convertArabicDateToEnglish($data['time_back']) : null;
+        $timeGo =  isset($data['time_go']) ? convertArabicDateToEnglish($data['time_go']) : null;
+
         $lat = $data['lat'];
         $lng = $data['lng'];
         $dateDay = Carbon::parse($date)->format('l');
@@ -250,14 +254,18 @@ class DailyDriverController extends BaseController
         $data = $validator->validated();
 
         $rideTypeId = $data['ride_type_id'];
-        $passengerId = auth()->user()->id ?? $data['passenger_id'];
+        $passengerId = auth()->user()->id;
         $neighborhoodId = $data['neighborhood_id'];
         $universityId = $data['university_id'];
         $driverId = $data['driver_id'];
         $roadWay = $data['road_way'];
         $date = $data['date'];
-        $timeBack = $data['time_back'];
-        $timeGo = $data['time_go'];
+
+        $date = convertArabicDateToEnglish($date);
+        $date = Carbon::createFromFormat('Y-m-d', $date)->format('Y-m-d');
+        $timeBack = isset($data['time_back']) ? convertArabicDateToEnglish($data['time_back']) : null;
+        $timeGo =  isset($data['time_go']) ? convertArabicDateToEnglish($data['time_go']) : null;
+
         $dayRideBooking = '';
 
         $savingData = [
@@ -319,12 +327,16 @@ class DailyDriverController extends BaseController
         $data = $validator->validated();
         $roadWay = $data['road_way'];
         $date = $data['date'];
+
+        $date = convertArabicDateToEnglish($date);
+        $date = Carbon::createFromFormat('Y-m-d', $date)->format('Y-m-d');
+        $timeBack = isset($data['time_back']) ? convertArabicDateToEnglish($data['time_back']) : null;
+        $timeGo =  isset($data['time_go']) ? convertArabicDateToEnglish($data['time_go']) : null;
+
         $rideTypeId = $data['ride_type_id'];
         $neighborhoodId = $data['neighborhood_id'];
         $universityId = $data['university_id'];
         $passengerId = auth()->user()->id ?? $data['passenger_id'];
-        $timeGo = $data['time_go'];
-        $timeBack = $data['time_back'];
 
         $dayRideBooking = DayRideBooking::create([
             'passenger-id'      => $passengerId,
@@ -485,46 +497,45 @@ class DailyDriverController extends BaseController
             ->where('passenger-id', $passengerId)
             ->first();
 
-        if ($ride) {
-            $sugDayDriver = SugDayDriver::with('booking', 'driverinfo')->where([
-                ['booking-id', $ride->id],
-                ['action', 3],
-                ['passenger-id', $passengerId]
-            ])->first();
+        if (!$ride)
+            return $this->sendResponse($success, __("Not found trips"));
 
-            $success['sug_day_driver'] = new SugDayDrivingResource($sugDayDriver);
-            if ($ride->{"road-way"} == 'from') {
-                $from['ar'] = $ride->university->{"name-ar"};
-                $from['en'] = $ride->university->{"name-eng"};
-                $to['ar'] = $ride->neighborhood->{"neighborhood-ar"};
-                $to['en'] = $ride->neighborhood->{"neighborhood-eng"};
-                $success['destination_lat'] = $ride->lat;
-                $success['destination_lng'] = $ride->lat;
-                $success['source_lat'] = $ride->university->lat;
-                $success['source_lng'] = $ride->university->lng;
-            } else {
-                $from['ar'] = $ride->neighborhood->{"neighborhood-ar"};
-                $from['en'] = $ride->neighborhood->{"neighborhood-eng"};
-                $to['ar'] = $ride->university->{"name-ar"};
-                $to['en'] = $ride->university->{"name-eng"};
-                $success['destination_lat'] = $ride->university->lat;
-                $success['destination_lng'] = $ride->university->lng;
-                $success['source_lat'] = $ride->lat;
-                $success['source_lng'] = $ride->lng;
-            }
-            $success['to'] = $to;
-            $success['from'] = $from;
+        $sugDayDriver = SugDayDriver::with('booking', 'driverinfo')->where([
+            ['booking-id', $ride->id],
+            ['action', 3],
+            ['passenger-id', $passengerId]
+        ])->first();
 
-            sendNotification([
-                'title'     => __('You have a notification from Atariqi'),
-                'body'      => __("an order from Atariqi to accept the ride"),
-                'tokens'    => [auth()->user()->fcm_token]
-            ]);
-
-            return $this->sendResponse($success, __("an order from Atariqi to accept the ride"));
+        $success['sug_day_driver'] = new SugDayDrivingResource($sugDayDriver);
+        if ($ride->{"road-way"} == 'from') {
+            $from['ar'] = $ride->university->{"name-ar"};
+            $from['en'] = $ride->university->{"name-eng"};
+            $to['ar'] = $ride->neighborhood->{"neighborhood-ar"};
+            $to['en'] = $ride->neighborhood->{"neighborhood-eng"};
+            $success['destination_lat'] = $ride->lat;
+            $success['destination_lng'] = $ride->lat;
+            $success['source_lat'] = $ride->university->lat;
+            $success['source_lng'] = $ride->university->lng;
+        } else {
+            $from['ar'] = $ride->neighborhood->{"neighborhood-ar"};
+            $from['en'] = $ride->neighborhood->{"neighborhood-eng"};
+            $to['ar'] = $ride->university->{"name-ar"};
+            $to['en'] = $ride->university->{"name-eng"};
+            $success['destination_lat'] = $ride->university->lat;
+            $success['destination_lng'] = $ride->university->lng;
+            $success['source_lat'] = $ride->lat;
+            $success['source_lng'] = $ride->lng;
         }
+        $success['to'] = $to;
+        $success['from'] = $from;
 
-        return $this->sendResponse($success, __("Not found trips"));
+        sendNotification([
+            'title'     => __('You have a notification from Atariqi'),
+            'body'      => __("an order from Atariqi to accept the ride"),
+            'tokens'    => [auth()->user()->fcm_token]
+        ]);
+
+        return $this->sendResponse($success, __("an order from Atariqi to accept the ride"));
     }
 
     public function getTripDetails(Request $request)

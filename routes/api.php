@@ -22,6 +22,7 @@ Route::group([
         Route::post('drivers/immediate/transport', [\App\Http\Controllers\Api\ImmediateDriverController::class, 'getDrivers']);
         Route::post('immediate/transport/trips', [\App\Http\Controllers\Api\ImmediateDriverController::class, 'get']);
         Route::post('immediate/transport/change/status', [\App\Http\Controllers\Api\ImmediateDriverController::class, 'changeStatus']);
+        Route::post('immediate/transport/check/start', [\App\Http\Controllers\Api\ImmediateDriverController::class, 'checkStart']);
         Route::post('drivers/rate', [\App\Http\Controllers\Api\ImmediateDriverController::class, 'rate']);
 
         Route::post('drivers/daily/transport', [\App\Http\Controllers\Api\DailyDriverController::class, 'getDrivers']);

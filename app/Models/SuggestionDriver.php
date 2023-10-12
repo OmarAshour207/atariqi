@@ -16,6 +16,7 @@ class SuggestionDriver extends Model
     protected $fillable = [
         'booking-id',
         'driver-id',
+        'passenger-id',
         'action',
         'date-of-add',
         'date-of-edit'
@@ -29,5 +30,10 @@ class SuggestionDriver extends Model
     public function driverinfo()
     {
         return $this->hasOne(DriverInfo::class, 'driver-id', 'driver-id');
+    }
+
+    public function booking()
+    {
+        return $this->belongsTo(RideBooking::class, 'booking-id');
     }
 }

@@ -21,6 +21,8 @@ class RideBooking extends Model
         'location',
         'service-id',
         'action',
+        'road-way',
+        'university-id',
         'date-of-add'
     ];
 
@@ -33,6 +35,11 @@ class RideBooking extends Model
     public function neighborhood()
     {
         return $this->belongsTo(Neighbour::class, 'neighborhood-id');
+    }
+
+    public function university()
+    {
+        return $this->belongsTo(University::class, 'university-id');
     }
 
     public function service()
