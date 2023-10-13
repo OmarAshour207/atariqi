@@ -43,7 +43,7 @@ class DailyDriverController extends BaseController
 
         $data = $validator->validated();
 
-        $passengerId = $data['passenger_id'];
+        $passengerId = auth()->user()->id;
         $rideTypeId = $data['ride_type_id'];
         $universityId = $data['university_id'];
         $neighborhoodId = $data['neighborhood_id'];
@@ -178,8 +178,8 @@ class DailyDriverController extends BaseController
         } elseif ($roadWay == 'from') {
             $driversSchedule =  DB::table('drivers-schedule')
                 ->select("driver-id AS suggest-driver-id")
-                ->where("$dateDay-from" , '>=', "$timeGo")
-                ->whereRaw('`' . "$dateDay-from" . '` - INTERVAL 2 HOUR <= ?', [$timeGo] )
+                ->where("$dateDay-from" , '>=', "$timeBack")
+                ->whereRaw('`' . "$dateDay-from" . '` - INTERVAL 2 HOUR <= ?', [$timeBack] )
                 ->whereIn('driver-id', $rideTypeDrivers)
                 ->get()
                 ->toArray();
@@ -188,8 +188,8 @@ class DailyDriverController extends BaseController
                 ->select("driver-id AS suggest-driver-id")
                 ->where("$dateDay-to" , '<=', "$timeGo")
                 ->whereRaw('`' . "$dateDay-to" . '` + INTERVAL 2 HOUR >= ?', [$timeGo] )
-                ->where("$dateDay-from" , '>=', "$timeGo")
-                ->whereRaw('`' . "$dateDay-from" . '` - INTERVAL 2 HOUR <= ?', [$timeGo] )
+                ->where("$dateDay-from" , '>=', "$timeBack")
+                ->whereRaw('`' . "$dateDay-from" . '` - INTERVAL 2 HOUR <= ?', [$timeBack] )
                 ->whereIn('driver-id', $rideTypeDrivers)
                 ->get()
                 ->toArray();
@@ -396,6 +396,7 @@ class DailyDriverController extends BaseController
         return $this->sendResponse($success, __('Trips'));
     }
 
+    // Dareb
     public function getUserSummary(Request $request)
     {
         $validator = Validator::make($request->all(), [
