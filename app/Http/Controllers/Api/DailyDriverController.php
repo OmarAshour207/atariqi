@@ -253,8 +253,8 @@ class DailyDriverController extends BaseController
 
         $data = $validator->validated();
 
-        $rideTypeId = $data['ride_type_id'];
         $passengerId = auth()->user()->id;
+        $rideTypeId = $data['ride_type_id'];
         $neighborhoodId = $data['neighborhood_id'];
         $universityId = $data['university_id'];
         $driverId = $data['driver_id'];
@@ -325,6 +325,7 @@ class DailyDriverController extends BaseController
             return $this->sendError(__('Validation Error.'), $validator->errors()->getMessages(), 422);
 
         $data = $validator->validated();
+
         $roadWay = $data['road_way'];
         $date = $data['date'];
 
@@ -336,7 +337,7 @@ class DailyDriverController extends BaseController
         $rideTypeId = $data['ride_type_id'];
         $neighborhoodId = $data['neighborhood_id'];
         $universityId = $data['university_id'];
-        $passengerId = auth()->user()->id ?? $data['passenger_id'];
+        $passengerId = auth()->user()->id;
 
         $dayRideBooking = DayRideBooking::create([
             'passenger-id'      => $passengerId,
@@ -396,7 +397,6 @@ class DailyDriverController extends BaseController
         return $this->sendResponse($success, __('Trips'));
     }
 
-    // Dareb
     public function getUserSummary(Request $request)
     {
         $validator = Validator::make($request->all(), [

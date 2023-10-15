@@ -80,7 +80,7 @@ class ImmediateDriverController extends BaseController
             'university_id'     => 'required|numeric',
             'road_way'          => 'required|string',
             'ride_type_id'      => 'required|numeric',
-            'passenger_id'      => 'required|numeric',
+            'passenger_id'      => 'sometimes|nullable|numeric',
             'lat'               => 'required|string',
             'lng'               => 'required|string',
             'locale'            => 'sometimes|nullable|string',
@@ -94,10 +94,10 @@ class ImmediateDriverController extends BaseController
 
         $data['now_day'] = Carbon::now()->format('l');
 
+        $passengerId = auth()->user()->id;
         $rideTypeId = $data['ride_type_id'];
         $universityId = $data['university_id'];
         $neighborhoodId = $data['neighborhood_id'];
-        $passengerId = $data['passenger_id'];
         $lat = $data['lat'];
         $lng = $data['lng'];
         $roadWay = $data['road_way'];
