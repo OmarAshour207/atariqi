@@ -318,6 +318,8 @@ class DailyDriverController extends BaseController
             'time_go'           => 'sometimes|nullable|string',
             'time_back'         => 'sometimes|nullable|string',
             'road_way'          => 'required|string',
+            'lat'               => 'required|string',
+            'lng'               => 'required|string',
             'locale'            => 'sometimes|nullable|string'
         ]);
 
@@ -339,6 +341,9 @@ class DailyDriverController extends BaseController
         $universityId = $data['university_id'];
         $passengerId = auth()->user()->id;
 
+        $lat = $data['lat'];
+        $lng = $data['lng'];
+
         $dayRideBooking = DayRideBooking::create([
             'passenger-id'      => $passengerId,
             'neighborhood-id'   => $neighborhoodId,
@@ -349,6 +354,8 @@ class DailyDriverController extends BaseController
             'action'            => 4,
             'time-go'           => $timeGo,
             'time-back'         => $timeBack,
+            'lat'               => $lat,
+            'lng'               => $lng,
             'date-of-add'       => Carbon::now()
         ]);
 
