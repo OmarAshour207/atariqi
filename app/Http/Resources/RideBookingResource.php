@@ -13,6 +13,8 @@ class RideBookingResource extends JsonResource
             'passenger'     => new UserSampleResource($this->passenger),
             'neighborhood'  => new NeighbourResource($this->neighborhood),
             'service'       => new ServiceResource($this->service),
+            'university'    => new UniversityResource($this->university),
+            'road_way'      => $this->{"road-way"},
             'lat'           => $this->lat,
             'lng'           => $this->lng,
             'action'        => $this->action,
