@@ -259,6 +259,8 @@ class DailyDriverController extends BaseController
         $universityId = $data['university_id'];
         $driverId = $data['driver_id'];
         $roadWay = $data['road_way'];
+        $lat = $data['lat'];
+        $lng = $data['lng'];
         $date = $data['date'];
 
         $date = convertArabicDateToEnglish($date);
@@ -276,6 +278,8 @@ class DailyDriverController extends BaseController
             'date-of-ser'       => $date,
             'road-way'          => $roadWay,
             'action'            => 0,
+            'lat'               => $lat,
+            'lng'               => $lng,
             'date-of-add'       => Carbon::now()
         ];
 
@@ -502,7 +506,7 @@ class DailyDriverController extends BaseController
         $ride = DayRideBooking::where('date-of-ser', $nowDate)
             ->where(function ($query) use ($subMinutes, $addMinutes) {
                 $query->whereBetween('time-go', [$subMinutes, $addMinutes])
-                    ->owWhereBetween('time-back', [$subMinutes, $addMinutes]);
+                    ->orWhereBetween('time-back', [$subMinutes, $addMinutes]);
             })
             ->where('passenger-id', $passengerId)
             ->first();
