@@ -391,5 +391,4 @@ class ImmediateDriverController extends BaseController
         return $this->sendResponse(new DriverInfoResource($driverInfo), __('Updated successfully'));
     }
 
-
 }

@@ -444,7 +444,9 @@ class DailyDriverController extends BaseController
 
         $passengerId = auth()->user()->id;
         $nowDate = Carbon::now()->format('Y-m-d');
-        $nowTime = Carbon::now()->format('H:i');
+        $subMinutes = Carbon::now()->subMinutes(5)->format('H:i');
+        $addMinutes = Carbon::now()->addMinutes(5)->format('H:i');
+
         $fake = isset($validator->validated()['fake']) ? $validator->validated()['fake'] : false;
 
         if ($fake) {
@@ -491,9 +493,9 @@ class DailyDriverController extends BaseController
         }
 
         $ride = DayRideBooking::where('date-of-ser', $nowDate)
-            ->where(function ($query) use ($nowTime) {
-                $query->where('time-go', $nowTime)
-                    ->orWhere('time-back', $nowTime);
+            ->where(function ($query) use ($subMinutes, $addMinutes) {
+                $query->whereBetween('time-go', [$subMinutes, $addMinutes])
+                    ->owWhereBetween('time-back', [$subMinutes, $addMinutes]);
             })
             ->where('passenger-id', $passengerId)
             ->first();
