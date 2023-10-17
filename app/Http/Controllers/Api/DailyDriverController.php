@@ -511,7 +511,7 @@ class DailyDriverController extends BaseController
             ->where('passenger-id', $passengerId)
             ->first();
 
-        if (!$ride)
+        if (!isset($ride->id))
             return $this->sendResponse($success, __("Not found trips"));
 
         $sugDayDriver = SugDayDriver::with('booking', 'driverinfo')->where([
@@ -527,7 +527,7 @@ class DailyDriverController extends BaseController
             $to['ar'] = $ride->neighborhood->{"neighborhood-ar"};
             $to['en'] = $ride->neighborhood->{"neighborhood-eng"};
             $success['destination_lat'] = $ride->lat;
-            $success['destination_lng'] = $ride->lat;
+            $success['destination_lng'] = $ride->lng;
             $success['source_lat'] = $ride->university->lat;
             $success['source_lng'] = $ride->university->lng;
         } else {
