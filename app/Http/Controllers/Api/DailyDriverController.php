@@ -185,8 +185,8 @@ class DailyDriverController extends BaseController
         } elseif ($roadWay == 'from') {
             $driversSchedule =  DB::table('drivers-schedule')
                 ->select("driver-id AS suggest-driver-id")
-                ->where("$dateDay-from" , '>=', "$timeBack") // 23:30 > 23:40
-                ->whereRaw('`' . "$dateDay-from" . '` - INTERVAL 2 HOUR <= ?', [$timeBack] ) //21:30 <= 23:40
+                ->where("$dateDay-from" , '>=', "$timeBack")
+                ->whereRaw('`' . "$dateDay-from" . '` - INTERVAL 2 HOUR <= ?', [$timeBack] )
                 ->whereIn('driver-id', $rideTypeDrivers)
                 ->get()
                 ->toArray();
@@ -464,51 +464,6 @@ class DailyDriverController extends BaseController
         $nowDate = Carbon::now()->format('Y-m-d');
         $subMinutes = Carbon::now()->subMinutes(5)->format('H:i');
         $addMinutes = Carbon::now()->addMinutes(5)->format('H:i');
-
-        $fake = isset($validator->validated()['fake']) ? $validator->validated()['fake'] : false;
-
-        if ($fake) {
-            $ride = DayRideBooking::with('university', 'neighborhood')
-                ->where('passenger-id', $passengerId)
-                ->first();
-            $sugDayDriver = SugDayDriver::with('booking', 'driverinfo')
-                ->where([
-                    ['booking-id', $ride->id],
-                    ['passenger-id', $passengerId]
-            ])->first();
-
-            $success['sug_day_driver'] = new SugDayDrivingResource($sugDayDriver);
-
-            if ($ride->{"road-way"} == 'from') {
-                $from['ar'] = $ride->university->{"name-ar"};
-                $from['en'] = $ride->university->{"name-eng"};
-                $to['ar'] = $ride->neighborhood->{"neighborhood-ar"};
-                $to['en'] = $ride->neighborhood->{"neighborhood-eng"};
-                $success['destination_lat'] = $ride->lat;
-                $success['destination_lng'] = $ride->lat;
-                $success['source_lat'] = "30.127199758351413";
-                $success['source_lng'] = "31.32598633042837";
-            } else {
-                $from['ar'] = $ride->neighborhood->{"neighborhood-ar"};
-                $from['en'] = $ride->neighborhood->{"neighborhood-eng"};
-                $to['ar'] = $ride->university->{"name-ar"};
-                $to['en'] = $ride->university->{"name-eng"};
-                $success['destination_lat'] = $ride->university->lat;
-                $success['destination_lng'] = $ride->university->lng;
-                $success['source_lat'] = "30.127199758351413";
-                $success['source_lng'] = "31.32598633042837";
-            }
-            $success['to'] = $to;
-            $success['from'] = $from;
-
-            sendNotification([
-                'title'     => __('You have a notification from Atariqi'),
-                'body'      => __("an order from Atariqi to accept the ride"),
-                'tokens'    => [auth()->user()->fcm_token]
-            ]);
-
-            return $this->sendResponse($success, __("an order from Atariqi to accept the ride"));
-        }
 
         $ride = DayRideBooking::where('date-of-ser', $nowDate)
             ->where(function ($query) use ($subMinutes, $addMinutes) {

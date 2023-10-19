@@ -194,14 +194,17 @@ class ImmediateDriverController extends BaseController
             $foundDriverId[] = $foundDriver['Found-driver-id'];
         }
 
+        $timeAfterHour = Carbon::now()->addHour()->format('H') == 00 ? '24:00:00' : Carbon::now()->addHour()->format('H:i:s');
+        Log::info("time after hour: " . $timeAfterHour);
+
         $suggestDriverId = DB::table('drivers-schedule')
             ->select('driver-id AS suggest-driver-id')
             ->when($roadWay == 'to', function ($query) use ($nowDay, $roadWay) {
                 $query->where("$nowDay-$roadWay", '>=', Carbon::now()->subMinutes(15)->format('H:i:s'));
                 $query->where("$nowDay-$roadWay", '<=', Carbon::now()->addHour()->format("H:i:s"));
             })
-            ->when($roadWay == 'from', function ($query) use ($nowDay, $roadWay) {
-                $query->where("$nowDay-$roadWay", '<=', Carbon::now()->addHour()->format('H:i:s'));
+            ->when($roadWay == 'from', function ($query) use ($nowDay, $roadWay, $timeAfterHour) {
+                $query->where("$nowDay-$roadWay", '<=', $timeAfterHour);
                 $query->where("$nowDay-$roadWay", '>=', Carbon::now()->subMinutes(15)->format("H:i:s"));
             })
             ->whereIn('driver-id', $foundDriverId)
