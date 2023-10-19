@@ -12,7 +12,10 @@ class Service extends Model
     public $timestamps = false;
     protected $fillable = [
         'service',
+        'service-ar',
+        'service-eng',
         'cost',
+        'road-way',
         'date-of-add',
         'date-of-edit'
     ];

@@ -12,6 +12,7 @@ class ServiceResource extends JsonResource
             'id'            => $this->id,
             'service-ar'    => $this->{"service-ar"},
             'service-eng'   => $this->{"service-eng"},
+            'road-way'      => $this->{"road-way"},
             'cost'          => $this->cost,
             'date-of-add'   => $this->{"date-of-add"},
             'date-of-edit'  => $this->{"date-of-edit"},

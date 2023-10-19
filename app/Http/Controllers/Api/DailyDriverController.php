@@ -11,6 +11,7 @@ use App\Models\DayRideBooking;
 use App\Models\DriverInfo;
 use App\Models\DriversServices;
 use App\Models\Neighbour;
+use App\Models\Service;
 use App\Models\SugDayDriver;
 use App\Models\University;
 use App\Models\User;
@@ -22,19 +23,22 @@ use Illuminate\Validation\Rule;
 
 class DailyDriverController extends BaseController
 {
+    public function getService($id)
+    {
+        return Service::whereId($id)->first();
+    }
+
     public function getDrivers(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'neighborhood_id'   => 'required|numeric',
             'university_id'     => 'required|numeric',
             'ride_type_id'      => 'required|numeric',
-            'passenger_id'      => 'sometimes|nullable|numeric',
             'lat'               => 'required|string',
             'lng'               => 'required|string',
             'date'              => 'required',
-            'road_way'          => 'required|string',
-            'time_go'           => Rule::requiredIf($request->request->get('road_way') == 'to' || $request->request->get('road_way') == 'both'),
-            'time_back'         => Rule::requiredIf($request->request->get('road_way') == 'from' || $request->request->get('road_way') == 'both'),
+            'time_go'           => 'sometimes|nullable',
+            'time_back'         => 'sometimes|nullable',
             'locale'            => 'sometimes|nullable|string'
         ]);
 
@@ -47,7 +51,10 @@ class DailyDriverController extends BaseController
         $rideTypeId = $data['ride_type_id'];
         $universityId = $data['university_id'];
         $neighborhoodId = $data['neighborhood_id'];
-        $roadWay = $data['road_way'];
+
+        $service = $this->getService($rideTypeId);
+        $roadWay = $service->{"road-way"};
+
         $date = $data['date'];
 
         $date = convertArabicDateToEnglish($date);
@@ -234,7 +241,6 @@ class DailyDriverController extends BaseController
     public function selectDriver(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'passenger_id'      => 'sometimes|nullable|numeric',
             'lat'               => 'required|string',
             'lng'               => 'required|string',
             'neighborhood_id'   => 'required|numeric',
@@ -244,7 +250,6 @@ class DailyDriverController extends BaseController
             'date'              => 'required|string',
             'time_go'           => 'sometimes|nullable|string',
             'time_back'         => 'sometimes|nullable|string',
-            'road_way'          => 'required|string',
             'locale'            => 'sometimes|nullable|string'
         ]);
 
@@ -258,7 +263,10 @@ class DailyDriverController extends BaseController
         $neighborhoodId = $data['neighborhood_id'];
         $universityId = $data['university_id'];
         $driverId = $data['driver_id'];
-        $roadWay = $data['road_way'];
+
+        $service = $this->getService($rideTypeId);
+        $roadWay = $service->{"road-way"};
+
         $lat = $data['lat'];
         $lng = $data['lng'];
         $date = $data['date'];
@@ -314,14 +322,12 @@ class DailyDriverController extends BaseController
     public function sendToAllDrivers(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'passenger_id'      => 'sometimes|nullable|numeric',
             'neighborhood_id'   => 'required|numeric',
             'university_id'     => 'required|numeric',
             'ride_type_id'      => 'required|numeric',
             'date'              => 'required|string',
             'time_go'           => 'sometimes|nullable|string',
             'time_back'         => 'sometimes|nullable|string',
-            'road_way'          => 'required|string',
             'lat'               => 'required|string',
             'lng'               => 'required|string',
             'locale'            => 'sometimes|nullable|string'
@@ -332,21 +338,21 @@ class DailyDriverController extends BaseController
 
         $data = $validator->validated();
 
-        $roadWay = $data['road_way'];
-        $date = $data['date'];
+        $passengerId = auth()->user()->id;
 
+        $rideTypeId = $data['ride_type_id'];
+        $roadWay = $this->getService($rideTypeId);
+
+        $neighborhoodId = $data['neighborhood_id'];
+        $universityId = $data['university_id'];
+        $lat = $data['lat'];
+        $lng = $data['lng'];
+
+        $date = $data['date'];
         $date = convertArabicDateToEnglish($date);
         $date = Carbon::createFromFormat('Y-m-d', $date)->format('Y-m-d');
         $timeBack = isset($data['time_back']) ? convertArabicDateToEnglish($data['time_back']) : null;
         $timeGo =  isset($data['time_go']) ? convertArabicDateToEnglish($data['time_go']) : null;
-
-        $rideTypeId = $data['ride_type_id'];
-        $neighborhoodId = $data['neighborhood_id'];
-        $universityId = $data['university_id'];
-        $passengerId = auth()->user()->id;
-
-        $lat = $data['lat'];
-        $lng = $data['lng'];
 
         $dayRideBooking = DayRideBooking::create([
             'passenger-id'      => $passengerId,
@@ -506,7 +512,7 @@ class DailyDriverController extends BaseController
         $ride = DayRideBooking::where('date-of-ser', $nowDate)
             ->where(function ($query) use ($subMinutes, $addMinutes) {
                 $query->whereBetween('time-go', [$subMinutes, $addMinutes])
-                    ->orWhereBetween('time-back', [$subMinutes, $addMinutes]);
+                    ->orWhereBetween('time-back', [$subMinutes, $addMinutes]); // msh sh5la
             })
             ->where('passenger-id', $passengerId)
             ->first();
