@@ -185,8 +185,8 @@ class DailyDriverController extends BaseController
         } elseif ($roadWay == 'from') {
             $driversSchedule =  DB::table('drivers-schedule')
                 ->select("driver-id AS suggest-driver-id")
-                ->where("$dateDay-from" , '>=', "$timeBack")
-                ->whereRaw('`' . "$dateDay-from" . '` - INTERVAL 2 HOUR <= ?', [$timeBack] )
+                ->where("$dateDay-from" , '>=', "$timeBack") // 23:30 > 23:40
+                ->whereRaw('`' . "$dateDay-from" . '` - INTERVAL 2 HOUR <= ?', [$timeBack] ) //21:30 <= 23:40
                 ->whereIn('driver-id', $rideTypeDrivers)
                 ->get()
                 ->toArray();
