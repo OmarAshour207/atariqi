@@ -28,13 +28,24 @@ class ImmediateDriverController extends BaseController
     {
         return Service::whereId($id)->first();
     }
-    public function checkStart()
+    public function checkStart(Request $request)
     {
+        $validator = Validator::make($request->all(), [
+            'booking_id'   => 'required|numeric',
+        ]);
+
+        if($validator->fails())
+            return $this->sendError(__('Validation Error.'), $validator->errors()->getMessages(), 422);
+
+        $data = $validator->validated();
+        $bookingId = $data['booking_id'];
+
         $passengerId = auth()->user()->id;
 
         $suggestedDriver = SuggestionDriver::with('booking', 'driver')
             ->where('passenger-id', $passengerId)
             ->where('action', 1)
+            ->where('booking-id', $bookingId)
             ->first();
 
         $success = array();
