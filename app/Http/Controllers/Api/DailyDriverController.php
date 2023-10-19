@@ -341,7 +341,8 @@ class DailyDriverController extends BaseController
         $passengerId = auth()->user()->id;
 
         $rideTypeId = $data['ride_type_id'];
-        $roadWay = $this->getService($rideTypeId);
+        $service = $this->getService($rideTypeId);
+        $roadWay = $service->{"road-way"};
 
         $neighborhoodId = $data['neighborhood_id'];
         $universityId = $data['university_id'];
