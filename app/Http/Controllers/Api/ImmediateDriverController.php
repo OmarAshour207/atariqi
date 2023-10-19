@@ -39,8 +39,23 @@ class ImmediateDriverController extends BaseController
 
         $data = $validator->validated();
         $bookingId = $data['booking_id'];
-
         $passengerId = auth()->user()->id;
+
+        $success = array();
+        $success['drivers'] = [];
+        $success['to'] = null;
+        $success['from'] = null;
+        $success['estimated_time'] = null;
+        $success['action'] = 'immediate/transport/trips';
+
+        $trip = RideBooking::with('university', 'neighborhood')
+            ->whereId($bookingId)
+            ->first();
+
+        $success['trip'] = new RideBookingResource($trip);
+
+        if (!$trip)
+            return $this->sendResponse($success, __('Trip not found!'));
 
         $suggestedDriver = SuggestionDriver::with('booking', 'driver')
             ->where('passenger-id', $passengerId)
@@ -48,20 +63,12 @@ class ImmediateDriverController extends BaseController
             ->where('booking-id', $bookingId)
             ->first();
 
-        $success = array();
-        $success['drivers'] = [];
-        $success['trip'] = [];
-        $success['to'] = null;
-        $success['from'] = null;
-        $success['estimated_time'] = null;
-        $success['action'] = 'immediate/transport/trips';
-
         if (!$suggestedDriver)
             return $this->sendResponse($success, __('Drivers'));
 
-        $neighborhood = $suggestedDriver->booking->neighborhood;
-        $university = $suggestedDriver->booking->university;
-        $roadWay = $suggestedDriver->booking->{"road-way"};
+        $neighborhood = $trip->neighborhood;
+        $university = $trip->university;
+        $roadWay = $trip->{"road-way"};
 
         $from = array();
         $to = array();
@@ -71,8 +78,8 @@ class ImmediateDriverController extends BaseController
             $to['en'] = $neighborhood->{"neighborhood-eng"};
             $from['ar'] = $university->{"name-ar"};
             $from['en'] = $university->{"name-eng"};
-            $success['destination_lat'] = $suggestedDriver->booking->lat;
-            $success['destination_lng'] = $suggestedDriver->booking->lng;
+            $success['destination_lat'] = $trip->lat;
+            $success['destination_lng'] = $trip->lng;
             $success['source_lat'] = $university->lat;
             $success['source_lng'] = $university->lng;
         } elseif ($roadWay == 'to') {
@@ -82,12 +89,11 @@ class ImmediateDriverController extends BaseController
             $from['en'] = $neighborhood->{"neighborhood-eng"};
             $success['destination_lat'] = $university->lat;
             $success['destination_lng'] = $university->lng;
-            $success['source_lat'] = $suggestedDriver->booking->lat;
-            $success['source_lng'] = $suggestedDriver->booking->lng;
+            $success['source_lat'] = $trip->lat;
+            $success['source_lng'] = $trip->lng;
         }
         $success['to'] = $to;
         $success['from'] = $from;
-        $success['trip'] = $suggestedDriver->booking;
         $success['drivers'][] = new DriverInfoResource($suggestedDriver->driverinfo);
 
         return $this->sendResponse($success, __('Drivers'));
