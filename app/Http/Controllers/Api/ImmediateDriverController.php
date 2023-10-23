@@ -201,7 +201,6 @@ class ImmediateDriverController extends BaseController
         }
 
         $timeAfterHour = Carbon::now()->addHour()->format('H') == 00 ? '24:00:00' : Carbon::now()->addHour()->format('H:i:s');
-        Log::info("time after hour: " . $timeAfterHour);
 
         $suggestDriverId = DB::table('drivers-schedule')
             ->select('driver-id AS suggest-driver-id')

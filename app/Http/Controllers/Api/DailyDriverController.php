@@ -377,13 +377,6 @@ class DailyDriverController extends BaseController
 
     public function getUserNotification(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'locale'        => 'sometimes|nullable|string'
-        ]);
-
-        if($validator->fails())
-            return $this->sendError(__('Validation Error.'), $validator->errors()->getMessages(), 422);
-
         $passengerId = auth()->user()->id;
 
         $suggestedDrivers = SugDayDriver::with('driver', 'booking')
@@ -409,6 +402,7 @@ class DailyDriverController extends BaseController
                 $suggestedDriver->update(['viewed' => 1]);
                 $messages[] = $message;
             }
+            $message = '';
         }
 
         $success['messages'] = $messages;
@@ -438,14 +432,6 @@ class DailyDriverController extends BaseController
 
     public function executeRide(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'locale'        => 'sometimes|nullable|string',
-            'fake'          => 'sometimes|nullable|string'
-        ]);
-
-        if($validator->fails())
-            return $this->sendError(__('Validation Error.'), $validator->errors()->getMessages(), 422);
-
         $success = array();
         $to = array();
         $from = array();
@@ -468,7 +454,7 @@ class DailyDriverController extends BaseController
         $ride = DayRideBooking::where('date-of-ser', $nowDate)
             ->where(function ($query) use ($subMinutes, $addMinutes) {
                 $query->whereBetween('time-go', [$subMinutes, $addMinutes])
-                    ->orWhereBetween('time-back', [$subMinutes, $addMinutes]); // msh sh5la
+                    ->orWhereBetween('time-back', [$subMinutes, $addMinutes]);
             })
             ->where('passenger-id', $passengerId)
             ->first();
