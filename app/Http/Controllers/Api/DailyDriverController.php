@@ -332,11 +332,11 @@ class DailyDriverController extends BaseController
 
         $sugDayDriver = SugDayDriver::with('driverinfo', 'driver')
             ->whereIn('id', $sugDayDrivers)
-            ->first();
+            ->get();
 
         $success = [];
-        $success['trip'] = new DayRideBookingResource($dayRideBooking);
-        $success['sug_day_driver'] = new SugDayDrivingResource($sugDayDriver);
+        $success['trip'] = new DayRideBookingResource(isset($dayRideBookingGo) ? $dayRideBookingGo : $dayRideBookingBack);
+        $success['sug_day_driver'] = SugDayDrivingResource::collection($sugDayDriver);
 
         return $this->sendResponse($success, __('Success'));
     }
