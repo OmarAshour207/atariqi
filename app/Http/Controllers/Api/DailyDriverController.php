@@ -304,10 +304,12 @@ class DailyDriverController extends BaseController
 
         if ($roadWay == 'to' || $roadWay == 'both') {
             $savingData['time-go'] = $timeGo;
+            $savingData['road-way'] = 'to';
             $dayRideBookingGo = DayRideBooking::create($savingData);
         }
         if ($roadWay == 'from' || $roadWay == 'both') {
             unset($savingData['time-go']);
+            $savingData['road-way'] = 'from';
             $savingData['time-back'] = $timeBack;
             $dayRideBookingBack = DayRideBooking::create($savingData);
         }
