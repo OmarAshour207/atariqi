@@ -175,6 +175,9 @@ class DailyDriverController extends BaseController
         $driversSchedule = array();
 
         if ($roadWay == 'to') {
+            // 22:45 <= 23:45
+            // 24:00 >= 23:45
+
             $driversSchedule = DB::table('drivers-schedule')
                 ->select("driver-id AS suggest-driver-id")
                 ->where("$dateDay-to" , '<=', "$timeGo")
@@ -183,18 +186,26 @@ class DailyDriverController extends BaseController
                 ->get()
                 ->toArray();
         } elseif ($roadWay == 'from') {
+//            22:45 >= 22:20
+//            20:45 <= 22:20
             $driversSchedule =  DB::table('drivers-schedule')
-                ->select("driver-id AS suggest-driver-id")
+                ->select("driver-id AS suggest-driver-id, $dateDay-from as From, $dateDay-to as To")
                 ->where("$dateDay-from" , '>=', "$timeBack")
                 ->whereRaw('`' . "$dateDay-from" . '` - INTERVAL 2 HOUR <= ?', [$timeBack] )
                 ->whereIn('driver-id', $rideTypeDrivers)
                 ->get()
                 ->toArray();
         } elseif ($roadWay == 'both') {
+            // 22:45 >= 22:45
+            // 24:45 <= 22:45
+
+            // 23:45 >= 22:45
+            // 21:45 <= 22:45
             $driversSchedule =  DB::table('drivers-schedule')
                 ->select("driver-id AS suggest-driver-id")
                 ->where("$dateDay-to" , '<=', "$timeGo")
                 ->whereRaw('`' . "$dateDay-to" . '` + INTERVAL 2 HOUR >= ?', [$timeGo] )
+
                 ->where("$dateDay-from" , '>=', "$timeBack")
                 ->whereRaw('`' . "$dateDay-from" . '` - INTERVAL 2 HOUR <= ?', [$timeBack] )
                 ->whereIn('driver-id', $rideTypeDrivers)
@@ -293,23 +304,34 @@ class DailyDriverController extends BaseController
 
         if ($roadWay == 'to' || $roadWay == 'both') {
             $savingData['time-go'] = $timeGo;
-            $dayRideBooking = DayRideBooking::create($savingData);
+            $dayRideBookingGo = DayRideBooking::create($savingData);
         }
         if ($roadWay == 'from' || $roadWay == 'both') {
+            unset($savingData['time-go']);
             $savingData['time-back'] = $timeBack;
-            $dayRideBooking = DayRideBooking::create($savingData);
+            $dayRideBookingBack = DayRideBooking::create($savingData);
         }
 
-        $sugDayDriver = SugDayDriver::create([
-            'booking-id'        => $dayRideBooking->id,
+        $sugDayDriverGo = SugDayDriver::create([
+            'booking-id'        => $dayRideBookingGo->id,
             'driver-id'         => $driverId,
             'passenger-id'      => $passengerId,
             'action'            => 0,
             'date-of-add'       => Carbon::now()
         ]);
 
+        $sugDayDriverBack = SugDayDriver::create([
+            'booking-id'        => $dayRideBookingBack->id,
+            'driver-id'         => $driverId,
+            'passenger-id'      => $passengerId,
+            'action'            => 0,
+            'date-of-add'       => Carbon::now()
+        ]);
+
+        $sugDayDrivers = [$sugDayDriverGo->id, $sugDayDriverBack->id];
+
         $sugDayDriver = SugDayDriver::with('driverinfo', 'driver')
-            ->whereId($sugDayDriver->id)
+            ->whereIn('id', $sugDayDrivers)
             ->first();
 
         $success = [];
