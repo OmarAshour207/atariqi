@@ -175,9 +175,6 @@ class DailyDriverController extends BaseController
         $driversSchedule = array();
 
         if ($roadWay == 'to') {
-            // 22:45 <= 23:45
-            // 24:00 >= 23:45
-
             $driversSchedule = DB::table('drivers-schedule')
                 ->select("driver-id AS suggest-driver-id")
                 ->where("$dateDay-to" , '<=', "$timeGo")
@@ -186,8 +183,6 @@ class DailyDriverController extends BaseController
                 ->get()
                 ->toArray();
         } elseif ($roadWay == 'from') {
-//            22:45 >= 22:20
-//            20:45 <= 22:20
             $driversSchedule =  DB::table('drivers-schedule')
                 ->select("driver-id AS suggest-driver-id, $dateDay-from as From, $dateDay-to as To")
                 ->where("$dateDay-from" , '>=', "$timeBack")
@@ -196,11 +191,6 @@ class DailyDriverController extends BaseController
                 ->get()
                 ->toArray();
         } elseif ($roadWay == 'both') {
-            // 22:45 >= 22:45
-            // 24:45 <= 22:45
-
-            // 23:45 >= 22:45
-            // 21:45 <= 22:45
             $driversSchedule =  DB::table('drivers-schedule')
                 ->select("driver-id AS suggest-driver-id")
                 ->where("$dateDay-to" , '<=', "$timeGo")
