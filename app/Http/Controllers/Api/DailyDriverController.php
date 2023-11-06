@@ -205,10 +205,7 @@ class DailyDriverController extends BaseController
                 ->toArray();
         }
 
-        Log::info("Road Way: $roadWay");
-
         if(!count($driversSchedule)) {
-            Log::info("No Drivers Schedule found");
             $dayRideBooking = DayRideBooking::create([
                 'passenger-id'      => $passengerId,
                 'neighborhood-id'   => $neighborhoodId,
@@ -227,8 +224,6 @@ class DailyDriverController extends BaseController
 
             return $this->sendResponse($success, __('No Drivers'));
         }
-
-        Log::info(print_r($driversSchedule, true));
 
         $driversIds = array();
         foreach ($driversSchedule as $driverSchedule) {
