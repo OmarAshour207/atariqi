@@ -175,6 +175,7 @@ class DailyDriverController extends BaseController
         // Third Query
         $driversSchedule = array();
 
+        Log::info("Time Back : $timeBack");
         if ($roadWay == 'to') {
             $driversSchedule = DB::table('drivers-schedule')
                 ->select("driver-id AS suggest-driver-id")
