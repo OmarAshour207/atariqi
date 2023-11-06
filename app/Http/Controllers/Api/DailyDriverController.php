@@ -227,6 +227,8 @@ class DailyDriverController extends BaseController
             return $this->sendResponse($success, __('No Drivers'));
         }
 
+        Log::info(print_r($driversSchedule, true));
+
         $driversIds = array();
         foreach ($driversSchedule as $driverSchedule) {
             $driversIds[] = $driverSchedule->{'suggest-driver-id'};
