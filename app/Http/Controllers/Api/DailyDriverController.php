@@ -18,6 +18,7 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
@@ -203,7 +204,10 @@ class DailyDriverController extends BaseController
                 ->toArray();
         }
 
+        Log::info("Road Way: $roadWay");
+
         if(!count($driversSchedule)) {
+            Log::info("No Drivers Schedule found");
             $dayRideBooking = DayRideBooking::create([
                 'passenger-id'      => $passengerId,
                 'neighborhood-id'   => $neighborhoodId,
@@ -277,8 +281,6 @@ class DailyDriverController extends BaseController
         $timeBack = isset($data['time_back']) ? convertArabicDateToEnglish($data['time_back']) : null;
         $timeGo =  isset($data['time_go']) ? convertArabicDateToEnglish($data['time_go']) : null;
 
-        $dayRideBooking = '';
-
         $savingData = [
             'passenger-id'      => $passengerId,
             'neighborhood-id'   => $neighborhoodId,
@@ -292,35 +294,40 @@ class DailyDriverController extends BaseController
             'date-of-add'       => Carbon::now()
         ];
 
+        $sugDayDrivers = [];
+
         if ($roadWay == 'to' || $roadWay == 'both') {
             $savingData['time-go'] = $timeGo;
             $savingData['road-way'] = 'to';
+
             $dayRideBookingGo = DayRideBooking::create($savingData);
+
+            $sugDayDriverGo = SugDayDriver::create([
+                'booking-id'        => $dayRideBookingGo->id,
+                'driver-id'         => $driverId,
+                'passenger-id'      => $passengerId,
+                'action'            => 0,
+                'date-of-add'       => Carbon::now()
+            ]);
+            $sugDayDrivers[] = $sugDayDriverGo->id;
         }
+
         if ($roadWay == 'from' || $roadWay == 'both') {
             unset($savingData['time-go']);
             $savingData['road-way'] = 'from';
             $savingData['time-back'] = $timeBack;
+
             $dayRideBookingBack = DayRideBooking::create($savingData);
+
+            $sugDayDriverBack = SugDayDriver::create([
+                'booking-id'        => $dayRideBookingBack->id,
+                'driver-id'         => $driverId,
+                'passenger-id'      => $passengerId,
+                'action'            => 0,
+                'date-of-add'       => Carbon::now()
+            ]);
+            $sugDayDrivers[] = $sugDayDriverBack->id;
         }
-
-        $sugDayDriverGo = SugDayDriver::create([
-            'booking-id'        => $dayRideBookingGo->id,
-            'driver-id'         => $driverId,
-            'passenger-id'      => $passengerId,
-            'action'            => 0,
-            'date-of-add'       => Carbon::now()
-        ]);
-
-        $sugDayDriverBack = SugDayDriver::create([
-            'booking-id'        => $dayRideBookingBack->id,
-            'driver-id'         => $driverId,
-            'passenger-id'      => $passengerId,
-            'action'            => 0,
-            'date-of-add'       => Carbon::now()
-        ]);
-
-        $sugDayDrivers = [$sugDayDriverGo->id, $sugDayDriverBack->id];
 
         $sugDayDriver = SugDayDriver::with('driverinfo', 'driver')
             ->whereIn('id', $sugDayDrivers)
