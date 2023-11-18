@@ -274,6 +274,21 @@ class WeeklyDriverController extends BaseController
 
         $success['drivers'] = DriverInfoDayRideResource::collection($drivers);
 
+        foreach ($drivers as $driver) {
+            $days = [];
+            foreach ($weeklyDates as $times) {
+                $dayName = Carbon::parse($times['date'])->format('l');
+                $timeGo = $roadWay != 'from' ? $driver->schedule->{"$dayName-to"} : null;
+                $timeBack = $roadWay != 'to' ? $driver->schedule->{"$dayName-to"} : null;
+                $days[] = [
+                    'day'       => $dayName,
+                    'time_go'   => $timeGo,
+                    'time_back' => $timeBack
+                ];
+            }
+            $driver->schedule = $days;
+        }
+
         return $this->sendResponse($success, __('Drivers'));
     }
 
