@@ -21,7 +21,7 @@ class WeekRideBookingResource extends JsonResource
             'neighborhood'  => new NeighbourResource($this->neighborhood),
             'passenger'     => new UserSampleResource($this->passenger),
             'university'    => new UniversityResource($this->university),
-            'service'       => new ServiceResource($this->service),
+            'service_id'    => new ServiceResource($this->service),
         ];
     }
 }

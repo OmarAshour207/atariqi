@@ -64,21 +64,21 @@ class WeeklyDriverController extends BaseController
 
             if ($roadWay == 'both') {
                 $savingData['time-go'] = $times["time_go"];
+                $savingData['time-back'] = null;
                 WeekRideBooking::create($savingData);
-                unset($savingData['time-go']);
 
+                $savingData['time-go'] = null;
                 $savingData['time-back'] = $times["time_back"];
                 WeekRideBooking::create($savingData);
-            } else {
+            } elseif($roadWay == 'from') {
                 $savingData['time-back'] = $times["time_back"];
+                $savingData['time-go'] = null;
+                WeekRideBooking::create($savingData);
+            } elseif($roadWay == 'to') {
+                $savingData['time-back'] = null;
                 $savingData['time-go'] = $times["time_go"];
-                WeekRideBooking::create($savingData);
             }
-
-            unset($savingData['time-go']);
-            unset($savingData['time-back']);
         }
-
     }
 
     private function checkFridayInDate($date): bool
@@ -279,7 +279,7 @@ class WeeklyDriverController extends BaseController
             foreach ($weeklyDates as $times) {
                 $dayName = Carbon::parse($times['date'])->format('l');
                 $timeGo = $roadWay != 'from' ? $driver->schedule->{"$dayName-to"} : null;
-                $timeBack = $roadWay != 'to' ? $driver->schedule->{"$dayName-to"} : null;
+                $timeBack = $roadWay != 'to' ? $driver->schedule->{"$dayName-from"} : null;
                 $days[] = [
                     'day'       => $dayName,
                     'time_go'   => $timeGo,
@@ -444,9 +444,9 @@ class WeeklyDriverController extends BaseController
         if ($friday)
             return $this->sendError(__('Validation Error.'), [ __('Not Available Daily transport in Friday')], 422);
 
-        $checkSchedule = $this->checkScheduleTime($weeklyDates, $roadWay);
-        if (!$checkSchedule)
-            return $this->sendError(__('Validation Error.'), [ __("Sorry we can't book the scheduled week drive for you, because you already have a scheduled ride at date and time to/from university")], 422);
+//        $checkSchedule = $this->checkScheduleTime($weeklyDates, $roadWay);
+//        if (!$checkSchedule)
+//            return $this->sendError(__('Validation Error.'), [ __("Sorry we can't book the scheduled week drive for you, because you already have a scheduled ride at date and time to/from university")], 422);
 
         $groupId = $this->getGroupId();
         $savingData = [
