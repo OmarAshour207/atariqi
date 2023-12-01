@@ -83,20 +83,6 @@ class WeeklyDriverController extends BaseController
         }
     }
 
-    private function checkFridayInDate($date): bool
-    {
-        foreach ($date as $d) {
-            foreach ($d as $key => $value) {
-                if ($key == 'date') {
-                    $dateDay = Carbon::parse($value)->format('l');
-                    if ($dateDay == 'Friday')
-                        return true;
-                }
-            }
-        }
-        return false;
-    }
-
     public function getDrivers(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -126,11 +112,6 @@ class WeeklyDriverController extends BaseController
 
         $weeklyDates = $data['weekly_dates'];
         $weeklyDates = $this->convertDate($weeklyDates);
-
-        $friday = $this->checkFridayInDate($weeklyDates);
-
-        if ($friday)
-            return $this->sendError(__('Validation Error.'), [ __('Not Available Weekly transport in Friday')], 422);
 
         $success = array();
 
@@ -324,10 +305,6 @@ class WeeklyDriverController extends BaseController
 
         $weeklyDates = $data['weekly_dates'];
         $weeklyDates = $this->convertDate($weeklyDates);
-        $friday = $this->checkFridayInDate($weeklyDates);
-
-        if ($friday)
-            return $this->sendError(__('Validation Error.'), [ __('Not Available Daily transport in Friday')], 422);
 
         $checkSchedule = $this->checkScheduleTime($weeklyDates, $roadWay);
         if (!$checkSchedule)
@@ -441,10 +418,6 @@ class WeeklyDriverController extends BaseController
 
         $weeklyDates = $data['weekly_dates'];
         $weeklyDates = $this->convertDate($weeklyDates);
-        $friday = $this->checkFridayInDate($weeklyDates);
-
-        if ($friday)
-            return $this->sendError(__('Validation Error.'), [ __('Not Available Daily transport in Friday')], 422);
 
 //        $checkSchedule = $this->checkScheduleTime($weeklyDates, $roadWay);
 //        if (!$checkSchedule)
