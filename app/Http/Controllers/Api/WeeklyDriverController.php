@@ -46,11 +46,9 @@ class WeeklyDriverController extends BaseController
 
         foreach ($dates as $date) {
             foreach ($date as $key => $value) {
-                Log::info("In convert date loop");
-                Log::info("$key : $value");
                 $date[$key] = convertArabicDateToEnglish($value);
                 if ($key == 'date')
-                    $date[$key] = Carbon::createFromFormat('Y-m-d', $value)->format('Y-m-d');
+                    $date[$key] = Carbon::createFromFormat('Y-m-d', $date[$key])->format('Y-m-d');
             }
             $newDates[] = $date;
         }
