@@ -120,6 +120,7 @@ class WeeklyDriverController extends BaseController
         $from = array();
         $success['drivers'] = array();
         $success['trip'] = array();
+        $success['group_id'] = null;
 
         $neighborhood = Neighbour::whereId($neighborhoodId)->first();
         $university = University::whereId($universityId)->first();
