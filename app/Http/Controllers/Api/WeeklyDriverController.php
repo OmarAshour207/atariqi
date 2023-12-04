@@ -218,7 +218,6 @@ class WeeklyDriverController extends BaseController
             })
             // 8:00 7:00 6:00 9:15 to
             // 8:30 7:20 6:15 9:00
-            // 20 20:00 20:00 15:00
             ->when($roadWay == 'from' || $roadWay == 'both', function ($query) use ($weeklyDates) {
                 foreach ($weeklyDates as $times) {
                     $dateDay = Carbon::parse($times['date'])->format('l');
@@ -465,8 +464,8 @@ class WeeklyDriverController extends BaseController
     private function deleteDataUsingGroupId($group_id): void
     {
         DB::table('week-ride-booking')
-            ->where('passenger_id', auth()->user()->id)
-            ->where('group_id', $group_id)
+            ->where('passenger-id', auth()->user()->id)
+            ->where('group-id', $group_id)
             ->delete();
     }
 
