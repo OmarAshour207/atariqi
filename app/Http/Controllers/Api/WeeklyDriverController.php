@@ -64,10 +64,12 @@ class WeeklyDriverController extends BaseController
 
             if ($roadWay == 'both') {
                 $savingData['time-go'] = $times["time_go"];
+                $savingData['road-way'] = 'to';
                 $savingData['time-back'] = null;
                 WeekRideBooking::create($savingData);
 
                 $savingData['time-go'] = null;
+                $savingData['road-way'] = 'from';
                 $savingData['time-back'] = $times["time_back"];
                 WeekRideBooking::create($savingData);
             } elseif($roadWay == 'from') {
@@ -170,6 +172,7 @@ class WeeklyDriverController extends BaseController
             $savingData['group-id'] = $groupId;
             $savingData['action'] = 1;
             $this->saveWeekRideBooking($savingData, $weeklyDates);
+            $success['group_id'] = $groupId;
             return $this->sendResponse($success, __('No Drivers to the University right now'));
         }
 
@@ -197,6 +200,7 @@ class WeeklyDriverController extends BaseController
             $savingData['group-id'] = $groupId;
             $savingData['action'] = 2;
             $this->saveWeekRideBooking($savingData, $weeklyDates);
+            $success['group_id'] = $groupId;
             return $this->sendResponse($success, __('No Drivers to this Service right now'));
         }
 
@@ -210,6 +214,8 @@ class WeeklyDriverController extends BaseController
                         ->whereRaw('`' . "$dateDay-to" . '` + INTERVAL 2 HOUR >= ?', [$times['time_go']] );
                 }
             })
+            // 8:00 7:00 6:00 9:15 to
+            // 20 20:00 20:00 15:00
             ->when($roadWay == 'from' || $roadWay == 'both', function ($query) use ($weeklyDates) {
                 foreach ($weeklyDates as $times) {
                     $dateDay = Carbon::parse($times['date'])->format('l');
@@ -227,6 +233,7 @@ class WeeklyDriverController extends BaseController
             $savingData['group-id'] = $groupId;
             $savingData['action'] = 3;
             $this->saveWeekRideBooking($savingData, $weeklyDates);
+            $success['group_id'] = $groupId;
             return $this->sendResponse($success, __('No Drivers available right now'));
         }
 
@@ -395,7 +402,8 @@ class WeeklyDriverController extends BaseController
             'ride_type_id'      => 'required|numeric',
             'weekly_dates'      => 'required|array',
             'lat'               => 'required|string',
-            'lng'               => 'required|string'
+            'lng'               => 'required|string',
+            'group_id'          => 'required|numeric'
         ]);
 
         if($validator->fails())
@@ -416,6 +424,10 @@ class WeeklyDriverController extends BaseController
 
         $weeklyDates = $data['weekly_dates'];
         $weeklyDates = $this->convertDate($weeklyDates);
+
+        $oldGroupId = $data['group_id'];
+
+        $this->deleteDataUsingGroupId($oldGroupId);
 
 //        $checkSchedule = $this->checkScheduleTime($weeklyDates, $roadWay);
 //        if (!$checkSchedule)
@@ -445,6 +457,14 @@ class WeeklyDriverController extends BaseController
         $success['trips'] = WeekRideBookingResource::collection($bookingRides);
 
         return $this->sendResponse($success, __('Sent to all Drivers successfully'));
+    }
+
+    private function deleteDataUsingGroupId($group_id): void
+    {
+        DB::table('week-ride-booking')
+            ->where('passenger_id', auth()->user()->id)
+            ->where('group_id', $group_id)
+            ->delete();
     }
 
     public function getUserNotification()
