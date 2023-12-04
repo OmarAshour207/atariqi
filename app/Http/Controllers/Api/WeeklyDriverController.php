@@ -79,6 +79,7 @@ class WeeklyDriverController extends BaseController
             } elseif($roadWay == 'to') {
                 $savingData['time-back'] = null;
                 $savingData['time-go'] = $times["time_go"];
+                WeekRideBooking::create($savingData);
             }
         }
     }
@@ -215,6 +216,7 @@ class WeeklyDriverController extends BaseController
                 }
             })
             // 8:00 7:00 6:00 9:15 to
+            // 8:30 7:20 6:15 9:00
             // 20 20:00 20:00 15:00
             ->when($roadWay == 'from' || $roadWay == 'both', function ($query) use ($weeklyDates) {
                 foreach ($weeklyDates as $times) {
