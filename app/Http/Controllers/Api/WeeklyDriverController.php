@@ -216,8 +216,6 @@ class WeeklyDriverController extends BaseController
                         ->whereRaw('`' . "$dateDay-to" . '` + INTERVAL 2 HOUR >= ?', [$times['time_go']] );
                 }
             })
-            // 8:00 7:00 6:00 9:15 to
-            // 8:30 7:20 6:15 9:00
             ->when($roadWay == 'from' || $roadWay == 'both', function ($query) use ($weeklyDates) {
                 foreach ($weeklyDates as $times) {
                     $dateDay = Carbon::parse($times['date'])->format('l');
@@ -563,6 +561,9 @@ class WeeklyDriverController extends BaseController
             ['action', 3],
             ['passenger-id', $passengerId]
         ])->first();
+
+        if (!$sugDayDriver)
+            return $this->sendResponse($success, __("Not found trips"));
 
         $success['sug_day_driver'] = new SugWeekDriverResource($sugDayDriver);
         if ($ride->{"road-way"} == 'from') {
