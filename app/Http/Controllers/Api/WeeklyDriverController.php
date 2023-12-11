@@ -315,7 +315,7 @@ class WeeklyDriverController extends BaseController
 
         $checkSchedule = $this->checkScheduleTime($weeklyDates, $roadWay);
         if (!$checkSchedule)
-            return $this->sendError(__('Validation Error.'), [ __("Sorry we can't book the scheduled week drive for you, because you already have a scheduled ride at date and time to/from university")], 422);
+            return $this->sendError(__('Validation Error.'), [ __("Sorry you already booked ride at the same date before")], 422);
 
         $groupId = $this->getGroupId();
         $savingData = [
