@@ -484,15 +484,15 @@ class WeeklyDriverController extends BaseController
         $title = __('You have a notification from Atariqi');
         foreach ($suggestedDrivers as $suggestedDriver) {
             if ($suggestedDriver->action == 1) {
-                $message = __('Your trip accepted from date') . " " . Carbon::parse($suggestedDriver->booking->{"date-of-ser"})->format('d-m') . " "
-                    . __("to") . " " . Carbon::parse($suggestedDrivers[count($suggestedDrivers) - 1 ]->booking->{"date-of-ser"})->format('d-m')
+                $message = __('Your trip accepted from date') . " " . Carbon::parse($suggestedDrivers[count($suggestedDrivers) - 1 ]->booking->{"date-of-ser"})->format('d-m') . " "
+                    . __("to") . " " . Carbon::parse($suggestedDriver->booking->{"date-of-ser"})->format('d-m')
                     . "\n" . __('with Driver') . " "
                     . $suggestedDriver->driver->{"user-first-name"}
                     . " " . $suggestedDriver->driver->{"user-last-name"};
             }
             elseif ($suggestedDriver->action == 2) {
-                $message = __('Your trip rejected from date')  . " " . Carbon::parse($suggestedDriver->booking->{"date-of-ser"})->format('d-m') . " "
-                    . __("to") . " " . Carbon::parse($suggestedDrivers[count($suggestedDrivers) - 1 ]->booking->{"date-of-ser"})->format('d-m')
+                $message = __('Your trip rejected from date')  . " " . Carbon::parse($suggestedDrivers[count($suggestedDrivers) - 1 ]->booking->{"date-of-ser"})->format('d-m') . " "
+                    . __("to") . " " . Carbon::parse($suggestedDriver->booking->{"date-of-ser"})->format('d-m')
                     . "\n" . __('with Driver') . " "
                     . $suggestedDriver->driver->{"user-first-name"}
                     . " " . $suggestedDriver->driver->{"user-last-name"};
