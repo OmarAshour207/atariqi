@@ -564,7 +564,7 @@ class WeeklyDriverController extends BaseController
         ])->first();
 
         if (!$sugDayDriver)
-            return $this->sendResponse($success, __("Not found trips"));
+            return $this->sendResponse($success, __("No suggested drivers"));
 
         $success['sug_day_driver'] = new SugWeekDriverResource($sugDayDriver);
         if ($ride->{"road-way"} == 'from') {
