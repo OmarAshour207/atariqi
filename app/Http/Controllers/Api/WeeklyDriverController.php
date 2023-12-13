@@ -312,6 +312,7 @@ class WeeklyDriverController extends BaseController
         $weeklyDates = $this->convertDate($weeklyDates);
 
         $checkSchedule = $this->checkScheduleTime($weeklyDates, $roadWay);
+
         if (!$checkSchedule)
             return $this->sendError(__('Validation Error.'), [ __("Sorry you already booked ride at the same date before")], 422);
 

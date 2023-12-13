@@ -15,6 +15,7 @@ use App\Models\Service;
 use App\Models\SugDayDriver;
 use App\Models\University;
 use App\Models\User;
+use App\Models\WeekRideBooking;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -66,9 +67,6 @@ class DailyDriverController extends BaseController
         $lat = $data['lat'];
         $lng = $data['lng'];
         $dateDay = Carbon::parse($date)->format('l');
-
-        if ($dateDay == 'Friday')
-            return $this->sendError(__('Validation Error.'), [ __('Not Available Daily transport in Friday')], 422);
 
         $success = array();
         $to = array();
@@ -241,6 +239,41 @@ class DailyDriverController extends BaseController
         return $this->sendResponse($success, __('Drivers'));
     }
 
+    private function checkScheduleTime($time, $roadWay): bool
+    {
+        $passengerId = auth()->user()->id;
+        $date = $time['date'];
+        $timeBack = $time['time_back'];
+        $timeGo = $time['time_go'];
+
+        $weekRides = WeekRideBooking::where('passenger-id', $passengerId)
+            ->where('date-of-ser', $date)
+            ->when($roadWay == 'to' || $roadWay == 'both', function ($query) use ($timeGo) {
+                $query->where('time-go', $timeGo);
+            })->when($roadWay == 'from' || $roadWay == 'both', function ($query) use ($timeBack) {
+                $query->where('time-back', $timeBack);
+            })->get()
+            ->toArray();
+
+        if (count($weekRides))
+            return false;
+
+
+        $dailyRides = DayRideBooking::where('passenger-id', $passengerId)
+            ->where('date-of-ser', $date)
+            ->when($roadWay == 'to' || $roadWay == 'both', function ($query) use ($timeGo) {
+                $query->where('time-go', $timeGo);
+            })->when($roadWay == 'from' || $roadWay == 'both', function ($query) use ($timeBack) {
+                $query->where('time-back', $timeBack);
+            })->get()
+            ->toArray();
+
+        if (count($dailyRides))
+            return false;
+
+        return true;
+    }
+
     public function selectDriver(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -278,6 +311,15 @@ class DailyDriverController extends BaseController
         $date = Carbon::createFromFormat('Y-m-d', $date)->format('Y-m-d');
         $timeBack = isset($data['time_back']) ? convertArabicDateToEnglish($data['time_back']) : null;
         $timeGo =  isset($data['time_go']) ? convertArabicDateToEnglish($data['time_go']) : null;
+
+        $checkSchedule = $this->checkScheduleTime([
+            'date'      => $date,
+            'time_go'   => $timeGo,
+            'time_back' => $timeGo
+        ], $roadWay);
+
+        if (!$checkSchedule)
+            return $this->sendError(__('Validation Error.'), [ __("Sorry you already booked ride at the same date before")], 422);
 
         $savingData = [
             'passenger-id'      => $passengerId,
@@ -486,6 +528,9 @@ class DailyDriverController extends BaseController
             ['action', 3],
             ['passenger-id', $passengerId]
         ])->first();
+
+        if (!$sugDayDriver)
+            return $this->sendResponse($success, __("Not found trips"));
 
         $success['sug_day_driver'] = new SugDayDrivingResource($sugDayDriver);
         if ($ride->{"road-way"} == 'from') {
