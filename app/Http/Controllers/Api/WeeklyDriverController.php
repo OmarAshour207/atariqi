@@ -545,12 +545,7 @@ class WeeklyDriverController extends BaseController
         $nowDate = Carbon::now()->format('Y-m-d');
         $subMinutes = Carbon::now()->subMinutes(5)->format('H:i');
         $addMinutes = Carbon::now()->addMinutes(5)->format('H:i');
-
-        Log::info("Now Date: " . $nowDate);
-        Log::info("Sub minutes: " . $subMinutes);
-        Log::info("Add minutes: " . $addMinutes);
-        Log::info("Passenger ID: " . $passengerId);
-
+        
         $ride = WeekRideBooking::where('date-of-ser', $nowDate)
             ->where(function ($query) use ($subMinutes, $addMinutes) {
                 $query->whereBetween('time-go', [$subMinutes, $addMinutes])
