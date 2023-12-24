@@ -16,6 +16,7 @@ Route::group([
 ], function () {
 
     Route::get('/get/config', [HomeController::class, 'get']);
+    Route::get('get/announce', [HomeController::class, 'getAnnouncement']);
 
     Route::controller(UserController::class)->group(function() {
         Route::post('user/register', 'register');
@@ -56,6 +57,10 @@ Route::group([
 
         Route::post('weekly/transport/execute', [WeeklyDriverController::class, 'executeRide']);
         Route::post('weekly/transport/change/action', [WeeklyDriverController::class, 'changeAction']);
+
+        // User
+        Route::post('profile/edit', [UserController::class, 'editProfile'])->name('profile.edit');
+
     });
 });
 

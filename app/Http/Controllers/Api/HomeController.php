@@ -15,6 +15,7 @@ use App\Models\Service;
 use App\Models\Social;
 use App\Models\Stage;
 use App\Models\University;
+use Illuminate\Support\Facades\DB;
 
 class HomeController extends BaseController
 {
@@ -37,5 +38,12 @@ class HomeController extends BaseController
         $data['socials'] = $socials;
 
         return $this->sendResponse($data, __('Data'));
+    }
+
+    public function getAnnouncement()
+    {
+        $announcements = DB::table('announce')->get();
+
+        return $this->sendResponse($announcements, __('Data'));
     }
 }

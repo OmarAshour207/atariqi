@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Resources\UserResource;
 use App\Models\Neighbour;
+use App\Models\NewUserInfo;
 use App\Models\University;
 use App\Models\User;
 use App\Models\UserLogin;
@@ -202,5 +203,34 @@ class UserController extends BaseController
         }
 
         return $code;
+    }
+
+    public function editProfile(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'user-first-name'   => 'required|string|max:20',
+            'user-last-name'    => 'required|string|max:20',
+            'phone-no'          => 'required|unique:users|max:20',
+            'gender'            => 'required|string|max:20',
+            'email'             => 'required|email|max:50',
+            'user-type'         => 'required|string|in:passenger,driver',
+            'university-id'     => 'required|numeric',
+            'user-stage-id'     => 'required|numeric',
+            'call-key-id'       => 'required|numeric'
+        ]);
+
+        if($validator->fails())
+            return $this->sendError(__('Validation Error.'), $validator->errors()->getMessages(), 422);
+
+        $data = $validator->validated();
+        $data['user-id'] = auth()->user()->id;
+
+        NewUserInfo::create($data);
+
+        auth()->user()->update([
+            'approval'  => 2
+        ]);
+
+        return $this->sendResponse([], __('The order under processing and will touch with you soon.'));
     }
 }
