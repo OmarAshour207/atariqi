@@ -28,7 +28,7 @@ Route::group([
         // Immediate
         Route::post('drivers/immediate/transport', [ImmediateDriverController::class, 'getDrivers']);
         Route::post('immediate/transport/trips', [ImmediateDriverController::class, 'get']);
-        Route::post('immediate/transport/change/status', [ImmediateDriverController::class, 'changeStatus']);
+        Route::post('immediate/transport/change/action', [ImmediateDriverController::class, 'changeAction']);
         Route::post('immediate/transport/execute', [ImmediateDriverController::class, 'execute']);
 
         Route::post('drivers/rate', [ImmediateDriverController::class, 'rate']);

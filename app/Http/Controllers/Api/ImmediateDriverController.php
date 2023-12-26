@@ -318,7 +318,7 @@ class ImmediateDriverController extends BaseController
         return $this->sendResponse($success, __('Trip Details'));
     }
 
-    public function changeStatus(Request $request)
+    public function changeAction(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'id'        => 'required|numeric',
