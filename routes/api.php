@@ -17,6 +17,7 @@ Route::group([
 
     Route::get('/get/config', [HomeController::class, 'get']);
     Route::get('get/announce', [HomeController::class, 'getAnnouncement']);
+    Route::get('get/contacts', [HomeController::class, 'getContacts']);
 
     Route::controller(UserController::class)->group(function() {
         Route::post('user/register', 'register');

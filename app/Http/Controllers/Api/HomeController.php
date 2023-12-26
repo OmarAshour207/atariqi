@@ -46,4 +46,11 @@ class HomeController extends BaseController
 
         return $this->sendResponse($announcements, __('Data'));
     }
+
+    public function getContacts()
+    {
+        $contacts = DB::table('contact')->get();
+
+        return $this->sendResponse($contacts, __('Contacts'));
+    }
 }
