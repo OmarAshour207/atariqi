@@ -10,7 +10,6 @@ use App\Models\Neighbour;
 use App\Models\RideBooking;
 use App\Models\Service;
 use App\Models\SuggestionDriver;
-use App\Http\Resources\SuggestionDriver as SuggestionResource;
 use App\Models\University;
 use App\Models\User;
 use Carbon\Carbon;
@@ -215,6 +214,77 @@ class ImmediateDriverController extends BaseController
         ]);
         $success['trip'] = $rideBooking;
         return $this->sendResponse($success, __('No Drivers!'));
+    }
+
+    public function execute(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'booking_id'   => 'required|numeric',
+        ]);
+
+        if($validator->fails())
+            return $this->sendError(__('Validation Error.'), $validator->errors()->getMessages(), 422);
+
+        $data = $validator->validated();
+        $bookingId = $data['booking_id'];
+        $passengerId = auth()->user()->id;
+
+        $success = array();
+        $success['drivers'] = [];
+        $success['to'] = null;
+        $success['from'] = null;
+        $success['estimated_time'] = null;
+        $success['action'] = 'immediate/transport/trips';
+
+        $trip = RideBooking::with('university', 'neighborhood')
+            ->whereId($bookingId)
+            ->first();
+
+        $success['trip'] = new RideBookingResource($trip);
+
+        if (!$trip)
+            return $this->sendResponse($success, __('Trip not found!'));
+
+        $suggestedDriver = SuggestionDriver::with('booking', 'driver')
+            ->where('passenger-id', $passengerId)
+            ->where('action', 1)
+            ->where('booking-id', $bookingId)
+            ->first();
+
+        if (!$suggestedDriver)
+            return $this->sendResponse($success, __('Drivers'));
+
+        $neighborhood = $trip->neighborhood;
+        $university = $trip->university;
+        $roadWay = $trip->{"road-way"};
+
+        $from = array();
+        $to = array();
+
+        if($roadWay == 'from') {
+            $to['ar'] = $neighborhood->{"neighborhood-ar"};
+            $to['en'] = $neighborhood->{"neighborhood-eng"};
+            $from['ar'] = $university->{"name-ar"};
+            $from['en'] = $university->{"name-eng"};
+            $success['destination_lat'] = $trip->lat;
+            $success['destination_lng'] = $trip->lng;
+            $success['source_lat'] = $university->lat;
+            $success['source_lng'] = $university->lng;
+        } elseif ($roadWay == 'to') {
+            $to['ar'] = $university->{"name-ar"};
+            $to['en'] = $university->{"name-eng"};
+            $from['ar'] = $neighborhood->{"neighborhood-ar"};
+            $from['en'] = $neighborhood->{"neighborhood-eng"};
+            $success['destination_lat'] = $university->lat;
+            $success['destination_lng'] = $university->lng;
+            $success['source_lat'] = $trip->lat;
+            $success['source_lng'] = $trip->lng;
+        }
+        $success['to'] = $to;
+        $success['from'] = $from;
+        $success['drivers'][] = new DriverInfoResource($suggestedDriver->driverinfo);
+
+        return $this->sendResponse($success, __('Drivers'));
     }
 
     public function get(Request $request)
