@@ -322,7 +322,7 @@ class ImmediateDriverController extends BaseController
     {
         $validator = Validator::make($request->all(), [
             'id'        => 'required|numeric',
-            'status'    => 'required|numeric',
+            'action'    => 'required|numeric',
         ]);
 
         if($validator->fails())
@@ -330,15 +330,24 @@ class ImmediateDriverController extends BaseController
 
         $data = $validator->validated();
         $id = $data['id'];
-        $status = $data['status'];
+        $action = $data['action'];
+        $passengerId = auth()->user()->id;
 
         $trip = RideBooking::whereId($id)->first();
 
         if(!$trip)
             return $this->sendError(__('Trip not found'), [__('Trip not found')]);
 
-        $trip->update([
-            'status' => $status
+        $suggestedDriver = SuggestionDriver::with('booking', 'driver')
+            ->where('passenger-id', $passengerId)
+            ->where('booking-id', $id)
+            ->first();
+
+        if (!$suggestedDriver)
+            return $this->sendResponse(__('Trip not found'), __('Trip not found'));
+
+        $suggestedDriver->update([
+            'action' => $action
         ]);
 
         return $this->sendResponse(new RideBookingResource($trip), __('Updated successfully'));
