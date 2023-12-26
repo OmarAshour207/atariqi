@@ -32,9 +32,7 @@ Route::group([
 //        Route::post('immediate/transport/execute', [ImmediateDriverController::class, 'execute']);
 
 //        Route::post('drivers/daily/select', [DailyDriverController::class, 'selectDriver']);
-
-        Route::post('immediate/transport/get/summary', [ImmediateDriverController::class, 'getUserSummary']);
-
+        
         Route::post('drivers/rate', [ImmediateDriverController::class, 'rate']);
 
         // Daily

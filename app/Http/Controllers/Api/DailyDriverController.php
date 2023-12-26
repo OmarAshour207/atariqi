@@ -6,6 +6,7 @@ use App\Http\Resources\DayRideBookingResource;
 use App\Http\Resources\DriverInfoDayRideResource;
 use App\Http\Resources\NeighbourResource;
 use App\Http\Resources\SugDayDrivingResource;
+use App\Http\Resources\SuggestionDriver as SuggestionResource;
 use App\Http\Resources\UniversityResource;
 use App\Models\DayRideBooking;
 use App\Models\DriverInfo;
@@ -13,6 +14,7 @@ use App\Models\DriversServices;
 use App\Models\Neighbour;
 use App\Models\Service;
 use App\Models\SugDayDriver;
+use App\Models\SuggestionDriver;
 use App\Models\University;
 use App\Models\User;
 use App\Models\WeekRideBooking;
@@ -481,12 +483,20 @@ class DailyDriverController extends BaseController
 
         $passengerId = auth()->user()->id;
 
-        $suggestedDrivers = SugDayDriver::with('driver', 'booking')
+        $suggestedDailyDrivers = SugDayDriver::with('driver', 'booking')
             ->where('passenger-id', $passengerId)
             ->get();
 
+        $suggestedImmediateDrivers = SuggestionDriver::with('driver', 'booking')
+            ->where('passenger-id', $passengerId)
+            ->get();
+
+        $suggestedDrivers = SuggestionResource::collection($suggestedImmediateDrivers);
+
+        $trips = $suggestedDrivers->merge(SugDayDrivingResource::collection($suggestedDailyDrivers));
+
         $success = [];
-        $success['trips'] = SugDayDrivingResource::collection($suggestedDrivers);
+        $success['trips'] = $trips;
 
         return $this->sendResponse($success, __('Trips'));
     }

@@ -210,7 +210,7 @@ class UserController extends BaseController
         $validator = Validator::make($request->all(), [
             'user-first-name'   => 'required|string|max:20',
             'user-last-name'    => 'required|string|max:20',
-            'phone-no'          => 'required|unique:users|max:20',
+            'phone-no'          => 'required|max:20',
             'gender'            => 'required|string|max:20',
             'email'             => 'required|email|max:50',
             'user-type'         => 'required|string|in:passenger,driver',

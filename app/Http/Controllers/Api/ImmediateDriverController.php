@@ -274,20 +274,6 @@ class ImmediateDriverController extends BaseController
         return $this->sendResponse(new RideBookingResource($trip), __('Updated successfully'));
     }
 
-    public function getUserSummary()
-    {
-        $passengerId = auth()->user()->id;
-
-        $suggestedDrivers = SuggestionDriver::with('driver', 'booking')
-            ->where('passenger-id', $passengerId)
-            ->get();
-
-        $success = [];
-        $success['trips'] = SuggestionResource::collection($suggestedDrivers);
-
-        return $this->sendResponse($success, __('Trips'));
-    }
-
     public function rate(Request $request)
     {
         $validator = Validator::make($request->all(), [
