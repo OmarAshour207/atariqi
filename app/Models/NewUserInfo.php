@@ -9,7 +9,7 @@ class NewUserInfo extends Model
 {
     use HasFactory;
 
-    protected $table = 'new-user-info';
+    protected $table = 'new-users-info';
 
     public $timestamps = false;
 
