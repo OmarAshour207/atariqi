@@ -53,9 +53,6 @@ class ImmediateDriverController extends BaseController
         $roadWay = $service->{"road-way"};
         $nowDay = $data['now_day'];
 
-        if($nowDay == 'Friday')
-            return $this->sendError(__('Validation Error.'), [__('Not Available Immediate transport in Friday')], 422);
-
         $success = array();
         $success['drivers'] = [];
         $success['to'] = null;
