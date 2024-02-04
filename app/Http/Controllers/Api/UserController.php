@@ -39,7 +39,7 @@ class UserController extends BaseController
         $data = $validator->validated();
         $data['date-of-add'] = now();
 
-        $code = $this->generateCode();
+        $code = generateCode();
         $data['code'] = $code;
 
         $user = User::create($data);
@@ -47,7 +47,7 @@ class UserController extends BaseController
 
         $phoneNumber = '+' . $user->callingKey->{"call-key"} . $user->{"phone-no"};
 
-        $this->sendSMS($phoneNumber, $code);
+        sendSMS($phoneNumber, $code);
 
         return $this->sendResponse($success, __('User Registered Successfully.'));
     }
@@ -67,11 +67,11 @@ class UserController extends BaseController
         if(!$user)
             return $this->sendError("s_userNotExist", [__("User doesn't exist")], 401);
 
-        $code = $this->generateCode();
+        $code = generateCode();
 
         $phoneNumber = '+' . $user->callingKey->{"call-key"} . $phoneNumber;
 
-        $response = $this->sendSMS($phoneNumber, $code);
+        $response = sendSMS($phoneNumber, $code);
         if(!$response)
             return $this->sendError('s_unexpected_error', [__('Unexpected Error!')], 422);
 
@@ -118,91 +118,6 @@ class UserController extends BaseController
         $success['user'] = new UserResource($user);
 
         return $this->sendResponse($success, __('User Logged Successfully.'));
-    }
-
-    public function sendSMS($userNumber, $code)
-    {
-        $provider = 'msegat';
-        if ($provider == 'twilio') {
-            $accountSID = config('services.twilio.account_sid');
-            $token = config('services.twilio.auth_token');
-            $twilioPhoneNumber = config('services.twilio.phone_number');
-
-            $client = new Client($accountSID, $token);
-
-            try {
-                $client->messages->create(
-                    $userNumber, [
-                        'from'      => $twilioPhoneNumber,
-                        'body'      => __('Your Atariqi verification code is: ') . $code
-                    ]
-                );
-            } catch (TwilioException $e) {
-                Log::error($e->getMessage());
-            }
-        }
-        if ($provider == 'nexmo') {
-
-            $key = config('services.nexmo.key');
-            $secret = config('services.nexmo.secret');
-
-            $basic  = new \Vonage\Client\Credentials\Basic($key, $secret);
-            $client = new \Vonage\Client($basic);
-
-            try {
-                $response = $client->sms()->send(
-                    new \Vonage\SMS\Message\SMS($userNumber, __('Atariqi'), (__('Your Atariqi verification code is: ') . $code))
-                );
-
-                $message = $response->current();
-                if ($message->getStatus() == 0) {
-                    Log::info("The message was sent successfully");
-                } else {
-                    Log::error("The message failed with status: " . $message->getStatus());
-                }
-
-            } catch (Exception $e) {
-                Log::error($e->getMessage());
-            }
-        }
-        if ($provider == 'msegat') {
-            $config = array();
-            $config['userName'] = config('services.msegat.user_name');
-            $config['numbers'] = $userNumber;
-            $config['userSender'] = config('services.msegat.user_sender');
-            $config['apiKey'] = config('services.msegat.api_key');
-            $config['msg'] = __('Pin Code is: ') . $code;
-
-            try {
-                $codes = [1, 'M0000'];
-                $response = Http::post('https://www.msegat.com/gw/sendsms.php', $config);
-                $response = $response->body();
-                $response = json_decode($response, true);
-                $messageCode = $response['code'];
-                if (!in_array($messageCode, $codes)) {
-                    Log::error("Msegat error API: " . $response['message']);
-                    return false;
-                }
-            } catch (Exception $e) {
-                Log::error($e->getMessage());
-                return false;
-            }
-
-            return true;
-        }
-    }
-
-    public function generateCode()
-    {
-        $code = mt_rand(1000, 9999);
-        while (true) {
-            $user = User::where('code', $code)->first();
-            if(!$user)
-                break;
-            $code = mt_rand(1000, 9999);
-        }
-
-        return $code;
     }
 
     public function editProfile(Request $request)

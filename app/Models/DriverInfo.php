@@ -16,10 +16,10 @@ class DriverInfo extends Model
     protected $fillable = [
         'driver-id',
         'car-brand',
-        'car-mode',
+        'car-model',
         'car-number',
         'car-letters',
-        'car-colors',
+        'car-color',
         'driver-neighborhood',
         'driver-rate',
         'driver-license-link',

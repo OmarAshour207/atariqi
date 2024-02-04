@@ -6,6 +6,8 @@ use App\Http\Controllers\Api\DailyDriverController;
 use App\Http\Controllers\Api\WeeklyDriverController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\HomeController;
+use App\Http\Controllers\Api\Driver\RegisterController;
+use App\Http\Controllers\Api\Driver\LoginController;
 
 Route::get('/clear/cache', function () {
     return \Illuminate\Support\Facades\Artisan::call('config:cache');
@@ -19,11 +21,17 @@ Route::group([
     Route::get('get/announce', [HomeController::class, 'getAnnouncement']);
     Route::get('get/contacts', [HomeController::class, 'getContacts']);
 
+    // passenger
     Route::controller(UserController::class)->group(function() {
         Route::post('user/register', 'register');
         Route::post('user/send', 'send');
         Route::post('user/verify', 'verifyCode');
     });
+
+    // Driver
+    Route::post('driver/register', [RegisterController::class, 'register']);
+    Route::post('driver/login', [LoginController::class, 'login']);
+    Route::post('driver/verify', [LoginController::class, 'verify']);
 
     Route::middleware(['auth:sanctum'])->group(function () {
         // Immediate
