@@ -86,7 +86,7 @@ class RegisterController extends BaseController
         $success['driver_car'] = new DriverCarResource($driverCar);
 
         $phoneNumber = '+' . $user->callingKey->{"call-key"} . $user->{"phone-no"};
-//        sendSMS($phoneNumber, $code);
+        sendSMS($phoneNumber, $code);
 
         return $this->sendResponse($success, __('Driver Registered Successfully.'));
     }
