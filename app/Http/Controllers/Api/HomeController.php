@@ -4,12 +4,14 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Resources\CallingKeyResource;
 use App\Http\Resources\DocumentResource;
+use App\Http\Resources\DriverTypeResource;
 use App\Http\Resources\OpeningResource;
 use App\Http\Resources\ServiceResource;
 use App\Http\Resources\StageResource;
 use App\Http\Resources\UniversityResource;
 use App\Models\CallingKey;
 use App\Models\Document;
+use App\Models\DriverType;
 use App\Models\Opening;
 use App\Models\Service;
 use App\Models\Social;
@@ -28,6 +30,7 @@ class HomeController extends BaseController
         $stages = Stage::all();
         $documents = Document::all();
         $socials = Social::all();
+        $driverTypes = DriverType::all();
 
         $data['services'] = ServiceResource::collection($services);
         $data['opening'] = OpeningResource::collection($opening);
@@ -36,6 +39,7 @@ class HomeController extends BaseController
         $data['stages'] = StageResource::collection($stages);
         $data['documents'] = DocumentResource::collection($documents);
         $data['socials'] = $socials;
+        $data['driver_types'] = DriverTypeResource::collection($driverTypes);
 
         return $this->sendResponse($data, __('Data'));
     }
