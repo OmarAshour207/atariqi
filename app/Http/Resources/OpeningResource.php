@@ -12,8 +12,8 @@ class OpeningResource extends JsonResource
             'id'            => $this->id,
             'title-ar'      => $this->{"title-ar"},
             'title-eng'     => $this->{"title-eng"},
-            'content-ar'    => $this->{"title-ar"},
-            'content-eng'   => $this->{"title-eng"},
+            'contant-ar'    => $this->{"contant-ar"},
+            'contant-eng'   => $this->{"contant-eng"},
         ];
     }
 }

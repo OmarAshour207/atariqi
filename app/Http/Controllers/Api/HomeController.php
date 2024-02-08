@@ -41,9 +41,7 @@ class HomeController extends BaseController
         $data['documents'] = DocumentResource::collection($documents);
         $data['socials'] = $socials;
         $data['driver_types'] = DriverTypeResource::collection($driverTypes);
-
-        Log::info("Driver Types: " . count($data['driver_types']));
-        Log::info("Opening: " . count($data['opening']));
+        
         return $this->sendResponse($data, __('Data'));
     }
 
