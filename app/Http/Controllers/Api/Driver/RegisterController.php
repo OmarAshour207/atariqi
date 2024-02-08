@@ -97,7 +97,7 @@ class RegisterController extends BaseController
         $returnData = [];
         $path = public_path("uploads/$userId");
         if(!File::exists($path)) {
-            File::makeDirectory($path, 777, true);
+            File::makeDirectory($path, 0777, true);
         }
         foreach ($data as $key => $image) {
             if ($request->hasFile($key)) {
