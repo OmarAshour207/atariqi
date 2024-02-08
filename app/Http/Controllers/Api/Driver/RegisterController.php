@@ -10,6 +10,7 @@ use App\Models\DriversCar;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
@@ -94,11 +95,16 @@ class RegisterController extends BaseController
     private function uploadImages(Request $request, $data, $userId): array
     {
         $returnData = [];
+        $path = public_path("uploads/$userId");
+        if(!File::exists($path)) {
+            File::makeDirectory($path, 777, true);
+        }
         foreach ($data as $key => $image) {
             if ($request->hasFile($key)) {
                 $extension = $request->{$key}->extension();
                 $imageName = $key . '.' . $extension;
-                $request->{$key}->storeAs("public/uploads/$userId", $imageName);
+                $request->{$key}->move($path, $imageName);
+//                $request->{$key}->storeAs("public/uploads/$userId", $imageName);
                 $returnData[$key] = $imageName;
             }
         }
