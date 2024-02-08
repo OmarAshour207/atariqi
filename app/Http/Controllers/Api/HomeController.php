@@ -18,6 +18,7 @@ use App\Models\Social;
 use App\Models\Stage;
 use App\Models\University;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class HomeController extends BaseController
 {
@@ -41,6 +42,8 @@ class HomeController extends BaseController
         $data['socials'] = $socials;
         $data['driver_types'] = DriverTypeResource::collection($driverTypes);
 
+        Log::info("Driver Types: " . count($data['driver_types']));
+        Log::info("Opening: " . count($data['opening']));
         return $this->sendResponse($data, __('Data'));
     }
 
