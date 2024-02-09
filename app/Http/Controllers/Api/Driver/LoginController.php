@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api\Driver;
 
 use App\Http\Controllers\Api\BaseController;
 use App\Http\Resources\DriverResource;
-use App\Http\Resources\UserResource;
 use App\Models\User;
 use App\Models\UserLogin;
 use Illuminate\Http\Request;

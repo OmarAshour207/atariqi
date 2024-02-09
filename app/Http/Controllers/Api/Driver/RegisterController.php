@@ -49,8 +49,6 @@ class RegisterController extends BaseController
         }
         $data = $validator->validated();
 
-//        $code = generateCode();
-//        $data['code'] = $code;
         $data['approval'] = 0;
 
         try {
@@ -86,9 +84,6 @@ class RegisterController extends BaseController
         $success['driver_info'] = new DriverInfoResource($driverInfo);
         $success['driver_car'] = new DriverCarResource($driverCar);
 
-//        $phoneNumber = '+' . $user->callingKey->{"call-key"} . $user->{"phone-no"};
-//        sendSMS($phoneNumber, $code);
-
         return $this->sendResponse($success,
             __('We are checking your registration order, please bear with us and will send on academic email or phone'));
     }
@@ -100,10 +95,12 @@ class RegisterController extends BaseController
         if(!File::exists($path)) {
             File::makeDirectory($path, 0777, true);
         }
+        Log::info("File created");
         foreach ($data as $key => $image) {
             if ($request->hasFile($key)) {
                 $extension = $request->{$key}->extension();
                 $imageName = $key . '.' . $extension;
+                Log::info("Image name: $imageName");
                 $request->{$key}->move($path, $imageName);
 //                $request->{$key}->storeAs("public/uploads/$userId", $imageName);
                 $returnData[$key] = $imageName;
