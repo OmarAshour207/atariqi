@@ -64,7 +64,8 @@ class LoginController extends BaseController
         $code = $data['code'];
         $phoneNumber = $data['phone-no'];
 
-        $user = User::where('phone-no', $phoneNumber)
+        $user = User::with('driverInfo', 'driverCar')
+            ->where('phone-no', $phoneNumber)
             ->where('user-type', 'driver')
             ->first();
 

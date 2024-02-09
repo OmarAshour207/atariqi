@@ -10,7 +10,7 @@ class DriverInfoResource extends JsonResource
     {
         return [
             'id'                => $this->id,
-            'driver'            => new UserSampleResource($this->driver),
+            'driver'            => new UserSampleResource($this->whenLoaded('driver')),
             'car-brand'         => $this->{"car-brand"},
             'car-model'         => $this->{"car-model"},
             'car-number'        => $this->{"car-number"},

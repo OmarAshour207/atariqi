@@ -24,8 +24,8 @@ class DriverResource extends JsonResource
             'image'             => url($this->image),
             'date-of-add'       => $this->{"date-of-add"},
             'date-of-edit'      => $this->{"date-of-edit"},
-            'driver_info'       => new DriverInfo($this->driverInfo()),
-            'driver_car'        => new DriversCar($this->driverCar())
+            'driver_info'       => new DriverInfoResource($this->driverInfo),
+            'driver_car'        => new DriverCarResource($this->driverCar)
         ];
     }
 }
