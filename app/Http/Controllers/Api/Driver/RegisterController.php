@@ -25,7 +25,6 @@ class RegisterController extends BaseController
             'gender'            => 'required|string|max:20',
             'university-id'     => 'required|numeric',
             'email'             => 'required|email|unique:users|max:50',
-            'approval'          => 'required|numeric',
             'user-type'         => 'required|string|in:driver',
             'driver-type-id'    => 'required|numeric',
             'call-key-id'       => 'required|numeric',
@@ -50,8 +49,9 @@ class RegisterController extends BaseController
         }
         $data = $validator->validated();
 
-        $code = generateCode();
-        $data['code'] = $code;
+//        $code = generateCode();
+//        $data['code'] = $code;
+        $data['approval'] = 0;
 
         try {
             DB::beginTransaction();
@@ -86,10 +86,11 @@ class RegisterController extends BaseController
         $success['driver_info'] = new DriverInfoResource($driverInfo);
         $success['driver_car'] = new DriverCarResource($driverCar);
 
-        $phoneNumber = '+' . $user->callingKey->{"call-key"} . $user->{"phone-no"};
-        sendSMS($phoneNumber, $code);
+//        $phoneNumber = '+' . $user->callingKey->{"call-key"} . $user->{"phone-no"};
+//        sendSMS($phoneNumber, $code);
 
-        return $this->sendResponse($success, __('Driver Registered Successfully.'));
+        return $this->sendResponse($success,
+            __('We are checking your registration order, please bear with us and will send on academic email or phone'));
     }
 
     private function uploadImages(Request $request, $data, $userId): array

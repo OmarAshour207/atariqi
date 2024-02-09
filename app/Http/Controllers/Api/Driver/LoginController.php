@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Driver;
 
 use App\Http\Controllers\Api\BaseController;
+use App\Http\Resources\DriverResource;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use App\Models\UserLogin;
@@ -88,7 +89,7 @@ class LoginController extends BaseController
 
         $success = array();
         $success['token'] = $user->createToken('atariqi')->plainTextToken;
-        $success['user'] = new UserResource($user);
+        $success['driver'] = new DriverResource($user);
 
         return $this->sendResponse($success, __('User Logged Successfully.'));
     }

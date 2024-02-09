@@ -51,4 +51,13 @@ class User extends Authenticatable
         return $this->belongsTo(Stage::class, 'user-stage-id');
     }
 
+    public function driverInfo()
+    {
+        return $this->hasOne(DriverInfo::class, 'driver-id', 'id');
+    }
+
+    public function driverCar()
+    {
+        return $this->hasOne(DriversCar::class, 'driver-id', 'id');
+    }
 }

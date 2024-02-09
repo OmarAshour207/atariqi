@@ -41,7 +41,7 @@ class HomeController extends BaseController
         $data['documents'] = DocumentResource::collection($documents);
         $data['socials'] = $socials;
         $data['driver_types'] = DriverTypeResource::collection($driverTypes);
-        
+
         return $this->sendResponse($data, __('Data'));
     }
 

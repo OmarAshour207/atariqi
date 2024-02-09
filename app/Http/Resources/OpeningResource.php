@@ -14,6 +14,7 @@ class OpeningResource extends JsonResource
             'title-eng'     => $this->{"title-eng"},
             'contant-ar'    => $this->{"contant-ar"},
             'contant-eng'   => $this->{"contant-eng"},
+            'date-of-add'   => $this->{"date-of-add"}
         ];
     }
 }
