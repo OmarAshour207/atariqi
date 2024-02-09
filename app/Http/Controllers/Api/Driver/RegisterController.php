@@ -55,6 +55,11 @@ class RegisterController extends BaseController
             DB::beginTransaction();
             $user = User::create($data);
             $images = $this->uploadImages($request, $data, $user->id);
+            if(isset($images['image'])) {
+                $user->update([
+                    'image'     => $images['image']
+                ]);
+            }
 
             $driverInfo = DriverInfo::create([
                 'driver-id'     => $user->id,
