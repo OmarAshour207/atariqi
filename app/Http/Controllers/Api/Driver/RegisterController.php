@@ -18,6 +18,9 @@ class RegisterController extends BaseController
 {
     public function register(Request $request)
     {
+        $file = $request->file('image');
+        Log::info("FIle: " . $file->getClientOriginalName());
+        Log::info("FIle ext: " . $file->getClientOriginalExtension());
         $validator = Validator::make($request->all(), [
             'user-first-name'   => 'required|string|max:20',
             'user-last-name'    => 'required|string|max:20',
