@@ -18,9 +18,6 @@ class RegisterController extends BaseController
 {
     public function register(Request $request)
     {
-        $file = $request->file('image');
-        Log::info("FIle: " . $file->getClientOriginalName());
-        Log::info("FIle ext: " . $file->getClientOriginalExtension());
         $validator = Validator::make($request->all(), [
             'user-first-name'   => 'required|string|max:20',
             'user-last-name'    => 'required|string|max:20',
@@ -33,7 +30,7 @@ class RegisterController extends BaseController
             'call-key-id'       => 'required|numeric',
             'image'             => 'nullable|mimes:jpeg,jpg,png',
             'car-brand'         => 'required|string',
-            'car-model'         => 'required|string',
+            'car-model'         => 'required|numeric',
             'car-letters'       => 'required|string',
             'car-color'         => 'required|string',
             'car-number'        => 'required|string',
@@ -98,12 +95,10 @@ class RegisterController extends BaseController
         if(!File::exists($path)) {
             File::makeDirectory($path, 0777, true);
         }
-        Log::info("File created");
         foreach ($data as $key => $image) {
             if ($request->hasFile($key)) {
                 $extension = $request->{$key}->extension();
                 $imageName = $key . '.' . $extension;
-                Log::info("Image name: $imageName");
                 $request->{$key}->move($path, $imageName);
 //                $request->{$key}->storeAs("public/uploads/$userId", $imageName);
                 $returnData[$key] = $imageName;
