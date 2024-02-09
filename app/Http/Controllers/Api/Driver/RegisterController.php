@@ -33,7 +33,7 @@ class RegisterController extends BaseController
             'car-model'         => 'required|numeric',
             'car-letters'       => 'required|string',
             'car-color'         => 'required|string',
-            'car-number'        => 'required|string',
+            'car-number'        => 'required|numeric',
             'license_img'       => 'required|mimes:jpeg,jpg,png',
             'car_form_img'      => 'required|mimes:jpeg,jpg,png',
             'car_front_img'     => 'required|mimes:jpeg,jpg,png',
