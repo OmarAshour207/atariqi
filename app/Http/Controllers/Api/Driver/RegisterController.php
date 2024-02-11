@@ -28,6 +28,7 @@ class RegisterController extends BaseController
             'user-type'         => 'required|string|in:driver',
             'driver-type-id'    => 'required|numeric',
             'call-key-id'       => 'required|numeric',
+            'user-stage-id'     => 'required|numeric',
             'image'             => 'nullable|mimes:jpeg,jpg,png',
             'car-brand'         => 'required|string',
             'car-model'         => 'required|numeric',
