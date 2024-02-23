@@ -25,7 +25,8 @@ class DriverResource extends JsonResource
             'date-of-add'       => $this->{"date-of-add"},
             'date-of-edit'      => $this->{"date-of-edit"},
             'driver_info'       => new DriverInfoResource($this->driverInfo),
-            'driver_car'        => new DriverCarResource($this->driverCar)
+            'driver_car'        => new DriverCarResource($this->driverCar),
+            'neighbourhoods'    => NeighbourResource::collection($this->university->cityUni->neighbours),
         ];
     }
 }
