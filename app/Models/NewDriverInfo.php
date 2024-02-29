@@ -5,11 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class DriverInfo extends Model
+class NewDriverInfo extends Model
 {
     use HasFactory;
 
-    protected $table = 'driver-info';
+    protected $table = 'new-driver-info';
 
     public $timestamps = false;
 
@@ -24,7 +24,6 @@ class DriverInfo extends Model
         'driver-rate',
         'driver-license-link',
         'allow-disabilities',
-        'approval',
         'date-of-add',
         'date-of-edit'
     ];
@@ -34,10 +33,5 @@ class DriverInfo extends Model
     public function driver()
     {
         return $this->belongsTo(User::class, 'driver-id');
-    }
-
-    public function schedule()
-    {
-        return $this->hasOne(DriverSchedule::class, 'driver-id', 'driver-id');
     }
 }

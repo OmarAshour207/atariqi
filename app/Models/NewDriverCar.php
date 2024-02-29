@@ -6,11 +6,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class DriversCar extends Model
+class NewDriverCar extends Model
 {
-    use HasFactory;
-
-    public $table = 'drivers-car';
+    public $table = 'new-driver-car';
 
     public $timestamps = false;
 
@@ -25,9 +23,7 @@ class DriversCar extends Model
         'car_lside_img',
         'car_insideFront_img',
         'car_insideBack_img',
-        'approval',
-        'date_of_add',
-        'date_of_edit'
+        'date_of_add'
     ];
 
     // relations
@@ -40,5 +36,4 @@ class DriversCar extends Model
     {
         return $this->belongsTo(DriverType::class, 'driver-type-id');
     }
-
 }

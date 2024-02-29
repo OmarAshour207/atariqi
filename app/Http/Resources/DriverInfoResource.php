@@ -8,6 +8,8 @@ class DriverInfoResource extends JsonResource
 {
     public function toArray($request)
     {
+        $driverId = $this->{"driver-id"};
+
         return [
             'id'                => $this->id,
             'driver'            => new UserSampleResource($this->whenLoaded('driver')),
@@ -18,7 +20,7 @@ class DriverInfoResource extends JsonResource
             'car-color'         => $this->{"car-color"},
             'driver-neighborhood'   => $this->{"driver-neighborhood"},
             'driver-rate'           => $this->{"driver-rate"},
-            'driver-license-link'   => url($this->{"driver-license-link"}),
+            'driver-license-link'   => url("uploads/$driverId") . "/" . $this->{"driver-license-link"},
             'allow-disabilities'    => $this->{"allow-disabilities"},
             'date-of-add'           => $this->{"date-of-add"},
             'date-of-edit'          => $this->{"date-of-edit"}

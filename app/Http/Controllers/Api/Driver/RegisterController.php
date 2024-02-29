@@ -104,9 +104,8 @@ class RegisterController extends BaseController
         foreach ($data as $key => $image) {
             if ($request->hasFile($key)) {
                 $extension = $request->{$key}->extension();
-                $imageName = $key . '.' . $extension;
+                $imageName = $key . '_' . strtotime(now()) . '.' . $extension;
                 $request->{$key}->move($path, $imageName);
-//                $request->{$key}->storeAs("public/uploads/$userId", $imageName);
                 $returnData[$key] = $imageName;
             }
         }

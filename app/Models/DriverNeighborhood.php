@@ -5,17 +5,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class DriversServices extends Model
+class DriverNeighborhood extends Model
 {
-    use HasFactory;
-
-    protected $table = 'drivers-services';
-
-    public $timestamps = false;
+    public $table = 'drivers-neighborhoods';
 
     protected $fillable = [
         'driver-id',
-        'service-id',
-        'date-of-add'
+        'neighborhoods-to',
+        'neighborhoods-from'
     ];
+
 }

@@ -60,4 +60,17 @@ class User extends Authenticatable
     {
         return $this->hasOne(DriversCar::class, 'driver-id', 'id');
     }
+
+    public function driverNeighborhood()
+    {
+        return $this->hasOne(DriverNeighborhood::class, 'driver-id', 'id');
+    }
+    public function driverSchedule()
+    {
+        return $this->hasOne(DriverSchedule::class, 'driver-id', 'id');
+    }
+    public function driverService()
+    {
+        return $this->hasOne(DriversServices::class, 'driver-id', 'id');
+    }
 }

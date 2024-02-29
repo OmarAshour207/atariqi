@@ -1,17 +1,21 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\ImmediateDriverController;
-use App\Http\Controllers\Api\DailyDriverController;
-use App\Http\Controllers\Api\WeeklyDriverController;
-use App\Http\Controllers\Api\UserController;
-use App\Http\Controllers\Api\HomeController;
-use App\Http\Controllers\Api\Driver\RegisterController;
-use App\Http\Controllers\Api\Driver\LoginController;
 
-Route::get('/clear/cache', function () {
-    return \Illuminate\Support\Facades\Artisan::call('config:cache');
-});
+use App\Http\Controllers\Api\{
+    ImmediateDriverController,
+    DailyDriverController,
+    WeeklyDriverController,
+    UserController,
+    HomeController
+};
+
+use App\Http\Controllers\Api\Driver\{
+    RegisterController,
+    LoginController,
+    ProfileController,
+    ServiceController
+};
 
 Route::group([
     'middleware'    => 'locale'
@@ -71,6 +75,13 @@ Route::group([
         // User
         Route::post('profile/edit', [UserController::class, 'editProfile'])->name('profile.edit');
 
+        // Driver
+        Route::post('driver/general/update', [ProfileController::class, 'updateGeneral']);
+        Route::post('driver/car/update', [ProfileController::class, 'updateCar']);
+//        Route::post('driver/car/update', [ProfileController::class, 'update']);
+
+        Route::post('driver/service/start', [ServiceController::class, 'start']);
+        Route::post('driver/service/stop', [ServiceController::class, 'stop']);
     });
 });
 

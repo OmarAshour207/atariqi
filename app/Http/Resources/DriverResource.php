@@ -21,7 +21,7 @@ class DriverResource extends JsonResource
             'user-type'         => $this->{"user-type"},
             'call-key'          => new CallingKeyResource($this->callingKey),
             'university'        => new UniversityResource($this->university),
-            'image'             => url($this->image),
+            'image'             => url("uploads/$this->id/$this->image"),
             'date-of-add'       => $this->{"date-of-add"},
             'date-of-edit'      => $this->{"date-of-edit"},
             'driver_info'       => new DriverInfoResource($this->driverInfo),
