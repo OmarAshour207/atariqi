@@ -33,8 +33,9 @@ class ProfileController extends BaseController
         }
 
         $data = $validator->validated();
+        $data['driver-id'] = auth()->user()->id;
 
-        NewUserInfo::create($data);
+        NewDriverInfo::create($data);
         auth()->user()->update(['approval' => 2]);
 
         return $this->sendResponse([],
