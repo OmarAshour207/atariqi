@@ -31,7 +31,7 @@ return new class extends Migration
             $table->bigInteger('call-key-id');
             $table->foreign('call-key-id')->references('id')->on('calling-key')->onDelete('cascade');
 
-            $table->bigInteger('user-stage-id');
+            $table->bigInteger('user-stage-id')->nullable();
             $table->foreign('user-stage-id')->references('id')->on('stages')->onDelete('cascade');
 
             $table->bigInteger('university-id');

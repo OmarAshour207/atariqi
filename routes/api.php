@@ -38,50 +38,57 @@ Route::group([
     Route::post('driver/verify', [LoginController::class, 'verify']);
 
     Route::middleware(['auth:sanctum'])->group(function () {
-        // Immediate
-        Route::post('drivers/immediate/transport', [ImmediateDriverController::class, 'getDrivers']);
-        Route::post('immediate/transport/trips', [ImmediateDriverController::class, 'get']);
-        Route::post('immediate/transport/change/action', [ImmediateDriverController::class, 'changeAction']);
-        Route::post('immediate/transport/execute', [ImmediateDriverController::class, 'execute']);
 
-        Route::post('drivers/rate', [ImmediateDriverController::class, 'rate']);
+        Route::middleware('is_passenger')->group(function() {
+            // Immediate
+            Route::post('drivers/immediate/transport', [ImmediateDriverController::class, 'getDrivers']);
+            Route::post('immediate/transport/trips', [ImmediateDriverController::class, 'get']);
+            Route::post('immediate/transport/change/action', [ImmediateDriverController::class, 'changeAction']);
+            Route::post('immediate/transport/execute', [ImmediateDriverController::class, 'execute']);
 
-        // Daily
-        Route::post('drivers/daily/transport', [DailyDriverController::class, 'getDrivers']);
-        Route::post('drivers/daily/select', [DailyDriverController::class, 'selectDriver']);
-        Route::post('drivers/daily/send/all', [DailyDriverController::class, 'sendToAllDrivers']);
+            Route::post('drivers/rate', [ImmediateDriverController::class, 'rate']);
 
-        Route::post('daily/transport/get/notifications', [DailyDriverController::class, 'getUserNotification']);
-        Route::post('daily/transport/get/summary', [DailyDriverController::class, 'getUserSummary']);
+            // Daily
+            Route::post('drivers/daily/transport', [DailyDriverController::class, 'getDrivers']);
+            Route::post('drivers/daily/select', [DailyDriverController::class, 'selectDriver']);
+            Route::post('drivers/daily/send/all', [DailyDriverController::class, 'sendToAllDrivers']);
 
-        Route::post('daily/transport/trip', [DailyDriverController::class, 'getTripDetails']);
+            Route::post('daily/transport/get/notifications', [DailyDriverController::class, 'getUserNotification']);
+            Route::post('daily/transport/get/summary', [DailyDriverController::class, 'getUserSummary']);
 
-        Route::post('daily/transport/execute', [DailyDriverController::class, 'executeRide']);
-        Route::post('daily/transport/change/action', [DailyDriverController::class, 'changeAction']);
+            Route::post('daily/transport/trip', [DailyDriverController::class, 'getTripDetails']);
 
-        // Weekly
-        Route::post('drivers/weekly/transport', [WeeklyDriverController::class, 'getDrivers']);
-        Route::post('drivers/weekly/select', [WeeklyDriverController::class, 'selectDriver']);
-        Route::post('drivers/weekly/send/all', [WeeklyDriverController::class, 'sendToAllDrivers']);
+            Route::post('daily/transport/execute', [DailyDriverController::class, 'executeRide']);
+            Route::post('daily/transport/change/action', [DailyDriverController::class, 'changeAction']);
 
-        Route::post('weekly/transport/get/notifications', [WeeklyDriverController::class, 'getUserNotification']);
-        Route::post('weekly/transport/get/summary', [WeeklyDriverController::class, 'getUserSummary']);
+            // Weekly
+            Route::post('drivers/weekly/transport', [WeeklyDriverController::class, 'getDrivers']);
+            Route::post('drivers/weekly/select', [WeeklyDriverController::class, 'selectDriver']);
+            Route::post('drivers/weekly/send/all', [WeeklyDriverController::class, 'sendToAllDrivers']);
 
-        Route::post('weekly/transport/trip', [WeeklyDriverController::class, 'getTripDetails']);
+            Route::post('weekly/transport/get/notifications', [WeeklyDriverController::class, 'getUserNotification']);
+            Route::post('weekly/transport/get/summary', [WeeklyDriverController::class, 'getUserSummary']);
 
-        Route::post('weekly/transport/execute', [WeeklyDriverController::class, 'executeRide']);
-        Route::post('weekly/transport/change/action', [WeeklyDriverController::class, 'changeAction']);
+            Route::post('weekly/transport/trip', [WeeklyDriverController::class, 'getTripDetails']);
 
-        // User
-        Route::post('profile/edit', [UserController::class, 'editProfile'])->name('profile.edit');
+            Route::post('weekly/transport/execute', [WeeklyDriverController::class, 'executeRide']);
+            Route::post('weekly/transport/change/action', [WeeklyDriverController::class, 'changeAction']);
+
+            // User
+            Route::post('profile/edit', [UserController::class, 'editProfile'])->name('profile.edit');
+        });
 
         // Driver
-        Route::post('driver/general/update', [ProfileController::class, 'updateGeneral']);
-        Route::post('driver/car/update', [ProfileController::class, 'updateCar']);
+        Route::middleware('is_driver')->group(function() {
+            Route::post('driver/general/update', [ProfileController::class, 'updateGeneral']);
+            Route::post('driver/car/update', [ProfileController::class, 'updateCar']);
 //        Route::post('driver/car/update', [ProfileController::class, 'update']);
 
-        Route::post('driver/service/start', [ServiceController::class, 'start']);
-        Route::post('driver/service/stop', [ServiceController::class, 'stop']);
+            Route::post('driver/service/start', [ServiceController::class, 'start']);
+            Route::post('driver/service/stop', [ServiceController::class, 'stop']);
+
+
+        });
     });
 });
 
