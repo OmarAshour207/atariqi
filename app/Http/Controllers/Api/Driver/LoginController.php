@@ -119,7 +119,7 @@ class LoginController extends BaseController
     {
         $driverId = $user->id;
 
-        return DB::table(function ($subquery) use ($driverId) {
+        $query = DB::table(function ($subquery) use ($driverId) {
             $subquery->select('driver-id', 'action')
                 ->from('sug-week-drivers')
                 ->where('driver-id', $driverId)
@@ -139,13 +139,15 @@ class LoginController extends BaseController
         }, 'subquery')
             ->selectRaw('COUNT(*)')
             ->get();
+
+        return $query[0]->{"COUNT(*)"};
     }
 
     private function getCancelledRides(User $user)
     {
         $driverId = $user->id;
 
-        return DB::table(function ($subquery) use ($driverId) {
+        $query = DB::table(function ($subquery) use ($driverId) {
             $subquery->select('driver-id', 'action')
                 ->from('sug-week-drivers')
                 ->where('driver-id', $driverId)
@@ -165,5 +167,7 @@ class LoginController extends BaseController
         }, 'subquery')
             ->selectRaw('COUNT(*)')
             ->get();
+
+        return $query[0]->{"COUNT(*)"};
     }
 }
