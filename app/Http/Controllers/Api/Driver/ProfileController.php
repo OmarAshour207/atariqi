@@ -46,6 +46,34 @@ class ProfileController extends BaseController
     public function updateCar(Request $request)
     {
         $validator = Validator::make($request->all(), [
+            'car_front_img'         => 'nullable|image|mimes:jpeg,jpg,png',
+            'car_back_img'          => 'nullable|image|mimes:jpeg,jpg,png',
+            'car_rside_img'         => 'nullable|image|mimes:jpeg,jpg,png',
+            'car_lside_img'         => 'nullable|image|mimes:jpeg,jpg,png',
+            'car_insideFront_img'   => 'nullable|image|mimes:jpeg,jpg,png',
+            'car_insideBack_img'    => 'nullable|image|mimes:jpeg,jpg,png',
+        ]);
+
+        $data = $validator->validated();
+        $data['driver-id'] = auth()->user()->id;
+
+        $images = $this->uploadImages($request, $data);
+
+        NewDriverCar::create(array_merge(
+            $data, $images
+        ));
+
+        auth()->user()->driverCar->update([
+            'approval'  => 2
+        ]);
+
+        return $this->sendResponse([],
+            __('Your request for edit will be reviewed, and we will respond to you as soon as possible'));
+    }
+
+    public function updateInfo(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
             'car-brand'         => 'required|string',
             'car-model'         => 'required|numeric',
             'car-letters'       => 'required|string',
@@ -54,13 +82,6 @@ class ProfileController extends BaseController
             'driver-type-id'    => 'required|numeric',
             'license_img'       => 'nullable|mimes:jpeg,jpg,png',
             'car_form_img'      => 'nullable|mimes:jpeg,jpg,png',
-
-            'car_front_img'             => 'nullable|image|mimes:jpeg,jpg,png',
-            'car_back_img'              => 'nullable|image|mimes:jpeg,jpg,png',
-            'car_rside_img'             => 'nullable|image|mimes:jpeg,jpg,png',
-            'car_lside_img'             => 'nullable|image|mimes:jpeg,jpg,png',
-            'car_insideFront_img'       => 'nullable|image|mimes:jpeg,jpg,png',
-            'car_insideBack_img'        => 'nullable|image|mimes:jpeg,jpg,png',
         ]);
 
         $data = $validator->validated();

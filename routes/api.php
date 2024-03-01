@@ -81,6 +81,7 @@ Route::group([
         // Driver
         Route::middleware('is_driver')->group(function() {
             Route::post('driver/general/update', [ProfileController::class, 'updateGeneral']);
+            Route::post('driver/info/update', [ProfileController::class, 'updateInfo']);
             Route::post('driver/car/update', [ProfileController::class, 'updateCar']);
 //        Route::post('driver/car/update', [ProfileController::class, 'update']);
 
