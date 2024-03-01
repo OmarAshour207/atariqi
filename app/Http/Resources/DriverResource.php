@@ -19,6 +19,7 @@ class DriverResource extends JsonResource
             'email'             => $this->email,
             'approval'          => $this->approval,
             'user-type'         => $this->{"user-type"},
+            'user-stage'        => new StageResource($this->stage),
             'call-key'          => new CallingKeyResource($this->callingKey),
             'university'        => new UniversityResource($this->university),
             'image'             => url("uploads/$this->id/$this->image"),

@@ -7,6 +7,7 @@ use App\Http\Resources\DriverResource;
 use App\Models\User;
 use App\Models\UserLogin;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class LoginController extends BaseController
@@ -72,8 +73,12 @@ class LoginController extends BaseController
             return $this->sendError(__("s_userNotExist"), [__("User doesn't exist")], 401);
         }
 
+        $success = array();
+        $success['welcome_message'] = $this->checkWelcomeMessage($user);
+        $success['finished_rides'] = $this->getFinishedRides($user);
+        $success['cancelled_rides'] = $this->getCancelledRides($user);
+
         if($phoneNumber == '1124988931') {
-            $success = array();
             $success['token'] = $user->createToken('atariqi')->plainTextToken;
             $success['driver'] = new DriverResource($user);
 
@@ -95,11 +100,70 @@ class LoginController extends BaseController
             'login-logout'  => 1
         ]);
 
-        $success = array();
         $success['token'] = $user->createToken('atariqi')->plainTextToken;
         $success['driver'] = new DriverResource($user);
 
         return $this->sendResponse($success, __('User Logged Successfully.'));
     }
 
+    private function checkWelcomeMessage(User $user): string
+    {
+        $userLogin = UserLogin::where('user-id', $user->id)->first();
+
+        return $userLogin
+            ? __('Thank you for creating your account. Please complete your profile information in the personal profile interface to start working.')
+            : '';
+    }
+
+    private function getFinishedRides(User $user)
+    {
+        $driverId = $user->id;
+
+        return DB::table(function ($subquery) use ($driverId) {
+            $subquery->select('driver-id', 'action')
+                ->from('sug-week-drivers')
+                ->where('driver-id', $driverId)
+                ->where('action', 6)
+                ->unionAll(function ($subquery) use ($driverId) {
+                    $subquery->select('driver-id', 'action')
+                        ->from('sug-day-drivers')
+                        ->where('driver-id', $driverId)
+                        ->where('action', 6);
+                })
+                ->unionAll(function ($subquery) use ($driverId) {
+                    $subquery->select('driver-id', 'action')
+                        ->from('suggestions-drivers')
+                        ->where('driver-id', $driverId)
+                        ->where('action', 5);
+                });
+        }, 'subquery')
+            ->selectRaw('COUNT(*)')
+            ->get();
+    }
+
+    private function getCancelledRides(User $user)
+    {
+        $driverId = $user->id;
+
+        return DB::table(function ($subquery) use ($driverId) {
+            $subquery->select('driver-id', 'action')
+                ->from('sug-week-drivers')
+                ->where('driver-id', $driverId)
+                ->where('action', 2)
+                ->unionAll(function ($subquery) use ($driverId) {
+                    $subquery->select('driver-id', 'action')
+                        ->from('sug-day-drivers')
+                        ->where('driver-id', $driverId)
+                        ->where('action', 2);
+                })
+                ->unionAll(function ($subquery) use ($driverId) {
+                    $subquery->select('driver-id', 'action')
+                        ->from('suggestions-drivers')
+                        ->where('driver-id', $driverId)
+                        ->where('action', 4);
+                });
+        }, 'subquery')
+            ->selectRaw('COUNT(*)')
+            ->get();
+    }
 }

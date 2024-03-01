@@ -144,5 +144,6 @@
     "Your service started": "بدأت في تنفيذ خدمتك",
     "Please complete your information to start working with us": "يرجي اكمال بياناتك حتي تبدأ العمل معنا",
     "You are out of service": "أنت خارج الخدمة",
-    "User not authorized": "المستخدم غير مصرح له "
+    "User not authorized": "المستخدم غير مصرح له ",
+    "Thank you for creating your account. Please complete your profile information in the personal profile interface to start working.": "شكرًا لك على إنشاء حسابك. يرجى استكمال بياناتك في واجهة الملف الشخصي لتتمكن من البدء في العمل."
 }
