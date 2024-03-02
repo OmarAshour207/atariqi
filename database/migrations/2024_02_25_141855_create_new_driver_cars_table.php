@@ -18,7 +18,7 @@ return new class extends Migration
             $table->bigInteger('driver-id');
             $table->foreign('driver-id')->references('id')->on('users')->onDelete('cascade');
 
-            $table->bigInteger('driver-type-id');
+            $table->bigInteger('driver-type-id')->nullable();
             $table->foreign('driver-type-id')->references('id')->on('driver_type')->onDelete('cascade');
 
             $table->string('car_form_img')->nullable();

@@ -3,11 +3,20 @@
 namespace App\Http\Controllers\Api\Driver;
 
 use App\Http\Controllers\Api\BaseController;
+use App\Http\Resources\NeighbourResource;
+use App\Http\Resources\ServiceResource;
+use App\Models\DriverNeighborhood;
+use App\Models\DriverSchedule;
+use App\Models\DriversServices;
+use App\Models\Neighbour;
 use App\Models\NewDriverCar;
 use App\Models\NewDriverInfo;
 use App\Models\NewUserInfo;
+use App\Models\Service;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -145,5 +154,108 @@ class ProfileController extends BaseController
         }
 
         File::delete($imagePath);
+    }
+
+    public function updateTransport(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'neighborhood_to'       => [Rule::requiredIf(empty($request->neighborhood_from)), 'array'],
+            'neighborhood_from'     => [Rule::requiredIf(empty($request->neighborhood_to)), 'array'],
+            'times.*'               => 'required',
+            'allow-disabilities'    => 'required|string|in:yes,no',
+            'services.*'            => 'required|numeric'
+        ]);
+
+        if($validator->fails()) {
+            return $this->sendError(__('Validation Error.'), $validator->errors()->getMessages(), 422);
+        }
+
+        $data = $validator->validated();
+
+        DriverNeighborhood::updateOrCreate([
+            'driver-id' => auth()->user()->id
+        ], [
+            'neighborhoods-to'   => implode('|', $request->neighborhood_to),
+            'neighborhoods-from' => implode('|', $request->neighborhood_from),
+        ]);
+
+        auth()->user()->driverInfo->update([
+            'allow-disabilities' => $request->{"allow-disabilities"}
+        ]);
+
+        $this->saveServices($data['services']);
+
+        $this->saveSchedule($data['times']);
+
+        return $this->sendResponse([], __('Success'));
+    }
+
+    private function mapDays($dayName)
+    {
+        $daysOfWeek = [
+            'الأحد'      => 'Sunday',
+            'الاثنين'    => 'Monday',
+            'الثلاثاء'   => 'Tuesday',
+            'الأربعاء'   => 'Wednesday',
+            'الخميس'    => 'Thursday',
+            'الجمعة'    => 'Friday',
+            'السبت'     => 'Saturday',
+        ];
+
+        if (key_exists($dayName, $daysOfWeek)) {
+            return $daysOfWeek[$dayName];
+        }
+        return $dayName;
+    }
+
+    private function saveServices($services)
+    {
+        if(!count($services)) {
+            return;
+        }
+        for ($i = 0;$i < count($services); $i++) {
+            DriversServices::updateOrCreate([
+                'driver-id'     => auth()->user()->id,
+                'service-id'    => $services[$i]
+            ], [
+                'date-of-add'   => Carbon::now()
+            ]);
+        }
+    }
+
+    private function saveSchedule($times)
+    {
+        $schedule = array();
+
+        foreach ($times as $time) {
+            $dayName = $this->mapDays($time['day']);
+            $schedule["$dayName-to"] = $time['time_go'];
+            $schedule["$dayName-from"] = $time['time_back'];
+        }
+
+        DriverSchedule::updateOrCreate([
+            'driver-id' => auth()->user()->id
+        ], $schedule);
+    }
+
+    public function getTransportData()
+    {
+        $user = auth()->user()->load(['driverService', 'driverSchedule', 'driverNeighborhood', 'driverInfo']);
+        $services = Service::all();
+        $neighborhoods = DB::table('neighborhoods')->where('city_id', function ($query) use ($user) {
+            $query->select('city_id')
+                ->from('university')
+                ->where('id', $user->{"university-id"});
+        })->get();
+
+        $success = array();
+        $success['neighborhoods'] = NeighbourResource::collection($neighborhoods);
+        $success['driver-neighborhoods'] = $user->driverNeighborhood;
+        $success['driver-schedule'] = $user->driverSchedule;
+        $success['services'] = ServiceResource::collection($services);
+        $success['driver-services'] = $user->driverService;
+        $success['allow-disabilities'] = $user->driverInfo->{"allow-disabilities"};
+
+        return $this->sendResponse($success, __('Data'));
     }
 }

@@ -14,7 +14,8 @@ use App\Http\Controllers\Api\Driver\{
     RegisterController,
     LoginController,
     ProfileController,
-    ServiceController
+    ServiceController,
+    DriverController
 };
 
 Route::group([
@@ -83,11 +84,13 @@ Route::group([
             Route::post('driver/general/update', [ProfileController::class, 'updateGeneral']);
             Route::post('driver/info/update', [ProfileController::class, 'updateInfo']);
             Route::post('driver/car/update', [ProfileController::class, 'updateCar']);
-//        Route::post('driver/car/update', [ProfileController::class, 'update']);
+            Route::post('driver/transport/update', [ProfileController::class, 'updateTransport']);
+            Route::post('driver/transport/index', [ProfileController::class, 'getTransportData']);
 
             Route::post('driver/service/start', [ServiceController::class, 'start']);
             Route::post('driver/service/stop', [ServiceController::class, 'stop']);
 
+            Route::post('driver/rate', [DriverController::class, 'driverRate']);
 
         });
     });

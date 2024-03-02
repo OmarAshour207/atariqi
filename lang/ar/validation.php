@@ -209,6 +209,11 @@ return [
         'car_lside_img'         => "صورة السيارة من اليسار",
         'car_insideFront_img'   => "صورة السيارة من الداخل جهة السائق",
         'car_insideBack_img'    => "صورة السيارة من الداخل جهة الركاب",
+        'allow-disabilities'    => 'أصحاب الهمم',
+        'neighborhood_to'       => 'الاحياء في مسار الذهاب',
+        'neighborhood_from'     => 'الاحياء في مسار العوده',
+        'services'              => 'الخدمات',
+        'times'                 => 'الأوقات'
     ],
 
 ];

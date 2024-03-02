@@ -9,6 +9,8 @@ class DriverNeighborhood extends Model
 {
     public $table = 'drivers-neighborhoods';
 
+    public $timestamps = false;
+
     protected $fillable = [
         'driver-id',
         'neighborhoods-to',

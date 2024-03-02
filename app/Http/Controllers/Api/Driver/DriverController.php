@@ -2,14 +2,15 @@
 
 namespace App\Http\Controllers\Api\Driver;
 
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\Api\BaseController;
 use App\Models\SugDayDriver;
 use App\Models\SuggestionDriver;
 use App\Models\SugWeekDriver;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
-class DriverController extends Controller
+class DriverController extends BaseController
 {
     public function summary(Request $request)
     {
@@ -38,4 +39,71 @@ class DriverController extends Controller
                 $query->where('created_at', $date);
             })->get();
     }
+
+    public function DriverRate()
+    {
+        $success = array();
+        $success['rate'] = auth()->user()->driverInfo->{"driver-rate"};
+        $success['finished_rides'] = $this->getFinishedRides();
+        $success['cancelled_rides'] = $this->getCancelledRides();
+
+        return $this->sendResponse($success, __('Data'));
+    }
+
+    private function getFinishedRides()
+    {
+        $driverId = auth()->user()->id;
+
+        $query = DB::table(function ($subquery) use ($driverId) {
+            $subquery->select('driver-id', 'action')
+                ->from('sug-week-drivers')
+                ->where('driver-id', $driverId)
+                ->where('action', 6)
+                ->unionAll(function ($subquery) use ($driverId) {
+                    $subquery->select('driver-id', 'action')
+                        ->from('sug-day-drivers')
+                        ->where('driver-id', $driverId)
+                        ->where('action', 6);
+                })
+                ->unionAll(function ($subquery) use ($driverId) {
+                    $subquery->select('driver-id', 'action')
+                        ->from('suggestions-drivers')
+                        ->where('driver-id', $driverId)
+                        ->where('action', 5);
+                });
+        }, 'subquery')
+            ->selectRaw('COUNT(*)')
+            ->get();
+
+        return $query[0]->{"COUNT(*)"};
+    }
+
+    private function getCancelledRides()
+    {
+        $driverId = auth()->user()->id;
+
+        $query = DB::table(function ($subquery) use ($driverId) {
+            $subquery->select('driver-id', 'action')
+                ->from('sug-week-drivers')
+                ->where('driver-id', $driverId)
+                ->where('action', 2)
+                ->unionAll(function ($subquery) use ($driverId) {
+                    $subquery->select('driver-id', 'action')
+                        ->from('sug-day-drivers')
+                        ->where('driver-id', $driverId)
+                        ->where('action', 2);
+                })
+                ->unionAll(function ($subquery) use ($driverId) {
+                    $subquery->select('driver-id', 'action')
+                        ->from('suggestions-drivers')
+                        ->where('driver-id', $driverId)
+                        ->where('action', 4);
+                });
+        }, 'subquery')
+            ->selectRaw('COUNT(*)')
+            ->get();
+
+        return $query[0]->{"COUNT(*)"};
+    }
+
 }
