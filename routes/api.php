@@ -80,17 +80,18 @@ Route::group([
         });
 
         // Driver
-        Route::middleware('is_driver')->group(function() {
-            Route::post('driver/general/update', [ProfileController::class, 'updateGeneral']);
-            Route::post('driver/info/update', [ProfileController::class, 'updateInfo']);
-            Route::post('driver/car/update', [ProfileController::class, 'updateCar']);
-            Route::post('driver/transport/update', [ProfileController::class, 'updateTransport']);
-            Route::post('driver/transport/index', [ProfileController::class, 'getTransportData']);
+        Route::middleware('is_driver')->prefix('driver')->group(function() {
+            Route::post('general/update', [ProfileController::class, 'updateGeneral']);
+            Route::post('info/update', [ProfileController::class, 'updateInfo']);
+            Route::post('car/update', [ProfileController::class, 'updateCar']);
+            Route::post('transport/update', [ProfileController::class, 'updateTransport']);
+            Route::post('transport/index', [ProfileController::class, 'getTransportData']);
 
-            Route::post('driver/service/start', [ServiceController::class, 'start']);
-            Route::post('driver/service/stop', [ServiceController::class, 'stop']);
+            Route::post('service/start', [ServiceController::class, 'start']);
+            Route::post('service/stop', [ServiceController::class, 'stop']);
 
-            Route::post('driver/rate', [DriverController::class, 'driverRate']);
+            Route::post('rate', [DriverController::class, 'driverRate']);
+            Route::post('summary', [DriverController::class, 'summary']);
 
         });
     });

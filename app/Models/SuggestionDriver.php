@@ -22,6 +22,11 @@ class SuggestionDriver extends Model
         'date-of-edit'
     ];
 
+    public function passenger()
+    {
+        return $this->belongsTo(User::class, 'passenger-id');
+    }
+
     public function driver()
     {
         return $this->belongsTo(User::class, 'driver-id');

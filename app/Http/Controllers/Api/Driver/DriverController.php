@@ -3,6 +3,9 @@
 namespace App\Http\Controllers\Api\Driver;
 
 use App\Http\Controllers\Api\BaseController;
+use App\Http\Resources\Driver\SugDayDriverResource;
+use App\Http\Resources\Driver\SugDriverResource;
+use App\Http\Resources\Driver\SugWeeklyDriverResource;
 use App\Models\SugDayDriver;
 use App\Models\SuggestionDriver;
 use App\Models\SugWeekDriver;
@@ -15,29 +18,37 @@ class DriverController extends BaseController
     public function summary(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'date' => 'nullable',
+            'date' => 'nullable|date_format:Y-m-d',
         ]);
 
         if($validator->fails()) {
             return $this->sendError(__('Validation Error.'), $validator->errors()->getMessages(), 422);
         }
-        $date = $validator->validated()['date'];
+        $date = isset($validator->validated()['date']) ? $validator->validated()['date'] : '';
 
         $driverId = auth()->user()->id;
-        $weeklyRides = SugWeekDriver::where('driver-id', $driverId)
+
+        $weeklyRides = SugWeekDriver::with('passenger')->where('driver-id', $driverId)
             ->when($date, function ($query) use ($date) {
-                $query->where('created_at', $date);
+                $query->whereDate('date-of-add', $date);
             })->get();
 
-        $DailyRides = SugDayDriver::where('driver-id', $driverId)
+        $dailyRides = SugDayDriver::with('passenger')->where('driver-id', $driverId)
             ->when($date, function ($query) use ($date) {
-                $query->where('created_at', $date);
+                $query->whereDate('date-of-add', $date);
             })->get();
 
-        $ImmediateRides = SuggestionDriver::where('driver-id', $driverId)
+        $immediateRides = SuggestionDriver::with('passenger')->where('driver-id', $driverId)
             ->when($date, function ($query) use ($date) {
-                $query->where('created_at', $date);
+                $query->whereDate('date-of-add', $date);
             })->get();
+
+        $success = array();
+        $success['weekly'] = SugWeeklyDriverResource::collection($weeklyRides);
+        $success['daily'] = SugDayDriverResource::collection($dailyRides);
+        $success['immediate'] = SugDriverResource::collection($immediateRides);
+
+        return $this->sendResponse($success, __('Data'));
     }
 
     public function DriverRate()
