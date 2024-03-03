@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\BaseController;
 use App\Http\Resources\Driver\SugDayDriverResource;
 use App\Http\Resources\Driver\SugDriverResource;
 use App\Http\Resources\Driver\SugWeeklyDriverResource;
+use App\Models\DriversServices;
 use App\Models\SugDayDriver;
 use App\Models\SuggestionDriver;
 use App\Models\SugWeekDriver;
@@ -57,8 +58,22 @@ class DriverController extends BaseController
         $success['rate'] = auth()->user()->driverInfo->{"driver-rate"};
         $success['finished_rides'] = $this->getFinishedRides();
         $success['cancelled_rides'] = $this->getCancelledRides();
+        $success['service_started'] = $this->checkStartService();
 
         return $this->sendResponse($success, __('Data'));
+    }
+
+    private function checkStartService(): bool
+    {
+        $services = DriversServices::where('driver-id', auth()->user()->id)
+            ->whereHas('service', function ($query) {
+                $query->where('service-eng', 'like', '%immediately%');
+            })->count();
+
+        if (!$services) {
+            return false;
+        }
+        return true;
     }
 
     private function getFinishedRides()

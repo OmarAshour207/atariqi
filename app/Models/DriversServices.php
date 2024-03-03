@@ -18,4 +18,9 @@ class DriversServices extends Model
         'service-id',
         'date-of-add'
     ];
+
+    public function service()
+    {
+        return $this->belongsTo(Service::class, 'service-id');
+    }
 }
