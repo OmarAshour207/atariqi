@@ -3,6 +3,7 @@
 namespace App\Http\Resources\Driver;
 
 use App\Http\Resources\UserSampleResource;
+use App\Http\Resources\WeekRideBookingResource;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class SugWeeklyDriverResource extends JsonResource
@@ -14,7 +15,8 @@ class SugWeeklyDriverResource extends JsonResource
             'action'        => $this->action,
             'date-of-add'   => $this->{"date-of-add"},
             'viewed'        => $this->viewed,
-            'passenger'     => new UserSampleResource($this->whenLoaded('passenger'))
+            'passenger'     => new UserSampleResource($this->whenLoaded('passenger')),
+            'trip'          => new WeekRideBookingResource($this->booking),
         ];
     }
 }

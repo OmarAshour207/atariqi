@@ -29,17 +29,20 @@ class DriverController extends BaseController
 
         $driverId = auth()->user()->id;
 
-        $weeklyRides = SugWeekDriver::with('passenger')->where('driver-id', $driverId)
+        $weeklyRides = SugWeekDriver::with('passenger', 'booking')
+            ->where('driver-id', $driverId)
             ->when($date, function ($query) use ($date) {
                 $query->whereDate('date-of-add', $date);
             })->get();
 
-        $dailyRides = SugDayDriver::with('passenger')->where('driver-id', $driverId)
+        $dailyRides = SugDayDriver::with('passenger', 'booking')
+            ->where('driver-id', $driverId)
             ->when($date, function ($query) use ($date) {
                 $query->whereDate('date-of-add', $date);
             })->get();
 
-        $immediateRides = SuggestionDriver::with('passenger')->where('driver-id', $driverId)
+        $immediateRides = SuggestionDriver::with('passenger', 'booking')
+            ->where('driver-id', $driverId)
             ->when($date, function ($query) use ($date) {
                 $query->whereDate('date-of-add', $date);
             })->get();

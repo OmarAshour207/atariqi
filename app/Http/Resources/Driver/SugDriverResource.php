@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Driver;
 
+use App\Http\Resources\DayRideBookingResource;
 use App\Http\Resources\UserSampleResource;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -14,7 +15,8 @@ class SugDriverResource extends JsonResource
             'action'        => $this->action,
             'date-of-add'   => $this->{"date-of-add"},
             'viewed'        => $this->viewed,
-            'passenger'    => new UserSampleResource($this->whenLoaded('passenger'))
+            'passenger'    => new UserSampleResource($this->whenLoaded('passenger')),
+            'trip'          => new DayRideBookingResource($this->booking)
         ];
     }
 }
