@@ -159,8 +159,8 @@ class ProfileController extends BaseController
     public function updateTransport(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'neighborhood_to'       => [Rule::requiredIf(empty($request->neighborhood_from)), 'array'],
-            'neighborhood_from'     => [Rule::requiredIf(empty($request->neighborhood_to)), 'array'],
+            'neighborhood_to'       => [Rule::requiredIf(empty($request->neighborhood_from)), 'string'],
+            'neighborhood_from'     => [Rule::requiredIf(empty($request->neighborhood_to)), 'string'],
             'times.*'               => 'required',
             'allow-disabilities'    => 'required|string|in:yes,no',
             'services.*'            => 'required|numeric'
@@ -171,12 +171,15 @@ class ProfileController extends BaseController
         }
 
         $data = $validator->validated();
+        $data['neighborhood_to'] = json_decode($request->neighborhood_to, true);
+        $data['neighborhood_from'] = json_decode($request->neighborhood_from, true);
+        $data['services'] = json_decode($request->services, true);
 
         DriverNeighborhood::updateOrCreate([
             'driver-id' => auth()->user()->id
         ], [
-            'neighborhoods-to'   => implode('|', $request->neighborhood_to),
-            'neighborhoods-from' => implode('|', $request->neighborhood_from),
+            'neighborhoods-to'   => implode('|', $data['neighborhood_to']),
+            'neighborhoods-from' => implode('|', $data['neighborhood_from']),
         ]);
 
         auth()->user()->driverInfo->update([
