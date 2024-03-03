@@ -7,7 +7,6 @@ use App\Models\DriversServices;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\Rule;
 
 class ServiceController extends BaseController
 {
@@ -40,18 +39,12 @@ class ServiceController extends BaseController
         return $this->sendResponse([], __('Your service started'));
     }
 
-    public function stop(Request $request)
+    public function stop()
     {
-        $validator = Validator::make($request->all(), [
-            'service_id'   => 'required|numeric|exists:services,id',
-        ]);
-
-        if($validator->fails()) {
-            return $this->sendError(__('Validation Error.'), $validator->errors()->getMessages(), 422);
-        }
-
         DriversServices::where('driver-id', auth()->user()->id)
-            ->where('service-id', $request->service_id)
+            ->whereHas('service', function ($query) {
+                $query->where('service-eng', 'like', '%immediately%');
+            })
             ->delete();
 
         return $this->sendResponse([], __('You are out of service'));
