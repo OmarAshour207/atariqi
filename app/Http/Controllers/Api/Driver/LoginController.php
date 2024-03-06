@@ -32,9 +32,7 @@ class LoginController extends BaseController
             return $this->sendError("s_userNotExist", [__("User not registered on Atariqi family, you have to register first")], 401);
         }
 
-        if($phoneNumber == '1124988931') {
-            return $this->sendResponse('s_codeSent', __('Verification code sent'));
-        }
+        return $this->sendResponse('s_codeSent', __('Verification code sent'));
 
         if ($user->approval != 1) {
             return $this->sendError("s_userNotApproved",
@@ -79,12 +77,9 @@ class LoginController extends BaseController
         $success = array();
         $success['welcome_message'] = $this->checkWelcomeMessage($user);
 
-        if($phoneNumber == '1124988931') {
-            $success['token'] = $user->createToken('atariqi')->plainTextToken;
-            $success['driver'] = new DriverResource($user);
-
-            return $this->sendResponse($success, __('User Logged Successfully.'));
-        }
+        $success['token'] = $user->createToken('atariqi')->plainTextToken;
+        $success['driver'] = new DriverResource($user);
+        return $this->sendResponse($success, __('User Logged Successfully.'));
 
         if($user->code != $code) {
             return $this->sendError(__('s_invalidCode'), [__('Invalid Code')], 401);

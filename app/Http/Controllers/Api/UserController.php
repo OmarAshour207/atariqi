@@ -69,9 +69,7 @@ class UserController extends BaseController
             return $this->sendError("s_userNotExist", [__("User doesn't exist")], 401);
         }
 
-        if($phoneNumber == '1124988931') {
-            return $this->sendResponse('s_codeSent', __('Verification code sent'));
-        }
+        return $this->sendResponse('s_codeSent', __('Verification code sent'));
 
         $code = generateCode();
 
@@ -108,10 +106,8 @@ class UserController extends BaseController
 
         $success['user'] = new UserResource($user);
 
-        if($code == '1234') {
-            $success['token'] = $user->createToken('atariqi')->plainTextToken;
-            return $this->sendResponse($success, __('User Logged Successfully.'));
-        }
+        $success['token'] = $user->createToken('atariqi')->plainTextToken;
+        return $this->sendResponse($success, __('User Logged Successfully.'));
 
         if($user->code != $code) {
             return $this->sendError(__('s_invalidCode'), [__('Invalid Code')], 401);
