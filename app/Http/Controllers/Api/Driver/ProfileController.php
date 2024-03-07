@@ -232,8 +232,8 @@ class ProfileController extends BaseController
 
         foreach ($times as $time) {
             $dayName = $this->mapDays($time['day']);
-            $schedule["$dayName-to"] = $time['time_go'];
-            $schedule["$dayName-from"] = $time['time_back'];
+            $schedule["$dayName-to"] = convertArabicDateToEnglish($time['time_go']);
+            $schedule["$dayName-from"] = convertArabicDateToEnglish($time['time_back']);
         }
 
         DriverSchedule::updateOrCreate([
