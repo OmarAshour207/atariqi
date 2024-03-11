@@ -39,11 +39,23 @@ class HomeController extends BaseController
         $data['universities'] = UniversityResource::collection($university);
         $data['stages'] = StageResource::collection($stages);
         $data['documents'] = DocumentResource::collection($documents);
-        $data['driver_documents'] = DocumentResource::collection($documents);
+        $data['driver_documents'] = $this->getDriverDocuments($documents);
         $data['socials'] = $socials;
         $data['driver_types'] = DriverTypeResource::collection($driverTypes);
 
         return $this->sendResponse($data, __('Data'));
+    }
+
+    private function getDriverDocuments($documents)
+    {
+        $data = [];
+        foreach ($documents as $index => $document) {
+            $data[$index]['title-ar'] = $document->{"title-ar"};
+            $data[$index]['title-eng'] = $document->{"title-eng"};
+            $data[$index]['file-link'] = str_replace('/documents/', '/documents/driver/', $document->{"file-link"});
+        }
+
+        return $data;
     }
 
     public function getAnnouncement()

@@ -11,9 +11,7 @@ class DocumentResource extends JsonResource
         return [
             'title-ar'      => $this->{"title-ar"},
             'title-eng'     => $this->{"title-eng"},
-            'file-link'     => url($this->{"file-link"}),
-            'date-of-add'   => $this->{"date-of-add"},
-            'date-of-edit'  => $this->{"date-of-edit"}
+            'file-link'     => url($this->{"file-link"})
         ];
     }
 }

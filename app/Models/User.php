@@ -71,6 +71,6 @@ class User extends Authenticatable
     }
     public function driverService()
     {
-        return $this->hasOne(DriversServices::class, 'driver-id', 'id');
+        return $this->hasMany(DriversServices::class, 'driver-id', 'id');
     }
 }

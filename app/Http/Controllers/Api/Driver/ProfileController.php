@@ -231,8 +231,8 @@ class ProfileController extends BaseController
 
         foreach ($times as $time) {
             $dayName = $this->mapDays($time['day']);
-            $schedule["$dayName-to"] = convertArabicDateToEnglish($time['time_go']);
-            $schedule["$dayName-from"] = convertArabicDateToEnglish($time['time_back']);
+            $schedule["$dayName-to"] = !empty($time['time_go']) ? convertArabicDateToEnglish($time['time_go']) : NULL;
+            $schedule["$dayName-from"] = !empty($time['time_go']) ? convertArabicDateToEnglish($time['time_back']) : NULL;
         }
 
         DriverSchedule::updateOrCreate([
@@ -250,12 +250,19 @@ class ProfileController extends BaseController
                 ->where('id', $user->{"university-id"});
         })->get();
 
+        $driverNeighborhoods = $user->driverNeighborhood;
+
         $success = array();
         $success['neighborhoods'] = NeighbourResource::collection($neighborhoods);
-        $success['driver-neighborhoods'] = $user->driverNeighborhood;
+
+        $success['neighborhoods-to'] = $driverNeighborhoods ? explode('|', $driverNeighborhoods->{"neighborhoods-to"}) : [];
+        $success['neighborhoods-from'] = $driverNeighborhoods ? explode('|', $driverNeighborhoods->{"neighborhoods-from"}) : [];
+
         $success['driver-schedule'] = $user->driverSchedule;
         $success['services'] = ServiceResource::collection($services);
-        $success['driver-services'] = $user->driverService;
+
+        $success['driver-services'] = $user->driverService->pluck('id')->toArray();
+
         $success['allow-disabilities'] = $user->driverInfo->{"allow-disabilities"};
 
         return $this->sendResponse($success, __('Data'));
