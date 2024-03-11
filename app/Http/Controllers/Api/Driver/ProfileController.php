@@ -8,7 +8,6 @@ use App\Http\Resources\ServiceResource;
 use App\Models\DriverNeighborhood;
 use App\Models\DriverSchedule;
 use App\Models\DriversServices;
-use App\Models\Neighbour;
 use App\Models\NewDriverCar;
 use App\Models\NewDriverInfo;
 use App\Models\NewUserInfo;

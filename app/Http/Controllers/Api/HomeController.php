@@ -39,6 +39,7 @@ class HomeController extends BaseController
         $data['universities'] = UniversityResource::collection($university);
         $data['stages'] = StageResource::collection($stages);
         $data['documents'] = DocumentResource::collection($documents);
+        $data['driver_documents'] = DocumentResource::collection($documents);
         $data['socials'] = $socials;
         $data['driver_types'] = DriverTypeResource::collection($driverTypes);
 
