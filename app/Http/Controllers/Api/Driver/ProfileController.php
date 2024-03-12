@@ -158,8 +158,8 @@ class ProfileController extends BaseController
     public function updateTransport(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'neighborhood_to'       => [Rule::requiredIf(empty($request->neighborhood_from)), 'string'],
-            'neighborhood_from'     => [Rule::requiredIf(empty($request->neighborhood_to)), 'string'],
+            'neighborhood_to'       => [Rule::requiredIf(empty($request->neighborhood_from))],
+            'neighborhood_from'     => [Rule::requiredIf(empty($request->neighborhood_to))],
             'times.*'               => 'required',
             'allow-disabilities'    => 'required|string|in:yes,no',
             'services.*'            => 'required|numeric'
@@ -215,6 +215,11 @@ class ProfileController extends BaseController
         if(!count($services)) {
             return;
         }
+
+        DriversServices::whereNotIn('service-id', $services)
+            ->where('driver-id', auth()->user()->id)
+            ->delete();
+
         for ($i = 0;$i < count($services); $i++) {
             DriversServices::updateOrCreate([
                 'driver-id'     => auth()->user()->id,
@@ -255,8 +260,8 @@ class ProfileController extends BaseController
         $success = array();
         $success['neighborhoods'] = NeighbourResource::collection($neighborhoods);
 
-        $success['neighborhoods-to'] = $driverNeighborhoods ? explode('|', $driverNeighborhoods->{"neighborhoods-to"}) : [];
-        $success['neighborhoods-from'] = $driverNeighborhoods ? explode('|', $driverNeighborhoods->{"neighborhoods-from"}) : [];
+        $success['neighborhoods-to'] = $driverNeighborhoods && $driverNeighborhoods->{"neighborhoods-to"} ? explode('|', $driverNeighborhoods->{"neighborhoods-to"}) : [];
+        $success['neighborhoods-from'] = $driverNeighborhoods && $driverNeighborhoods->{"neighborhoods-from"} ? explode('|', $driverNeighborhoods->{"neighborhoods-from"}) : [];
 
         $success['driver-schedule'] = $user->driverSchedule;
         $success['services'] = ServiceResource::collection($services);
