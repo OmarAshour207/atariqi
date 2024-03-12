@@ -266,7 +266,7 @@ class ProfileController extends BaseController
         $success['driver-schedule'] = $user->driverSchedule;
         $success['services'] = ServiceResource::collection($services);
 
-        $success['driver-services'] = $user->driverService->pluck('id')->toArray();
+        $success['driver-services'] = $user->driverService->pluck('service-id')->toArray();
 
         $success['allow-disabilities'] = $user->driverInfo->{"allow-disabilities"};
 
