@@ -158,8 +158,8 @@ class ProfileController extends BaseController
     public function updateTransport(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'neighborhood_to'       => [Rule::requiredIf(empty($request->neighborhood_from))],
-            'neighborhood_from'     => [Rule::requiredIf(empty($request->neighborhood_to))],
+            'neighborhood_to'       => [Rule::requiredIf(empty($request->neighborhood_from)), 'string'],
+            'neighborhood_from'     => [Rule::requiredIf(empty($request->neighborhood_to)), 'string'],
             'times.*'               => 'required',
             'allow-disabilities'    => 'required|string|in:yes,no',
             'services.*'            => 'required|numeric'
@@ -236,8 +236,8 @@ class ProfileController extends BaseController
 
         foreach ($times as $time) {
             $dayName = $this->mapDays($time['day']);
-            $schedule["$dayName-to"] = !empty($time['time_go']) ? convertArabicDateToEnglish($time['time_go']) : NULL;
-            $schedule["$dayName-from"] = !empty($time['time_go']) ? convertArabicDateToEnglish($time['time_back']) : NULL;
+            $schedule["$dayName-to"] = $time['time_go'] ? convertArabicDateToEnglish($time['time_go']) : NULL;
+            $schedule["$dayName-from"] = $time['time_back'] ? convertArabicDateToEnglish($time['time_back']) : NULL;
         }
 
         DriverSchedule::updateOrCreate([
