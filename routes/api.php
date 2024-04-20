@@ -15,7 +15,8 @@ use App\Http\Controllers\Api\Driver\{
     LoginController,
     ProfileController,
     ServiceController,
-    DriverController
+    DriverController,
+    SummaryController
 };
 
 Route::group([
@@ -91,7 +92,10 @@ Route::group([
             Route::post('service/stop', [ServiceController::class, 'stop']);
 
             Route::post('rate', [DriverController::class, 'driverRate']);
-            Route::post('summary', [DriverController::class, 'summary']);
+
+            Route::post('summary', [SummaryController::class, 'summaryAll']);
+
+            Route::get('summary/search', [SummaryController::class, 'summary']);
 
         });
     });

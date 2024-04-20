@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -22,6 +23,31 @@ class SuggestionDriver extends Model
         'date-of-edit'
     ];
 
+    // Scopes
+
+    public function scopeAccepted(Builder $query)
+    {
+        return $query->whereIn('action', [1, 2, 5]);
+    }
+
+    public function scopeRejected(Builder $query)
+    {
+        return $query->whereIn('action', [0, 3, 4]);
+    }
+
+    public function scopeNew(Builder $query)
+    {
+        return $query->where('action', 7);
+    }
+    public function scopeCancelled(Builder $query)
+    {
+        return $query->where('action', 7);
+    }
+    public function scopeDone(Builder $query)
+    {
+        return $query->where('action', 7);
+    }
+
     public function passenger()
     {
         return $this->belongsTo(User::class, 'passenger-id');
@@ -40,5 +66,10 @@ class SuggestionDriver extends Model
     public function booking()
     {
         return $this->belongsTo(RideBooking::class, 'booking-id');
+    }
+
+    public function deliveryInfo()
+    {
+        return $this->hasOne(DeliveryInfo::class, 'sug-id', 'id');
     }
 }
