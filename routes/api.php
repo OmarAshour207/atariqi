@@ -16,7 +16,8 @@ use App\Http\Controllers\Api\Driver\{
     ProfileController,
     ServiceController,
     DriverController,
-    SummaryController
+    SummaryController,
+    TripController
 };
 
 Route::group([
@@ -97,6 +98,15 @@ Route::group([
 
             Route::get('summary/search', [SummaryController::class, 'summary']);
 
+            Route::post('trip/action/update', [TripController::class, 'updateAction']);
+
+            Route::get('trip/{type}/{id}', [TripController::class, 'get']);
+
+            Route::post('trip/start', [TripController::class, 'start']);
+
+            Route::post('trip/delivery/update', [TripController::class, 'updateDelivery']);
+
+            Route::post('trip/rate', [TripController::class, 'rate']);
         });
     });
 });

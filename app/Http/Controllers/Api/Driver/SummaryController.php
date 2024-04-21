@@ -81,6 +81,7 @@ class SummaryController extends BaseController
                 AllowedSort::custom('rate', new SortByRate)
             ])
             ->with(['booking', 'deliveryInfo'])
+            ->where('driver-id', auth()->user()->id)
             ->get();
 
         return $this->sendResponse($summaries, __('Data'));

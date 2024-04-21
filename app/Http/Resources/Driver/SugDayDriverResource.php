@@ -16,7 +16,8 @@ class SugDayDriverResource extends JsonResource
             'date-of-add'   => $this->{"date-of-add"},
             'viewed'        => $this->viewed,
 //            'passenger'     => new UserSampleResource($this->whenLoaded('passenger')),
-            'trip'          => new DayRideBookingResource($this->booking)
+            'trip'          => new DayRideBookingResource($this->booking),
+            'delivery_info' => $this->whenLoaded('deliveryInfo')
         ];
     }
 }

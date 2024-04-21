@@ -20,7 +20,7 @@ class DelDailyInfo extends Model
         'arrived-destination',
         'passenger-rate',
         'driver-rate',
-        'disability'
+        'allow-disabilities'
     ];
 
     public function ride()

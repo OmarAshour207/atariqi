@@ -71,6 +71,6 @@ class SugDayDriver extends Model
 
     public function deliveryInfo()
     {
-        return $this->hasOne(DeliveryInfo::class, 'sug-id', 'id');
+        return $this->hasOne(DelDailyInfo::class, 'sug-id', 'id');
     }
 }

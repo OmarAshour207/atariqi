@@ -3,16 +3,8 @@
 namespace App\Http\Controllers\Api\Driver;
 
 use App\Http\Controllers\Api\BaseController;
-use App\Http\Resources\Driver\SugDayDriverResource;
-use App\Http\Resources\Driver\SugDriverResource;
-use App\Http\Resources\Driver\SugWeeklyDriverResource;
 use App\Models\DriversServices;
-use App\Models\SugDayDriver;
-use App\Models\SuggestionDriver;
-use App\Models\SugWeekDriver;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Validator;
 
 class DriverController extends BaseController
 {

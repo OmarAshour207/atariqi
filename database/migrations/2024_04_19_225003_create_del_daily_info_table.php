@@ -21,7 +21,7 @@ return new class extends Migration
             $table->time('arrived-location')->nullable();
             $table->time('arrived-destination')->nullable();
             $table->integer('passenger-rate')->nullable();
-            $table->tinyInteger('disability')->nullable();
+            $table->string('allow-disabilities', 25)->nullable();
         });
     }
 
