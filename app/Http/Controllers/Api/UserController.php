@@ -29,12 +29,13 @@ class UserController extends BaseController
             'user-stage-id'     => 'required|numeric',
             'email'             => 'required|email|max:50',
             'approval'          => 'required|numeric',
-            'user-type'         => 'required|string|in:passenger,driver',
+            'user-type'         => 'required|string|in:passenger',
             'call-key-id'       => 'required|numeric'
         ]);
 
-        if($validator->fails())
+        if($validator->fails()) {
             return $this->sendError(__('Validation Error.'), $validator->errors()->getMessages(), 422);
+        }
 
         $data = $validator->validated();
         $data['date-of-add'] = now();
@@ -63,7 +64,10 @@ class UserController extends BaseController
         }
 
         $phoneNumber = $validator->validated()['phone-no'];
-        $user = User::with('callingKey')->where('phone-no', $phoneNumber)->first();
+        $user = User::with('callingKey')
+            ->where('phone-no', $phoneNumber)
+            ->where('user-type', 'passenger')
+            ->first();
 
         if(!$user) {
             return $this->sendError("s_userNotExist", [__("User doesn't exist")], 401);
@@ -98,7 +102,9 @@ class UserController extends BaseController
         $code = $data['code'];
         $phoneNumber = $data['phone-no'];
 
-        $user = User::where('phone-no', $phoneNumber)->first();
+        $user = User::where('phone-no', $phoneNumber)
+            ->where('user-type', 'passenger')
+            ->first();
 
         if(!$user) {
             return $this->sendError(__("s_userNotExist"), [__("User doesn't exist")], 401);
