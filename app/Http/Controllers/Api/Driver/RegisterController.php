@@ -8,6 +8,7 @@ use App\Http\Resources\DriverInfoResource;
 use App\Models\DriverInfo;
 use App\Models\DriversCar;
 use App\Models\User;
+use App\Rules\UniquePhoneNumberForUserType;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
@@ -21,7 +22,7 @@ class RegisterController extends BaseController
         $validator = Validator::make($request->all(), [
             'user-first-name'   => 'required|string|max:20',
             'user-last-name'    => 'required|string|max:20',
-            'phone-no'          => 'required|unique:users|max:20',
+            'phone-no'          => ['required', 'max:20', new UniquePhoneNumberForUserType($request->input("user-type"))],
             'gender'            => 'required|string|max:20',
             'university-id'     => 'required|numeric',
             'email'             => 'required|email|unique:users|max:50',

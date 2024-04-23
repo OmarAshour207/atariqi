@@ -8,6 +8,7 @@ use App\Models\NewUserInfo;
 use App\Models\University;
 use App\Models\User;
 use App\Models\UserLogin;
+use App\Rules\UniquePhoneNumberForUserType;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -23,7 +24,7 @@ class UserController extends BaseController
         $validator = Validator::make($request->all(), [
             'user-first-name'   => 'required|string|max:20',
             'user-last-name'    => 'required|string|max:20',
-            'phone-no'          => 'required|unique:users|max:20',
+            'phone-no'          => ['required', 'max:20', new UniquePhoneNumberForUserType($request->input("user-type"))],
             'gender'            => 'required|string|max:20',
             'university-id'     => 'required|numeric',
             'user-stage-id'     => 'required|numeric',
@@ -36,7 +37,7 @@ class UserController extends BaseController
         if($validator->fails()) {
             return $this->sendError(__('Validation Error.'), $validator->errors()->getMessages(), 422);
         }
-
+        
         $data = $validator->validated();
         $data['date-of-add'] = now();
 
