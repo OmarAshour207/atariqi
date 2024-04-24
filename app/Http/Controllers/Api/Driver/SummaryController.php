@@ -62,7 +62,7 @@ class SummaryController extends BaseController
     public function summary(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'type' => 'nullable|string',
+            'type' => 'required|string',
             'filter.date' => 'nullable|date_format:Y-m-d',
             'filter.action' => 'nullable|string|in:new,accepted,rejected,cancelled,done'
         ]);
@@ -83,6 +83,12 @@ class SummaryController extends BaseController
             ->with(['booking', 'deliveryInfo'])
             ->where('driver-id', auth()->user()->id)
             ->get();
+
+        if($request->type == 'daily') {
+            $summaries = SugDayDriverResource::collection($summaries);
+        } if($request->type == 'immediate') {
+            $summaries = SugDriverResource::collection($summaries);
+        }
 
         return $this->sendResponse($summaries, __('Data'));
     }

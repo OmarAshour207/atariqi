@@ -37,7 +37,7 @@ class UserController extends BaseController
         if($validator->fails()) {
             return $this->sendError(__('Validation Error.'), $validator->errors()->getMessages(), 422);
         }
-        
+
         $data = $validator->validated();
         $data['date-of-add'] = now();
 
