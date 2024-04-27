@@ -80,7 +80,7 @@ class SummaryController extends BaseController
                 AllowedSort::custom('date', new SortByDate, $request->input('type')),
                 AllowedSort::custom('rate', new SortByRate, $request->input('type'))
             ])
-            ->with(['booking', 'deliveryInfo', 'booking.passenger'])
+            ->with(['booking', 'deliveryInfo', 'booking.passenger', 'rate'])
             ->where('driver-id', auth()->user()->id)
             ->get();
 

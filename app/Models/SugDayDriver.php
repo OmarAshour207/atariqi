@@ -73,4 +73,9 @@ class SugDayDriver extends Model
     {
         return $this->hasOne(DelDailyInfo::class, 'sug-id', 'id');
     }
+
+    public function rate()
+    {
+        return $this->hasOne(PassengerRate::class, 'user-id', 'passenger-id');
+    }
 }
