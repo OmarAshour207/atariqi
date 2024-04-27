@@ -78,12 +78,13 @@ class SummaryController extends BaseController
             ])
             ->allowedSorts([
                 AllowedSort::custom('date', new SortByDate, $request->input('type')),
-                AllowedSort::custom('rate', new SortByRate)
+                AllowedSort::custom('rate', new SortByRate, $request->input('type'))
             ])
-            ->with(['booking', 'deliveryInfo'])
+            ->with(['booking', 'deliveryInfo', 'booking.passenger'])
             ->where('driver-id', auth()->user()->id)
             ->get();
 
+//        dd($summaries);
         if($request->type == 'daily') {
             $summaries = SugDayDriverResource::collection($summaries);
         } if($request->type == 'immediate') {

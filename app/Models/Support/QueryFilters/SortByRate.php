@@ -2,7 +2,7 @@
 
 namespace App\Models\Support\QueryFilters;
 
-use App\Models\DeliveryInfo;
+use App\Models\PassengerRate;
 use Spatie\QueryBuilder\Sorts\Sort;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -12,8 +12,14 @@ class SortByRate implements Sort
     {
         $direction = $descending ? 'DESC' : 'ASC';
 
-        $query->orderBy(
-            DeliveryInfo::select('passenger-rate')->whereColumn('delivery-info.sug-id', 'suggestions-drivers.id')
-            , $direction);
+        if($property == 'daily') {
+            $query->orderBy(
+                PassengerRate::select('rate')->whereColumn('passenger-rate.user-id', 'sug-day-drivers.passenger-id')
+                , $direction);
+        } else {
+            $query->orderBy(
+                PassengerRate::select('rate')->whereColumn('passenger-rate.user-id', 'suggestions-drivers.passenger-id')
+                , $direction);
+        }
     }
 }

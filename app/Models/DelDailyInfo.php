@@ -19,7 +19,6 @@ class DelDailyInfo extends Model
         'arrived-location',
         'arrived-destination',
         'passenger-rate',
-        'driver-rate',
         'allow-disabilities'
     ];
 
