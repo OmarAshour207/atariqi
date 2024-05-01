@@ -53,7 +53,7 @@ class TripController extends BaseController
         $trip = [];
 
         if ($type == 'daily') {
-            $trip = SugDayDriver::with('deliveryInfo')
+            $trip = SugDayDriver::with('passenger', 'deliveryInfo')
                 ->where('driver-id', auth()->user()->id)
                 ->where('id', $id)
                 ->first();

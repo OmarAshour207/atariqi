@@ -291,8 +291,9 @@ class DailyDriverController extends BaseController
             'locale'            => 'sometimes|nullable|string'
         ]);
 
-        if($validator->fails())
+        if($validator->fails()) {
             return $this->sendError(__('Validation Error.'), $validator->errors()->getMessages(), 422);
+        }
 
         $data = $validator->validated();
 
@@ -396,8 +397,9 @@ class DailyDriverController extends BaseController
             'locale'            => 'sometimes|nullable|string'
         ]);
 
-        if($validator->fails())
+        if($validator->fails()) {
             return $this->sendError(__('Validation Error.'), $validator->errors()->getMessages(), 422);
+        }
 
         $data = $validator->validated();
 
