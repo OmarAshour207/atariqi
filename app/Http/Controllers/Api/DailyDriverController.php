@@ -574,7 +574,7 @@ class DailyDriverController extends BaseController
 //            'title'     => __('You have a notification from Atariqi'),
 //            'body'      => __("an order from Atariqi to accept the ride"),
 //            'tokens'    => [auth()->user()->fcm_token],
-//            'data'      => ['data' => 'display_accept_reject']
+//            'external'  => ['data' => 'display_accept_reject']
 //        ]);
 
         return $this->sendResponse($success, __("an order from Atariqi to accept the ride"));
