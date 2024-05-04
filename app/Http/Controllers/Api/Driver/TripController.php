@@ -71,6 +71,8 @@ class TripController extends BaseController
                 return $this->sendError(__('Trip not found!'), [__('Trip not found!')]);
             }
 
+            $success = new SugDayDriverResource($trip);
+
             if ($trip->booking->{"road-way"} == 'from') {
                 $success['destination_lat'] = $trip->booking->lat;
                 $success['destination_lng'] = $trip->booking->lng;
@@ -82,8 +84,6 @@ class TripController extends BaseController
                 $success['source_lat'] = $trip->booking->lat;
                 $success['source_lng'] = $trip->booking->lng;
             }
-
-            $success['trip'] = new SugDayDriverResource($trip);
         }
 
         return $this->sendResponse($success, __('Data'));
