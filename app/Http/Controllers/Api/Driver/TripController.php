@@ -46,8 +46,6 @@ class TripController extends BaseController
             ]);
 
             if($request->input('action') == 1) {
-                Log::info("Notify the user that ride accepted");
-                Log::info("Fcm token:" . $trip->passenger->fcm_token);
                 sendNotification([
                     'title'     => __('You have a notification from Atariqi'),
                     'body'      => __("an order from Atariqi to accept the ride"),

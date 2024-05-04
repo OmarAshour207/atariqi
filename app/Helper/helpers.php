@@ -14,8 +14,10 @@ function sendNotification($data): bool
     $FIREBASE_API_KEY = config('services.firebase.apikey');
     $url = 'https://fcm.googleapis.com/fcm/send';
 
-    if (empty($FIREBASE_API_KEY))
+    if (empty($FIREBASE_API_KEY)) {
         return true;
+    }
+
     $notification = [
         'title' => $title,
         'body'  => $body,
@@ -47,8 +49,9 @@ function sendNotification($data): bool
 
         curl_setopt ( $ch, CURLOPT_POSTFIELDS, $dataString );
 
-        curl_exec ( $ch );
+        $result = curl_exec ( $ch );
         curl_close ( $ch );
+        Log::info('cURL Request Output:', ['output' => $result]);
     } catch (\Exception $e) {
         Log::error("Notification can't send");
     }
