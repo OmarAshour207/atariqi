@@ -137,7 +137,7 @@ class TripController extends BaseController
 
         $title = __('Accept the trip');
         $message = __('Could you accept the trip ?');
-        sendNotification(['title' => $title, 'body' => $message, 'tokens' => $passenger->fcm_token]);
+        sendNotification(['title' => $title, 'body' => $message, 'tokens' => [$passenger->fcm_token]]);
 
         DelDailyInfo::updateOrCreate([
             'expect-arrived'    => $data['expect-arrived'],
