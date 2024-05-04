@@ -83,7 +83,7 @@ class TripController extends BaseController
                 $success['source_lng'] = $trip->booking->lng;
             }
 
-            $success = new SugDayDriverResource($trip);
+            $success['trip'] = new SugDayDriverResource($trip);
         }
 
         return $this->sendResponse($success, __('Data'));
