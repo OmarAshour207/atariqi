@@ -43,6 +43,14 @@ class TripController extends BaseController
                 'action' => $data['action'],
                 'date-of-edit' => Carbon::now()
             ]);
+
+            if($request->input('action') == 1) {
+                sendNotification([
+                    'title'     => __('You have a notification from Atariqi'),
+                    'body'      => __("an order from Atariqi to accept the ride"),
+                    'tokens'    => [$trip->passenger()->fcm_token]
+                ]);
+            }
         }
 
         return $this->sendResponse($trip, __('Success'));
