@@ -573,7 +573,8 @@ class DailyDriverController extends BaseController
 //        sendNotification([
 //            'title'     => __('You have a notification from Atariqi'),
 //            'body'      => __("an order from Atariqi to accept the ride"),
-//            'tokens'    => [auth()->user()->fcm_token]
+//            'tokens'    => [auth()->user()->fcm_token],
+//            'data'      => ['data' => 'display_accept_reject']
 //        ]);
 
         return $this->sendResponse($success, __("an order from Atariqi to accept the ride"));
@@ -596,8 +597,9 @@ class DailyDriverController extends BaseController
             ->where('passenger-id', auth()->user()->id)
             ->first();
 
-        if (!$sugDayDriver)
+        if (!$sugDayDriver) {
             return $this->sendError(__('Trip not found!'), [__('Trip not found')]);
+        }
 
         return $this->sendResponse(new SugDayDrivingResource($sugDayDriver), __('Success'));
     }

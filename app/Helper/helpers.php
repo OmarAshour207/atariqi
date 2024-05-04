@@ -10,6 +10,7 @@ function sendNotification($data): bool
     $title = $data['title'];
     $body = $data['body'];
     $tokens = isset($data['tokens']) ? $data['tokens'] : [];
+    $externalData = isset($data['data']) ? $data['data'] : [];
 
     $FIREBASE_API_KEY = config('services.firebase.apikey');
     $url = 'https://fcm.googleapis.com/fcm/send';
@@ -27,7 +28,8 @@ function sendNotification($data): bool
 
     $data = [
         'registration_ids'  => $tokens,
-        'notification'  => $notification
+        'notification'  => $notification,
+        'data' => $externalData
     ];
 
     $dataString = json_encode($data);

@@ -59,21 +59,34 @@ class TripController extends BaseController
 
     public function get($type, $id): JsonResponse
     {
-        $trip = [];
+        $success = [];
 
         if ($type == 'daily') {
-            $trip = SugDayDriver::with('passenger', 'deliveryInfo')
+            $trip = SugDayDriver::with('booking', 'passenger', 'deliveryInfo', 'booking.university')
                 ->where('driver-id', auth()->user()->id)
                 ->where('id', $id)
                 ->first();
+
             if (!$trip) {
                 return $this->sendError(__('Trip not found!'), [__('Trip not found!')]);
             }
 
-            $trip = new SugDayDriverResource($trip);
+            if ($trip->booking->{"road-way"} == 'from') {
+                $success['destination_lat'] = $trip->booking->lat;
+                $success['destination_lng'] = $trip->booking->lng;
+                $success['source_lat'] = $trip->booking->university->lat;
+                $success['source_lng'] = $trip->booking->university->lng;
+            } else {
+                $success['destination_lat'] = $trip->booking->university->lat;
+                $success['destination_lng'] = $trip->booking->university->lng;
+                $success['source_lat'] = $trip->booking->lat;
+                $success['source_lng'] = $trip->booking->lng;
+            }
+
+            $success = new SugDayDriverResource($trip);
         }
 
-        return $this->sendResponse($trip, __('Data'));
+        return $this->sendResponse($success, __('Data'));
     }
 
     public function updateDelivery(Request $request)
