@@ -59,7 +59,7 @@ class TripController extends BaseController
 
     public function get($type, $id): JsonResponse
     {
-        $success = [];
+        $result = [];
 
         if ($type == 'daily') {
             $trip = SugDayDriver::with('booking', 'passenger', 'deliveryInfo', 'booking.university')
@@ -71,22 +71,23 @@ class TripController extends BaseController
                 return $this->sendError(__('Trip not found!'), [__('Trip not found!')]);
             }
 
-            $success = new SugDayDriverResource($trip);
+            $trip = new SugDayDriverResource($trip);
+            $result = $trip->resolve();
 
             if ($trip->booking->{"road-way"} == 'from') {
-                $success['destination_lat'] = $trip->booking->lat;
-                $success['destination_lng'] = $trip->booking->lng;
-                $success['source_lat'] = $trip->booking->university->lat;
-                $success['source_lng'] = $trip->booking->university->lng;
+                $result['destination_lat'] = $trip->booking->lat;
+                $result['destination_lng'] = $trip->booking->lng;
+                $result['source_lat'] = $trip->booking->university->lat;
+                $result['source_lng'] = $trip->booking->university->lng;
             } else {
-                $success['destination_lat'] = $trip->booking->university->lat;
-                $success['destination_lng'] = $trip->booking->university->lng;
-                $success['source_lat'] = $trip->booking->lat;
-                $success['source_lng'] = $trip->booking->lng;
+                $result['destination_lat'] = $trip->booking->university->lat;
+                $result['destination_lng'] = $trip->booking->university->lng;
+                $result['source_lat'] = $trip->booking->lat;
+                $result['source_lng'] = $trip->booking->lng;
             }
         }
 
-        return $this->sendResponse($success, __('Data'));
+        return $this->sendResponse($result, __('Data'));
     }
 
     public function updateDelivery(Request $request)
