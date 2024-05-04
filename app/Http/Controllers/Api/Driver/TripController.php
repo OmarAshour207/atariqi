@@ -32,7 +32,7 @@ class TripController extends BaseController
         $trip = array();
 
         if ($data['type'] == 'daily') {
-            $trip = SugDayDriver::where('id', $data['id'])
+            $trip = SugDayDriver::with('passenger')->where('id', $data['id'])
                 ->where('driver-id', auth()->user()->id)
                 ->first();
             if(!$trip) {
@@ -48,7 +48,7 @@ class TripController extends BaseController
                 sendNotification([
                     'title'     => __('You have a notification from Atariqi'),
                     'body'      => __("an order from Atariqi to accept the ride"),
-                    'tokens'    => [$trip->passenger()->fcm_token]
+                    'tokens'    => [$trip->passenger->fcm_token]
                 ]);
             }
         }
