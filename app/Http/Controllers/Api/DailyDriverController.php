@@ -570,11 +570,11 @@ class DailyDriverController extends BaseController
         $success['to'] = $to;
         $success['from'] = $from;
 
-        sendNotification([
-            'title'     => __('You have a notification from Atariqi'),
-            'body'      => __("an order from Atariqi to accept the ride"),
-            'tokens'    => [auth()->user()->fcm_token]
-        ]);
+//        sendNotification([
+//            'title'     => __('You have a notification from Atariqi'),
+//            'body'      => __("an order from Atariqi to accept the ride"),
+//            'tokens'    => [auth()->user()->fcm_token]
+//        ]);
 
         return $this->sendResponse($success, __("an order from Atariqi to accept the ride"));
     }
