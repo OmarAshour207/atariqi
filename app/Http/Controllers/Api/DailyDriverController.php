@@ -537,7 +537,7 @@ class DailyDriverController extends BaseController
             return $this->sendResponse($success, __("Not found trips"));
         }
 
-        $sugDayDriver = SugDayDriver::with('booking', 'driverinfo', 'driverinfo.driver')->where([
+        $sugDayDriver = SugDayDriver::with('booking', 'driverinfo', 'driverinfo.driver', 'deliveryInfo')->where([
             ['booking-id', $ride->id],
             ['action', 3],
             ['passenger-id', $passengerId]
@@ -548,6 +548,7 @@ class DailyDriverController extends BaseController
         }
 
         $success['sug_day_driver'] = new SugDayDrivingResource($sugDayDriver);
+
         if ($ride->{"road-way"} == 'from') {
             $from['ar'] = $ride->university->{"name-ar"};
             $from['en'] = $ride->university->{"name-eng"};
