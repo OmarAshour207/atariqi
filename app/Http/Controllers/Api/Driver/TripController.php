@@ -11,6 +11,7 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 class TripController extends BaseController
@@ -45,6 +46,8 @@ class TripController extends BaseController
             ]);
 
             if($request->input('action') == 1) {
+                Log::info("Notify the user that ride accepted");
+                Log::info("Fcm token:" . $trip->passenger->fcm_token);
                 sendNotification([
                     'title'     => __('You have a notification from Atariqi'),
                     'body'      => __("an order from Atariqi to accept the ride"),
