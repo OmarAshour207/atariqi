@@ -177,6 +177,10 @@ class TripController extends BaseController
         }
 
         if ($request->input('type') == 'daily') {
+            $ride = SugDayDriver::where('id', $request->input('sug-id'))->first();
+            if (!$ride) {
+                return $this->sendError(__('Trip not found!'), [__('Trip not found!')]);
+            }
             DayUnrideRate::updateOrCreate([
                 'sug-id'    => $request->input('sug-id')
             ], $validator->validated());

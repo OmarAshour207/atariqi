@@ -25,6 +25,7 @@ class DayRideBookingResource extends JsonResource
             'neighborhood'      => new NeighbourResource($this->neighborhood),
             'university'        => new UniversityResource($this->university),
             'passenger'         => new UserSampleResource($this->whenLoaded('passenger')),
+            'delivery_info'     => $this->sugDriver->deliveryInfo
         ];
     }
 }

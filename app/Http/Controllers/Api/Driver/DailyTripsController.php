@@ -26,7 +26,7 @@ class DailyTripsController extends BaseController
         $neighborhoodsTo = explode('|', $driverNeighborhoods?->{"neighborhoods-to"});
         $neighborhoodsFrom = explode('|', $driverNeighborhoods?->{"neighborhoods-from"});
 
-        $trips = DayRideBooking::with('passenger', 'neighborhood', 'university', 'service')
+        $trips = DayRideBooking::with(['passenger', 'neighborhood', 'university', 'service', 'sugDriver.deliveryInfo'])
             ->where('action', 4)
             ->whereIn('service-id', $driverServices)
             ->where(function($query) use ($neighborhoodsTo, $neighborhoodsFrom) {
@@ -35,6 +35,7 @@ class DailyTripsController extends BaseController
             })
             ->get();
 
+//        dd($trips);
         return $this->sendResponse(DayRideBookingResource::collection($trips), __('Data'));
     }
 

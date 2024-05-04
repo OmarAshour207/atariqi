@@ -47,4 +47,9 @@ class DayRideBooking extends Model
     {
         return $this->belongsTo(Service::class, 'service-id');
     }
+
+    public function sugDriver()
+    {
+        return $this->hasOne(SugDayDriver::class, 'booking-id', 'id');
+    }
 }
