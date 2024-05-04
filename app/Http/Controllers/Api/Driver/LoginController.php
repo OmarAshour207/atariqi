@@ -79,6 +79,10 @@ class LoginController extends BaseController
 
         $success['token'] = $user->createToken('atariqi')->plainTextToken;
         $success['driver'] = new DriverResource($user);
+        $user->update([
+            'code'      => null,
+            'fcm_token' => $data['fcm_token']
+        ]);
         return $this->sendResponse($success, __('User Logged Successfully.'));
 
         if($user->code != $code) {
