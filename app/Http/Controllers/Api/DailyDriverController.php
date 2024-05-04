@@ -533,8 +533,9 @@ class DailyDriverController extends BaseController
             ->where('passenger-id', $passengerId)
             ->first();
 
-        if (!isset($ride->id))
+        if (!isset($ride->id)) {
             return $this->sendResponse($success, __("Not found trips"));
+        }
 
         $sugDayDriver = SugDayDriver::with('booking', 'driverinfo')->where([
             ['booking-id', $ride->id],
