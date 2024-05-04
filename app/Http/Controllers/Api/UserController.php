@@ -114,6 +114,10 @@ class UserController extends BaseController
         $success['user'] = new UserResource($user);
 
         $success['token'] = $user->createToken('atariqi')->plainTextToken;
+        $user->update([
+            'code'      => null,
+            'fcm_token' => $data['fcm_token']
+        ]);
         return $this->sendResponse($success, __('User Logged Successfully.'));
 
         if($user->code != $code) {
