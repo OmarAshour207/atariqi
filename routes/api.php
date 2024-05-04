@@ -17,7 +17,8 @@ use App\Http\Controllers\Api\Driver\{
     ServiceController,
     DriverController,
     SummaryController,
-    TripController
+    TripController,
+    DailyTripsController
 };
 
 Route::group([
@@ -107,6 +108,10 @@ Route::group([
             Route::post('trip/delivery/update', [TripController::class, 'updateDelivery']);
 
             Route::post('trip/rate', [TripController::class, 'rate']);
+
+            Route::get('trips/daily', [DailyTripsController::class, 'get']);
+
+            Route::post('trips/daily/accept', [DailyTripsController::class, 'accept']);
         });
     });
 });
