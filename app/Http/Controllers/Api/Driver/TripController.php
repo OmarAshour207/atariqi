@@ -121,9 +121,18 @@ class TripController extends BaseController
         }
 
         $data = $validator->validated();
-        $data['expect-arrived'] = convertArabicDateToEnglish($data['expect-arrived']);
-        $data['arrived-location'] = convertArabicDateToEnglish($data['arrived-location']);
-        $data['arrived-destination'] = convertArabicDateToEnglish($data['arrived-destination']);
+
+        if (isset($data['expect-arrived'])) {
+            $data['expect-arrived'] = convertArabicDateToEnglish($data['expect-arrived']);
+        }
+
+        if (isset($data['arrived-location'])) {
+            $data['arrived-location'] = convertArabicDateToEnglish($data['arrived-location']);
+        }
+
+        if (isset($data['arrived-destination'])) {
+            $data['arrived-destination'] = convertArabicDateToEnglish($data['arrived-destination']);
+        }
 
         $deliveryInfo->update($data);
 
