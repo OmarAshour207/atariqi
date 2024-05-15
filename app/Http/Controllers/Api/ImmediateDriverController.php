@@ -127,14 +127,16 @@ class ImmediateDriverController extends BaseController
 
         $suggestDriverId = DB::table('drivers-schedule')
             ->select('driver-id AS suggest-driver-id')
-            ->when($roadWay == 'to', function ($query) use ($nowDay, $roadWay) {
-                $query->where("$nowDay-$roadWay", '>=', Carbon::now()->subMinutes(15)->format('H:i:s'));
-                $query->where("$nowDay-$roadWay", '<=', Carbon::now()->addHour()->format("H:i:s"));
-            })
-            ->when($roadWay == 'from', function ($query) use ($nowDay, $roadWay, $timeAfterHour) {
-                $query->where("$nowDay-$roadWay", '<=', $timeAfterHour);
-                $query->where("$nowDay-$roadWay", '>=', Carbon::now()->subMinutes(15)->format("H:i:s"));
-            })
+//            ->when($roadWay == 'to', function ($query) use ($nowDay, $roadWay) {
+//                $query->where("$nowDay-$roadWay", '>=', Carbon::now()->subMinutes(15)->format('H:i:s'));
+//                $query->where("$nowDay-$roadWay", '<=', Carbon::now()->addHour()->format("H:i:s"));
+//            })
+//            ->when($roadWay == 'from', function ($query) use ($nowDay, $roadWay, $timeAfterHour) {
+//                $query->where("$nowDay-$roadWay", '<=', $timeAfterHour);
+//                $query->where("$nowDay-$roadWay", '>=', Carbon::now()->subMinutes(15)->format("H:i:s"));
+//            })
+            // 21:11 <= 22:18
+            // 21:11 >= 21:03
             ->whereIn('driver-id', $foundDriverId)
             ->get();
 
