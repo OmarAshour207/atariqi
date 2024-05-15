@@ -421,20 +421,60 @@ class DailyDriverController extends BaseController
         $timeBack = isset($data['time_back']) ? convertArabicDateToEnglish($data['time_back']) : null;
         $timeGo =  isset($data['time_go']) ? convertArabicDateToEnglish($data['time_go']) : null;
 
-        $dayRideBooking = DayRideBooking::create([
-            'passenger-id'      => $passengerId,
-            'neighborhood-id'   => $neighborhoodId,
-            'university-id'     => $universityId,
-            'service-id'        => $rideTypeId,
-            'date-of-ser'       => $date,
-            'road-way'          => $roadWay,
-            'action'            => 4,
-            'time-go'           => $timeGo,
-            'time-back'         => $timeBack,
-            'lat'               => $lat,
-            'lng'               => $lng,
-            'date-of-add'       => Carbon::now()
-        ]);
+        $savingData = [];
+
+        $savingData['passenger-id'] = $passengerId;
+        $savingData['neighborhood-id'] = $neighborhoodId;
+        $savingData['university-id'] = $universityId;
+        $savingData['service-id']  = $rideTypeId;
+        $savingData['date-of-ser'] = $date;
+        $savingData['road-way'] = $roadWay;
+        $savingData['action'] = 4;
+        $savingData['lat'] = $lat;
+        $savingData['lng'] = $lng;
+        $savingData['date-of-add'] = Carbon::now();
+
+//        $savingData['time-go'] = $timeGo;
+//        $savingData['time-back'] = $timeBack;
+
+        if ($roadWay == 'both') {
+            $savingData['time-go'] = $timeGo;
+            $savingData['road-way'] = 'to';
+            $savingData['time-back'] = null;
+            DayRideBooking::create($savingData);
+
+            $savingData['time-go'] = null;
+            $savingData['road-way'] = 'from';
+            $savingData['time-back'] = $timeBack;
+
+            DayRideBooking::create($savingData);
+
+        } elseif($roadWay == 'from') {
+            $savingData['time-back'] = $timeBack;
+            $savingData['time-go'] = null;
+            DayRideBooking::create($savingData);
+        } elseif($roadWay == 'to') {
+            $savingData['time-back'] = null;
+            $savingData['time-go'] = $timeGo;
+            DayRideBooking::create($savingData);
+        }
+//
+//        if($service->{"road-way"} == 'both') {
+//            $dayRideBooking = DayRideBooking::create([
+//                'passenger-id'      => $passengerId,
+//                'neighborhood-id'   => $neighborhoodId,
+//                'university-id'     => $universityId,
+//                'service-id'        => $rideTypeId,
+//                'date-of-ser'       => $date,
+//                'road-way'          => $roadWay,
+//                'action'            => 4,
+//                'time-go'           => $timeGo,
+//                'time-back'         => $timeBack,
+//                'lat'               => $lat,
+//                'lng'               => $lng,
+//                'date-of-add'       => Carbon::now()
+//            ]);
+//        }
 
         $success['trip'] = new DayRideBookingResource($dayRideBooking);
 
