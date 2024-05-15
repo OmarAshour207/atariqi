@@ -25,8 +25,6 @@ function sendNotification($data): bool
         'badge' => 1
     ];
 
-    Log::info(print_r($tokens));
-
     $firebaseData = [
         'registration_ids'  => $tokens,
         'notification'  => $notification,
