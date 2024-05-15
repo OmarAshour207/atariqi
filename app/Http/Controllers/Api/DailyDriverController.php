@@ -422,6 +422,7 @@ class DailyDriverController extends BaseController
         $timeGo =  isset($data['time_go']) ? convertArabicDateToEnglish($data['time_go']) : null;
 
         $savingData = [];
+        $dayRideBooking = [];
 
         $savingData['passenger-id'] = $passengerId;
         $savingData['neighborhood-id'] = $neighborhoodId;
@@ -447,34 +448,17 @@ class DailyDriverController extends BaseController
             $savingData['road-way'] = 'from';
             $savingData['time-back'] = $timeBack;
 
-            DayRideBooking::create($savingData);
+            $dayRideBooking = DayRideBooking::create($savingData);
 
         } elseif($roadWay == 'from') {
             $savingData['time-back'] = $timeBack;
             $savingData['time-go'] = null;
-            DayRideBooking::create($savingData);
+            $dayRideBooking = DayRideBooking::create($savingData);
         } elseif($roadWay == 'to') {
             $savingData['time-back'] = null;
             $savingData['time-go'] = $timeGo;
-            DayRideBooking::create($savingData);
+            $dayRideBooking = DayRideBooking::create($savingData);
         }
-//
-//        if($service->{"road-way"} == 'both') {
-//            $dayRideBooking = DayRideBooking::create([
-//                'passenger-id'      => $passengerId,
-//                'neighborhood-id'   => $neighborhoodId,
-//                'university-id'     => $universityId,
-//                'service-id'        => $rideTypeId,
-//                'date-of-ser'       => $date,
-//                'road-way'          => $roadWay,
-//                'action'            => 4,
-//                'time-go'           => $timeGo,
-//                'time-back'         => $timeBack,
-//                'lat'               => $lat,
-//                'lng'               => $lng,
-//                'date-of-add'       => Carbon::now()
-//            ]);
-//        }
 
         $success['trip'] = new DayRideBookingResource($dayRideBooking);
 
