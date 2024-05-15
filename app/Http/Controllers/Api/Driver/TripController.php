@@ -141,10 +141,16 @@ class TripController extends BaseController
         $data = $validator->validated();
         $data['expect-arrived'] = convertArabicDateToEnglish($data['expect-arrived']);
 
+        Log::info("expect arrived: "  .$data['expect-arrived']);
+        Log::info("type: "  .$data['type']);
+        Log::info("action: "  .$data['action']);
+        Log::info("ID: "  .$data['id']);
+
         $response = $this->updateAction($request);
         $response = json_decode($response->getContent(), true);
 
         if (!$response['success']) {
+            Log::info("Failed");
             return $response;
         }
 
@@ -161,6 +167,7 @@ class TripController extends BaseController
             'allow-disabilities'=> auth()->user()->driverInfo->{"allow-disabilities"},
         ]);
 
+        Log::info("success");
         return $this->sendResponse([], __('Started successfully'));
     }
 
