@@ -95,9 +95,9 @@ class TripController extends BaseController
         $validator = Validator::make($request->all(), [
             'type'              => 'required|string',
             'sug-id'            => 'required|numeric',
-            'expect-arrived'    => 'nullable|date_format:H:i',
-            'arrived-location'  => 'nullable|date_format:H:i',
-            'arrived-destination' => 'nullable|date_format:H:i',
+            'expect-arrived'    => 'nullable', // |date_format:H:i
+            'arrived-location'  => 'nullable', // |date_format:H:i
+            'arrived-destination' => 'nullable', // |date_format:H:i
             'passenger-rate'    => 'nullable|numeric|max:5',
             'allow-disabilities' => 'nullable|string|in:yes,no'
         ]);
@@ -120,7 +120,12 @@ class TripController extends BaseController
             return $this->sendError(__('Trip not found'), [__('Trip not found')]);
         }
 
-        $deliveryInfo->update($validator->validated());
+        $data = $validator->validated();
+        $data['expect-arrived'] = convertArabicDateToEnglish($data['expect-arrived']);
+        $data['arrived-location'] = convertArabicDateToEnglish($data['arrived-location']);
+        $data['arrived-destination'] = convertArabicDateToEnglish($data['arrived-destination']);
+
+        $deliveryInfo->update($data);
 
         return $this->sendResponse([], __('Data'));
     }
