@@ -15,6 +15,7 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 class ImmediateDriverController extends BaseController
@@ -89,6 +90,7 @@ class ImmediateDriverController extends BaseController
 
         $driverIds = array();
         foreach ($drivers as $driver) {
+            Log::info("Driver ID 1: " . $driver['driver_id']);
             $driverIds[] = $driver['driver_id'];
         }
 
@@ -120,6 +122,7 @@ class ImmediateDriverController extends BaseController
 
         $foundDriverId = array();
         foreach ($foundDrivers as $foundDriver) {
+            Log::info("Driver ID 2: " . $foundDriver['Found-driver-id']);
             $foundDriverId[] = $foundDriver['Found-driver-id'];
         }
 
@@ -156,6 +159,7 @@ class ImmediateDriverController extends BaseController
             $finalDriversId = array();
 
             foreach ($suggestDriverId as $driver) {
+                Log::info("Driver ID 2: " . $driver->{"suggest-driver-id"});
                 $finalDriversId[] = $driver->{"suggest-driver-id"};
                 SuggestionDriver::create([
                     'booking-id'    => $rideBooking->id,
