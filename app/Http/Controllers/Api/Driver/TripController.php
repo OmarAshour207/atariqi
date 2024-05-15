@@ -131,7 +131,7 @@ class TripController extends BaseController
             'type'      => 'required|string',
             'action'    => 'required|numeric|max:6',
             'id'        => 'required|numeric',
-            'expect-arrived' => 'required|date_format:H:i'
+            'expect-arrived' => 'required' // |date_format:H:i
         ]);
 
         if($validator->fails()) {
@@ -139,6 +139,7 @@ class TripController extends BaseController
         }
 
         $data = $validator->validated();
+        $data['expect-arrived'] = convertArabicDateToEnglish($data['expect-arrived']);
 
         $response = $this->updateAction($request);
         $response = json_decode($response->getContent(), true);
