@@ -322,8 +322,9 @@ class DailyDriverController extends BaseController
             'time_back' => $timeGo
         ], $roadWay);
 
-        if (!$checkSchedule)
+        if (!$checkSchedule) {
             return $this->sendError(__('Validation Error.'), [ __("Sorry you already booked ride at the same date before")], 422);
+        }
 
         $savingData = [
             'passenger-id'      => $passengerId,
