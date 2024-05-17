@@ -35,7 +35,6 @@ class DailyTripsController extends BaseController
             })
             ->get();
 
-//        dd($trips);
         return $this->sendResponse(DayRideBookingResource::collection($trips), __('Data'));
     }
 

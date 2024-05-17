@@ -17,7 +17,7 @@ return new class extends Migration
             $table->id();
             $table->bigInteger('user-id');
             $table->foreign('user-id')->references('id')->on('users')->onDelete('cascade');
-            $table->integer('rate')->nullable();
+            $table->decimal('rate', 5, 1)->nullable();
         });
     }
 

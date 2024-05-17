@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\BaseController;
 use App\Http\Resources\Driver\SugDayDriverResource;
 use App\Models\DayUnrideRate;
 use App\Models\DelDailyInfo;
+use App\Models\PassengerRate;
 use App\Models\SugDayDriver;
 use App\Models\User;
 use Carbon\Carbon;
@@ -109,7 +110,8 @@ class TripController extends BaseController
         $deliveryInfo = null;
 
         if ($request->input('type') == 'daily') {
-            $deliveryInfo = DelDailyInfo::where('sug-id', $request->input('sug-id'))
+            $deliveryInfo = DelDailyInfo::with('ride')
+                ->where('sug-id', $request->input('sug-id'))
                 ->whereHas('ride', function ($query) {
                     $query->where('driver-id', auth()->user()->id);
                 })
@@ -118,6 +120,16 @@ class TripController extends BaseController
 
         if (!$deliveryInfo) {
             return $this->sendError(__('Trip not found'), [__('Trip not found')]);
+        }
+
+        if ($request->{"passenger-rate"}) {
+            $passengerRate = PassengerRate::where('user-id', $deliveryInfo->ride->passenger->id)->first();
+            $allRate = number_format(($request->{"passenger-rate"} + $passengerRate?->rate) / 2, 1);
+            PassengerRate::updateOrCreate([
+                'user-id' => $deliveryInfo->ride->passenger->id
+            ], [
+                'rate' => $allRate
+            ]);
         }
 
         $data = $validator->validated();
