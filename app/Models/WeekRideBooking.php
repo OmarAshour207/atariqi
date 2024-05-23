@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -26,7 +27,24 @@ class WeekRideBooking extends Model
         'lat',
         'lng',
         'action',
+        'status'
     ];
+
+    // Scopes
+    public function scopeDate(Builder $query, $date): Builder
+    {
+        return $query->whereDate('date-of-ser', $date);
+    }
+
+    public function scopeAction(Builder $query, $value): Builder
+    {
+        return $query->where('action', $value);
+    }
+
+    public function scopeStatus(Builder $query, $value): Builder
+    {
+        return $query->where('status', $value);
+    }
 
     // relations
 
@@ -48,5 +66,10 @@ class WeekRideBooking extends Model
     public function service()
     {
         return $this->belongsTo(Service::class, 'service-id');
+    }
+
+    public function rate()
+    {
+        return $this->hasOne(PassengerRate::class, 'user-id', 'passenger-id');
     }
 }

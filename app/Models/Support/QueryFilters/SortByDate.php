@@ -16,6 +16,8 @@ class SortByDate implements Sort
             $query->orderBy(
                 DayRideBooking::select('date-of-add')->whereColumn('day-ride-booking.id', 'sug-day-drivers.booking-id'),
                 $direction);
+        } elseif ($property == 'weekly') {
+            $query->orderBy('date-of-ser', $direction);
         } else {
             $query->orderBy('date-of-add', $direction);
         }

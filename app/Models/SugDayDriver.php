@@ -27,27 +27,13 @@ class SugDayDriver extends Model
 
     // Scopes
 
-    public function scopeNew(Builder $query)
+    public function scopeAction(Builder $query, $value): Builder
     {
-        return $query->where('action', 0);
+        return $query->where('action', $value);
     }
-
-    public function scopeAccepted(Builder $query)
+    public function scopeDate(Builder $query, $date)
     {
-        return $query->where('action', 1);
-    }
-
-    public function scopeRejected(Builder $query)
-    {
-        return $query->where('action', 2);
-    }
-    public function scopeCancelled(Builder $query)
-    {
-        return $query->where('action', 5);
-    }
-    public function scopeDone(Builder $query)
-    {
-        return $query->where('action', 6);
+        return $query->whereDate('date-of-add', $date);
     }
 
     // relations

@@ -41,4 +41,14 @@ class SugWeekDriver extends Model
     {
         return $this->belongsTo(WeekRideBooking::class, 'booking-id');
     }
+
+    public function deliveryInfo()
+    {
+        return $this->hasOne(DelWeekInfo::class, 'sug-id', 'id');
+    }
+
+    public function rate()
+    {
+        return $this->hasOne(PassengerRate::class, 'user-id', 'passenger-id');
+    }
 }

@@ -25,27 +25,13 @@ class SuggestionDriver extends Model
 
     // Scopes
 
-    public function scopeAccepted(Builder $query)
+    public function scopeAction(Builder $query, ...$action): Builder
     {
-        return $query->whereIn('action', [1, 2, 5]);
+        return $query->whereIn('action', $action);
     }
-
-    public function scopeRejected(Builder $query)
+    public function scopeDate(Builder $query, $date): Builder
     {
-        return $query->whereIn('action', [0, 3, 4]);
-    }
-
-    public function scopeNew(Builder $query)
-    {
-        return $query->where('action', 7);
-    }
-    public function scopeCancelled(Builder $query)
-    {
-        return $query->where('action', 7);
-    }
-    public function scopeDone(Builder $query)
-    {
-        return $query->where('action', 7);
+        return $query->whereDate('date-of-add', $date);
     }
 
     public function passenger()
