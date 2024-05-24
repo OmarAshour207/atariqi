@@ -36,7 +36,8 @@ class WeekRideBookingGroupResource extends JsonResource
                 'passenger'     => new UserSampleResource($item->passenger),
                 'university'    => new UniversityResource($item->university),
                 'service_id'    => new ServiceResource($item->service),
-                'general_passenger_rate' => $item->rate
+                'general_passenger_rate' => $item->rate,
+                'delivery_info' => $item->sugDriver?->deliveryInfo
             ];
         });
     }

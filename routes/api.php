@@ -18,7 +18,8 @@ use App\Http\Controllers\Api\Driver\{
     DriverController,
     SummaryController,
     TripController,
-    DailyTripsController
+    DailyTripsController,
+    WeeklyTripController
 };
 
 Route::group([
@@ -112,6 +113,8 @@ Route::group([
             Route::get('trips/daily', [DailyTripsController::class, 'get']);
 
             Route::post('trips/daily/accept', [DailyTripsController::class, 'accept']);
+
+            Route::get('weekly/{group_id}', [WeeklyTripController::class, 'get']);
         });
     });
 });

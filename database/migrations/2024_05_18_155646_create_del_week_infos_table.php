@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('del-week-info', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('sug-id');
-            $table->foreign('sug-id')->references('id')->on('sug-day-drivers')->onDelete('cascade');
+            $table->foreign('sug-id')->references('id')->on('sug-week-drivers')->onDelete('cascade');
             $table->time('expect-arrived')->nullable();
             $table->time('arrived-location')->nullable();
             $table->time('arrived-destination')->nullable();

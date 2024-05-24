@@ -72,4 +72,9 @@ class WeekRideBooking extends Model
     {
         return $this->hasOne(PassengerRate::class, 'user-id', 'passenger-id');
     }
+
+    public function sugDriver()
+    {
+        return $this->hasOne(SugWeekDriver::class, 'booking-id', 'id');
+    }
 }

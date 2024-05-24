@@ -85,7 +85,8 @@ class SummaryController extends BaseController
                 AllowedSort::custom('date', new SortByDate, $request->input('type')),
                 AllowedSort::custom('rate', new SortByRate, $request->input('type'))
             ])
-            ->when($request->type != 'weekly', fn (Builder $query) => $query->with('booking', 'booking.passenger', 'deliveryInfo'))
+            ->when($request->input('type') != 'weekly', fn (Builder $query) => $query->with('booking', 'booking.passenger', 'deliveryInfo'))
+            ->when($request->input('type') == 'weekly', fn(Builder $query) => $query->with('sugDriver.deliveryInfo'))
             ->with(['rate'])
             ->get();
 
