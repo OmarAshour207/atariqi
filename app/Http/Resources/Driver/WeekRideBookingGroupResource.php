@@ -37,7 +37,11 @@ class WeekRideBookingGroupResource extends JsonResource
                 'university'    => new UniversityResource($item->university),
                 'service_id'    => new ServiceResource($item->service),
                 'general_passenger_rate' => $item->rate,
-                'delivery_info' => $item->sugDriver?->deliveryInfo
+                'delivery_info' => $item->sugDriver?->deliveryInfo,
+                'source_lat' => $item->{"road-way"} == 'from' ? $item->university->lat : $item->lat,
+                'source_lng' => $item->{"road-way"} == 'from' ? $item->university->lng : $item->lng,
+                'destination_lat' => $item->{"road-way"} == 'from' ? $item->lat : $item->university->lat,
+                'destination_lng' => $item->{"road-way"} == 'from' ? $item->lat : $item->university->lng
             ];
         });
     }
