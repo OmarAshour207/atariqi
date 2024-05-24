@@ -15,7 +15,7 @@ class WeekRideBooking extends Model
     public $timestamps = false;
 
     protected $casts = [
-        'group-id' => 'int'
+        'group-id' => 'string'
     ];
 
     protected $fillable = [
