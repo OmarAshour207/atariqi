@@ -22,6 +22,10 @@ class DeliveryInfo extends Model
         'allow-disabilities'
     ];
 
+    protected $casts = [
+        'passenger-rate'  => 'double'
+    ];
+
     public function ride()
     {
         return $this->belongsTo(SuggestionDriver::class, 'sug-id');

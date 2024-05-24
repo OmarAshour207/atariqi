@@ -29,6 +29,9 @@ class DriverInfo extends Model
         'date-of-edit'
     ];
 
+    protected $casts = [
+        'driver-rate'  => 'double'
+    ];
 
     // relations
     public function driver()

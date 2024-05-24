@@ -18,6 +18,9 @@ class PassengerRate extends Model
         'rate'
     ];
 
+    protected $casts = [
+        'rate'  => 'double'
+    ];
     public function user()
     {
         return $this->belongsTo(User::class, 'user-id');

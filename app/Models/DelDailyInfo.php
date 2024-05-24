@@ -22,6 +22,10 @@ class DelDailyInfo extends Model
         'allow-disabilities'
     ];
 
+    protected $casts = [
+        'passenger-rate'  => 'double'
+    ];
+
     public function ride()
     {
         return $this->belongsTo(SugDayDriver::class, 'sug-id');

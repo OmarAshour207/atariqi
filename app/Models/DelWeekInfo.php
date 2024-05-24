@@ -22,6 +22,10 @@ class DelWeekInfo extends Model
         'allow-disabilities'
     ];
 
+    protected $casts = [
+        'passenger-rate'  => 'double'
+    ];
+
     public function ride()
     {
         return $this->belongsTo(SugWeekDriver::class, 'sug-id');

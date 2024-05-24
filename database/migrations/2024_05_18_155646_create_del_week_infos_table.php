@@ -20,7 +20,7 @@ return new class extends Migration
             $table->time('expect-arrived')->nullable();
             $table->time('arrived-location')->nullable();
             $table->time('arrived-destination')->nullable();
-            $table->integer('passenger-rate')->nullable();
+            $table->decimal('passenger-rate', 5, 1)->nullable();
             $table->string('allow-disabilities', 25)->nullable();
         });
     }

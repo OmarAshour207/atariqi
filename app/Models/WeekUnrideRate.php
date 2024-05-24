@@ -19,6 +19,10 @@ class WeekUnrideRate extends Model
         'rate'
     ];
 
+    protected $casts = [
+        'rate'  => 'double'
+    ];
+
     // relations
     public function ride()
     {
