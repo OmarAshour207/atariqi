@@ -40,9 +40,9 @@ class WeekRideBooking extends Model
         return $query->whereDate('date-of-ser', $date);
     }
 
-    public function scopeAction(Builder $query, $value): Builder
+    public function scopeAction(Builder $query, ...$value): Builder
     {
-        return $query->where('action', $value);
+        return $query->whereIn('action', $value);
     }
 
     public function scopeStatus(Builder $query, $value): Builder
