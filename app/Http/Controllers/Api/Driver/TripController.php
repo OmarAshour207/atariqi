@@ -6,9 +6,13 @@ use App\Http\Controllers\Api\BaseController;
 use App\Http\Resources\Driver\SugDayDriverResource;
 use App\Models\DayUnrideRate;
 use App\Models\DelDailyInfo;
+use App\Models\DelWeekInfo;
 use App\Models\PassengerRate;
 use App\Models\SugDayDriver;
+use App\Models\SugWeekDriver;
 use App\Models\User;
+use App\Models\WeekRideBooking;
+use App\Models\WeekUnrideRate;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -20,21 +24,20 @@ class TripController extends BaseController
     public function updateAction(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
-            'type'      => 'required|string',
+            'type'      => 'required|string|in:daily,weekly',
             'action'    => 'required|numeric|max:6',
-            'id'        => 'required|numeric'
+            'id'        => 'required|numeric',
+            'status'    => 'nullable|numeric'
         ]);
 
         if($validator->fails()) {
             return $this->sendError(__('Validation Error.'), $validator->errors()->getMessages(), 422);
         }
 
-        $data = $validator->validated();
-
         $trip = array();
 
-        if ($data['type'] == 'daily') {
-            $trip = SugDayDriver::with('passenger')->where('id', $data['id'])
+        if ($request->input('type') == 'daily') {
+            $trip = SugDayDriver::with('passenger')->where('id', $request->input('id'))
                 ->where('driver-id', auth()->user()->id)
                 ->first();
             if(!$trip) {
@@ -42,7 +45,7 @@ class TripController extends BaseController
             }
 
             $trip->update([
-                'action' => $data['action'],
+                'action' => $request->input('action'),
                 'date-of-edit' => Carbon::now()
             ]);
 
@@ -52,6 +55,23 @@ class TripController extends BaseController
                     'body'      => __("an order from Atariqi to accept the ride"),
                     'tokens'    => [$trip->passenger->fcm_token]
                 ]);
+            }
+
+        } elseif($request->input('type') == 'weekly') {
+            $tripsGroup = WeekRideBooking::with('sugDriver')
+                ->where('group-id', $request->input('id'))
+                ->get();
+
+            foreach ($tripsGroup as $tripGroup) {
+                $tripGroup->update([
+                    'status' => $request->input('status')
+                ]);
+
+                if ($tripGroup->sugDriver) {
+                    $tripGroup->sugDriver->update([
+                        'action' => $request->input('action')
+                    ]);
+                }
             }
         }
 
@@ -94,7 +114,7 @@ class TripController extends BaseController
     public function updateDelivery(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'type'              => 'required|string',
+            'type'              => 'required|string|in:daily,weekly',
             'sug-id'            => 'required|numeric',
             'expect-arrived'    => 'nullable', // |date_format:H:i
             'arrived-location'  => 'nullable', // |date_format:H:i
@@ -116,13 +136,20 @@ class TripController extends BaseController
                     $query->where('driver-id', auth()->user()->id);
                 })
                 ->first();
+        } elseif ($request->input('type') == 'weekly') {
+            $deliveryInfo = DelWeekInfo::with('ride')
+                ->where('sug-id', $request->input('sug-id'))
+                ->whereHas('ride', function ($query) {
+                    $query->where('driver-id', auth()->user()->id);
+                })
+                ->first();
         }
 
         if (!$deliveryInfo) {
             return $this->sendError(__('Trip not found'), [__('Trip not found')]);
         }
 
-        if ($request->{"passenger-rate"}) {
+        if ($request->input("passenger-rate")) {
             $passengerRate = PassengerRate::where('user-id', $deliveryInfo->ride->passenger->id)->first();
             $allRate = number_format(($request->{"passenger-rate"} + $passengerRate?->rate) / 2, 1);
             PassengerRate::updateOrCreate([
@@ -167,16 +194,10 @@ class TripController extends BaseController
         $data = $validator->validated();
         $data['expect-arrived'] = convertArabicDateToEnglish($data['expect-arrived']);
 
-        Log::info("expect arrived: "  .$data['expect-arrived']);
-        Log::info("type: "  .$data['type']);
-        Log::info("action: "  .$data['action']);
-        Log::info("ID: "  .$data['id']);
-
         $response = $this->updateAction($request);
         $response = json_decode($response->getContent(), true);
 
         if (!$response['success']) {
-            Log::info("Failed");
             return $response;
         }
 
@@ -200,7 +221,7 @@ class TripController extends BaseController
     public function rate(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'type'      => 'required|string',
+            'type'      => 'required|string|in:daily|weekly',
             'rate'      => 'required|numeric|max:6',
             'comment'   => 'required|string',
             'sug-id'    => 'required|numeric',
@@ -216,6 +237,18 @@ class TripController extends BaseController
                 return $this->sendError(__('Trip not found!'), [__('Trip not found!')]);
             }
             DayUnrideRate::updateOrCreate([
+                'sug-id'    => $request->input('sug-id')
+            ], $validator->validated());
+
+        } elseif($request->input('type') == 'weekly') {
+
+            $ride = SugWeekDriver::where('id', $request->input('sug-id'))->first();
+
+            if (!$ride) {
+                return $this->sendError(__('Trip not found!'), [__('Trip not found!')]);
+            }
+
+            WeekUnrideRate::updateOrCreate([
                 'sug-id'    => $request->input('sug-id')
             ], $validator->validated());
         }
