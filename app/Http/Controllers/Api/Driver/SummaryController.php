@@ -15,6 +15,7 @@ use App\Models\Support\QueryFilters\SortByRate;
 use App\Models\WeekRideBooking;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\AllowedSort;
@@ -73,6 +74,8 @@ class SummaryController extends BaseController
         if($validator->fails()) {
             return $this->sendError(__('Validation Error.'), $validator->errors()->getMessages(), 422);
         }
+
+        Log::info("Filters " , $request->all());
 
         $summaries = QueryBuilder::for($this->getModel($request))
             ->allowedFilters([

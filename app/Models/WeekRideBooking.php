@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Log;
 
 class WeekRideBooking extends Model
 {
@@ -40,9 +41,10 @@ class WeekRideBooking extends Model
         return $query->whereDate('date-of-ser', $date);
     }
 
-    public function scopeAction(Builder $query, ...$value): Builder
+    public function scopeAction(Builder $query, $value): Builder
     {
-        return $query->whereIn('action', $value);
+        Log::info("Filter using action $value");
+        return $query->where('action', $value);
     }
 
     public function scopeStatus(Builder $query, $value): Builder
