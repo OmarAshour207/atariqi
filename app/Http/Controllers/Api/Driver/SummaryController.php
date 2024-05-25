@@ -74,9 +74,7 @@ class SummaryController extends BaseController
         if($validator->fails()) {
             return $this->sendError(__('Validation Error.'), $validator->errors()->getMessages(), 422);
         }
-
-        Log::info("Filters " , $request->all());
-
+        
         $summaries = QueryBuilder::for($this->getModel($request))
             ->allowedFilters([
                 AllowedFilter::scope('date'),

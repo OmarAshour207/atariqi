@@ -43,7 +43,6 @@ class WeekRideBooking extends Model
 
     public function scopeAction(Builder $query, $value): Builder
     {
-        Log::info("Filter using action $value");
         return $query->where('action', $value);
     }
 

@@ -27,7 +27,7 @@ class TripController extends BaseController
             'type'      => 'required|string|in:daily,weekly',
             'action'    => 'required|numeric|max:6',
             'id'        => 'required|numeric',
-            'status'    => 'nullable|numeric'
+            'status'    => 'required_if:type,weekly|numeric'
         ]);
 
         if($validator->fails()) {
