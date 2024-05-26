@@ -115,6 +115,8 @@ Route::group([
             Route::post('trips/daily/accept', [DailyTripsController::class, 'accept']);
 
             Route::get('weekly/{group_id}', [WeeklyTripController::class, 'get']);
+
+            Route::post('weekly/action/update', [WeeklyTripController::class, 'updateAction']);
         });
     });
 });

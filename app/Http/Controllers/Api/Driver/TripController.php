@@ -27,7 +27,7 @@ class TripController extends BaseController
             'type'      => 'required|string|in:daily,weekly',
             'action'    => 'required|numeric|max:6',
             'id'        => 'required|numeric',
-            'status'    => 'required_if:type,weekly|numeric'
+//            'status'    => 'required_if:type,weekly|numeric'
         ]);
 
         if($validator->fails()) {
@@ -58,21 +58,14 @@ class TripController extends BaseController
             }
 
         } elseif($request->input('type') == 'weekly') {
-            $tripsGroup = WeekRideBooking::with('sugDriver')
-                ->where('group-id', $request->input('id'))
-                ->get();
+            $trip = SugWeekDriver::with('booking')
+                ->where('id', $request->input('id'))
+                ->first();
 
-            foreach ($tripsGroup as $tripGroup) {
-                $tripGroup->update([
-                    'status' => $request->input('status')
-                ]);
+            $trip->update([
+                'action' => $request->input('action')
+            ]);
 
-                if ($tripGroup->sugDriver) {
-                    $tripGroup->sugDriver->update([
-                        'action' => $request->input('action')
-                    ]);
-                }
-            }
         }
 
         return $this->sendResponse($trip, __('Success'));
@@ -127,23 +120,12 @@ class TripController extends BaseController
             return $this->sendError(__('Validation Error.'), $validator->errors()->getMessages(), 422);
         }
 
-        $deliveryInfo = null;
-
-        if ($request->input('type') == 'daily') {
-            $deliveryInfo = DelDailyInfo::with('ride')
-                ->where('sug-id', $request->input('sug-id'))
-                ->whereHas('ride', function ($query) {
-                    $query->where('driver-id', auth()->user()->id);
-                })
-                ->first();
-        } elseif ($request->input('type') == 'weekly') {
-            $deliveryInfo = DelWeekInfo::with('ride')
-                ->where('sug-id', $request->input('sug-id'))
-                ->whereHas('ride', function ($query) {
-                    $query->where('driver-id', auth()->user()->id);
-                })
-                ->first();
-        }
+        $deliveryInfo = ($this->getModel($request->input('type')))::with('ride')
+            ->where('sug-id', $request->input('sug-id'))
+            ->whereHas('ride', function ($query) {
+                $query->where('driver-id', auth()->user()->id);
+            })
+            ->first();
 
         if (!$deliveryInfo) {
             return $this->sendError(__('Trip not found'), [__('Trip not found')]);
@@ -207,15 +189,22 @@ class TripController extends BaseController
         $message = __('Could you accept the trip ?');
         sendNotification(['title' => $title, 'body' => $message, 'tokens' => [$passenger->fcm_token]]);
 
-        DelDailyInfo::updateOrCreate([
+        $this->getModel($request->input('type'))::updateOrCreate([
             'expect-arrived'    => $data['expect-arrived'],
             'sug-id'            => $data['id']
         ], [
             'allow-disabilities'=> auth()->user()->driverInfo->{"allow-disabilities"},
         ]);
 
-        Log::info("success");
         return $this->sendResponse([], __('Started successfully'));
+    }
+
+    private function getModel($type)
+    {
+        if ($type == 'weekly') {
+            return DelWeekInfo::class;
+        }
+        return DelWeekInfo::class;
     }
 
     public function rate(Request $request)
@@ -240,7 +229,7 @@ class TripController extends BaseController
                 'sug-id'    => $request->input('sug-id')
             ], $validator->validated());
 
-        } elseif($request->input('type') == 'weekly') {
+        } elseif ($request->input('type') == 'weekly') {
 
             $ride = SugWeekDriver::where('id', $request->input('sug-id'))->first();
 
