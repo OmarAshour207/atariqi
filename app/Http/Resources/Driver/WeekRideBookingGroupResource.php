@@ -36,6 +36,7 @@ class WeekRideBookingGroupResource extends JsonResource
                 'passenger'     => new UserSampleResource($item->passenger),
                 'university'    => new UniversityResource($item->university),
                 'service_id'    => new ServiceResource($item->service),
+                'sug_driver'    => $item->sugDriver,
                 'general_passenger_rate' => $item->rate,
                 'delivery_info' => $item->sugDriver?->deliveryInfo,
                 'source_lat' => $item->{"road-way"} == 'from' ? $item->university->lat : $item->lat,
