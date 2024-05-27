@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Driver;
 
 use App\Http\Controllers\Api\BaseController;
 use App\Http\Resources\Driver\SugDayDriverResource;
+use App\Http\Resources\Driver\SugWeeklyDriverResource;
 use App\Models\DayUnrideRate;
 use App\Models\DelDailyInfo;
 use App\Models\DelWeekInfo;
@@ -34,6 +35,7 @@ class TripController extends BaseController
             return $this->sendError(__('Validation Error.'), $validator->errors()->getMessages(), 422);
         }
 
+        Log::info("Updating action");
         $trip = array();
 
         if ($request->input('type') == 'daily') {
@@ -62,10 +64,13 @@ class TripController extends BaseController
                 ->where('id', $request->input('id'))
                 ->first();
 
+            if(!$trip) {
+                return $this->sendError(__('Trip not found!'), [__('Trip not found!')]);
+            }
+
             $trip->update([
                 'action' => $request->input('action')
             ]);
-
         }
 
         return $this->sendResponse($trip, __('Success'));
@@ -86,19 +91,34 @@ class TripController extends BaseController
             }
 
             $trip = new SugDayDriverResource($trip);
-            $result = $trip->resolve();
 
-            if ($trip->booking->{"road-way"} == 'from') {
-                $result['destination_lat'] = $trip->booking->lat;
-                $result['destination_lng'] = $trip->booking->lng;
-                $result['source_lat'] = $trip->booking->university->lat;
-                $result['source_lng'] = $trip->booking->university->lng;
-            } else {
-                $result['destination_lat'] = $trip->booking->university->lat;
-                $result['destination_lng'] = $trip->booking->university->lng;
-                $result['source_lat'] = $trip->booking->lat;
-                $result['source_lng'] = $trip->booking->lng;
+        } elseif ($type == 'weekly') {
+            $trip = SugWeekDriver::with('booking', 'passenger', 'deliveryInfo', 'booking.university', 'booking.passenger')
+                ->where('driver-id', auth()->user()->id)
+                ->where('id', $id)
+                ->first();
+
+            if (!$trip) {
+                return $this->sendError(__('Trip not found!'), [__('Trip not found!')]);
             }
+
+            $trip = new SugWeeklyDriverResource($trip);
+        } else {
+            return $this->sendError(__('Unsupported action!'), [__('Unsupported action!')]);
+        }
+
+        $result = $trip->resolve();
+
+        if ($trip->booking->{"road-way"} == 'from') {
+            $result['destination_lat'] = $trip->booking->lat;
+            $result['destination_lng'] = $trip->booking->lng;
+            $result['source_lat'] = $trip->booking->university->lat;
+            $result['source_lng'] = $trip->booking->university->lng;
+        } else {
+            $result['destination_lat'] = $trip->booking->university->lat;
+            $result['destination_lng'] = $trip->booking->university->lng;
+            $result['source_lat'] = $trip->booking->lat;
+            $result['source_lng'] = $trip->booking->lng;
         }
 
         return $this->sendResponse($result, __('Data'));
@@ -173,9 +193,12 @@ class TripController extends BaseController
             return $this->sendError(__('Validation Error.'), $validator->errors()->getMessages(), 422);
         }
 
+        Log::info("Request", $request->all());
+
         $data = $validator->validated();
         $data['expect-arrived'] = convertArabicDateToEnglish($data['expect-arrived']);
 
+        Log::info("Before update action");
         $response = $this->updateAction($request);
         $response = json_decode($response->getContent(), true);
 
