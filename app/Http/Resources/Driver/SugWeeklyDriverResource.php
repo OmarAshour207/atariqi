@@ -16,7 +16,9 @@ class SugWeeklyDriverResource extends JsonResource
             'date-of-add'   => $this->{"date-of-add"},
             'viewed'        => $this->viewed,
 //            'passenger'     => new UserSampleResource($this->whenLoaded('passenger')),
-            'trip'          => new WeekRideBookingResource($this->booking)
+            'trip'          => new WeekRideBookingResource($this->booking),
+            'delivery_info' => $this->whenLoaded('deliveryInfo'),
+            'general_passenger_rate' => $this->whenLoaded('rate'),
         ];
     }
 }
