@@ -96,8 +96,9 @@ class WeeklyDriverController extends BaseController
             'locale'            => 'sometimes|nullable|string'
         ]);
 
-        if($validator->fails())
+        if($validator->fails()) {
             return $this->sendError(__('Validation Error.'), $validator->errors()->getMessages(), 422);
+        }
 
         $data = $validator->validated();
 
@@ -110,9 +111,10 @@ class WeeklyDriverController extends BaseController
 
         $service = $this->getService($rideTypeId);
         $roadWay = $service->{"road-way"};
-
+        Log::info("Roadway: $roadWay");
         $weeklyDates = $data['weekly_dates'];
         $weeklyDates = $this->convertDate($weeklyDates);
+        Log::info("Times", $weeklyDates);
 
         $success = array();
 
@@ -212,6 +214,10 @@ class WeeklyDriverController extends BaseController
             ->when($roadWay == 'to' || $roadWay == 'both', function ($query) use ($weeklyDates) {
                 foreach ($weeklyDates as $times) {
                     $dateDay = Carbon::parse($times['date'])->format('l');
+                    // Sunday-to 20:10 <= userTime 20:10 <=  22:10
+                    // Sunday-to 22:10 >= userTime
+//                    $timeAfterHour = Carbon::now()->addHour()->format('H') == 00 ? '24:00:00' : Carbon::now()->addHour()->format('H:i:s');
+
                     $query->where("$dateDay-to" , '<=', $times['time_go'])
                         ->whereRaw('`' . "$dateDay-to" . '` + INTERVAL 2 HOUR >= ?', [$times['time_go']] );
                 }
@@ -220,6 +226,11 @@ class WeeklyDriverController extends BaseController
                 foreach ($weeklyDates as $times) {
                     $dateDay = Carbon::parse($times['date'])->format('l');
 
+                    Log::info("Roadway: from, dateDay: $dateDay, TimeBack: " . $times['time_back']);
+                    // 16:00 >= 15:30, 14:00 <= 15:30
+                    // 16:00 >= 15:30, 14:00 <= 15:30
+                    // 22:00 >= 21:30, 20:00 <= 21:30
+                    // 22:27 >= 21:15, 20:27 <= 21:15
                     $query->where("$dateDay-from" , '>=', $times['time_back'])
                         ->whereRaw('`' . "$dateDay-from" . '` - INTERVAL 2 HOUR <= ?', [$times['time_back']]);
                 }
