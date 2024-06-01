@@ -400,7 +400,7 @@ class ImmediateDriverController extends BaseController
             ];
 
             $from[$days[$i]] = [
-                'from' => Carbon::parse($schedule->{$days[$i] . "-from"})->subHours(2)->format('H:i') > $schedule->{$days[$i]}
+                'from' => Carbon::parse($schedule->{$days[$i] . "-from"})->subHours(2)->format('H:i') > $schedule->{$days[$i] . "-from"}
                     ? "00:00"
                     : Carbon::parse($schedule->{$days[$i] . "-from"})->subHours(2)->format('H:i'),
                 'to' => Carbon::parse($schedule->{$days[$i] . "-from"})->format('H:i')
