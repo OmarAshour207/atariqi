@@ -191,7 +191,8 @@ class WeeklyDriverController extends BaseController
             ->when($roadWay != 'both', function ($query) use ($neighborhoodId, $roadWay) {
                 $query->join('drivers-neighborhoods', function ($join) use ($neighborhoodId, $roadWay) {
                     $join->on('drivers-neighborhoods.driver-id', '=', 'drivers-services.driver-id')
-                        ->where("drivers-neighborhoods.neighborhoods-$roadWay", 'LIKE', "%$neighborhoodId | %");
+                        ->where("drivers-neighborhoods.neighborhoods-$roadWay", 'LIKE', "%$neighborhoodId | %")
+                        ->orWhere("drivers-neighborhoods.neighborhoods-$roadWay", 'LIKE', "%| $neighborhoodId%");
                 });
             })
             ->whereIn('drivers-services.driver-id', $uniDrivers)
