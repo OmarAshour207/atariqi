@@ -547,7 +547,7 @@ class WeeklyDriverController extends BaseController
         $to = array();
         $from = array();
 
-        $success['sug_week_driver'] = null;
+        $success['sug_day_driver'] = null;
         $success['to'] = $to;
         $success['from'] = $from;
         $success['destination_lat'] = null;
@@ -574,21 +574,24 @@ class WeeklyDriverController extends BaseController
             ->where('passenger-id', $passengerId)
             ->first();
 
-        if (!isset($ride->id))
+        if (!isset($ride->id)) {
             return $this->sendResponse($success, __("Not found trips"));
+        }
 
         Log::channel('daily')->info("Ride ID: " . $ride->id);
 
-        $sugDayDriver = SugWeekDriver::with('booking', 'driverinfo')->where([
+        $sugWeekDriver = SugWeekDriver::with('booking', 'driverinfo', 'deliveryInfo')->where([
             ['booking-id', $ride->id],
             ['action', 3],
             ['passenger-id', $passengerId]
         ])->first();
 
-        if (!$sugDayDriver)
+        if (!isset($sugWeekDriver->id)) {
             return $this->sendResponse($success, __("No suggested drivers"));
+        }
 
-        $success['sug_day_driver'] = new SugWeekDriverResource($sugDayDriver);
+        $success['sug_day_driver'] = new SugWeekDriverResource($sugWeekDriver);
+
         if ($ride->{"road-way"} == 'from') {
             $from['ar'] = $ride->university->{"name-ar"};
             $from['en'] = $ride->university->{"name-eng"};
