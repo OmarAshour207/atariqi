@@ -191,7 +191,7 @@ class WeeklyDriverController extends BaseController
             ->when($roadWay != 'both', function ($query) use ($neighborhoodId, $roadWay) {
                 $query->join('drivers-neighborhoods', function ($join) use ($neighborhoodId, $roadWay) {
                     $join->on('drivers-neighborhoods.driver-id', '=', 'drivers-services.driver-id')
-                        ->where("drivers-neighborhoods.neighborhoods-$roadWay", 'LIKE', "%$neighborhoodId | %")
+                        ->where("drivers-neighborhoods.neighborhoods-$roadWay", 'LIKE', "%$neighborhoodId |%")
                         ->orWhere("drivers-neighborhoods.neighborhoods-$roadWay", 'LIKE', "%| $neighborhoodId%");
                 });
             })
@@ -209,19 +209,13 @@ class WeeklyDriverController extends BaseController
             return $this->sendResponse($success, __('No Drivers to this Service right now'));
         }
 
-        Log::info("Ride Type Drivers", $rideTypeDrivers);
+        Log::channel('daily')->info("Ride Type Drivers", $rideTypeDrivers);
 
         $driversSchedule =  DB::table('drivers-schedule')
             ->select("driver-id")
             ->when($roadWay == 'to' || $roadWay == 'both', function ($query) use ($weeklyDates) {
                 foreach ($weeklyDates as $times) {
                     $dateDay = Carbon::parse($times['date'])->format('l');
-                    // Sunday-to 20:10 <= userTime 20:10 <=  22:10
-                    // Sunday-to 22:10 >= userTime
-//                    $timeAfterHour = Carbon::now()->addHour()->format('H') == 00 ? '24:00:00' : Carbon::now()->addHour()->format('H:i:s');
-
-                    // 21:30 <= 22:30
-                    // 23:30 >= 22:30
                     $timeBeforeTwoHours = Carbon::parse($times['time_go'])->subHours(2)->format('H:i') > $times['time_go']
                             ? "00:00"
                             : Carbon::parse($times['time_go'])->subHours(2)->format('H:i');
@@ -234,18 +228,6 @@ class WeeklyDriverController extends BaseController
             ->when($roadWay == 'from' || $roadWay == 'both', function ($query) use ($weeklyDates) {
                 foreach ($weeklyDates as $times) {
                     $dateDay = Carbon::parse($times['date'])->format('l');
-
-                    Log::info("Roadway: from, dateDay: $dateDay, TimeBack: " . $times['time_back']);
-                    // 16:00 >= 15:30, 14:00 <= 15:30
-                    // 16:00 >= 15:30, 14:00 <= 15:30
-                    // 22:00 >= 21:30, 20:00 <= 21:30
-                    // 22:27 >= 21:15, 20:27 <= 21:15
-
-                    // 16:30 >= 15:30, 14:30 <= 15:30
-                    // 21:00 >= 20:30, 19:00 <= 20:30
-                    // 21:00 >= 20:45, 21:00 <= 20:45
-                    // 23:15 >= 21:30, 21:15 <= 21:30
-
                     $timeAfterTwoHours = Carbon::parse($times['time_back'])->addHours(2)->format('H:i') > $times['time_back']
                         ? Carbon::parse($times['time_back'])->addHours(2)->format('H:i')
                         : "24:00";
