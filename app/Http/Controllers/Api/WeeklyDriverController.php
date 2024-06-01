@@ -179,6 +179,9 @@ class WeeklyDriverController extends BaseController
         }
 
         Log::info("Uni Driving Services", $uniDrivers);
+        Log::info("Ride type ID: " . $rideTypeId);
+        Log::info("Road way: " . $roadWay);
+        Log::info("Neighbourhood: " . $neighborhoodId);
 
         $rideTypeDrivers = DriversServices::select('drivers-services.driver-id')
             ->when($roadWay == 'both', function ($query) use ($neighborhoodId, $roadWay) {
