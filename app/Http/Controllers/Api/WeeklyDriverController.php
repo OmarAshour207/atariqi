@@ -178,10 +178,10 @@ class WeeklyDriverController extends BaseController
             return $this->sendResponse($success, __('No Drivers to the University right now'));
         }
 
-        Log::info("Uni Driving Services", $uniDrivers);
-        Log::info("Ride type ID: " . $rideTypeId);
-        Log::info("Road way: " . $roadWay);
-        Log::info("Neighbourhood: " . $neighborhoodId);
+        Log::channel('daily')->info("Uni Driving Services", $uniDrivers);
+        Log::channel('daily')->info("Ride type ID: " . $rideTypeId);
+        Log::channel('daily')->info("Road way: " . $roadWay);
+        Log::channel('daily')->info("Neighbourhood: " . $neighborhoodId);
 
         $rideTypeDrivers = DriversServices::select('drivers-services.driver-id')
             ->when($roadWay == 'both', function ($query) use ($neighborhoodId, $roadWay) {
@@ -194,8 +194,8 @@ class WeeklyDriverController extends BaseController
             ->when($roadWay != 'both', function ($query) use ($neighborhoodId, $roadWay) {
                 $query->join('drivers-neighborhoods', function ($join) use ($neighborhoodId, $roadWay) {
                     $join->on('drivers-neighborhoods.driver-id', '=', 'drivers-services.driver-id')
-                        ->where("drivers-neighborhoods.neighborhoods-$roadWay", 'LIKE', "%$neighborhoodId |%")
-                        ->orWhere("drivers-neighborhoods.neighborhoods-$roadWay", 'LIKE', "%| $neighborhoodId%");
+                        ->where("drivers-neighborhoods.neighborhoods-$roadWay", 'LIKE', "%$neighborhoodId |%");
+//                        ->orWhere("drivers-neighborhoods.neighborhoods-$roadWay", 'LIKE', "%| $neighborhoodId%");
                 });
             })
             ->whereIn('drivers-services.driver-id', $uniDrivers)
@@ -231,9 +231,9 @@ class WeeklyDriverController extends BaseController
             ->when($roadWay == 'from' || $roadWay == 'both', function ($query) use ($weeklyDates) {
                 foreach ($weeklyDates as $times) {
                     $dateDay = Carbon::parse($times['date'])->format('l');
-                    $timeAfterTwoHours = Carbon::parse($times['time_back'])->addHours(2)->format('H:i') > $times['time_back']
-                        ? Carbon::parse($times['time_back'])->addHours(2)->format('H:i')
-                        : "24:00";
+                    $timeAfterTwoHours = Carbon::parse($times['time_back'])->addHours(2)->format('H:i') < $times['time_back']
+                        ? "24:00"
+                        : Carbon::parse($times['time_back'])->addHours(2)->format('H:i');
 
                     $query->where("$dateDay-from" , '>=', $times['time_back'])
                         ->where("$dateDay-from", '<=', $timeAfterTwoHours);
@@ -562,6 +562,10 @@ class WeeklyDriverController extends BaseController
         $subMinutes = Carbon::now()->subMinutes(5)->format('H:i');
         $addMinutes = Carbon::now()->addMinutes(5)->format('H:i');
 
+        Log::channel('daily')->info("subMinutes: " . $subMinutes);
+        Log::channel('daily')->info("addMinutes: " . $addMinutes);
+        Log::channel('daily')->info("passenger ID: " . $passengerId);
+
         $ride = WeekRideBooking::where('date-of-ser', $nowDate)
             ->where(function ($query) use ($subMinutes, $addMinutes) {
                 $query->whereBetween('time-go', [$subMinutes, $addMinutes])
@@ -572,6 +576,8 @@ class WeeklyDriverController extends BaseController
 
         if (!isset($ride->id))
             return $this->sendResponse($success, __("Not found trips"));
+
+        Log::channel('daily')->info("Ride ID: " . $ride->id);
 
         $sugDayDriver = SugWeekDriver::with('booking', 'driverinfo')->where([
             ['booking-id', $ride->id],
