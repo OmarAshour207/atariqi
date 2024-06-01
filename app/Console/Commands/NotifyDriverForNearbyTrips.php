@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\SugDayDriver;
+use App\Models\SugWeekDriver;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
@@ -45,10 +46,26 @@ class NotifyDriverForNearbyTrips extends Command
             })
             ->get();
 
+        // Daily Drivers
+        $weeklyDrivers = SugWeekDriver::with('driver')
+            ->select('driver-id')
+            ->whereHas('booking', function ($query) use ($today, $currentTime, $afterFiveMin) {
+                $query->whereDate('week-ride-booking.date-of-ser', $today)
+                    ->whereBetween('day-ride-booking.time-go', [$currentTime, $afterFiveMin])
+                    ->orWhereBetween('day-ride-booking.time-back', [$currentTime, $afterFiveMin]);
+            })
+            ->get();
+
         foreach ($dailyDrivers as $dailyDriver) {
             $title = __('Be ready!');
             $message = __('You have a trip almost start.');
             sendNotification(['title' => $title, 'body' => $message, 'tokens' => $dailyDriver->driver->fcm_token]);
+        }
+
+        foreach ($weeklyDrivers as $weeklyDriver) {
+            $title = __('Be ready!');
+            $message = __('You have a trip almost start.');
+            sendNotification(['title' => $title, 'body' => $message, 'tokens' => $weeklyDriver->driver->fcm_token]);
         }
 
         return Command::SUCCESS;
