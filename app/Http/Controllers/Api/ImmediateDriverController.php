@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Resources\DriverInfoResource;
 use App\Http\Resources\RideBookingResource;
 use App\Models\DriverInfo;
+use App\Models\DriverSchedule;
 use App\Models\DriversServices;
 use App\Models\Neighbour;
 use App\Models\RideBooking;
@@ -381,4 +382,34 @@ class ImmediateDriverController extends BaseController
         return $this->sendResponse(new DriverInfoResource($driverInfo), __('Updated successfully'));
     }
 
+    public function getTimes($id)
+    {
+        $schedule = DriverSchedule::where('driver-id', $id)->first();
+
+        $to = array();
+        $from = array();
+
+        $days = [ 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+
+        for ($i = 0; $i < count($days); $i++) {
+            $to[$days[$i]] = [
+                'from' => Carbon::parse($schedule->{$days[$i] . "-to"})->format('H:i'),
+                'to' => Carbon::parse($schedule->{$days[$i] . "-to"})->addHours(2)->format('H:i') > $schedule->{$days[$i] . "-to"}
+                    ? Carbon::parse($schedule->{$days[$i] . "-to"})->addHours(2)->format('H:i')
+                    : "24:00"
+            ];
+
+            $from[$days[$i]] = [
+                'from' => Carbon::parse($schedule->{$days[$i] . "-from"})->subHours(2)->format('H:i') > $schedule->{$days[$i]}
+                    ? "00:00"
+                    : Carbon::parse($schedule->{$days[$i] . "-from"})->subHours(2)->format('H:i'),
+                'to' => Carbon::parse($schedule->{$days[$i] . "-from"})->format('H:i')
+            ];
+        }
+
+        return response()->json([
+            'to'  => $to,
+            'from'=> $from
+        ]);
+    }
 }

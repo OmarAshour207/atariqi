@@ -42,6 +42,8 @@ Route::group([
     Route::post('driver/login', [LoginController::class, 'login']);
     Route::post('driver/verify', [LoginController::class, 'verify']);
 
+    Route::post('drivers/times/{id}', [ImmediateDriverController::class, 'getTimes']);
+
     Route::middleware(['auth:sanctum'])->group(function () {
 
         Route::middleware('is_passenger')->group(function() {
