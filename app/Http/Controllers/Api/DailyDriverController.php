@@ -378,6 +378,13 @@ class DailyDriverController extends BaseController
             ->whereIn('id', $sugDayDrivers)
             ->get();
 
+        $driver = User::where('id', $driverId)->first();
+        sendNotification([
+            'title'     => __('You have a notification from Atariqi'),
+            'body'      => __("There is new daily order contract"),
+            'tokens'    => [$driver->fcm_token]
+        ]);
+
         $success = [];
         $success['trip'] = new DayRideBookingResource(isset($dayRideBookingGo) ? $dayRideBookingGo : $dayRideBookingBack);
         $success['sug_day_driver'] = SugDayDrivingResource::collection($sugDayDriver);

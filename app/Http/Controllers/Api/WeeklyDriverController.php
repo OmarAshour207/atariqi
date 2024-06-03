@@ -363,6 +363,14 @@ class WeeklyDriverController extends BaseController
                 'viewed'        => 0
             ]);
         }
+
+        $driver = User::where('id', $driverId)->first();
+        sendNotification([
+            'title'     => __('You have a notification from Atariqi'),
+            'body'      => __("There is new weekly order contract"),
+            'tokens'    => [$driver->fcm_token]
+        ]);
+
         $success = array();
         $success['trips'] = WeekRideBookingResource::collection($bookingRides);
 
