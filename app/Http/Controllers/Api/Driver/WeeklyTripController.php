@@ -48,7 +48,7 @@ class WeeklyTripController extends BaseController
                 'action' => 0
             ]);
 
-            if ($request->input('type') == 'my') {
+            if ($request->input('tag') == 'my') {
                 $tripGroup->sugDriver->update([
                     'action' => $request->input('action')
                 ]);

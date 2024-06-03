@@ -227,7 +227,7 @@ class TripController extends BaseController
         if ($type == 'weekly') {
             return DelWeekInfo::class;
         }
-        return DelWeekInfo::class;
+        return DelDailyInfo::class;
     }
 
     public function rate(Request $request)

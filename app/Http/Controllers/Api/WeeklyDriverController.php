@@ -308,8 +308,9 @@ class WeeklyDriverController extends BaseController
             'lng'               => 'required|string'
         ]);
 
-        if($validator->fails())
+        if($validator->fails()) {
             return $this->sendError(__('Validation Error.'), $validator->errors()->getMessages(), 422);
+        }
 
         $data = $validator->validated();
 
