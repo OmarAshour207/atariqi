@@ -233,8 +233,8 @@ class TripController extends BaseController
     public function rate(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'type'      => 'required|string|in:daily|weekly',
-            'rate'      => 'required|numeric|max:6',
+            'type'      => 'required|string|in:daily,weekly',
+            'rate'      => 'required|numeric|max:5',
             'comment'   => 'required|string',
             'sug-id'    => 'required|numeric',
         ]);
