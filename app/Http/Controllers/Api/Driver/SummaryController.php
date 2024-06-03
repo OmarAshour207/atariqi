@@ -94,6 +94,7 @@ class SummaryController extends BaseController
                 });
             })
             ->with(['rate'])
+            ->orderBy('date-of-add', 'desc')
             ->get();
 
         if($request->input('type') == 'daily') {
