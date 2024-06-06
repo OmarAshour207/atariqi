@@ -326,7 +326,6 @@ class DailyDriverController extends BaseController
             return $this->sendError(__('Validation Error.'), [ __("Sorry you already booked ride at the same date before")], 422);
         }
 
-        dd($checkSchedule);
         $savingData = [
             'passenger-id'      => $passengerId,
             'neighborhood-id'   => $neighborhoodId,
