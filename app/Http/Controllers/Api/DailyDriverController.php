@@ -23,7 +23,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\Rule;
 
 class DailyDriverController extends BaseController
 {
@@ -248,6 +247,11 @@ class DailyDriverController extends BaseController
         $timeBack = $time['time_back'];
         $timeGo = $time['time_go'];
 
+        Log::info("Date: $date");
+        Log::info("Time back: $timeBack");
+        Log::info("Time Go: $timeGo");
+        Log::info("Road Way: $roadWay");
+
         $weekRides = WeekRideBooking::where('passenger-id', $passengerId)
             ->where('date-of-ser', $date)
             ->when($roadWay == 'to' || $roadWay == 'both', function ($query) use ($timeGo) {
@@ -258,6 +262,7 @@ class DailyDriverController extends BaseController
             ->first();
 
         if ($weekRides) {
+            Log::info("There is weekly data");
             return false;
         }
 
@@ -271,6 +276,7 @@ class DailyDriverController extends BaseController
             ->first();
 
         if ($dailyRides) {
+            Log::info("There is daily data");
             return false;
         }
 
@@ -323,6 +329,7 @@ class DailyDriverController extends BaseController
         ], $roadWay);
 
         if (!$checkSchedule) {
+            Log::info("There is rides send an error");
             return $this->sendError(__('Validation Error.'), [ __("Sorry you already booked ride at the same date before")], 422);
         }
 
