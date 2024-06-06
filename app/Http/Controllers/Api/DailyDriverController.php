@@ -325,7 +325,7 @@ class DailyDriverController extends BaseController
         $checkSchedule = $this->checkScheduleTime([
             'date'      => $date,
             'time_go'   => $timeGo,
-            'time_back' => $timeGo
+            'time_back' => $timeBack
         ], $roadWay);
 
         if (!$checkSchedule) {
