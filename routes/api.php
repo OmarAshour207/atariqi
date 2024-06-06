@@ -19,7 +19,8 @@ use App\Http\Controllers\Api\Driver\{
     SummaryController,
     TripController,
     DailyTripsController,
-    WeeklyTripController
+    WeeklyTripController,
+    ImmediateTripController
 };
 
 Route::group([
@@ -119,6 +120,8 @@ Route::group([
             Route::get('weekly/{group_id}', [WeeklyTripController::class, 'get']);
 
             Route::post('weekly/action/update', [WeeklyTripController::class, 'updateAction']);
+
+            Route::get('immediate/get', [ImmediateTripController::class, 'index']);
         });
     });
 });

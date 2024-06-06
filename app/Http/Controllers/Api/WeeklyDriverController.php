@@ -542,6 +542,7 @@ class WeeklyDriverController extends BaseController
 
         $suggestedDrivers = SugWeekDriver::with('driver', 'booking')
             ->where('passenger-id', $passengerId)
+            ->orderBy('id', 'desc')
             ->get();
 
         $success = [];

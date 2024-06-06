@@ -46,8 +46,9 @@ class DailyDriverController extends BaseController
             'locale'            => 'sometimes|nullable|string'
         ]);
 
-        if($validator->fails())
+        if($validator->fails()) {
             return $this->sendError(__('Validation Error.'), $validator->errors()->getMessages(), 422);
+        }
 
         $data = $validator->validated();
 
@@ -59,9 +60,7 @@ class DailyDriverController extends BaseController
         $service = $this->getService($rideTypeId);
         $roadWay = $service->{"road-way"};
 
-        $date = $data['date'];
-
-        $date = convertArabicDateToEnglish($date);
+        $date = convertArabicDateToEnglish($data['date']);
         $date = Carbon::createFromFormat('Y-m-d', $date)->format('Y-m-d');
         $timeBack = isset($data['time_back']) ? convertArabicDateToEnglish($data['time_back']) : null;
         $timeGo =  isset($data['time_go']) ? convertArabicDateToEnglish($data['time_go']) : null;
@@ -255,12 +254,12 @@ class DailyDriverController extends BaseController
                 $query->where('time-go', $timeGo);
             })->when($roadWay == 'from' || $roadWay == 'both', function ($query) use ($timeBack) {
                 $query->where('time-back', $timeBack);
-            })->get()
-            ->toArray();
+            })
+            ->first();
 
-        if (count($weekRides))
+        if ($weekRides) {
             return false;
-
+        }
 
         $dailyRides = DayRideBooking::where('passenger-id', $passengerId)
             ->where('date-of-ser', $date)
@@ -268,11 +267,12 @@ class DailyDriverController extends BaseController
                 $query->where('time-go', $timeGo);
             })->when($roadWay == 'from' || $roadWay == 'both', function ($query) use ($timeBack) {
                 $query->where('time-back', $timeBack);
-            })->get()
-            ->toArray();
+            })
+            ->first();
 
-        if (count($dailyRides))
+        if ($dailyRides) {
             return false;
+        }
 
         return true;
     }
@@ -326,6 +326,7 @@ class DailyDriverController extends BaseController
             return $this->sendError(__('Validation Error.'), [ __("Sorry you already booked ride at the same date before")], 422);
         }
 
+        dd($checkSchedule);
         $savingData = [
             'passenger-id'      => $passengerId,
             'neighborhood-id'   => $neighborhoodId,
@@ -520,10 +521,12 @@ class DailyDriverController extends BaseController
 
         $suggestedDailyDrivers = SugDayDriver::with('driver', 'booking')
             ->where('passenger-id', $passengerId)
+            ->orderBy('id', 'desc')
             ->get();
 
         $suggestedImmediateDrivers = SuggestionDriver::with('driver', 'booking')
             ->where('passenger-id', $passengerId)
+            ->orderBy('id', 'desc')
             ->get();
 
         $suggestedDrivers = SuggestionResource::collection($suggestedImmediateDrivers);

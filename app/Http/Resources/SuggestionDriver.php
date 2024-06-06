@@ -15,7 +15,9 @@ class SuggestionDriver extends JsonResource
             'viewed'        => $this->viewed,
             'trip'          => new DayRideBookingResource($this->booking),
             'driver'        => new UserSampleResource($this->whenLoaded('driver')),
-            'driverinfo'    => new DriverInfoResource($this->whenLoaded('driverinfo'))
+            'driverinfo'    => new DriverInfoResource($this->whenLoaded('driverinfo')),
+            'delivery_info' => $this->whenLoaded('deliveryInfo'),
+            'general_passenger_rate' => $this->whenLoaded('rate')
         ];
     }
 }
