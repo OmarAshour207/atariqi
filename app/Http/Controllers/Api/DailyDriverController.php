@@ -247,11 +247,6 @@ class DailyDriverController extends BaseController
         $timeBack = $time['time_back'];
         $timeGo = $time['time_go'];
 
-        Log::info("Date: $date");
-        Log::info("Time back: $timeBack");
-        Log::info("Time Go: $timeGo");
-        Log::info("Road Way: $roadWay");
-
         $weekRides = WeekRideBooking::where('passenger-id', $passengerId)
             ->where('date-of-ser', $date)
             ->when($roadWay == 'to' || $roadWay == 'both', function ($query) use ($timeGo) {
@@ -262,7 +257,6 @@ class DailyDriverController extends BaseController
             ->first();
 
         if ($weekRides) {
-            Log::info("There is weekly data");
             return false;
         }
 
@@ -276,7 +270,6 @@ class DailyDriverController extends BaseController
             ->first();
 
         if ($dailyRides) {
-            Log::info("There is daily data");
             return false;
         }
 
@@ -578,10 +571,11 @@ class DailyDriverController extends BaseController
             return $this->sendResponse($success, __("Not found trips"));
         }
 
-        $sugDayDriver = SugDayDriver::with('booking', 'driverinfo', 'driverinfo.driver', 'deliveryInfo')->where([
-            ['booking-id', $ride->id],
-            ['action', 3],
-            ['passenger-id', $passengerId]
+        $sugDayDriver = SugDayDriver::with('booking', 'driverinfo', 'driverinfo.driver', 'deliveryInfo')
+            ->where([
+                ['booking-id', $ride->id],
+                ['action', 3],
+                ['passenger-id', $passengerId]
         ])->first();
 
         if (!$sugDayDriver) {
@@ -664,8 +658,11 @@ class DailyDriverController extends BaseController
         $sugDayDriver = SugDayDriver::with('booking')->where('id', $id)
             ->where('passenger-id', auth()->user()->id)
             ->first();
-        if (!$sugDayDriver)
+
+        if (!$sugDayDriver) {
             return $this->sendError(__('Trip not found!'), [__('Trip not found')]);
+        }
+
         $sugDayDriver->update(['action' => $action]);
 
         $success = array();
