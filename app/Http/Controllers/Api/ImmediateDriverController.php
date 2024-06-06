@@ -136,12 +136,10 @@ class ImmediateDriverController extends BaseController
 //                $query->where("$nowDay-$roadWay", '<=', $timeAfterHour);
 //                $query->where("$nowDay-$roadWay", '>=', Carbon::now()->subMinutes(15)->format("H:i:s"));
 //            })
-            // 21:11 <= 22:18
-            // 21:11 >= 21:03
             ->whereIn('driver-id', $foundDriverId)
             ->get();
 
-        if(count($suggestDriverId)) {
+        if(count($suggestDriverId) < 1) {
             $rideBooking = RideBooking::create([
                 'passenger-id'      => $passengerId,
                 'university-id'     => $universityId,
@@ -150,55 +148,11 @@ class ImmediateDriverController extends BaseController
                 'lng'               => $lng,
                 'service-id'        => $rideTypeId,
                 'road-way'          => $roadWay,
-                'action'            => 0,
+                'action'            => 3,
                 'date-of-add'       => Carbon::now()
             ]);
-
-            $finalDriversId = array();
-
-            foreach ($suggestDriverId as $driver) {
-                $finalDriversId[] = $driver->{"suggest-driver-id"};
-                SuggestionDriver::create([
-                    'booking-id'    => $rideBooking->id,
-                    'passenger-id'  => $passengerId,
-                    'driver-id'     => $driver->{"suggest-driver-id"},
-                    'action'        => 0,
-                    'date-of-add'   => Carbon::now()
-                ]);
-            }
-
-            $drivers = DriverInfo::with('driver')
-                ->whereIn('driver-id', $finalDriversId)
-                ->get();
-            $success['drivers'] = [];//DriverInfoResource::collection($drivers);
-
-            $neighborhood = Neighbour::findOrFail($neighborhoodId);
-            $university = University::whereId($universityId)->first();
-            $from = array();
-            $to = array();
-
-            if($roadWay == 'from') {
-                $to['ar'] = $neighborhood->{"neighborhood-ar"};
-                $to['en'] = $neighborhood->{"neighborhood-eng"};
-                $from['ar'] = $university->{"name-ar"};
-                $from['en'] = $university->{"name-eng"};
-                $success['destination_lat'] = $lat;
-                $success['destination_lng'] = $lng;
-            } elseif ($roadWay == 'to') {
-                $to['ar'] = $university->{"name-ar"};
-                $to['en'] = $university->{"name-eng"};
-                $from['ar'] = $neighborhood->{"neighborhood-ar"};
-                $from['en'] = $neighborhood->{"neighborhood-eng"};
-                $success['destination_lat'] = $university->lat;
-                $success['destination_lng'] = $university->lng;
-            }
-
-            $success['to'] = $to;
-            $success['from'] = $from;
-            $success['estimated_time'] = 15;
             $success['trip'] = $rideBooking;
-
-            return $this->sendResponse($success, __('Drivers'));
+            return $this->sendResponse($success, __('No Drivers!'));
         }
 
         $rideBooking = RideBooking::create([
@@ -209,11 +163,56 @@ class ImmediateDriverController extends BaseController
             'lng'               => $lng,
             'service-id'        => $rideTypeId,
             'road-way'          => $roadWay,
-            'action'            => 3,
+            'action'            => 0,
             'date-of-add'       => Carbon::now()
         ]);
+
+        $finalDriversId = array();
+
+        foreach ($suggestDriverId as $driver) {
+            $finalDriversId[] = $driver->{"suggest-driver-id"};
+            SuggestionDriver::create([
+                'booking-id'    => $rideBooking->id,
+                'passenger-id'  => $passengerId,
+                'driver-id'     => $driver->{"suggest-driver-id"},
+                'action'        => 0,
+                'date-of-add'   => Carbon::now()
+            ]);
+        }
+
+        $drivers = DriverInfo::with('driver')
+            ->whereIn('driver-id', $finalDriversId)
+            ->get();
+        $success['drivers'] = [];//DriverInfoResource::collection($drivers);
+
+        $neighborhood = Neighbour::findOrFail($neighborhoodId);
+        $university = University::whereId($universityId)->first();
+        $from = array();
+        $to = array();
+
+        if($roadWay == 'from') {
+            $to['ar'] = $neighborhood->{"neighborhood-ar"};
+            $to['en'] = $neighborhood->{"neighborhood-eng"};
+            $from['ar'] = $university->{"name-ar"};
+            $from['en'] = $university->{"name-eng"};
+            $success['destination_lat'] = $lat;
+            $success['destination_lng'] = $lng;
+        } elseif ($roadWay == 'to') {
+            $to['ar'] = $university->{"name-ar"};
+            $to['en'] = $university->{"name-eng"};
+            $from['ar'] = $neighborhood->{"neighborhood-ar"};
+            $from['en'] = $neighborhood->{"neighborhood-eng"};
+            $success['destination_lat'] = $university->lat;
+            $success['destination_lng'] = $university->lng;
+        }
+
+        $success['to'] = $to;
+        $success['from'] = $from;
+        $success['estimated_time'] = 15;
         $success['trip'] = $rideBooking;
-        return $this->sendResponse($success, __('No Drivers!'));
+
+        return $this->sendResponse($success, __('Drivers'));
+
     }
 
     public function execute(Request $request)
@@ -298,10 +297,8 @@ class ImmediateDriverController extends BaseController
         if($validator->fails())
             return $this->sendError(__('Validation Error.'), $validator->errors()->getMessages(), 422);
 
-        $data = $validator->validated();
-
         $trip = RideBooking::with('passenger', 'neighborhood', 'service')
-            ->whereId($data['id'])
+            ->where('id', $request->input('id'))
             ->first();
 
         if (!$trip) {
@@ -325,30 +322,42 @@ class ImmediateDriverController extends BaseController
             'action'    => 'required|numeric',
         ]);
 
-        if($validator->fails())
+        if($validator->fails()) {
             return $this->sendError(__('Validation Error.'), $validator->errors()->getMessages(), 422);
+        }
 
         $data = $validator->validated();
         $id = $data['id'];
         $action = $data['action'];
-        $passengerId = auth()->user()->id;
 
-        $trip = RideBooking::whereId($id)->first();
-
-        if(!$trip)
-            return $this->sendError(__('Trip not found'), [__('Trip not found')]);
-
-        $suggestedDriver = SuggestionDriver::with('booking', 'driver')
-            ->where('passenger-id', $passengerId)
-            ->where('booking-id', $id)
+        $trip = RideBooking::where('id', $id)
+            ->where('passenger-id', auth()->user()->id)
             ->first();
 
-        if (!$suggestedDriver)
-            return $this->sendResponse(__('Trip not found'), __('Trip not found'));
+        if(!$trip) {
+            return $this->sendError(__('Trip not found'), [__('Trip not found')]);
+        }
 
-        $suggestedDriver->update([
-            'action' => $action
-        ]);
+//        $trip->update([
+//            'action' => $action
+//        ]);
+//
+//        return $this->sendResponse(new RideBookingResource($trip), __('Updated successfully'));
+
+        $suggestedDrivers = SuggestionDriver::with('booking', 'driver')
+            ->where('passenger-id', auth()->user()->id)
+            ->where('booking-id', $id)
+            ->get();
+
+        if (!count($suggestedDrivers)) {
+            return $this->sendResponse(__('Trip not found'), __('Trip not found'));
+        }
+
+        foreach ($suggestedDrivers as $suggestedDriver) {
+            $suggestedDriver->update([
+                'action' => $action
+            ]);
+        }
 
         return $this->sendResponse(new RideBookingResource($trip), __('Updated successfully'));
     }

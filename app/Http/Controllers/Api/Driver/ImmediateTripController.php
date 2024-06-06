@@ -11,6 +11,7 @@ class ImmediateTripController extends BaseController
     {
         $trips = SuggestionDriver::with(['deliveryInfo', 'rate'])
             ->where('action', 0)
+            ->where('driver-id', auth()->user()->id)
             ->get();
 
         $trips = \App\Http\Resources\SuggestionDriver::collection($trips);
