@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Driver;
 
 use App\Http\Controllers\Api\BaseController;
 use App\Models\SuggestionDriver;
+use Carbon\Carbon;
 
 class ImmediateTripController extends BaseController
 {
@@ -19,8 +20,15 @@ class ImmediateTripController extends BaseController
         return $this->sendResponse($trips, __('Data'));
     }
 
-    public function filterTrips()
+    public function filterTrips($trips)
     {
-        
+        $currentTime = Carbon::now()->subMinute();
+
+//        20:15:00
+//        20:15:30 14:30 > 15:
+
+        foreach ($trips as $trip) {
+//            if()
+        }
     }
 }
