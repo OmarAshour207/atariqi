@@ -287,6 +287,7 @@ class ImmediateDriverController extends BaseController
         }
         $success['to'] = $to;
         $success['from'] = $from;
+        $success['estimated_time'] = $suggestedDriver?->deliveryInfo->{"expect-time"};
         $success['drivers'][] = new DriverInfoResource($suggestedDriver->driverinfo);
 
         return $this->sendResponse($success, __('Drivers'));
