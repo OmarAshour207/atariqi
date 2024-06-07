@@ -37,8 +37,9 @@ class ImmediateDriverController extends BaseController
             'locale'            => 'sometimes|nullable|string'
         ]);
 
-        if($validator->fails())
+        if($validator->fails()) {
             return $this->sendError(__('Validation Error.'), $validator->errors()->getMessages(), 422);
+        }
 
         $data = $validator->validated();
 
@@ -167,6 +168,8 @@ class ImmediateDriverController extends BaseController
             'date-of-add'       => Carbon::now()
         ]);
 
+        // TODO:: Check in suggestions-drivers table the drivers with action = 2 and exclude them
+
         $finalDriversId = array();
 
         foreach ($suggestDriverId as $driver) {
@@ -221,8 +224,9 @@ class ImmediateDriverController extends BaseController
             'booking_id'   => 'required|numeric',
         ]);
 
-        if($validator->fails())
+        if($validator->fails()) {
             return $this->sendError(__('Validation Error.'), $validator->errors()->getMessages(), 422);
+        }
 
         $data = $validator->validated();
         $bookingId = $data['booking_id'];
@@ -236,22 +240,24 @@ class ImmediateDriverController extends BaseController
         $success['action'] = 'immediate/transport/trips';
 
         $trip = RideBooking::with('university', 'neighborhood')
-            ->whereId($bookingId)
+            ->where('id', $bookingId)
             ->first();
 
         $success['trip'] = new RideBookingResource($trip);
 
-        if (!$trip)
+        if (!$trip) {
             return $this->sendResponse($success, __('Trip not found!'));
+        }
 
         $suggestedDriver = SuggestionDriver::with('booking', 'driver')
             ->where('passenger-id', $passengerId)
-            ->where('action', 1)
+            ->whereIn('action', [1, 2])
             ->where('booking-id', $bookingId)
             ->first();
 
-        if (!$suggestedDriver)
-            return $this->sendResponse($success, __('Drivers'));
+        if (!$suggestedDriver) {
+            return $this->sendResponse($success, __('Trip not found!'));
+        }
 
         $neighborhood = $trip->neighborhood;
         $university = $trip->university;

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Driver;
 
 use App\Http\Controllers\Api\BaseController;
+use App\Http\Resources\Driver\SuggestionDriverDetailsResource;
 use App\Models\SuggestionDriver;
 use Carbon\Carbon;
 
@@ -10,13 +11,14 @@ class ImmediateTripController extends BaseController
 {
     public function index()
     {
-        $trips = SuggestionDriver::with(['deliveryInfo', 'rate', 'booking', 'booking.passenger'])
+        $trips = SuggestionDriver::with(['deliveryInfo', 'rate', 'booking', 'booking.passenger', 'booking.university'])
             ->where('action', 0)
             ->where('driver-id', auth()->user()->id)
             ->get();
 
         $filteredTrips = $this->filterTrips($trips);
-        $filteredTrips = \App\Http\Resources\SuggestionDriver::collection($filteredTrips);
+
+        $filteredTrips = SuggestionDriverDetailsResource::collection($filteredTrips);
 
         return $this->sendResponse($filteredTrips, __('Data'));
     }
