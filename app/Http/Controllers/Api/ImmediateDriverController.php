@@ -249,7 +249,7 @@ class ImmediateDriverController extends BaseController
             return $this->sendResponse($success, __('Trip not found!'));
         }
 
-        $suggestedDriver = SuggestionDriver::with('booking', 'driver')
+        $suggestedDriver = SuggestionDriver::with('booking', 'driver', 'deliveryInfo')
             ->where('passenger-id', $passengerId)
             ->whereIn('action', [1, 2])
             ->where('booking-id', $bookingId)
@@ -287,7 +287,7 @@ class ImmediateDriverController extends BaseController
         }
         $success['to'] = $to;
         $success['from'] = $from;
-        $success['estimated_time'] = $suggestedDriver?->deliveryInfo->{"expect-time"};
+        $success['estimated_time'] = $suggestedDriver->deliveryInfo?->{"expect-arrived"};
         $success['drivers'][] = new DriverInfoResource($suggestedDriver->driverinfo);
 
         return $this->sendResponse($success, __('Drivers'));
