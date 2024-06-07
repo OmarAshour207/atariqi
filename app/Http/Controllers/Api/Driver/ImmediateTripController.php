@@ -9,7 +9,7 @@ class ImmediateTripController extends BaseController
 {
     public function index()
     {
-        $trips = SuggestionDriver::with(['deliveryInfo', 'rate'])
+        $trips = SuggestionDriver::with(['deliveryInfo', 'rate', 'booking', 'booking.passenger'])
             ->where('action', 0)
             ->where('driver-id', auth()->user()->id)
             ->get();
@@ -17,5 +17,10 @@ class ImmediateTripController extends BaseController
         $trips = \App\Http\Resources\SuggestionDriver::collection($trips);
 
         return $this->sendResponse($trips, __('Data'));
+    }
+
+    public function filterTrips()
+    {
+        
     }
 }

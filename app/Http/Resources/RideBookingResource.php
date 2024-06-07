@@ -14,6 +14,7 @@ class RideBookingResource extends JsonResource
             'neighborhood'  => new NeighbourResource($this->neighborhood),
             'service'       => new ServiceResource($this->service),
             'university'    => new UniversityResource($this->university),
+            'delivery_info' => $this->sugDriver?->deliveryInfo,
             'road_way'      => $this->{"road-way"},
             'lat'           => $this->lat,
             'lng'           => $this->lng,

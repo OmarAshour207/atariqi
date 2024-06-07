@@ -13,7 +13,7 @@ class SuggestionDriver extends JsonResource
             'action'        => $this->action,
             'date-of-add'   => $this->{"date-of-add"},
             'viewed'        => $this->viewed,
-            'trip'          => new DayRideBookingResource($this->booking),
+            'trip'          => new RideBookingResource($this->booking),
             'driver'        => new UserSampleResource($this->whenLoaded('driver')),
             'driverinfo'    => new DriverInfoResource($this->whenLoaded('driverinfo')),
             'delivery_info' => $this->whenLoaded('deliveryInfo'),
