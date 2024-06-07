@@ -15,20 +15,25 @@ class ImmediateTripController extends BaseController
             ->where('driver-id', auth()->user()->id)
             ->get();
 
-        $trips = \App\Http\Resources\SuggestionDriver::collection($trips);
+        $filteredTrips = $this->filterTrips($trips);
+        $filteredTrips = \App\Http\Resources\SuggestionDriver::collection($filteredTrips);
 
-        return $this->sendResponse($trips, __('Data'));
+        return $this->sendResponse($filteredTrips, __('Data'));
     }
 
     public function filterTrips($trips)
     {
         $currentTime = Carbon::now()->subMinute();
 
-//        20:15:00
-//        20:15:30 14:30 > 15:
+        $trips->each(function ($trip) use ($currentTime) {
+            $dateOfAdd = Carbon::parse($trip->{'date-of-add'});
 
-        foreach ($trips as $trip) {
-//            if()
-        }
+            if ($currentTime->greaterThan($dateOfAdd)) {
+                $trip->update(['action' => 4]);
+            }
+
+        });
+
+        return $trips->where('action', '!=', 4);
     }
 }
