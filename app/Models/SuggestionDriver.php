@@ -56,7 +56,7 @@ class SuggestionDriver extends Model
 
     public function deliveryInfo()
     {
-        return $this->hasOne(DeliveryInfo::class, 'sug-id', 'id');
+        return $this->hasOne(DelImmediateInfo::class, 'sug-id', 'id');
     }
 
     public function rate()
