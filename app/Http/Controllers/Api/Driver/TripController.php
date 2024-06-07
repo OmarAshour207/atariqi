@@ -138,7 +138,7 @@ class TripController extends BaseController
     public function updateDelivery(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'type'              => 'required|string|in:daily,weekly',
+            'type'              => 'required|string|in:daily,weekly,immediate',
             'sug-id'            => 'required|numeric',
             'expect-arrived'    => 'nullable', // |date_format:H:i
             'arrived-location'  => 'nullable', // |date_format:H:i
@@ -248,7 +248,7 @@ class TripController extends BaseController
     public function rate(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'type'      => 'required|string|in:daily,weekly',
+            'type'      => 'required|string|in:daily,weekly,immediate',
             'rate'      => 'required|numeric|max:5',
             'comment'   => 'required|string',
             'sug-id'    => 'required|numeric',
