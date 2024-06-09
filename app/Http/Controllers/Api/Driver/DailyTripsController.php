@@ -9,6 +9,7 @@ use App\Models\DriverNeighborhood;
 use App\Models\DriversServices;
 use App\Models\SugDayDriver;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
@@ -40,6 +41,7 @@ class DailyTripsController extends BaseController
 
     public function accept(Request $request)
     {
+        Log::info("Accept daily ride with id: " . $request->input('id'));
         $validator = Validator::make($request->all(), [
             'id' => 'required|numeric|exists:day-ride-booking,id'
         ]);
@@ -60,6 +62,8 @@ class DailyTripsController extends BaseController
         $dayRideBooking->update([
             'action' => 0
         ]);
+
+        Log::info("Add suggested driver and update day ride booking");
 
         return $this->sendResponse([], __('Success'));
     }

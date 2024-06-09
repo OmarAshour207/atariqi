@@ -16,6 +16,7 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 class ImmediateDriverController extends BaseController
@@ -220,6 +221,7 @@ class ImmediateDriverController extends BaseController
 
     public function execute(Request $request)
     {
+        Log::info("Execute ride with ID: " . $request->input('booking_id'));
         $validator = Validator::make($request->all(), [
             'booking_id'   => 'required|numeric',
         ]);
@@ -234,6 +236,7 @@ class ImmediateDriverController extends BaseController
 
         $success = array();
         $success['drivers'] = [];
+        $success['trip'] = [];
         $success['to'] = null;
         $success['from'] = null;
         $success['estimated_time'] = null;
@@ -243,19 +246,21 @@ class ImmediateDriverController extends BaseController
             ->where('id', $bookingId)
             ->first();
 
-        $success['trip'] = new RideBookingResource($trip);
-
         if (!$trip) {
-            return $this->sendResponse($success, __('Trip not found!'));
+            Log::info("Ride booking trip not found");
+            return $this->sendError(__('Trip not found!'), [__('Trip not found!')]);
         }
 
-        $suggestedDriver = SuggestionDriver::with('booking', 'driver', 'deliveryInfo')
+        $success['trip'] = new RideBookingResource($trip);
+
+        $suggestedDriver = SuggestionDriver::with('booking', 'driver', 'driverinfo', 'deliveryInfo')
             ->where('passenger-id', $passengerId)
             ->whereIn('action', [1, 2])
             ->where('booking-id', $bookingId)
             ->first();
 
         if (!$suggestedDriver) {
+            Log::info("No suggested drivers in immediate");
             return $this->sendResponse($success, __('Trip not found!'));
         }
 
