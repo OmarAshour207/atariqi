@@ -19,9 +19,9 @@ class ImmediateTripController extends BaseController
 
         $filteredTrips = $this->filterTrips($trips);
 
-        $filteredTrips = SuggestionDriverDetailsResource::collection($filteredTrips);
+        Log::info("There is trips: ", $filteredTrips->toArray());
 
-        Log::info("There is trips: ", $filteredTrips);
+        $filteredTrips = SuggestionDriverDetailsResource::collection($filteredTrips);
 
         return $this->sendResponse($filteredTrips, __('Data'));
     }
