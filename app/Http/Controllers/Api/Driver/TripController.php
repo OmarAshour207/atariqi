@@ -78,41 +78,22 @@ class TripController extends BaseController
 
     public function get($type, $id): JsonResponse
     {
-        $result = [];
+        $model = $this->getSugModel($type);
+
+        $trip = $model::with('booking', 'passenger', 'deliveryInfo', 'booking.university', 'booking.passenger', 'rate')
+            ->where('driver-id', auth()->user()->id)
+            ->where('id', $id)
+            ->first();
+
+        if (!$trip) {
+            return $this->sendError(__('Trip not found!'), [__('Trip not found!')]);
+        }
 
         if ($type == 'daily') {
-            $trip = SugDayDriver::with('booking', 'passenger', 'deliveryInfo', 'booking.university', 'booking.passenger')
-                ->where('driver-id', auth()->user()->id)
-                ->where('id', $id)
-                ->first();
-
-            if (!$trip) {
-                return $this->sendError(__('Trip not found!'), [__('Trip not found!')]);
-            }
-
             $trip = new SugDayDriverResource($trip);
-
         } elseif ($type == 'weekly') {
-            $trip = SugWeekDriver::with('booking', 'passenger', 'deliveryInfo', 'booking.university', 'booking.passenger')
-                ->where('driver-id', auth()->user()->id)
-                ->where('id', $id)
-                ->first();
-
-            if (!$trip) {
-                return $this->sendError(__('Trip not found!'), [__('Trip not found!')]);
-            }
-
             $trip = new SugWeeklyDriverResource($trip);
         } elseif ($type == 'immediate') {
-            $trip = \App\Models\SuggestionDriver::with('booking', 'passenger', 'deliveryInfo', 'booking.university', 'booking.passenger', 'rate')
-                ->where('driver-id', auth()->user()->id)
-                ->where('id', $id)
-                ->first();
-
-            if (!$trip) {
-                return $this->sendError(__('Trip not found!'), [__('Trip not found!')]);
-            }
-
             $trip = new SuggestionDriver($trip);
         } else {
             return $this->sendError(__('Unsupported action!'), [__('Unsupported action!')]);
@@ -132,7 +113,7 @@ class TripController extends BaseController
             $result['source_lng'] = $trip->booking->lng;
         }
 
-        Log::info("Result", $result);
+        Log::info("$type Response with Trip ID: " . $trip->id, $result);
 
         return $this->sendResponse($result, __('Data'));
     }
