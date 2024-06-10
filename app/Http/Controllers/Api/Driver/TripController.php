@@ -132,6 +132,8 @@ class TripController extends BaseController
             $result['source_lng'] = $trip->booking->lng;
         }
 
+        Log::info("Result", $result);
+
         return $this->sendResponse($result, __('Data'));
     }
 
