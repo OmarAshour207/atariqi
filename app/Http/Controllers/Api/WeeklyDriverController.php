@@ -600,7 +600,11 @@ class WeeklyDriverController extends BaseController
             return $this->sendResponse($success, __("No suggested drivers"));
         }
 
+        Log::channel('daily')->info("There is sug week driver with ID: " . $sugWeekDriver->id);
+
         $success['sug_day_driver'] = new SugWeekDriverResource($sugWeekDriver);
+
+        $roadWay = $ride->{"road-way"};
 
         if ($ride->{"road-way"} == 'from') {
             $from['ar'] = $ride->university->{"name-ar"};
@@ -623,6 +627,8 @@ class WeeklyDriverController extends BaseController
         }
         $success['to'] = $to;
         $success['from'] = $from;
+
+        Log::channel('daily')->info("Execute weekly Response", $success);
 
         sendNotification([
             'title'     => __('You have a notification from Atariqi'),
