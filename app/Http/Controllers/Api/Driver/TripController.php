@@ -38,26 +38,19 @@ class TripController extends BaseController
             return $this->sendError(__('Validation Error.'), $validator->errors()->getMessages(), 422);
         }
 
-        $trip = array();
+        $sugModel = $this->getSugModel($request->input('type'));
 
-        if ($request->input('type') == 'daily') {
-            $trip = SugDayDriver::with('passenger')->where('id', $request->input('id'))
-                ->where('driver-id', auth()->user()->id)
-                ->first();
-
-        } elseif($request->input('type') == 'weekly') {
-            $trip = SugWeekDriver::with('booking')
-                ->where('id', $request->input('id'))
-                ->first();
-        } else {
-            $trip = \App\Models\SuggestionDriver::with('passenger')
-                ->where('id', $request->input('id'))
-                ->where('driver-id', auth()->user()->id)
-                ->first();
-        }
+        $trip = $sugModel::with('passenger')
+            ->where('id', $request->input('id'))
+            ->where('driver-id', auth()->user()->id)
+            ->first();
 
         if(!$trip) {
             return $this->sendError(__('Trip not found!'), [__('Trip not found!')]);
+        }
+
+        if ($request->input('type') == 'immediate') {
+            $this->deleteRestImmediateDrivers($request->input('id'));
         }
 
         if($request->input('action') == 1 && $request->input('type') == 'daily') {
@@ -74,6 +67,14 @@ class TripController extends BaseController
         ]);
 
         return $this->sendResponse($trip, __('Success'));
+    }
+
+    private function deleteRestImmediateDrivers($id): void
+    {
+        \App\Models\SuggestionDriver::with('passenger')
+            ->where('id', $id)
+            ->where('driver-id', '!=', auth()->user()->id)
+            ->delete();
     }
 
     public function get($type, $id): JsonResponse
