@@ -101,17 +101,12 @@ class TripController extends BaseController
 
         $result = $trip->resolve();
 
-        if ($trip->booking->{"road-way"} == 'from') {
-            $result['destination_lat'] = $trip->booking->lat;
-            $result['destination_lng'] = $trip->booking->lng;
-            $result['source_lat'] = $trip->booking->university->lat;
-            $result['source_lng'] = $trip->booking->university->lng;
-        } else {
-            $result['destination_lat'] = $trip->booking->university->lat;
-            $result['destination_lng'] = $trip->booking->university->lng;
-            $result['source_lat'] = $trip->booking->lat;
-            $result['source_lng'] = $trip->booking->lng;
-        }
+        $roadWay = $trip->booking->{"road-way"};
+
+        $result['destination_lat'] = $roadWay == 'from' ? $trip->booking->lat : $trip->booking->university->lat;
+        $result['destination_lng'] = $roadWay == 'from' ? $trip->booking->lng : $trip->booking->university->lng;
+        $result['source_lat'] = $roadWay == 'from' ? $trip->booking->university->lat : $trip->booking->lat;
+        $result['source_lng'] = $roadWay == 'from' ? $trip->booking->university->lng : $trip->booking->lng;
 
         Log::info("$type Response with Trip ID: " . $trip->id, $result);
 
