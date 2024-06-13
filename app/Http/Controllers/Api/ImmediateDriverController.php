@@ -21,7 +21,6 @@ use Illuminate\Support\Facades\Validator;
 
 class ImmediateDriverController extends BaseController
 {
-
     public function getService($id)
     {
         return Service::whereId($id)->first();
@@ -192,10 +191,6 @@ class ImmediateDriverController extends BaseController
             return $this->sendError(__('Validation Error.'), $validator->errors()->getMessages(), 422);
         }
 
-        $data = $validator->validated();
-        $bookingId = $data['booking_id'];
-        $passengerId = auth()->user()->id;
-
         $success = array();
         $success['drivers'] = [];
         $success['trip'] = [];
@@ -205,25 +200,24 @@ class ImmediateDriverController extends BaseController
         $success['action'] = 'immediate/transport/trips';
 
         $trip = RideBooking::with('university', 'neighborhood')
-            ->where('id', $bookingId)
+            ->where('id', $request->input('booking_id'))
             ->first();
 
         if (!$trip) {
-            Log::info("Ride booking trip not found");
             return $this->sendError(__('Trip not found!'), [__('Trip not found!')]);
         }
 
         $success['trip'] = new RideBookingResource($trip);
 
         $suggestedDriver = SuggestionDriver::with('booking', 'driver', 'driverinfo', 'deliveryInfo')
-            ->where('passenger-id', $passengerId)
+            ->where('passenger-id', auth()->user()->id)
             ->whereIn('action', [1, 2])
-            ->where('booking-id', $bookingId)
+            ->where('booking-id', $request->input('booking_id'))
             ->first();
 
         if (!$suggestedDriver) {
             Log::info("No suggested drivers in immediate");
-            return $this->sendResponse($success, __('Trip not found!'));
+            return $this->sendResponse($success, __('Driver not found!'));
         }
 
         $neighborhood = $trip->neighborhood;
@@ -277,14 +271,10 @@ class ImmediateDriverController extends BaseController
         Log::info("There is Trip with ID: " . $request->input('id'));
 
         $success['trip'] = new RideBookingResource($trip);
+
         $suggestDriver = SuggestionDriver::with('driverinfo')
             ->where('booking-id', $trip->id)
             ->first();
-
-        if (!$suggestDriver) {
-            Log::info("There is no Sug with ID: " . $request->input('id'));
-            return $this->sendResponse($success, __('Trip not found!'));
-        }
 
         $success['action'] = $suggestDriver?->action;
         $success['driverinfo'] = $suggestDriver ? new DriverInfoResource($suggestDriver->driverinfo) : new \stdClass();
