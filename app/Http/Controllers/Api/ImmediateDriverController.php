@@ -54,7 +54,6 @@ class ImmediateDriverController extends BaseController
         $lng = $data['lng'];
         $service = $this->getService($rideTypeId);
         $roadWay = $service->{"road-way"};
-        $nowDay = $data['now_day'];
 
         $success = array();
         $success['drivers'] = [];
@@ -74,19 +73,20 @@ class ImmediateDriverController extends BaseController
             ->get()
             ->toArray();
 
+        $savingData = [
+            'passenger-id'      => $passengerId,
+            'university-id'     => $universityId,
+            'neighborhood-id'   => $neighborhoodId,
+            'lat'               => $lat,
+            'lng'               => $lng,
+            'service-id'        => $rideTypeId,
+            'road-way'          => $roadWay,
+            'action'            => 1,
+            'date-of-add'       => Carbon::now()
+        ];
+
         if(!count($drivers)) {
-            $rideBooking = RideBooking::create([
-                'passenger-id'      => $passengerId,
-                'university-id'     => $universityId,
-                'neighborhood-id'   => $neighborhoodId,
-                'lat'               => $lat,
-                'lng'               => $lng,
-                'service-id'        => $rideTypeId,
-                'road-way'          => $roadWay,
-                'action'            => 1,
-                'date-of-add'       => Carbon::now()
-            ]);
-            $success['trip'] = $rideBooking;
+            $success['trip'] = RideBooking::create($savingData);
             return $this->sendResponse($success, __('Drivers'));
         }
 
@@ -106,18 +106,7 @@ class ImmediateDriverController extends BaseController
             ->toArray();
 
         if(!count($foundDrivers)) {
-            $rideBooking = RideBooking::create([
-                'passenger-id'      => $passengerId,
-                'university-id'     => $universityId,
-                'neighborhood-id'   => $neighborhoodId,
-                'lat'               => $lat,
-                'lng'               => $lng,
-                'service-id'        => $rideTypeId,
-                'road-way'          => $roadWay,
-                'action'            => 2,
-                'date-of-add'       => Carbon::now()
-            ]);
-            $success['trip'] = $rideBooking;
+            $success['trip'] = RideBooking::create(array_merge($savingData, ['action' => 2]));
             return $this->sendResponse($success, __('Found Drivers'));
         }
 
@@ -142,39 +131,19 @@ class ImmediateDriverController extends BaseController
             ->get();
 
         if(count($suggestDriverId) < 1) {
-            $rideBooking = RideBooking::create([
-                'passenger-id'      => $passengerId,
-                'university-id'     => $universityId,
-                'neighborhood-id'   => $neighborhoodId,
-                'lat'               => $lat,
-                'lng'               => $lng,
-                'service-id'        => $rideTypeId,
-                'road-way'          => $roadWay,
-                'action'            => 3,
-                'date-of-add'       => Carbon::now()
-            ]);
-            $success['trip'] = $rideBooking;
+            $success['trip'] = RideBooking::create(array_merge($savingData, ['action' => 3]));
             return $this->sendResponse($success, __('No Drivers!'));
         }
 
-        $rideBooking = RideBooking::create([
-            'passenger-id'      => $passengerId,
-            'university-id'     => $universityId,
-            'neighborhood-id'   => $neighborhoodId,
-            'lat'               => $lat,
-            'lng'               => $lng,
-            'service-id'        => $rideTypeId,
-            'road-way'          => $roadWay,
-            'action'            => 0,
-            'date-of-add'       => Carbon::now()
-        ]);
+        $rideBooking = RideBooking::create(array_merge($savingData, ['action' => 0]));
 
         // TODO:: Check in suggestions-drivers table the drivers with action = 2 and exclude them
+        // TODO:: filter using gender also
 
-        $finalDriversId = array();
+//        $finalDriversId = array();
 
         foreach ($suggestDriverId as $driver) {
-            $finalDriversId[] = $driver->{"suggest-driver-id"};
+//            $finalDriversId[] = $driver->{"suggest-driver-id"};
             SuggestionDriver::create([
                 'booking-id'    => $rideBooking->id,
                 'passenger-id'  => $passengerId,
@@ -184,9 +153,10 @@ class ImmediateDriverController extends BaseController
             ]);
         }
 
-        $drivers = DriverInfo::with('driver')
-            ->whereIn('driver-id', $finalDriversId)
-            ->get();
+//        $drivers = DriverInfo::with('driver')
+//            ->whereIn('driver-id', $finalDriversId)
+//            ->get();
+
         $success['drivers'] = [];//DriverInfoResource::collection($drivers);
 
         $neighborhood = Neighbour::findOrFail($neighborhoodId);
@@ -194,21 +164,13 @@ class ImmediateDriverController extends BaseController
         $from = array();
         $to = array();
 
-        if($roadWay == 'from') {
-            $to['ar'] = $neighborhood->{"neighborhood-ar"};
-            $to['en'] = $neighborhood->{"neighborhood-eng"};
-            $from['ar'] = $university->{"name-ar"};
-            $from['en'] = $university->{"name-eng"};
-            $success['destination_lat'] = $lat;
-            $success['destination_lng'] = $lng;
-        } elseif ($roadWay == 'to') {
-            $to['ar'] = $university->{"name-ar"};
-            $to['en'] = $university->{"name-eng"};
-            $from['ar'] = $neighborhood->{"neighborhood-ar"};
-            $from['en'] = $neighborhood->{"neighborhood-eng"};
-            $success['destination_lat'] = $university->lat;
-            $success['destination_lng'] = $university->lng;
-        }
+
+        $to['ar'] = $roadWay == 'from' ? $neighborhood->{"neighborhood-ar"} : $university->{"name-ar"};
+        $to['en'] = $roadWay == 'from' ? $neighborhood->{"neighborhood-eng"} : $university->{"name-eng"};
+        $from['ar'] = $roadWay == 'from' ? $university->{"name-ar"} : $neighborhood->{"neighborhood-ar"};
+        $from['en'] = $roadWay == 'from' ? $university->{"name-eng"} : $neighborhood->{"neighborhood-eng"};
+        $success['destination_lat'] = $roadWay == 'from' ? $lat : $university->lat;
+        $success['destination_lng'] = $roadWay == 'from' ? $lng : $university->lng;
 
         $success['to'] = $to;
         $success['from'] = $from;
@@ -271,29 +233,21 @@ class ImmediateDriverController extends BaseController
         $from = array();
         $to = array();
 
-        if($roadWay == 'from') {
-            $to['ar'] = $neighborhood->{"neighborhood-ar"};
-            $to['en'] = $neighborhood->{"neighborhood-eng"};
-            $from['ar'] = $university->{"name-ar"};
-            $from['en'] = $university->{"name-eng"};
-            $success['destination_lat'] = $trip->lat;
-            $success['destination_lng'] = $trip->lng;
-            $success['source_lat'] = $university->lat;
-            $success['source_lng'] = $university->lng;
-        } elseif ($roadWay == 'to') {
-            $to['ar'] = $university->{"name-ar"};
-            $to['en'] = $university->{"name-eng"};
-            $from['ar'] = $neighborhood->{"neighborhood-ar"};
-            $from['en'] = $neighborhood->{"neighborhood-eng"};
-            $success['destination_lat'] = $university->lat;
-            $success['destination_lng'] = $university->lng;
-            $success['source_lat'] = $trip->lat;
-            $success['source_lng'] = $trip->lng;
-        }
+        $to['ar'] = $roadWay == 'from' ? $neighborhood->{"neighborhood-ar"} : $university->{"name-ar"};
+        $to['en'] = $roadWay == 'from' ? $neighborhood->{"neighborhood-eng"} : $university->{"name-eng"};
+        $from['ar'] = $roadWay == 'from' ? $university->{"name-ar"} : $neighborhood->{"neighborhood-ar"};
+        $from['en'] = $roadWay == 'from' ? $university->{"name-eng"} : $neighborhood->{"neighborhood-eng"};
+        $success['destination_lat'] = $roadWay == 'from' ? $trip->lat : $university->lat;
+        $success['destination_lng'] = $roadWay == 'from' ? $trip->lng : $university->lng;
+        $success['source_lat'] = $roadWay == 'from' ? $university->lat : $trip->lat;
+        $success['source_lng'] = $roadWay == 'from' ? $university->lng : $trip->lng;
+
         $success['to'] = $to;
         $success['from'] = $from;
         $success['estimated_time'] = $suggestedDriver->deliveryInfo?->{"expect-arrived"};
         $success['drivers'][] = new DriverInfoResource($suggestedDriver->driverinfo);
+
+        Log::info("Execute Response: ", $success);
 
         return $this->sendResponse($success, __('Drivers'));
     }
