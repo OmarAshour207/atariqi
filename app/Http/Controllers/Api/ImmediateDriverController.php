@@ -237,10 +237,11 @@ class ImmediateDriverController extends BaseController
         $to['en'] = $roadWay == 'from' ? $neighborhood->{"neighborhood-eng"} : $university->{"name-eng"};
         $from['ar'] = $roadWay == 'from' ? $university->{"name-ar"} : $neighborhood->{"neighborhood-ar"};
         $from['en'] = $roadWay == 'from' ? $university->{"name-eng"} : $neighborhood->{"neighborhood-eng"};
-        $success['destination_lat'] = $roadWay == 'from' ? $trip->lat : $university->lat;
-        $success['destination_lng'] = $roadWay == 'from' ? $trip->lng : $university->lng;
+
         $success['source_lat'] = $roadWay == 'from' ? $university->lat : $trip->lat;
         $success['source_lng'] = $roadWay == 'from' ? $university->lng : $trip->lng;
+        $success['destination_lat'] = $roadWay == 'from' ? $trip->lat : $university->lat;
+        $success['destination_lng'] = $roadWay == 'from' ? $trip->lng : $university->lng;
 
         $success['to'] = $to;
         $success['from'] = $from;
@@ -258,24 +259,34 @@ class ImmediateDriverController extends BaseController
             'id'        => 'required|numeric',
             'locale'    => 'sometimes|nullable|string'
         ]);
-        $success = [];
 
-        if($validator->fails())
+        if($validator->fails()) {
             return $this->sendError(__('Validation Error.'), $validator->errors()->getMessages(), 422);
+        }
+
+        $success = [];
 
         $trip = RideBooking::with('passenger', 'neighborhood', 'service')
             ->where('id', $request->input('id'))
             ->first();
 
         if (!$trip) {
+            Log::info("There is no Trip with ID: " . $request->input('id'));
             return $this->sendResponse($success, __('Trip not found!'));
         }
+        Log::info("There is Trip with ID: " . $request->input('id'));
 
         $success['trip'] = new RideBookingResource($trip);
         $suggestDriver = SuggestionDriver::with('driverinfo')
             ->where('booking-id', $trip->id)
             ->first();
-        $success['action'] = $suggestDriver->action;
+
+        if (!$suggestDriver) {
+            Log::info("There is no Sug with ID: " . $request->input('id'));
+            return $this->sendResponse($success, __('Trip not found!'));
+        }
+
+        $success['action'] = $suggestDriver?->action;
         $success['driverinfo'] = $suggestDriver ? new DriverInfoResource($suggestDriver->driverinfo) : new \stdClass();
 
         return $this->sendResponse($success, __('Trip Details'));
@@ -336,8 +347,9 @@ class ImmediateDriverController extends BaseController
             'locale'    => 'sometimes|nullable|string'
         ]);
 
-        if($validator->fails())
+        if($validator->fails()) {
             return $this->sendError(__('Validation Error.'), $validator->errors()->getMessages(), 422);
+        }
 
         $data = $validator->validated();
         $driverId = $data['driver-id'];
@@ -345,8 +357,9 @@ class ImmediateDriverController extends BaseController
 
         $driverInfo = DriverInfo::where('driver-id', $driverId)->first();
 
-        if (!$driverInfo)
+        if (!$driverInfo) {
             return $this->sendError(__('Driver not found'), [__('Driver not found')]);
+        }
 
         $newRate = number_format((($driverInfo->{"driver-rate"} + $rate ) / 2),1);
 
