@@ -15,7 +15,6 @@ use App\Models\PassengerRate;
 use App\Models\SugDayDriver;
 use App\Models\SugWeekDriver;
 use App\Models\User;
-use App\Models\WeekRideBooking;
 use App\Models\WeekUnrideRate;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
@@ -27,6 +26,8 @@ class TripController extends BaseController
 {
     public function updateAction(Request $request): JsonResponse
     {
+        Log::info("Update action with type {$request->input('type')} with Action: {$request->input('action')}");
+
         $validator = Validator::make($request->all(), [
             'type'      => 'required|string|in:daily,weekly,immediate',
             'action'    => 'required|numeric|max:6',
@@ -46,6 +47,7 @@ class TripController extends BaseController
             ->first();
 
         if(!$trip) {
+            Log::info("Trip not found when updating action");
             return $this->sendError(__('Trip not found!'), [__('Trip not found!')]);
         }
 
@@ -66,6 +68,7 @@ class TripController extends BaseController
             'date-of-edit' => Carbon::now()
         ]);
 
+        Log::info("Trip action updated successfully");
         return $this->sendResponse($trip, __('Success'));
     }
 
@@ -79,6 +82,7 @@ class TripController extends BaseController
 
     public function get($type, $id): JsonResponse
     {
+        Log::info("Getting trip details with Type: $type and ID: $id");
         $model = $this->getSugModel($type);
 
         $trip = $model::with('booking', 'passenger', 'deliveryInfo', 'booking.university', 'booking.passenger', 'rate')
@@ -109,13 +113,12 @@ class TripController extends BaseController
         $result['source_lat'] = $roadWay == 'from' ? $trip->booking->university->lat : $trip->booking->lat;
         $result['source_lng'] = $roadWay == 'from' ? $trip->booking->university->lng : $trip->booking->lng;
 
-        Log::info("$type Response with Trip ID: " . $trip->id, $result);
-
         return $this->sendResponse($result, __('Data'));
     }
 
     public function updateDelivery(Request $request)
     {
+        Log::info("Update delivery info for type: {$request->input('type')} with Sug-ID: {$request->input('sug-id')}");
         $validator = Validator::make($request->all(), [
             'type'              => 'required|string|in:daily,weekly,immediate',
             'sug-id'            => 'required|numeric',
@@ -174,6 +177,7 @@ class TripController extends BaseController
 
     public function start(Request $request)
     {
+        Log::info("Start a trip for type: {$request->input('type')} with ID: {$request->input('id')}");
         $validator = Validator::make($request->all(), [
             'type'      => 'required|string',
             'action'    => 'required|numeric|max:6',
@@ -185,12 +189,9 @@ class TripController extends BaseController
             return $this->sendError(__('Validation Error.'), $validator->errors()->getMessages(), 422);
         }
 
-        Log::info("Request", $request->all());
-
         $data = $validator->validated();
         $data['expect-arrived'] = convertArabicDateToEnglish($data['expect-arrived']);
 
-        Log::info("Before update action");
         $response = $this->updateAction($request);
         $response = json_decode($response->getContent(), true);
 

@@ -242,8 +242,6 @@ class ImmediateDriverController extends BaseController
         $success['estimated_time'] = $suggestedDriver->deliveryInfo?->{"expect-arrived"};
         $success['drivers'][] = new DriverInfoResource($suggestedDriver->driverinfo);
 
-        Log::info("Execute Response: ", $success);
-
         return $this->sendResponse($success, __('Drivers'));
     }
 

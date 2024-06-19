@@ -178,11 +178,6 @@ class WeeklyDriverController extends BaseController
             return $this->sendResponse($success, __('No Drivers to the University right now'));
         }
 
-        Log::channel('daily')->info("Uni Driving Services", $uniDrivers);
-        Log::channel('daily')->info("Ride type ID: " . $rideTypeId);
-        Log::channel('daily')->info("Road way: " . $roadWay);
-        Log::channel('daily')->info("Neighbourhood: " . $neighborhoodId);
-
         $rideTypeDrivers = DriversServices::select('drivers-services.driver-id')
             ->when($roadWay == 'both', function ($query) use ($neighborhoodId, $roadWay) {
                 $query->join('drivers-neighborhoods', function ($join) use ($neighborhoodId, $roadWay) {
@@ -211,8 +206,6 @@ class WeeklyDriverController extends BaseController
             $success['group_id'] = $groupId;
             return $this->sendResponse($success, __('No Drivers to this Service right now'));
         }
-
-        Log::channel('daily')->info("Ride Type Drivers", $rideTypeDrivers);
 
         $driversSchedule =  DB::table('drivers-schedule')
             ->select("driver-id")
@@ -572,10 +565,6 @@ class WeeklyDriverController extends BaseController
         $subMinutes = Carbon::now()->subMinutes(5)->format('H:i');
         $addMinutes = Carbon::now()->addMinutes(5)->format('H:i');
 
-        Log::channel('daily')->info("subMinutes: " . $subMinutes);
-        Log::channel('daily')->info("addMinutes: " . $addMinutes);
-        Log::channel('daily')->info("passenger ID: " . $passengerId);
-
         $ride = WeekRideBooking::where('date-of-ser', $nowDate)
             ->where(function ($query) use ($subMinutes, $addMinutes) {
                 $query->whereBetween('time-go', [$subMinutes, $addMinutes])
@@ -588,8 +577,6 @@ class WeeklyDriverController extends BaseController
             return $this->sendResponse($success, __("Not found trips"));
         }
 
-        Log::channel('daily')->info("Ride ID: " . $ride->id);
-
         $sugWeekDriver = SugWeekDriver::with('booking', 'driverinfo', 'deliveryInfo')->where([
             ['booking-id', $ride->id],
             ['action', 3],
@@ -600,35 +587,21 @@ class WeeklyDriverController extends BaseController
             return $this->sendResponse($success, __("No suggested drivers"));
         }
 
-        Log::channel('daily')->info("There is sug week driver with ID: " . $sugWeekDriver->id);
-
         $success['sug_day_driver'] = new SugWeekDriverResource($sugWeekDriver);
 
         $roadWay = $ride->{"road-way"};
 
-        if ($ride->{"road-way"} == 'from') {
-            $from['ar'] = $ride->university->{"name-ar"};
-            $from['en'] = $ride->university->{"name-eng"};
-            $to['ar'] = $ride->neighborhood->{"neighborhood-ar"};
-            $to['en'] = $ride->neighborhood->{"neighborhood-eng"};
-            $success['destination_lat'] = $ride->lat;
-            $success['destination_lng'] = $ride->lng;
-            $success['source_lat'] = $ride->university->lat;
-            $success['source_lng'] = $ride->university->lng;
-        } else {
-            $from['ar'] = $ride->neighborhood->{"neighborhood-ar"};
-            $from['en'] = $ride->neighborhood->{"neighborhood-eng"};
-            $to['ar'] = $ride->university->{"name-ar"};
-            $to['en'] = $ride->university->{"name-eng"};
-            $success['destination_lat'] = $ride->university->lat;
-            $success['destination_lng'] = $ride->university->lng;
-            $success['source_lat'] = $ride->lat;
-            $success['source_lng'] = $ride->lng;
-        }
+        $from['ar'] = $roadWay == 'from' ? $ride->university->{"name-ar"} : $ride->neighborhood->{"neighborhood-ar"};
+        $from['en'] = $roadWay == 'from' ? $ride->university->{"name-eng"} : $ride->neighborhood->{"neighborhood-eng"};
+        $to['ar'] = $roadWay == 'from' ? $ride->neighborhood->{"neighborhood-ar"} : $ride->university->{"name-ar"};
+        $to['en'] = $roadWay == 'from' ? $ride->neighborhood->{"neighborhood-eng"} : $ride->university->{"name-eng"};
+        $success['destination_lat'] = $roadWay == 'from' ? $ride->lat : $ride->university->lat;
+        $success['destination_lng'] = $roadWay == 'from' ? $ride->lng : $ride->university->lng;
+        $success['source_lat'] = $roadWay == 'from' ? $ride->university->lat : $ride->lat;
+        $success['source_lng'] = $roadWay == 'from' ? $ride->university->lng : $ride->lng;
+
         $success['to'] = $to;
         $success['from'] = $from;
-
-        Log::channel('daily')->info("Execute weekly Response", $success);
 
         sendNotification([
             'title'     => __('You have a notification from Atariqi'),
