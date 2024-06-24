@@ -1,27 +1,27 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-
-use App\Http\Controllers\Api\{
+use App\Http\Controllers\Api\{DailyDriverController,
+    Driver\RevenueController,
+    HomeController,
     ImmediateDriverController,
-    DailyDriverController,
-    WeeklyDriverController,
     UserController,
-    HomeController
-};
+    WeeklyDriverController};
 
-use App\Http\Controllers\Api\Driver\{
-    RegisterController,
+use App\Http\Controllers\Api\Driver\{DailyTripsController,
+    DriverController,
+    ImmediateTripController,
     LoginController,
     ProfileController,
+    RegisterController,
     ServiceController,
-    DriverController,
     SummaryController,
     TripController,
-    DailyTripsController,
     WeeklyTripController,
-    ImmediateTripController
+    DuesController,
+    AnnouncementController
 };
+
+use Illuminate\Support\Facades\Route;
 
 Route::group([
     'middleware'    => 'locale'
@@ -122,6 +122,13 @@ Route::group([
             Route::post('weekly/action/update', [WeeklyTripController::class, 'updateAction']);
 
             Route::get('immediate/get', [ImmediateTripController::class, 'index']);
+
+            Route::post('revenue', [RevenueController::class, 'get']);
+
+            Route::get('dues', [DuesController::class, 'getData']);
+
+            Route::get('announcements', [AnnouncementController::class, 'index']);
+
         });
     });
 });

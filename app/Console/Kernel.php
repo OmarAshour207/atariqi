@@ -16,6 +16,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
          $schedule->command('notify-driver-nearby-trips')->everyFiveMinutes();
+         $schedule->command('payment-reminder')->dailyAt(12);
     }
 
     /**

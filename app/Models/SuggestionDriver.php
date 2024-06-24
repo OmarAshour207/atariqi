@@ -34,6 +34,13 @@ class SuggestionDriver extends Model
         return $query->whereDate('date-of-add', $date);
     }
 
+    public function scopeFinishedTrips(Builder $query, $userId, ...$dates)
+    {
+        return $query->where('action', 5)
+            ->whereBetween('date-of-add', $dates)
+            ->where('driver-id', $userId);
+    }
+
     public function passenger()
     {
         return $this->belongsTo(User::class, 'passenger-id');

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -28,6 +29,16 @@ class DayRideBooking extends Model
         'lng'
     ];
 
+    // Scopes
+
+    public function scopeFinishedTrips(Builder $query, $userId, ...$dates)
+    {
+        return $query->whereBetween('date-of-ser', $dates)
+            ->whereHas('sugDriver', function ($query) use ($userId) {
+                $query->where('action', 6)->where('driver-id', $userId);
+            });
+    }
+
     // relations
     public function passenger()
     {
@@ -52,4 +63,5 @@ class DayRideBooking extends Model
     {
         return $this->hasOne(SugDayDriver::class, 'booking-id', 'id');
     }
+
 }

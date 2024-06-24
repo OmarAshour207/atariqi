@@ -51,6 +51,14 @@ class WeekRideBooking extends Model
         return $query->where('status', $value);
     }
 
+    public function scopeFinishedTrips(Builder $query, $userId, ...$dates): Builder
+    {
+        return $query->whereBetween('date-of-ser', $dates)
+            ->whereHas('sugDriver', function ($query) use ($userId) {
+                $query->where('action', 6)->where('driver-id', $userId);
+            });
+    }
+
     // relations
 
     public function neighborhood()
