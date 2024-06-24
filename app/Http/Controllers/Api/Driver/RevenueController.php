@@ -4,9 +4,6 @@ namespace App\Http\Controllers\Api\Driver;
 
 use App\Http\Controllers\Api\BaseController;
 use App\Http\Controllers\Api\Driver\Traits\Payment;
-use App\Models\DayRideBooking;
-use App\Models\SuggestionDriver;
-use App\Models\WeekRideBooking;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Symfony\Component\HttpFoundation\JsonResponse;

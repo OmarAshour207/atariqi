@@ -22,7 +22,7 @@ class DuesController extends BaseController
             ->orderBy('id', 'desc')
             ->first();
 
-        $dates = [$lastPayDate->{"date-of-add"}, Carbon::now()];
+        $dates = [$lastPayDate?->{"date-of-add"}, Carbon::now()];
         $newRevenues = $this->getRevenue(auth()->user()->id, $dates);
 
         $subscriptionCost = Subscription::select('cost')->where('id', 4)->first();
@@ -30,8 +30,8 @@ class DuesController extends BaseController
         $currentDues = ($subscriptionCost->cost * $newRevenues['total']) / 100;
 
         return $this->sendResponse([
-            'last_pay_date' => Carbon::parse($lastPayDate->{"date-of-add"})->format('Y/m/d'),
-            'last_pay_cost' => $lastPayDate->amount,
+            'last_pay_date' => $lastPayDate?->{"date-of-add"} ? Carbon::parse($lastPayDate?->{"date-of-add"})->format('Y/m/d') : null,
+            'last_pay_cost' => $lastPayDate->amount ?? 0,
             'new_revenues' => $newRevenues['total'],
             'current_dues' => $currentDues
         ], __('Data'));
