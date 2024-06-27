@@ -63,6 +63,12 @@ class WeeklyTripController extends BaseController
             }
         }
 
+        if($request->input('action') == 1) {
+            $title = __('You have a notification from Atariqi');
+            $message = __('Your trip accepted with #') . $request->input('group');
+            sendNotification(['title' => $title, 'body' => $message, 'tokens' => [$passenger->fcm_token]]);
+        }
+
         return $this->sendResponse([], __('Data'));
     }
 }

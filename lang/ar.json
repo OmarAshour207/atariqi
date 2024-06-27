@@ -148,9 +148,10 @@
     "Thank you for creating your account. Please complete your profile information in the personal profile interface to start working.": "تم إنشاء حسابك بنجاح , كل ما عليك فعله لبدء العمل هو إكمال جميع البيانات المطلوبة في واجهة الملف الشخصي",
     "The phone number is already registered.": "رقم الهاتف مسجل بالفعل",
     "Accept the trip": "قبول الرحله",
-    "Could you accept the trip ?": "هل يمكنك قبول الرحلة ؟",
+    "Could you accept the trip with driver ": "هل يمكنك قبول الرحلة مع السائق ",
     "You have a trip almost start.": "لديك رحلة علي وشك البدء",
     "Be ready!": "كن علي أستعداد",
     "There is new daily order contract": "لديك عقد طلب يومي",
-    "There is new weekly order contract": "لديك عقد طلب أسبوعي"
+    "There is new weekly order contract": "لديك عقد طلب أسبوعي",
+    "Your trip accepted with #": "تم قبول رحلتك الاسبوعيه برقم #"
 }

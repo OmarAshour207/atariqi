@@ -204,7 +204,7 @@ class TripController extends BaseController
         $passenger = User::where('id', $response['data']['passenger-id'])->first();
 
         $title = __('Accept the trip');
-        $message = __('Could you accept the trip ?');
+        $message = __('Could you accept the trip with driver ' . auth()->user()->{"user-first-name"});
         sendNotification(['title' => $title, 'body' => $message, 'tokens' => [$passenger->fcm_token]]);
 
         $this->getModel($request->input('type'))::updateOrCreate([
