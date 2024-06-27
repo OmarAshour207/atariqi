@@ -75,8 +75,9 @@ class TripController extends BaseController
     private function deleteRestImmediateDrivers($id): void
     {
         Log::info("Deleting immediate rest trips for not id $id");
-        \App\Models\SuggestionDriver::with('passenger')
-            ->where('id', $id)
+        $trip = \App\Models\SuggestionDriver::select('booking-id')->where('id', $id)->first();
+
+        \App\Models\SuggestionDriver::where('booking-id', $trip->{"booking-id"})
             ->where('driver-id', '!=', auth()->user()->id)
             ->delete();
     }
