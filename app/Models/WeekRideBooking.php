@@ -53,7 +53,10 @@ class WeekRideBooking extends Model
 
     public function scopeFinishedTrips(Builder $query, $userId, ...$dates): Builder
     {
-        return $query->whereBetween('date-of-ser', $dates)
+        return $query
+            ->whereDate('date-of-ser', '>=', $dates[0]['start_date'])
+            ->whereDate('date-of-ser', '<=', $dates[0]['end_date'])
+//            ->whereBetween('date-of-ser', $dates)
             ->whereHas('sugDriver', function ($query) use ($userId) {
                 $query->where('action', 6)->where('driver-id', $userId);
             });
