@@ -41,7 +41,7 @@ class TripController extends BaseController
 
         $sugModel = $this->getSugModel($request->input('type'));
 
-        $trip = $sugModel::with('passenger')
+        $trip = $sugModel::with('passenger', 'booking', 'driver')
             ->where('id', $request->input('id'))
             ->where('driver-id', auth()->user()->id)
             ->first();
@@ -58,7 +58,7 @@ class TripController extends BaseController
         if($request->input('action') == 1 && $request->input('type') == 'daily') {
             sendNotification([
                 'title'     => __('You have a notification from Atariqi'),
-                'body'      => __("an order from Atariqi to accept the ride"),
+                'body'      => __('Your trip accepted at date') . " " . $trip->booking->{"date-of-ser"} . "\n" . __('with Driver') . " " . $trip->driver->{"user-first-name"} . " " . $trip->driver->{"user-last-name"},
                 'tokens'    => [$trip->passenger->fcm_token]
             ]);
         }
@@ -74,6 +74,7 @@ class TripController extends BaseController
 
     private function deleteRestImmediateDrivers($id): void
     {
+        Log::info("Deleting immediate rest trips for not id $id");
         \App\Models\SuggestionDriver::with('passenger')
             ->where('id', $id)
             ->where('driver-id', '!=', auth()->user()->id)

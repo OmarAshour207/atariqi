@@ -4,11 +4,9 @@ namespace App\Http\Controllers\Api\Driver;
 
 use App\Http\Controllers\Api\BaseController;
 use App\Http\Controllers\Api\Driver\Traits\Payment;
-use App\Models\DayRideBooking;
 use App\Models\FinancialDue;
 use App\Models\Subscription;
-use App\Models\SuggestionDriver;
-use App\Models\WeekRideBooking;
+use App\Models\User;
 use Carbon\Carbon;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
@@ -33,7 +31,8 @@ class DuesController extends BaseController
             'last_pay_date' => $lastPayDate?->{"date-of-add"} ? Carbon::parse($lastPayDate?->{"date-of-add"})->format('Y/m/d') : null,
             'last_pay_cost' => $lastPayDate->amount ?? 0,
             'new_revenues' => $newRevenues['total'],
-            'current_dues' => $currentDues
+            'current_dues' => $currentDues,
+            'can_start_trips' => auth()->user()->scopeCheckStartingTrips($currentDues)
         ], __('Data'));
     }
 }

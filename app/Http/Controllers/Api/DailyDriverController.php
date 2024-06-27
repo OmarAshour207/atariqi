@@ -23,6 +23,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 class DailyDriverController extends BaseController
 {
@@ -478,7 +479,7 @@ class DailyDriverController extends BaseController
         return $this->sendResponse($success, __('Success'));
     }
 
-    public function getUserNotification(Request $request)
+    public function getUserNotification(): JsonResponse
     {
         $passengerId = auth()->user()->id;
 

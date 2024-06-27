@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -35,6 +36,26 @@ class User extends Authenticatable
 //        'code'
     ];
 
+    // Scope
+    public function scopeCheckStartingTrips($due): bool
+    {
+        if ($due <= 50) {
+            return true;
+        }
+
+        $firstReminder = $this->paymentReminders()
+            ->select('created_at')
+            ->where('driver-id', $this->id)
+            ->whereRaw("DATEDIFF(CURDATE(), created_at) = 7")
+            ->first();
+
+        if ($firstReminder) {
+            return false;
+        }
+
+        return true;
+    }
+
     // Relations
     public function callingKey()
     {
@@ -65,12 +86,19 @@ class User extends Authenticatable
     {
         return $this->hasOne(DriverNeighborhood::class, 'driver-id', 'id');
     }
+
     public function driverSchedule()
     {
         return $this->hasOne(DriverSchedule::class, 'driver-id', 'id');
     }
+
     public function driverService()
     {
         return $this->hasMany(DriversServices::class, 'driver-id', 'id');
+    }
+
+    public function paymentReminders()
+    {
+        return $this->hasMany(PaymentReminder::class, 'driver-id', 'id');
     }
 }
