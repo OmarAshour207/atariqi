@@ -37,7 +37,9 @@ class SuggestionDriver extends Model
     public function scopeFinishedTrips(Builder $query, $userId, ...$dates)
     {
         return $query->where('action', 5)
-            ->whereBetween('date-of-add', $dates)
+            ->whereDate('date-of-add', '>=', $dates[0])
+            ->whereDate('date-of-add', '<=', $dates[1])
+//            ->whereBetween('date-of-add', $dates)
             ->where('driver-id', $userId);
     }
 
