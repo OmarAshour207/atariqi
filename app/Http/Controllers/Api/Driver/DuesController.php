@@ -20,7 +20,7 @@ class DuesController extends BaseController
             ->orderBy('id', 'desc')
             ->first();
 
-        $dates = [$lastPayDate?->{"date-of-add"}, Carbon::now()];
+        $dates[] = [$lastPayDate?->{"date-of-add"}, Carbon::now()];
         $newRevenues = $this->getRevenue(auth()->user()->id, $dates);
 
         $subscriptionCost = Subscription::select('cost')->where('id', 4)->first();
