@@ -13,18 +13,50 @@ class PaymentReminderMail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public $data;
+    public $details;
 
-    public function __construct($data)
+    /**
+     * Create a new message instance.
+     *
+     * @return void
+     */
+    public function __construct($details)
     {
-        $this->data = $data;
+        $this->details = $details;
     }
 
-    public function content()
+    /**
+     * Get the message envelope.
+     *
+     * @return \Illuminate\Mail\Mailables\Envelope
+     */
+    public function envelope()
     {
-        return new Content(
-            view: 'view.name',
+        return new Envelope(
+            subject: __('Payment reminder notify'),
         );
     }
 
+    /**
+     * Get the message content definition.
+     *
+     * @return \Illuminate\Mail\Mailables\Content
+     */
+    public function content()
+    {
+        return new Content(
+            view: 'mail.payment_reminder',
+            with: ['details' => $this->details]
+        );
+    }
+
+    /**
+     * Get the attachments for the message.
+     *
+     * @return array
+     */
+    public function attachments()
+    {
+        return [];
+    }
 }

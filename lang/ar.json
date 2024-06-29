@@ -10,7 +10,7 @@
     "Forgot Your Password?": "نسيت كلمة المرور؟",
     "Go Home": "الرئيسية",
     "Hello!": "أهلاً بك!",
-    "hi": "مرحباً",
+    "Hi": "مرحباً",
     "If you did not create an account, no further action is required.": "إذا لم تقم بإنشاء حساب ، فلا يلزم اتخاذ أي إجراء آخر.",
     "If you did not receive the email": "إذا لم تستلم البريد الإلكتروني",
     "If you did not request a password reset, no further action is required.": "إذا لم تقم بطلب استعادة كلمة المرور، لا تحتاج القيام بأي إجراء.",
@@ -153,5 +153,8 @@
     "Be ready!": "كن علي أستعداد",
     "There is new daily order contract": "لديك عقد طلب يومي",
     "There is new weekly order contract": "لديك عقد طلب أسبوعي",
-    "Your trip accepted with #": "تم قبول رحلتك الاسبوعيه برقم #"
+    "Your trip accepted with #": "تم قبول رحلتك الاسبوعيه برقم #",
+    "Payment reminder notify": "تنبيه لدفع المستحقات",
+    "please pay your due to avoid stop the service": "من فضلك أدفع المبالغ المستحقة لتجنب ايقاف الخدمة",
+    "SAR": "ريال سعودي"
 }

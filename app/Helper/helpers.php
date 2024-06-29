@@ -12,7 +12,7 @@ function sendNotification($data): bool
     $tokens = isset($data['tokens']) ? $data['tokens'] : [];
 
     $FIREBASE_API_KEY = config('services.firebase.apikey');
-    $url = 'https://fcm.googleapis.com/fcm/send';
+    $url = config('services.firebase.url');
 
     if (empty($FIREBASE_API_KEY)) {
         return true;
@@ -96,14 +96,14 @@ function generateCode(): int
 }
 
 
-function sendSMS($userNumber, $code): bool
+function sendSMS($userNumber, $code = null, $message = null): bool
 {
     $config = array();
     $config['userName'] = config('services.msegat.user_name');
     $config['numbers'] = $userNumber;
     $config['userSender'] = config('services.msegat.user_sender');
     $config['apiKey'] = config('services.msegat.api_key');
-    $config['msg'] = __('Pin Code is: ') . $code;
+    $config['msg'] = $message ?? __('Pin Code is: ') . $code;
 
     try {
         $codes = [1, 'M0000'];
