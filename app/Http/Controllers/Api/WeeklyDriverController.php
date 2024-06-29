@@ -166,6 +166,7 @@ class WeeklyDriverController extends BaseController
             })
             ->where('users.user-type', '=', 'driver')
             ->where('users.university-id', '=', $universityId)
+            ->where('users.gender', auth()->user()->gender)
             ->get()
             ->toArray();
 

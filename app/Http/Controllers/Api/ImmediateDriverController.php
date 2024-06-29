@@ -69,6 +69,7 @@ class ImmediateDriverController extends BaseController
             })
             ->where('users.user-type', '=', 'driver')
             ->where('users.university-id', '=', $universityId)
+            ->where('users.gender', auth()->user()->gender)
             ->get()
             ->toArray();
 
@@ -137,7 +138,6 @@ class ImmediateDriverController extends BaseController
         $rideBooking = RideBooking::create(array_merge($savingData, ['action' => 0]));
 
         // TODO:: Check in suggestions-drivers table the drivers with action = 2 and exclude them
-        // TODO:: filter using gender also
 
 //        $finalDriversId = array();
 
