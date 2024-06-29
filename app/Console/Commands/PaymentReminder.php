@@ -33,7 +33,7 @@ class PaymentReminder extends Command
         $data = User::with('paymentReminders')
             ->where('user-type', 'driver')
             ->where('approval', 1)
-            ->where('id', 22)
+//            ->where('id', 22)
             ->chunk(100, function ($drivers) {
                 foreach ($drivers as $driver ) {
                     $details = [];
