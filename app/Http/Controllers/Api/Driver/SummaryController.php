@@ -67,7 +67,7 @@ class SummaryController extends BaseController
         $validator = Validator::make($request->all(), [
             'type' => 'required|string',
             'filter.date' => 'nullable|date_format:Y-m-d',
-            'filter.action' => 'nullable|string',//'nullable|string|in:new,accepted,rejected,cancelled,done',
+            'filter.action' => 'nullable|string',
             'filter.status' => 'nullable|numeric'
         ]);
 
@@ -94,7 +94,7 @@ class SummaryController extends BaseController
                 });
             })
             ->with(['rate'])
-            ->orderBy('date-of-add', 'asc')
+            ->orderBy('date-of-add', 'desc')
             ->get();
 
         if($request->input('type') == 'daily') {

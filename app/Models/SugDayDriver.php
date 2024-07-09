@@ -34,8 +34,9 @@ class SugDayDriver extends Model
     }
     public function scopeDate(Builder $query, $date)
     {
-        Log::info("Date Daily: " . $date);
-        return $query->whereDate('date-of-add', $date);
+        return $query->whereHas('booking', function ($query) use ($date) {
+            $query->whereDate('date-of-ser', $date);
+        });
     }
 
     // relations
