@@ -79,7 +79,6 @@ class SummaryController extends BaseController
             ->allowedFilters([
                 AllowedFilter::scope('date'),
                 AllowedFilter::scope('action'),
-//                AllowedFilter::callback('action', fn (Builder $query, $value) => $query->{$validator->validated()['filter']['action']}() ) ,
                 AllowedFilter::scope('status'),
             ])
             ->allowedSorts([
@@ -88,8 +87,8 @@ class SummaryController extends BaseController
             ])
             ->when($request->input('type') != 'weekly', fn (Builder $query) => $query->with('booking', 'booking.passenger', 'deliveryInfo')->where('driver-id', auth()->user()->id))
             ->when($request->input('type') == 'weekly', function ($query) {
-                $query->with('sugDriver', 'sugDriver.deliveryInfo');
-                $query->whereHas('sugDriver', function ($q) {
+                $query->with('sugDriver', 'sugDriver.deliveryInfo')
+                    ->whereHas('sugDriver', function ($q) {
                    $q->where('driver-id', auth()->user()->id);
                 });
             })
