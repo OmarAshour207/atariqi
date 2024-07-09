@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Driver;
 use App\Http\Controllers\Api\BaseController;
 use App\Http\Resources\Driver\WeekRideBookingGroupDetails;
 use App\Models\SugWeekDriver;
+use App\Models\User;
 use App\Models\WeekRideBooking;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -53,6 +54,7 @@ class WeeklyTripController extends BaseController
                     'action' => $request->input('action')
                 ]);
             } else {
+                $passengerId = $tripGroup->{"passenger-id"};
                 SugWeekDriver::create([
                     'booking-id' => $tripGroup->id,
                     'driver-id' => auth()->user()->id,
@@ -63,7 +65,8 @@ class WeeklyTripController extends BaseController
             }
         }
 
-        if($request->input('action') == 1) {
+        if($request->input('action') == 1 && isset($passengerId)) {
+            $passenger = User::where('id', $passengerId)->first();
             $title = __('You have a notification from Atariqi');
             $message = __('Your trip accepted with #') . $request->input('group');
             sendNotification(['title' => $title, 'body' => $message, 'tokens' => [$passenger->fcm_token]]);

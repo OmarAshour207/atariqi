@@ -47,6 +47,8 @@ Route::group([
 
     Route::middleware(['auth:sanctum'])->group(function () {
 
+        Route::post('trip/current', [\App\Http\Controllers\Api\TripController::class , 'getCurrent']);
+
         Route::middleware('is_passenger')->group(function() {
             // Immediate
             Route::post('drivers/immediate/transport', [ImmediateDriverController::class, 'getDrivers']);
