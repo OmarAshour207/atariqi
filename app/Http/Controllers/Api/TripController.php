@@ -14,6 +14,7 @@ class TripController extends BaseController
     public function getCurrent()
     {
         $userType = auth()->user()->{"user-type"};
+        $tripType = 'immediate';
 
         $trip = SuggestionDriver::with('booking', 'passenger', 'deliveryInfo', 'booking.university', 'booking.passenger', 'rate')
             ->whereIn('action', [1, 2])
@@ -27,6 +28,7 @@ class TripController extends BaseController
                 ->where("$userType-id", auth()->user()->id)
                 ->first();
             $result = new SugDayDriverResource($trip);
+            $tripType = 'daily';
         }
 
         if (!$trip) {
@@ -35,6 +37,7 @@ class TripController extends BaseController
                 ->where("$userType-id", auth()->user()->id)
                 ->first();
             $result = new SugWeeklyDriverResource($trip);
+            $tripType = 'weekly';
         }
 
         if (!$trip) {
@@ -49,6 +52,7 @@ class TripController extends BaseController
         $result['destination_lng'] = $roadWay == 'from' ? $trip->booking->lng : $trip->booking->university->lng;
         $result['source_lat'] = $roadWay == 'from' ? $trip->booking->university->lat : $trip->booking->lat;
         $result['source_lng'] = $roadWay == 'from' ? $trip->booking->university->lng : $trip->booking->lng;
+        $result['type'] = $tripType;
 
         return $this->sendResponse($result, __('Data'));
     }
