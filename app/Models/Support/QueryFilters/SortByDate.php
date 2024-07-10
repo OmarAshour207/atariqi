@@ -13,9 +13,9 @@ class SortByDate implements Sort
         $direction = $descending ? 'DESC' : 'ASC';
 
         if($property == 'daily') {
-            $query->orderBy('date-of-add', $direction);
-//                DayRideBooking::select('date-of-add')->whereColumn('day-ride-booking.id', 'sug-day-drivers.booking-id'),
-//                $direction);
+            $query->orderBy(
+                DayRideBooking::select('date-of-ser')->whereColumn('day-ride-booking.id', 'sug-day-drivers.booking-id'),
+                $direction);
         } elseif ($property == 'weekly') {
             $query->orderBy('date-of-ser', $direction);
         } else {
