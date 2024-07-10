@@ -51,8 +51,8 @@ class NotifyDriverForNearbyTrips extends Command
             ->select('driver-id')
             ->whereHas('booking', function ($query) use ($today, $currentTime, $afterFiveMin) {
                 $query->whereDate('week-ride-booking.date-of-ser', $today)
-                    ->whereBetween('day-ride-booking.time-go', [$currentTime, $afterFiveMin])
-                    ->orWhereBetween('day-ride-booking.time-back', [$currentTime, $afterFiveMin]);
+                    ->whereBetween('week-ride-booking.time-go', [$currentTime, $afterFiveMin])
+                    ->orWhereBetween('week-ride-booking.time-back', [$currentTime, $afterFiveMin]);
             })
             ->get();
 
