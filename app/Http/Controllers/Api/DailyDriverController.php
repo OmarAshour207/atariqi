@@ -75,29 +75,21 @@ class DailyDriverController extends BaseController
         $success['drivers'] = array();
         $success['trip'] = array();
 
-        $neighborhood = Neighbour::whereId($neighborhoodId)->first();
-        $university = University::whereId($universityId)->first();
+        $neighborhood = Neighbour::where('id', $neighborhoodId)->first();
+        $university = University::where('id', $universityId)->first();
 
         $success['neighborhood'] = new NeighbourResource($neighborhood);
         $success['university'] = new UniversityResource($university);
         $success['roadWay'] = $roadWay;
         $success['action'] = 'daily/transport/trip';
 
-        if($roadWay == 'from') {
-            $from['ar'] = $university->{"name-ar"};
-            $from['en'] = $university->{"name-eng"};
-            $to['ar'] = $neighborhood->{"neighborhood-ar"};
-            $to['en'] = $neighborhood->{"neighborhood-eng"};
-            $success['destination_lat'] = $lat;
-            $success['destination_lng'] = $lng;
-        } else {
-            $from['ar'] = $neighborhood->{"neighborhood-ar"};
-            $from['en'] = $neighborhood->{"neighborhood-eng"};
-            $to['ar'] = $university->{"name-ar"};
-            $to['en'] = $university->{"name-eng"};
-            $success['destination_lat'] = $university->lat;
-            $success['destination_lng'] = $university->lng;
-        }
+        $from['ar'] = $roadWay == 'from' ? $university->{"name-ar"} : $neighborhood->{"neighborhood-ar"};
+        $from['en'] = $roadWay == 'from' ? $university->{"name-eng"} : $neighborhood->{"neighborhood-eng"};
+        $to['ar'] = $roadWay == 'from' ? $neighborhood->{"neighborhood-ar"} : $university->{"name-ar"};
+        $to['en'] = $roadWay == 'from' ? $neighborhood->{"neighborhood-eng"} : $university->{"name-eng"};
+        $success['destination_lat'] = $roadWay == 'from' ? $lat : $university->lat;
+        $success['destination_lng'] = $roadWay == 'from' ? $lng : $university->lng;
+
         $success['to'] = $to;
         $success['from'] = $from;
 

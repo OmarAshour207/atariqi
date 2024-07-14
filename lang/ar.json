@@ -130,7 +130,7 @@
     "Trip not found": "الرحلة غير موجوده",
     "Not Available Daily transport at Friday": "غير متاح التوصيل اليومي يوم الجمعه",
     "Not found trips": "لا يوجد رحلات",
-    "Sorry you already booked ride at the same date before": "معذره لقد حجزت رحلة في نفس اليوم من قبل",
+    "Sorry you already booked ride at the same date before": "معذرة لقد حجز رحلة في نفس الوقت من قبل, يرجى مراجعه ملخص التوصيل",
     "Driver selected successfully": "تم تحديد السائق بنجاح",
     "Sent to all Drivers successfully": "تم الأرسال الي جميع السائقين",
     "Your trip accepted from date": "تم قبول الرحله من تاريخ",
