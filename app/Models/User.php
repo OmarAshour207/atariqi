@@ -37,7 +37,7 @@ class User extends Authenticatable
     ];
 
     // Scope
-    public function scopeCheckStartingTrips($due): bool
+    public function scopeCheckAcceptTrips($due): bool
     {
         if ($due <= 50) {
             return true;

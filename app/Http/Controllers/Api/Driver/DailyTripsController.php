@@ -52,9 +52,9 @@ class DailyTripsController extends BaseController
 
         $dues = new DuesController();
         $totalDues = $dues->getData();
-        $canStartTrips = json_decode($totalDues->getContent(), true)['data']['can_start_trips'];
+        $canAcceptTrips = json_decode($totalDues->getContent(), true)['data']['can_accept_trips'];
 
-        if ($request->input('action') == 1 && !$canStartTrips) {
+        if ($request->input('action') == 1 && !$canAcceptTrips) {
             return $this->sendError(__('Please pay your dues to activate your services again. Note: you can deliver your previously accepted rides'), [__('Please pay your dues to activate your services again. Note: you can deliver your previously accepted rides')]);
         }
 

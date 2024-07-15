@@ -33,7 +33,7 @@ class DuesController extends BaseController
             'last_pay_cost' => $lastPayDate->amount ?? 0,
             'new_revenues' => $newRevenues['total'],
             'current_dues' => $currentDues,
-            'can_start_trips' => auth()->user()->scopeCheckStartingTrips($currentDues)
+            'can_accept_trips' => auth()->user()->scopeCheckacceptTrips($currentDues)
         ], __('Data'));
     }
 }
