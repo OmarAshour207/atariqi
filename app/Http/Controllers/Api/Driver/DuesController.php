@@ -6,7 +6,6 @@ use App\Http\Controllers\Api\BaseController;
 use App\Http\Controllers\Api\Driver\Traits\Payment;
 use App\Models\FinancialDue;
 use App\Models\Subscription;
-use App\Models\User;
 use Carbon\Carbon;
 use Symfony\Component\HttpFoundation\JsonResponse;
 

@@ -38,6 +38,14 @@ class WeeklyTripController extends BaseController
             return $this->sendError(__('Validation Error.'), $validator->errors()->getMessages(), 422);
         }
 
+        $dues = new DuesController();
+        $totalDues = $dues->getData();
+        $canStartTrips = json_decode($totalDues->getContent(), true)['data']['can_start_trips'];
+
+        if ($request->input('action') == 1 && !$canStartTrips) {
+            return $this->sendError(__('please pay your dues to activate your services again. Note: you can deliver your previously accepted rides'), [__('please pay your dues to activate your services again. Note: you can deliver your previously accepted rides')]);
+        }
+
         $tripsGroup = WeekRideBooking::with('sugDriver')
             ->where('group-id', $request->input('group_id'))
             ->get();
