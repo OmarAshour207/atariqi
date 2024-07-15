@@ -31,6 +31,7 @@ class WeekRideBookingGroupResource extends JsonResource
                 'lat'           => $item->{"lat"},
                 'lng'           => $item->{"lng"},
                 'action'        => $item->{"action"},
+                'date_of_add'   => $item->{"date-of-add"},
                 'status'        => $item->status,
                 'neighborhood'  => new NeighbourResource($item->neighborhood),
                 'passenger'     => new UserSampleResource($item->passenger),
