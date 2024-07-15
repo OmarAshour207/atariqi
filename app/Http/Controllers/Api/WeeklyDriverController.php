@@ -426,8 +426,9 @@ class WeeklyDriverController extends BaseController
             'group_id'          => 'required|numeric'
         ]);
 
-        if($validator->fails())
+        if($validator->fails()) {
             return $this->sendError(__('Validation Error.'), $validator->errors()->getMessages(), 422);
+        }
 
         $data = $validator->validated();
 
