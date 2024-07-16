@@ -44,7 +44,7 @@ class PaymentReminder extends Command
 
                     $paymentReminder = $driver->paymentReminders->first();
 
-                    if(!$paymentReminder && $details['amount'] < 50) {
+                    if(!$paymentReminder || $details['amount'] < 50) {
                         continue;
                     }
 
