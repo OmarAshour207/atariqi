@@ -44,13 +44,13 @@ class PaymentReminder extends Command
 
                     $paymentReminder = $driver->paymentReminders->first();
 
-                    if($details['amount'] < 50) { // !$paymentReminder || 
+                    if($details['amount'] < 50) {
                         continue;
                     }
-//
-//                    if (Carbon::parse($paymentReminder->created_at)->format('Y-m-d') < Carbon::now()->subDays(7)->format('Y-m-d')) {
-//                        continue;
-//                    }
+
+                    if ($paymentReminder && Carbon::parse($paymentReminder->created_at)->format('Y-m-d') < Carbon::now()->subDays(7)->format('Y-m-d')) {
+                        continue;
+                    }
 
                     $sms = false;
                     $message = __("please pay your due to avoid stop the service") . ': ' . $details['amount'] . __('SAR');

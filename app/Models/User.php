@@ -46,7 +46,7 @@ class User extends Authenticatable
         $firstReminder = $this->paymentReminders()
             ->select('created_at')
             ->where('driver-id', $this->id)
-            ->whereRaw("DATEDIFF(CURDATE(), created_at) = 7")
+            ->whereRaw("DATEDIFF(CURDATE(), created_at) >= 7")
             ->first();
 
         if ($firstReminder) {
