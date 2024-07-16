@@ -58,7 +58,9 @@ class PaymentReminder extends Command
                     // First time send an sms message
                     if(!$paymentReminder) {
                         $sms = true;
-                        sendSMS($driver->phone_number, null, $message);
+//                        sendSMS($driver->phone_number, null, $message);
+                        $details['name'] = $driver->{"user-first-name"} . ' ' . $driver->{"user-last-name"};
+                        Mail::to($driver->email)->send(new PaymentReminderMail($details));
                     } else {
                         $details['name'] = $driver->{"user-first-name"} . ' ' . $driver->{"user-last-name"};
                         Mail::to($driver->email)->send(new PaymentReminderMail($details));
