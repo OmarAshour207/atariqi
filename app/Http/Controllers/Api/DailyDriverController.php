@@ -449,22 +449,46 @@ class DailyDriverController extends BaseController
             $savingData['time-go'] = $timeGo;
             $savingData['road-way'] = 'to';
             $savingData['time-back'] = null;
-            DayRideBooking::create($savingData);
+            DayRideBooking::updateOrCreate([
+                'passenger-id' => $savingData['passenger-id'],
+                'neighborhood-id' => $savingData['neighborhood-id'],
+                'university-id' => $savingData['university-id'],
+                'service-id' => $savingData['service-id'],
+                'time-go' => $savingData['time-go']
+            ], $savingData);
 
             $savingData['time-go'] = null;
             $savingData['road-way'] = 'from';
             $savingData['time-back'] = $timeBack;
 
-            $dayRideBooking = DayRideBooking::create($savingData);
+            $dayRideBooking = DayRideBooking::updateOrCreate([
+                'passenger-id' => $savingData['passenger-id'],
+                'neighborhood-id' => $savingData['neighborhood-id'],
+                'university-id' => $savingData['university-id'],
+                'service-id' => $savingData['service-id'],
+                'time-back' => $savingData['time-back']
+            ], $savingData);
 
         } elseif($roadWay == 'from') {
             $savingData['time-back'] = $timeBack;
             $savingData['time-go'] = null;
-            $dayRideBooking = DayRideBooking::create($savingData);
+            $dayRideBooking = DayRideBooking::updateOrCreate([
+                'passenger-id' => $savingData['passenger-id'],
+                'neighborhood-id' => $savingData['neighborhood-id'],
+                'university-id' => $savingData['university-id'],
+                'service-id' => $savingData['service-id'],
+                'time-back' => $savingData['time-back']
+            ], $savingData);
         } elseif($roadWay == 'to') {
             $savingData['time-back'] = null;
             $savingData['time-go'] = $timeGo;
-            $dayRideBooking = DayRideBooking::create($savingData);
+            $dayRideBooking = DayRideBooking::updateOrCreate([
+                'passenger-id' => $savingData['passenger-id'],
+                'neighborhood-id' => $savingData['neighborhood-id'],
+                'university-id' => $savingData['university-id'],
+                'service-id' => $savingData['service-id'],
+                'time-go' => $savingData['time-go']
+            ], $savingData);
         }
 
         $success['trip'] = new DayRideBookingResource($dayRideBooking);
