@@ -14,10 +14,19 @@ return new class extends Migration
     public function up()
     {
         Schema::create('suggestions-drivers', function (Blueprint $table) {
-            $table->bigInteger('id');
-            $table->bigInteger('booking-id');
+            $table->id();
+
+            $table->unsignedBigInteger('booking-id');
+            $table->foreign('booking-id')->references('id')->on('ride-booking')->onDelete('cascade');
+
             $table->bigInteger('driver-id');
+            $table->foreign('driver-id')->references('id')->on('users')->onDelete('cascade');
+
+            $table->bigInteger('passenger-id');
+            $table->foreign('passenger-id')->references('id')->on('users')->onDelete('cascade');
+
             $table->integer('action')->default(0);
+
             $table->dateTime('date-of-add')->useCurrent();
             $table->dateTime('date-of-edit')->nullable();
         });

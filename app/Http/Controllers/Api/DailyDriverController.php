@@ -228,10 +228,32 @@ class DailyDriverController extends BaseController
             $driversIds[] = $driverSchedule->{'suggest-driver-id'};
         }
 
+        //check if the driver has more than 3 passenger and exclude him
+        $sugDrivers = SugDayDriver::whereHas('booking', function ($query) use($date, $timeBack, $timeGo) {
+            $query->whereDate('date-of-ser', $date)->where(function ($q) use ($timeGo, $timeBack) {
+                $q->where('time-go', $timeGo)->orWhere('time-back', $timeBack);
+            });
+        })
+            ->whereIn('driver-id', $driversIds)
+            ->get()
+            ->groupBy('driver-id');
+
+        $removingIds = [];
+
+        foreach ($sugDrivers as $sugDriver) {
+            if($sugDriver->count() > 2) {
+                $removingIds[] = $sugDriver->first()->{"driver-id"};
+            }
+        }
+
+        $newDriversIds = array_filter($driversIds, function ($driverId) use ($removingIds) {
+            return !in_array($driverId, $removingIds);
+        });
+
         $drivers = DriverInfo::with(['driver', 'schedule' => function($query) use ($dateDay) {
                 $query->select("id", "driver-id", "$dateDay-to AS to", "$dateDay-from as from");
             }])
-            ->whereIn('driver-id', $driversIds)
+            ->whereIn('driver-id', $newDriversIds)
             ->get();
 
         $success['drivers'] = DriverInfoDayRideResource::collection($drivers);

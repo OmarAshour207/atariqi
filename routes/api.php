@@ -131,6 +131,8 @@ Route::group([
 
             Route::get('announcements', [AnnouncementController::class, 'index']);
 
+            Route::get('trips/{type}/today', [DailyTripsController::class, 'getToday']);
+
         });
     });
 });
