@@ -88,13 +88,16 @@ class DailyTripsController extends BaseController
     private function checkTripsLimit(DayRideBooking $dayRideBooking): bool
     {
         $sugDrivers = SugDayDriver::whereHas('booking', function ($query) use($dayRideBooking) {
-            $query->whereDate('date-of-ser', $dayRideBooking->{"date-of-ser"})->where(function ($q) use ($dayRideBooking) {
-                $q->where('time-go', $dayRideBooking->{"time-go"})->orWhere('time-back', $dayRideBooking->{"time-back"});
+            $query->whereDate('date-of-ser', $dayRideBooking->{"date-of-ser"})
+                ->where(function ($q) use ($dayRideBooking) {
+                    $q->where('time-go', $dayRideBooking->{"time-go"})
+                        ->orWhere('time-back', $dayRideBooking->{"time-back"});
             });
         })
             ->whereIn('driver-id', auth()->user()->id)
             ->get();
 
+        Log::info("Checking trips limit");
         if ($sugDrivers->count() > 2) {
             return true;
         }
