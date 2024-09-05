@@ -53,21 +53,15 @@ class DailyTripsController extends BaseController
             return $this->sendError(__('Validation Error.'), $validator->errors()->getMessages(), 422);
         }
 
-        Log::info("Before Getting dues data");
-
         $dues = new DuesController();
         $totalDues = $dues->getData();
         $canAcceptTrips = json_decode($totalDues->getContent(), true)['data']['can_accept_trips'];
-
-        Log::info("Can accept trips");
 
         if ($request->input('action') == 1 && !$canAcceptTrips) {
             return $this->sendError(__('Please pay your dues to activate your services again. Note: you can deliver your previously accepted rides'), [__('Please pay your dues to activate your services again. Note: you can deliver your previously accepted rides')]);
         }
 
         $dayRideBooking = DayRideBooking::where('id', $request->input('id'))->first();
-
-        Log::info("Before checking trips limit");
 
         if ($this->checkTripsLimit($dayRideBooking)) {
             return $this->sendError(__("sorry you can't accept this ride, because you reach the delivery limit at the same time and date"), [
@@ -100,10 +94,9 @@ class DailyTripsController extends BaseController
                         ->orWhere('time-back', $dayRideBooking->{"time-back"});
             });
         })
-            ->whereIn('driver-id', auth()->user()->id)
+            ->where('driver-id', auth()->user()->id)
             ->get();
 
-        Log::info("Checking trips limit");
         if ($sugDrivers->count() > 2) {
             return true;
         }
