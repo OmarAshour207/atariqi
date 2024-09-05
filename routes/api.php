@@ -18,7 +18,8 @@ use App\Http\Controllers\Api\Driver\{DailyTripsController,
     TripController,
     WeeklyTripController,
     DuesController,
-    AnnouncementController
+    AnnouncementController,
+    TripsGroupController
 };
 
 use Illuminate\Support\Facades\Route;
@@ -132,6 +133,8 @@ Route::group([
             Route::get('announcements', [AnnouncementController::class, 'index']);
 
             Route::get('trips/{type}/today', [DailyTripsController::class, 'getToday']);
+
+            Route::post('trips/group/start', [TripsGroupController::class, 'store']);
 
         });
     });
