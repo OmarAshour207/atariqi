@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\Driver\Traits\Payment;
 use App\Models\FinancialDue;
 use App\Models\Subscription;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 class DuesController extends BaseController
@@ -21,6 +22,8 @@ class DuesController extends BaseController
 
         $dates['start_date'] = $lastPayDate?->{"date-of-add"};
         $dates['end_date'] = Carbon::now()->format('Y-m-d');
+
+        Log::info("Checking the revenue");
 
         $newRevenues = $this->getRevenue(auth()->user()->id, $dates);
 
