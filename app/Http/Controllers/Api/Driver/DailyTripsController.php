@@ -125,11 +125,11 @@ class DailyTripsController extends BaseController
             'rate'
         ])
             ->whereHas('booking', function ($query) use ($today, $beforeMin, $nowTime) {
-                $query->whereDate('date-of-ser', $today)
-                    ->where(function ($query) use ($nowTime, $beforeMin) {
-                        $query->whereBetween('time-go', [$nowTime, $beforeMin])
-                            ->orWhereBetween('time-back', [$nowTime, $beforeMin]);
-                    });
+                $query->whereDate('date-of-ser', $today);
+//                    ->where(function ($query) use ($nowTime, $beforeMin) {
+//                        $query->whereBetween('time-go', [$nowTime, $beforeMin])
+//                            ->orWhereBetween('time-back', [$nowTime, $beforeMin]);
+//                    });
             })
             ->where('action', 1)
             ->where('driver-id', auth()->user()->id)
