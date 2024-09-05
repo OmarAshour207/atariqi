@@ -118,6 +118,7 @@ class DailyTripsController extends BaseController
         $trips = SugDayDriver::with([
             'booking',
             'passenger',
+            'booking.passenger',
             'booking.neighborhood',
             'booking.university',
             'booking.service',
@@ -139,25 +140,7 @@ class DailyTripsController extends BaseController
         $toTrips = isset($trips['to']) ? $trips['to'] : null;
         $fromTrips = isset($trips['from']) ? $trips['from'] : null;
 
-//        $toTripsCount = $toTrips?->count() ?? 0;
-//        $fromTripsCount = $fromTrips?->count() ?? 0;
-//
-//        if ($toTripsCount == 0) {
-//            $toMessage = __("No rides available now");
-//        } elseif($toTripsCount == 1) {
-//            $toMessage = __('you can’t have a group ride, because you have only one ride');
-//        }
-//
-//        if ($fromTripsCount == 0) {
-//            $fromMessage = __("No rides available now");
-//        } elseif($fromTripsCount == 1) {
-//            $fromMessage = __('you can’t have a group ride, because you have only one ride');
-//        }
-
-//        $data['to']['message'] = $toMessage;
         $data['to'] = $toTrips ? SugDayDriverDetailsResource::collection($toTrips) : [];
-
-//        $data['from']['message'] = $fromMessage;
         $data['from'] = $fromTrips ? SugDayDriverDetailsResource::collection($fromTrips) : [];
 
         return $this->sendResponse($data, __('Data'));

@@ -4,14 +4,11 @@ namespace App\Http\Controllers\Api\Driver;
 
 use App\Http\Controllers\Api\BaseController;
 use App\Models\DelDailyInfo;
-use App\Models\DelImmediateInfo;
 use App\Models\DelWeekInfo;
 use App\Models\SugDayDriver;
 use App\Models\SugWeekDriver;
-use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 class TripsGroupController extends BaseController
@@ -33,7 +30,6 @@ class TripsGroupController extends BaseController
         $sugModel = SugDayDriver::class;
         $delModel = DelDailyInfo::class;
 
-
         if($request->input('type') == 'weekly') {
             $sugModel = SugWeekDriver::class;
             $delModel = DelWeekInfo::class;
@@ -54,13 +50,13 @@ class TripsGroupController extends BaseController
                 'date-of-edit' => Carbon::now()
             ]);
 
-            if($data['action'] == 1 && $request->input('type') == 'daily') {
+//            if($data['action'] == 1 && $request->input('type') == 'daily') {
                 sendNotification([
                     'title'     => __('You have a notification from Atariqi'),
                     'body'      => __('Your trip accepted at date') . " " . $trip->booking->{"date-of-ser"} . "\n" . __('with Driver') . " " . $trip->driver->{"user-first-name"} . " " . $trip->driver->{"user-last-name"},
                     'tokens'    => [$trip->passenger->fcm_token]
                 ]);
-            }
+//            }
 
             $delModel::updateOrCreate([
                 'sug-id'            => $data['id']
