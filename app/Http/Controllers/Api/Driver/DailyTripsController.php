@@ -114,7 +114,7 @@ class DailyTripsController extends BaseController
         $today = Carbon::today()->format('Y-m-d');
         $nowTime = Carbon::now()->format('H:i');
         $beforeMin = Carbon::now()->subMinutes(10)->format('H:i');
-        
+
         $trips = SugDayDriver::with([
             'booking',
             'passenger',

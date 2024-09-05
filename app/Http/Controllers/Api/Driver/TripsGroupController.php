@@ -41,7 +41,7 @@ class TripsGroupController extends BaseController
 
         foreach ($request->input('trips') as $data) {
             $trip = $sugModel::with('passenger', 'booking', 'driver')
-                ->where('id', $request->input('id'))
+                ->where('id', $data['id'])
                 ->where('driver-id', auth()->user()->id)
                 ->first();
 
