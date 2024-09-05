@@ -114,9 +114,7 @@ class DailyTripsController extends BaseController
         $today = Carbon::today()->format('Y-m-d');
         $nowTime = Carbon::now()->format('H:i');
         $beforeMin = Carbon::now()->subMinutes(10)->format('H:i');
-
-        Log::info("Today: $today");
-
+        
         $trips = SugDayDriver::with([
             'booking',
             'passenger',
@@ -136,7 +134,7 @@ class DailyTripsController extends BaseController
             ->where('action', 1)
             ->where('driver-id', auth()->user()->id)
             ->get()
-            ->groupBy('booking.service.road-way');
+            ->groupBy('booking.road-way');
 
         $toTrips = isset($trips['to']) ? $trips['to'] : null;
         $fromTrips = isset($trips['from']) ? $trips['from'] : null;
