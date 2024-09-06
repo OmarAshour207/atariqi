@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Driver;
 
 use App\Http\Controllers\Api\BaseController;
+use App\Http\Resources\Driver\SugDayDriverDetailsResource;
 use App\Models\DelDailyInfo;
 use App\Models\DelWeekInfo;
 use App\Models\SugDayDriver;
@@ -67,5 +68,39 @@ class TripsGroupController extends BaseController
         }
 
         return $this->sendResponse([], __('Started successfully'));
+    }
+
+    public function get(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'type'          => 'required|string|in:daily,weekly',
+            'trips'         => 'required|array|min:2|max:3'
+        ]);
+
+        if($validator->fails()) {
+            return $this->sendError(__('Validation Error.'), $validator->errors()->getMessages(), 422);
+        }
+
+        $sugModel = SugDayDriver::class;
+
+        if ($request->input('type') == 'weekly') {
+            $sugModel = SugWeekDriver::class;
+        }
+
+        $trips = $sugModel::with(['booking',
+            'passenger',
+            'booking.passenger',
+            'booking.neighborhood',
+            'booking.university',
+            'booking.service',
+            'deliveryInfo',
+            'rate'])
+            ->whereIn('id', $request->input('trips'))
+            ->where('driver-id', auth()->user()->id)
+            ->get();
+
+        $data = SugDayDriverDetailsResource::collection($trips);
+
+        return $this->sendResponse($data, __('Data'));
     }
 }

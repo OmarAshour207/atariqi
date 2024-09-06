@@ -136,6 +136,8 @@ Route::group([
 
             Route::post('trips/group/start', [TripsGroupController::class, 'store']);
 
+            Route::post('trips/group/get', [TripsGroupController::class, 'get'  ]);
+
         });
     });
 });
