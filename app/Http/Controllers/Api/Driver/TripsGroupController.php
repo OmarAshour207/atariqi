@@ -73,8 +73,10 @@ class TripsGroupController extends BaseController
 
     public function get(Request $request)
     {
-        Log::info("request: " , $request->all());
-        Log::info("Type" . gettype($request->input('trips')));
+        Log::info("Request: " , $request->all());
+        Log::info("Type: " . gettype($request->input('trips')));
+
+        Log::info("Trips: ", json_decode($request->input('trips', true)));
 
         $validator = Validator::make($request->all(), [
             'type'          => 'required|string|in:daily,weekly',
