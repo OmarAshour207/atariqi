@@ -78,7 +78,7 @@ class TripsGroupController extends BaseController
 
         $validator = Validator::make($request->all(), [
             'type'          => 'required|string|in:daily,weekly',
-            'trips'         => 'required|array|min:2|max:3'
+            'trips'         => 'required'
         ]);
 
         if($validator->fails()) {
@@ -91,6 +91,8 @@ class TripsGroupController extends BaseController
             $sugModel = SugWeekDriver::class;
         }
 
+        $tripsList = json_decode($request->input('trips'), true);
+        
         $trips = $sugModel::with(['booking',
             'passenger',
             'booking.passenger',
@@ -99,7 +101,7 @@ class TripsGroupController extends BaseController
             'booking.service',
             'deliveryInfo',
             'rate'])
-            ->whereIn('id', $request->input('trips'))
+            ->whereIn('id', $tripsList)
             ->where('driver-id', auth()->user()->id)
             ->get();
 
