@@ -112,12 +112,9 @@ class DailyTripsController extends BaseController
     public function getToday(Request $request): JsonResponse
     {
         $today = Carbon::today()->format('Y-m-d');
-        $nowTime = Carbon::now()->format('H:i');
-        $beforeMin = Carbon::now()->subMinutes(10)->format('H:i');
+        $nowTime = Carbon::now()->format('H:i:s');
+        $beforeMin = Carbon::now()->subMinutes(10)->format('H:i:s');
 
-        Log::info("Now time : " . $nowTime);
-        Log::info("before time : " . $beforeMin);
-        
         $trips = SugDayDriver::with([
             'booking',
             'passenger',
@@ -131,8 +128,14 @@ class DailyTripsController extends BaseController
             ->whereHas('booking', function ($query) use ($today, $beforeMin, $nowTime) {
                 $query->where('date-of-ser', $today)
                     ->where(function ($query) use ($nowTime, $beforeMin) {
-                        $query->whereBetween('time-go', [$nowTime, $beforeMin])
-                            ->orWhereBetween('time-back', [$nowTime, $beforeMin]);
+
+                        $query->where(function ($q) use ($nowTime, $beforeMin) {
+                            $q->where('time-go', '<=', $nowTime)
+                                ->where('time-go', '>=', $beforeMin);
+                        })->orWhere(function ($q) use ($nowTime, $beforeMin) {
+                            $q->where('time-back', '<=', $nowTime)
+                                ->where('time-back', '>=', $beforeMin);
+                        });
                     });
             })
             ->where('action', 1)
