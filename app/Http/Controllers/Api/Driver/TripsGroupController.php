@@ -10,6 +10,7 @@ use App\Models\SugDayDriver;
 use App\Models\SugWeekDriver;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 class TripsGroupController extends BaseController
@@ -72,6 +73,9 @@ class TripsGroupController extends BaseController
 
     public function get(Request $request)
     {
+        Log::info("request: " , $request->all());
+        Log::info("Type" . gettype($request->input('trips')));
+
         $validator = Validator::make($request->all(), [
             'type'          => 'required|string|in:daily,weekly',
             'trips'         => 'required|array|min:2|max:3'
