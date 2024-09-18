@@ -73,9 +73,6 @@ class TripsGroupController extends BaseController
 
     public function get(Request $request)
     {
-        Log::info("Request: " , $request->all());
-        Log::info("Type: " . gettype($request->input('trips')));
-
         $validator = Validator::make($request->all(), [
             'type'          => 'required|string|in:daily,weekly',
             'trips'         => 'required'
@@ -92,7 +89,7 @@ class TripsGroupController extends BaseController
         }
 
         $tripsList = json_decode($request->input('trips'), true);
-        
+
         $trips = $sugModel::with(['booking',
             'passenger',
             'booking.passenger',
