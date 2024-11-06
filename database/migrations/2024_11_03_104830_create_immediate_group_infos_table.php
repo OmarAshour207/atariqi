@@ -13,10 +13,10 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('daily-group-info', function (Blueprint $table) {
+        Schema::create('immediate-group-info', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('ride-id');
-            $table->foreign('ride-id')->references('id')->on('sug-day-drivers')->onDelete('cascade');
+            $table->foreign('ride-id')->references('id')->on('suggestions-drivers')->onDelete('cascade');
             $table->unsignedBigInteger('group-id');
             $table->timestamp('date-of-add')->useCurrent();
         });
@@ -29,6 +29,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('daily-group-info');
+        Schema::dropIfExists('immediate-group-info');
     }
 };

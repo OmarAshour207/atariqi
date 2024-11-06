@@ -5,8 +5,10 @@ namespace App\Http\Controllers\Api\Driver;
 use App\Http\Controllers\Api\BaseController;
 use App\Http\Resources\Driver\SugDayDriverDetailsResource;
 use App\Models\DelDailyInfo;
+use App\Models\DeliveryInfo;
 use App\Models\DelWeekInfo;
 use App\Models\SugDayDriver;
+use App\Models\SuggestionDriver;
 use App\Models\SugWeekDriver;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -36,6 +38,10 @@ class TripsGroupController extends BaseController
             $sugModel = SugWeekDriver::class;
             $delModel = DelWeekInfo::class;
         }
+        if($request->input('type') == 'immediate') {
+            $sugModel = SuggestionDriver::class;
+            $delModel = DeliveryInfo::class;
+        }
 
         foreach ($request->input('trips') as $data) {
             $trip = $sugModel::with('passenger', 'booking', 'driver')
@@ -52,13 +58,11 @@ class TripsGroupController extends BaseController
                 'date-of-edit' => Carbon::now()
             ]);
 
-//            if($data['action'] == 1 && $request->input('type') == 'daily') {
-                sendNotification([
-                    'title'     => __('You have a notification from Atariqi'),
-                    'body'      => __('Your trip accepted at date') . " " . $trip->booking->{"date-of-ser"} . "\n" . __('with Driver') . " " . $trip->driver->{"user-first-name"} . " " . $trip->driver->{"user-last-name"},
-                    'tokens'    => [$trip->passenger->fcm_token]
-                ]);
-//            }
+            sendNotification([
+                'title'     => __('You have a notification from Atariqi'),
+                'body'      => __('Your trip accepted at date') . " " . $trip->booking->{"date-of-ser"} . "\n" . __('with Driver') . " " . $trip->driver->{"user-first-name"} . " " . $trip->driver->{"user-last-name"},
+                'tokens'    => [$trip->passenger->fcm_token]
+            ]);
 
             $delModel::updateOrCreate([
                 'sug-id'            => $data['id']
@@ -74,7 +78,7 @@ class TripsGroupController extends BaseController
     public function get(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'type'          => 'required|string|in:daily,weekly',
+            'type'          => 'required|string|in:daily,immediate,weekly',
             'trips'         => 'required'
         ]);
 
@@ -86,6 +90,9 @@ class TripsGroupController extends BaseController
 
         if ($request->input('type') == 'weekly') {
             $sugModel = SugWeekDriver::class;
+        }
+        if ($request->input('type') == 'immediate') {
+            $sugModel = SuggestionDriver::class;
         }
 
         $tripsList = json_decode($request->input('trips'), true);

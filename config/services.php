@@ -50,7 +50,6 @@ return [
     ],
 
     'firebase'  => [
-        'apikey'    => env('FIREBASE_API_KEY'),
-        'url'       => env("FIREBASE_API_URL", "https://fcm.googleapis.com/fcm/send")
+        'url'       => env("FIREBASE_API_URL", "https://fcm.googleapis.com/v1/projects/doo-app-c355e/messages:send")
     ]
 ];

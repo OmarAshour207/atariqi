@@ -11,24 +11,31 @@ function sendNotification($data): bool
     $body = $data['body'];
     $tokens = isset($data['tokens']) ? $data['tokens'] : [];
 
-    $FIREBASE_API_KEY = config('services.firebase.apikey');
+    $serverKey = getToken();
     $url = config('services.firebase.url');
 
-    if (empty($FIREBASE_API_KEY)) {
-        return true;
+    if (empty($tokens) || !$serverKey) {
+        return false;
     }
 
-    $notification = [
-        'title' => $title,
-        'body'  => $body,
-        'sound' => 'default',
-        'badge' => 1
-    ];
+//        'sound' => 'default',
+//        'badge' => 1
 
     $firebaseData = [
-        'registration_ids'  => $tokens,
-        'notification'  => $notification,
+        "message" => [
+            "token" => $tokens[0],
+            "notification"  => [
+                "title" => $title,
+                "body"  => $body
+            ],
+            "data" => [
+                "title" => $title,
+                "body"  => $body,
+            ]
+        ]
     ];
+
+    $encodedData = json_encode($firebaseData);
 
     if(isset($data['external'])) {
         $firebaseData['data'] = [
@@ -36,10 +43,8 @@ function sendNotification($data): bool
         ];
     }
 
-    $dataString = json_encode($firebaseData);
-
     $headers = array (
-        'Authorization: key=' . $FIREBASE_API_KEY,
+        'Authorization: Bearer ' . $serverKey,
         'Content-Type: application/json'
     );
 
@@ -53,7 +58,7 @@ function sendNotification($data): bool
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
         curl_setopt($ch, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1);
 
-        curl_setopt ( $ch, CURLOPT_POSTFIELDS, $dataString );
+        curl_setopt ( $ch, CURLOPT_POSTFIELDS, $encodedData );
 
         $result = curl_exec ( $ch );
         curl_close ( $ch );
@@ -63,6 +68,66 @@ function sendNotification($data): bool
     }
 
     return true;
+}
+
+function getToken()
+{
+    $keyFilePath = public_path('documents/firebase.json');
+    $keyData = json_decode(file_get_contents($keyFilePath), true);
+
+    $header = [
+        'alg' => 'RS256',
+        'typ' => 'JWT'
+    ];
+
+    $now = time();
+    $claims = [
+        'iss' => $keyData['client_email'],
+        'scope' => 'https://www.googleapis.com/auth/cloud-platform',
+        'aud' => 'https://oauth2.googleapis.com/token',
+        'exp' => $now + 3600,
+        'iat' => $now
+    ];
+
+    $base64UrlHeader = base64UrlEncode(json_encode($header));
+    $base64UrlClaims = base64UrlEncode(json_encode($claims));
+
+    $signatureInput = $base64UrlHeader . '.' . $base64UrlClaims;
+
+    openssl_sign($signatureInput, $signature, $keyData['private_key'], 'sha256WithRSAEncryption');
+    $base64UrlSignature = base64UrlEncode($signature);
+
+    $jwt = $signatureInput . '.' . $base64UrlSignature;
+
+    $postFields = http_build_query([
+        'grant_type' => 'urn:ietf:params:oauth:grant-type:jwt-bearer',
+        'assertion' => $jwt
+    ]);
+
+    $ch = curl_init ();
+
+    curl_setopt($ch, CURLOPT_URL, 'https://oauth2.googleapis.com/token');
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $postFields);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/x-www-form-urlencoded']);
+
+    $response = curl_exec($ch);
+
+    if ($response === FALSE) {
+        Log::info("Failed getting the access token from Firebase");
+        return;
+    }
+
+    $responseData = json_decode($response, true);
+    curl_close($ch);
+
+    return $responseData['access_token'];
+}
+
+function base64UrlEncode($data)
+{
+    return str_replace(['+', '/', '='], ['-', '_', ''], base64_encode($data));
 }
 
 function convertArabicDateToEnglish($date)
@@ -92,7 +157,6 @@ function generateCode(): int
 
     return $code;
 }
-
 
 function sendSMS($userNumber, $code = null, $message = null): bool
 {
