@@ -32,7 +32,7 @@ class ImmediateTripController extends BaseController
 
             if ($currentTime->greaterThan($dateOfAdd)) {
                 $trip->update([
-//                    'action' => 4,
+                    'action' => 4,
                     'date-of-edit' => Carbon::now()
                 ]);
             }
@@ -41,4 +41,5 @@ class ImmediateTripController extends BaseController
 
         return $trips->where('action', '!=', 4);
     }
+
 }
