@@ -50,6 +50,8 @@ return [
     ],
 
     'firebase'  => [
-        'url'       => env("FIREBASE_API_URL", "https://fcm.googleapis.com/v1/projects/doo-app-c355e/messages:send")
+        'url' => env("FIREBASE_API_URL", "https://fcm.googleapis.com/v1/projects/doo-app-c355e/messages:send"),
+        'private_key' => env("FIREBASE_PRIVATE_KEY", ""),
+        'client_email' => env("FIREBASE_CLIENT_EMAIL", "firebase-adminsdk-ii0hu@doo-app-c355e.iam.gserviceaccount.com")
     ]
 ];

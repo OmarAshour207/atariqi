@@ -72,9 +72,6 @@ function sendNotification($data): bool
 
 function getToken()
 {
-    $keyFilePath = public_path('documents/firebase.json');
-    $keyData = json_decode(file_get_contents($keyFilePath), true);
-
     $header = [
         'alg' => 'RS256',
         'typ' => 'JWT'
@@ -82,7 +79,7 @@ function getToken()
 
     $now = time();
     $claims = [
-        'iss' => $keyData['client_email'],
+        'iss' => config('services.firebase.client_email'),//$keyData['client_email'],
         'scope' => 'https://www.googleapis.com/auth/cloud-platform',
         'aud' => 'https://oauth2.googleapis.com/token',
         'exp' => $now + 3600,
@@ -94,7 +91,9 @@ function getToken()
 
     $signatureInput = $base64UrlHeader . '.' . $base64UrlClaims;
 
-    openssl_sign($signatureInput, $signature, $keyData['private_key'], 'sha256WithRSAEncryption');
+    $privateKey = config('services.firebase.private_key'); //$keyData['private_key'];
+
+    openssl_sign($signatureInput, $signature, $privateKey, 'sha256WithRSAEncryption');
     $base64UrlSignature = base64UrlEncode($signature);
 
     $jwt = $signatureInput . '.' . $base64UrlSignature;
