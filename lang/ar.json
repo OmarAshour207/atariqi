@@ -157,5 +157,7 @@
     "Payment reminder notify": "تنبيه لدفع المستحقات",
     "please pay your due to avoid stop the service": "من فضلك أدفع المبالغ المستحقة لتجنب ايقاف الخدمة",
     "SAR": "ريال سعودي",
-    "Please pay your dues to activate your services again. Note: you can deliver your previously accepted rides": "من فضلك قم بدفع مستحقاتك. ملاحظة: تستطيع قبول رحلات الطلبات السابقه."
+    "Please pay your dues to activate your services again. Note: you can deliver your previously accepted rides": "من فضلك قم بدفع مستحقاتك. ملاحظة: تستطيع قبول رحلات الطلبات السابقه.",
+    "The driver change this ride to group ride and accept another passenger located at: ": "قام السائق بتحويل هذه الرحلة إلى رحلة جماعية وقبول راكب آخر موجود في ",
+    "The ride changed to group ride": "قام السائق بتحويل الرحلة إلى رحلة جماعية"
 }

@@ -201,6 +201,22 @@ class TripController extends BaseController
             return $response;
         }
 
+        // Checking old trips and check if this converted to ride group
+        if ($request->input('type') == 'immediate') {
+            $oldTrips = \App\Models\SuggestionDriver::with('passenger', 'booking')
+                ->where('action', 1)
+                ->where('driver-id', auth()->user()->id)
+                ->get();
+
+            if ($oldTrips) {
+                foreach ($oldTrips as $oldTrip) {
+                    $title = __('The ride changed to group ride');
+                    $message = __('The driver change this ride to group ride and accept another passenger located at: ') . $oldTrip->booking->neighborhood->{"neighborhood-ar"};
+                    sendNotification(['title' => $title, 'body' => $message, 'tokens' => [$oldTrip->passenger->fcm_token]]);
+                }
+            }
+        }
+
         $passenger = User::where('id', $response['data']['passenger-id'])->first();
 
         $title = __('Accept the trip');
