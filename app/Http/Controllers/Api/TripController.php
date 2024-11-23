@@ -10,17 +10,23 @@ use App\Http\Resources\Trip\SuggestWeeklyCurrentResource;
 use App\Models\SugDayDriver;
 use App\Models\SugWeekDriver;
 use App\Models\SuggestionDriver;
+use Carbon\Carbon;
 
 class TripController extends BaseController
 {
     public function getPassengerTrips()
     {
+        $today = Carbon::today()->format('Y-m-d');
+
         $immediateTrips = SuggestionDriver::with([
             'booking', 'passenger',
             'deliveryInfo', 'booking.university',
             'booking.passenger', 'rate',
             'driver', 'driverinfo'
             ])
+            ->whereHas('booking', function ($query) use ($today) {
+                $query->whereDate('ride-booking.date-of-add', '=', $today);
+            })
             ->whereIn('action', [1, 2])
             ->where("passenger-id", auth()->user()->id)
             ->get();
@@ -28,6 +34,9 @@ class TripController extends BaseController
         $result['immediate'] = SuggestDriverCurrentResource::collection($immediateTrips);
 
         $dailyTrips = SugDayDriver::with('booking', 'passenger', 'deliveryInfo', 'booking.university', 'booking.passenger', 'rate')
+            ->whereHas('booking', function ($query) use ($today) {
+                $query->whereDate('day-ride-booking.date-of-ser', '=', $today);
+            })
             ->where('action', 4)
             ->where("passenger-id", auth()->user()->id)
             ->get();
@@ -35,6 +44,9 @@ class TripController extends BaseController
         $result['daily'] = SuggestDailyCurrentResource::collection($dailyTrips);
 
         $weeklyTrips = SugWeekDriver::with('booking', 'passenger', 'deliveryInfo', 'booking.university', 'booking.passenger', 'rate')
+            ->whereHas('booking', function ($query) use ($today) {
+                $query->whereDate('week-ride-booking.date-of-ser', '=', $today);
+            })
             ->where('action', 4)
             ->where("passenger-id", auth()->user()->id)
             ->get();
@@ -46,12 +58,17 @@ class TripController extends BaseController
 
     public function getDriverTrips()
     {
+        $today = Carbon::today()->format('Y-m-d');
+
         $immediateTrips = SuggestionDriver::with([
             'booking', 'passenger',
             'deliveryInfo', 'booking.university',
             'booking.passenger', 'rate',
             'driver', 'driverinfo'
         ])
+            ->whereHas('booking', function ($query) use ($today) {
+                $query->whereDate('ride-booking.date-of-add', '=', $today);
+            })
             ->whereIn('action', [1, 2])
             ->where("driver-id", auth()->user()->id)
             ->get();
@@ -59,6 +76,9 @@ class TripController extends BaseController
         $result['immediate'] = \App\Http\Resources\SuggestionDriver::collection($immediateTrips);
 
         $dailyTrips = SugDayDriver::with('booking', 'passenger', 'deliveryInfo', 'booking.university', 'booking.passenger', 'rate')
+            ->whereHas('booking', function ($query) use ($today) {
+                $query->whereDate('day-ride-booking.date-of-ser', '=', $today);
+            })
             ->where('action', 4)
             ->where("driver-id", auth()->user()->id)
             ->get();
@@ -66,6 +86,9 @@ class TripController extends BaseController
         $result['daily'] = SugDayDriverResource::collection($dailyTrips);
 
         $weeklyTrips = SugWeekDriver::with('booking', 'passenger', 'deliveryInfo', 'booking.university', 'booking.passenger', 'rate')
+           ->whereHas('booking', function ($query) use ($today) {
+                $query->whereDate('week-ride-booking.date-of-ser', '=', $today);
+            })
             ->where('action', 4)
             ->where("driver-id", auth()->user()->id)
             ->get();
