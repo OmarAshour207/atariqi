@@ -19,8 +19,8 @@ class SuggestionDriverDetailsResource extends JsonResource
             'general_passenger_rate' => $this->rate,
             'source_lat' => $this->{"road-way"} == 'from' ? $this->booking->university->lat : $this->booking->lat,
             'source_lng' => $this->{"road-way"} == 'from' ? $this->booking->university->lng : $this->booking->lng,
-            'destination_lat' => $this->{"road-way"} == 'to' ? $this->booking->lat : $this->booking->university->lat,
-            'destination_lng' => $this->{"road-way"} == 'to' ? $this->booking->lat : $this->booking->university->lng
+            'destination_lat' => $this->{"road-way"} == 'to' ? $this->booking->university->lat : $this->booking->lat,
+            'destination_lng' => $this->{"road-way"} == 'to' ? $this->booking->university->lng : $this->booking->lat
         ];
     }
 
