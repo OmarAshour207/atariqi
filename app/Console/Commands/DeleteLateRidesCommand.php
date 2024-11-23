@@ -47,7 +47,7 @@ class DeleteLateRidesCommand extends Command
             });
 
         DayRideBooking::whereDate('date-of-ser', '<', $today)
-            ->where('action', 0)
+            ->whereIn('action', [0, 4])
             ->chunk(100, function ($rides) {
                 foreach ($rides as $ride) {
                     $ride->update([
@@ -68,15 +68,26 @@ class DeleteLateRidesCommand extends Command
                 }
             });
 
-        WeekRideBooking::whereDate('date-of-ser', '<', $today)
-            ->where('action', 0)
-            ->chunk(100, function ($rides) {
+        $weekRides = WeekRideBooking::whereDate('date-of-ser', '<', $today)
+            ->whereIn('action', [0, 4])
+            ->get();
+
+        foreach ($weekRides as $weekRide) {
+            WeekRideBooking::where('group-id', $weekRide->{"group-id"})->chunk(10, function ($rides) {
                 foreach ($rides as $ride) {
                     $ride->update([
-                        'action' => 3
+                        'action' => 2
                     ]);
                 }
             });
+        }
+//            ->chunk(100, function ($rides) {
+//                foreach ($rides as $ride) {
+//                    $ride->update([
+//                        'action' => 3
+//                    ]);
+//                }
+//            });
 
         return Command::SUCCESS;
     }
