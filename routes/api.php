@@ -28,6 +28,8 @@ Route::group([
     'middleware'    => 'locale'
 ], function () {
 
+    Route::post("test/notify", [HomeController::class, 'test']);
+
     Route::get('/get/config', [HomeController::class, 'get']);
     Route::get('get/announce', [HomeController::class, 'getAnnouncement']);
     Route::get('get/contacts', [HomeController::class, 'getContacts']);
@@ -48,9 +50,10 @@ Route::group([
 
     Route::middleware(['auth:sanctum'])->group(function () {
 
-        Route::post('trip/current', [\App\Http\Controllers\Api\TripController::class , 'getCurrent']);
-
         Route::middleware('is_passenger')->group(function() {
+
+            Route::post('trip/current', [\App\Http\Controllers\Api\TripController::class , 'getPassengerTrips']);
+
             // Immediate
             Route::post('drivers/immediate/transport', [ImmediateDriverController::class, 'getDrivers']);
             Route::post('immediate/transport/trips', [ImmediateDriverController::class, 'get']);
@@ -136,7 +139,9 @@ Route::group([
 
             Route::post('trips/group/start', [TripsGroupController::class, 'store']);
 
-            Route::post('trips/group/get', [TripsGroupController::class, 'get'  ]);
+            Route::post('trips/group/get', [TripsGroupController::class, 'get']);
+
+            Route::post('trip/current', [\App\Http\Controllers\Api\TripController::class , 'getDriverTrips']);
 
         });
     });
