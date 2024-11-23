@@ -4,55 +4,73 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Resources\Driver\SugDayDriverResource;
 use App\Http\Resources\Driver\SugWeeklyDriverResource;
-use App\Http\Resources\SuggestionDriver as SuggestionDriverResource;
+use App\Http\Resources\Trip\SuggestDailyCurrentResource;
+use App\Http\Resources\Trip\SuggestDriverCurrentResource;
+use App\Http\Resources\Trip\SuggestWeeklyCurrentResource;
 use App\Models\SugDayDriver;
 use App\Models\SugWeekDriver;
 use App\Models\SuggestionDriver;
 
 class TripController extends BaseController
 {
-    public function getCurrent()
+    public function getPassengerTrips()
     {
-        $userType = auth()->user()->{"user-type"};
-        $tripType = 'immediate';
-
-        $trip = SuggestionDriver::with('booking', 'passenger', 'deliveryInfo', 'booking.university', 'booking.passenger', 'rate')
+        $immediateTrips = SuggestionDriver::with([
+            'booking', 'passenger',
+            'deliveryInfo', 'booking.university',
+            'booking.passenger', 'rate',
+            'driver', 'driverinfo'
+            ])
             ->whereIn('action', [1, 2])
-            ->where("$userType-id", auth()->user()->id)
-            ->first();
-        $result = new SuggestionDriverResource($trip);
+            ->where("passenger-id", auth()->user()->id)
+            ->get();
 
-        if (!$trip) {
-            $trip = SugDayDriver::with('booking', 'passenger', 'deliveryInfo', 'booking.university', 'booking.passenger', 'rate')
-                ->where('action', 4)
-                ->where("$userType-id", auth()->user()->id)
-                ->first();
-            $result = new SugDayDriverResource($trip);
-            $tripType = 'daily';
-        }
+        $result['immediate'] = SuggestDriverCurrentResource::collection($immediateTrips);
 
-        if (!$trip) {
-            $trip = SugWeekDriver::with('booking', 'passenger', 'deliveryInfo', 'booking.university', 'booking.passenger', 'rate')
-                ->where('action', 4)
-                ->where("$userType-id", auth()->user()->id)
-                ->first();
-            $result = new SugWeeklyDriverResource($trip);
-            $tripType = 'weekly';
-        }
+        $dailyTrips = SugDayDriver::with('booking', 'passenger', 'deliveryInfo', 'booking.university', 'booking.passenger', 'rate')
+            ->where('action', 4)
+            ->where("passenger-id", auth()->user()->id)
+            ->get();
 
-        if (!$trip) {
-            return $this->sendResponse([], __('Data'));
-        }
+        $result['daily'] = SuggestDailyCurrentResource::collection($dailyTrips);
 
-        $result = $result->resolve();
+        $weeklyTrips = SugWeekDriver::with('booking', 'passenger', 'deliveryInfo', 'booking.university', 'booking.passenger', 'rate')
+            ->where('action', 4)
+            ->where("passenger-id", auth()->user()->id)
+            ->get();
 
-        $roadWay = $trip->booking->{"road-way"};
+        $result['weekly'] = SuggestWeeklyCurrentResource::collection($weeklyTrips);
 
-        $result['destination_lat'] = $roadWay == 'from' ? $trip->booking->lat : $trip->booking->university->lat;
-        $result['destination_lng'] = $roadWay == 'from' ? $trip->booking->lng : $trip->booking->university->lng;
-        $result['source_lat'] = $roadWay == 'from' ? $trip->booking->university->lat : $trip->booking->lat;
-        $result['source_lng'] = $roadWay == 'from' ? $trip->booking->university->lng : $trip->booking->lng;
-        $result['type'] = $tripType;
+        return $this->sendResponse($result, __('Data'));
+    }
+
+    public function getDriverTrips()
+    {
+        $immediateTrips = SuggestionDriver::with([
+            'booking', 'passenger',
+            'deliveryInfo', 'booking.university',
+            'booking.passenger', 'rate',
+            'driver', 'driverinfo'
+        ])
+            ->whereIn('action', [1, 2])
+            ->where("driver-id", auth()->user()->id)
+            ->get();
+
+        $result['immediate'] = \App\Http\Resources\SuggestionDriver::collection($immediateTrips);
+
+        $dailyTrips = SugDayDriver::with('booking', 'passenger', 'deliveryInfo', 'booking.university', 'booking.passenger', 'rate')
+            ->where('action', 4)
+            ->where("driver-id", auth()->user()->id)
+            ->get();
+
+        $result['daily'] = SugDayDriverResource::collection($dailyTrips);
+
+        $weeklyTrips = SugWeekDriver::with('booking', 'passenger', 'deliveryInfo', 'booking.university', 'booking.passenger', 'rate')
+            ->where('action', 4)
+            ->where("driver-id", auth()->user()->id)
+            ->get();
+
+        $result['weekly'] = SugWeeklyDriverResource::collection($weeklyTrips);
 
         return $this->sendResponse($result, __('Data'));
     }
