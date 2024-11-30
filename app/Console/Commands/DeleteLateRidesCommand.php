@@ -37,7 +37,7 @@ class DeleteLateRidesCommand extends Command
         SugDayDriver::whereHas('booking', function ($query) use ($today) {
                 $query->whereDate('day-ride-booking.date-of-ser', '<', $today);
             })
-            ->where('action', 0)
+            ->whereIn('action', [0, 1])
             ->chunk(100, function ($trips) {
                 foreach ($trips as $trip) {
                     $trip->update([
@@ -59,7 +59,7 @@ class DeleteLateRidesCommand extends Command
         SugWeekDriver::whereHas('booking', function ($query) use ($today) {
             $query->whereDate('week-ride-booking.date-of-ser', '<', $today);
         })
-            ->where('action', 0)
+            ->whereIn('action', [0, 1])
             ->chunk(100, function ($trips) {
                 foreach ($trips as $trip) {
                     $trip->update([
