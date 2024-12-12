@@ -10,6 +10,7 @@ use App\Http\Resources\Trip\SuggestWeeklyCurrentResource;
 use App\Models\SugDayDriver;
 use App\Models\SugWeekDriver;
 use App\Models\SuggestionDriver;
+use App\Models\WeekRideBooking;
 use Carbon\Carbon;
 
 class TripController extends BaseController
@@ -94,6 +95,15 @@ class TripController extends BaseController
             ->get();
 
         $result['weekly'] = SugWeeklyDriverResource::collection($weeklyTrips);
+
+        if (count($result['weekly'])) {
+            foreach ($result['weekly'] as $index => $weeklyTrip) {
+                $groupBookingCount = WeekRideBooking::where('group-id', $weeklyTrip->booking->{"group-id"})->count();
+                $trip = $result['weekly'][$index]->resolve();
+                $trip['trips_count'] = $groupBookingCount;
+                $result['weekly'][$index] = collect($trip);
+            }
+        }
 
         return $this->sendResponse($result, __('Data'));
     }
