@@ -45,8 +45,7 @@ class TripController extends BaseController
 
         $result['daily'] = SuggestDailyCurrentResource::collection($dailyTrips);
 
-        Log::info("Today: $today , User ID: " . auth()->user()->id);
-        $weeklyTrips = SugWeekDriver::with('booking', 'passenger', 'deliveryInfo', 'booking.university', 'booking.passenger', 'rate')
+        $weeklyTrips = SugWeekDriver::with('booking', 'passenger', 'deliveryInfo', 'driverinfo','booking.university', 'booking.passenger', 'rate')
             ->whereHas('booking', function ($query) use ($today) {
                 $query->whereDate('week-ride-booking.date-of-ser', '=', $today);
             })
