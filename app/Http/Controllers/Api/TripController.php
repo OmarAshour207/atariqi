@@ -35,7 +35,12 @@ class TripController extends BaseController
 
         $result['immediate'] = SuggestDriverCurrentResource::collection($immediateTrips);
 
-        $dailyTrips = SugDayDriver::with('booking', 'passenger', 'driverinfo,', 'deliveryInfo', 'booking.university', 'booking.passenger', 'rate')
+        $dailyTrips = SugDayDriver::with([
+            'booking', 'passenger',
+            'driverinfo', 'deliveryInfo',
+            'booking.university', 'booking.passenger',
+            'rate'
+            ])
             ->whereHas('booking', function ($query) use ($today) {
                 $query->whereDate('day-ride-booking.date-of-ser', '=', $today);
             })
