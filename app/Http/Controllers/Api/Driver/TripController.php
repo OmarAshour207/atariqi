@@ -208,7 +208,7 @@ class TripController extends BaseController
                 ->where('driver-id', auth()->user()->id)
                 ->get();
 
-            if ($oldTrips) {
+            if (count($oldTrips) > 1) {
                 foreach ($oldTrips as $oldTrip) {
                     $title = __('The ride changed to group ride');
                     $message = __('The driver change this ride to group ride and accept another passenger located at: ') . $oldTrip->booking->neighborhood->{"neighborhood-ar"};
