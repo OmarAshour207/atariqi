@@ -613,7 +613,7 @@ class DailyDriverController extends BaseController
             ->first();
 
         if (!isset($ride->id)) {
-            return $this->sendResponse($success, __("Not found trips"));
+            return $this->sendResponse($success, __("Not found rides"));
         }
 
         $sugDayDriver = SugDayDriver::with('booking', 'driverinfo', 'driverinfo.driver', 'deliveryInfo')
@@ -624,7 +624,7 @@ class DailyDriverController extends BaseController
         ])->first();
 
         if (!$sugDayDriver) {
-            return $this->sendResponse($success, __("Not found trips"));
+            return $this->sendResponse($success, __("Not found suggest Driver"));
         }
 
         $success['sug_day_driver'] = new SugDayDrivingResource($sugDayDriver);
