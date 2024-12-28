@@ -46,4 +46,9 @@ class RideBooking extends Model
     {
         return $this->belongsTo(Service::class, 'service-id');
     }
+
+    public function sugDriver()
+    {
+        return $this->hasOne(SuggestionDriver::class, 'booking-id', 'id');
+    }
 }
