@@ -612,6 +612,13 @@ class DailyDriverController extends BaseController
             ->where('passenger-id', $passengerId)
             ->first();
 
+        Log::info("Data", [
+            'passenger' => $passengerId,
+            'sub' => $subMinutes,
+            'add' => $addMinutes,
+            'now' => $nowDate
+        ]);
+
         if (!isset($ride->id)) {
             return $this->sendResponse($success, __("Not found rides"));
         }
