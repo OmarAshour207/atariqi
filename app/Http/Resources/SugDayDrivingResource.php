@@ -18,7 +18,7 @@ class SugDayDrivingResource extends JsonResource
             'driver'        => new UserSampleResource($this->driver),
             'delivery_info' => $this->whenLoaded('deliveryInfo'),
             'driverinfo'    => new DriverInfoResource($this->whenLoaded('driverinfo')),
-            'diver_arrived' => $this->deliveryInfo?->{"arrived-location"} ? true : false
+            'driver_arrived' => $this->deliveryInfo?->{"arrived-location"} ? true : false
         ];
     }
 }
