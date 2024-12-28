@@ -17,7 +17,8 @@ class SugDayDrivingResource extends JsonResource
             'trip'          => new DayRideBookingResource($this->booking),
             'driver'        => new UserSampleResource($this->driver),
             'delivery_info' => $this->whenLoaded('deliveryInfo'),
-            'driverinfo'    => new DriverInfoResource($this->whenLoaded('driverinfo'))
+            'driverinfo'    => new DriverInfoResource($this->whenLoaded('driverinfo')),
+            'diver_arrived' => $this->deliveryInfo?->{"arrived-location"} ? true : false
         ];
     }
 }
