@@ -269,6 +269,7 @@ class ImmediateDriverController extends BaseController
         Log::info("There is Trip with ID: " . $request->input('id'));
 
         $success['trip'] = new RideBookingResource($trip);
+        $success['driver_arrived'] = $trip->sugDriver?->deliverInfo?->{"arrived-location"} ? true : false;
 
         $suggestDriver = SuggestionDriver::with('driverinfo')
             ->where('booking-id', $trip->id)
