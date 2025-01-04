@@ -158,8 +158,8 @@ class ProfileController extends BaseController
     public function updateTransport(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'neighborhood_to'       => [Rule::requiredIf(empty($request->neighborhood_from)), 'string'],
-            'neighborhood_from'     => [Rule::requiredIf(empty($request->neighborhood_to)), 'string'],
+            'neighborhood_to'       => [Rule::requiredIf(empty($request->neighborhood_from))],
+            'neighborhood_from'     => [Rule::requiredIf(empty($request->neighborhood_to))],
             'times.*'               => 'required',
             'allow_disabilities'    => 'required|string|in:yes,no',
             'services.*'            => 'required|numeric'
