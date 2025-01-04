@@ -27,6 +27,8 @@ class DriverSchedule extends Model
         'Wednesday-from',
         'Thursday-to',
         'Thursday-from',
+        'Friday-to',
+        'Friday-from',
         'date-of-add',
         'date-of-edit'
     ];
