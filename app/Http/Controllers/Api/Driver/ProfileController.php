@@ -161,7 +161,7 @@ class ProfileController extends BaseController
             'neighborhood_to'       => [Rule::requiredIf(empty($request->neighborhood_from)), 'string'],
             'neighborhood_from'     => [Rule::requiredIf(empty($request->neighborhood_to)), 'string'],
             'times.*'               => 'required',
-            'allow-disabilities'    => 'required|string|in:yes,no',
+            'allow_disabilities'    => 'required|string|in:yes,no',
             'services.*'            => 'required|numeric'
         ]);
 
@@ -182,7 +182,7 @@ class ProfileController extends BaseController
         ]);
 
         auth()->user()->driverInfo->update([
-            'allow-disabilities' => $request->{"allow-disabilities"}
+            'allow-disabilities' => $request->{"allow_disabilities"}
         ]);
 
         $this->saveServices($data['services']);
