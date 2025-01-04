@@ -206,6 +206,7 @@ class TripController extends BaseController
             $oldTrips = \App\Models\SuggestionDriver::with('passenger', 'booking')
                 ->where('action', 1)
                 ->where('driver-id', auth()->user()->id)
+                ->whereDate('date-of-add', Carbon::now()->format('Y-m-d'))
                 ->get();
 
             if (count($oldTrips) > 1) {

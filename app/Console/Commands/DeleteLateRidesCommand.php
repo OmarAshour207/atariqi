@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\DayRideBooking;
 use App\Models\SugDayDriver;
+use App\Models\SuggestionDriver;
 use App\Models\SugWeekDriver;
 use App\Models\WeekRideBooking;
 use Carbon\Carbon;
@@ -33,6 +34,16 @@ class DeleteLateRidesCommand extends Command
     public function handle()
     {
         $today = Carbon::today()->format('Y-m-d');
+
+        SuggestionDriver::whereDate('date-of-add', '<', $today)
+            ->where('action', 1)
+            ->chunk(100, function ($trips) {
+                foreach ($trips as $trip) {
+                    $trip->update([
+                        'action' => 4
+                    ]);
+                }
+        });
 
         SugDayDriver::whereHas('booking', function ($query) use ($today) {
                 $query->whereDate('day-ride-booking.date-of-ser', '<', $today);
