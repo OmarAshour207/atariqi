@@ -324,8 +324,16 @@ class WeeklyDriverController extends BaseController
 
         $checkSchedule = $this->checkScheduleTime($weeklyDates, $roadWay);
 
-        if (!$checkSchedule)
-            return $this->sendError(__('Validation Error.'), [ __("Sorry you already booked ride at the same date before")], 422);
+        if (isset($checkSchedule['road_way'])) {
+            return $this->sendError(__('Validation Error.'),
+                [
+                    __("already_booked", [
+                        'type' => $checkSchedule['type'],
+                        'road_way' => $checkSchedule['road_way'],
+                        'date' => $checkSchedule['date']
+                    ])
+                ], 422);
+        }
 
         $groupId = $this->getGroupId();
         $savingData = [
@@ -371,47 +379,51 @@ class WeeklyDriverController extends BaseController
         return $this->sendResponse($success, __('Driver selected successfully'));
     }
 
-    private function checkScheduleTime($weeklyDates, $roadWay): bool
+    private function checkScheduleTime($weeklyDates, $roadWay): array
     {
-        $passengerId = auth()->user()->id;
-
-        $timeGo = array();
-        $timeBack = array();
-        $date = array();
-
         foreach ($weeklyDates as $weeklyDate) {
-            $timeBack[] = $weeklyDate['time_back'];
-            $timeGo[] = $weeklyDate['time_go'];
-            $date[] = $weeklyDate['date'];
+            $weekRide = WeekRideBooking::where('passenger-id', auth()->user()->id)
+                ->whereIn('date-of-ser', $weeklyDate['date'])
+                ->when($roadWay == 'to' || $roadWay == 'both', function ($query) use ($weeklyDate) {
+                    $query->whereIn('time-go', $weeklyDate['time_go']);
+                })
+                ->when($roadWay == 'from' || $roadWay == 'both', function ($query) use ($weeklyDate) {
+                    $query->whereIn('time-back', $weeklyDate['time_back']);
+                })
+                ->first();
+
+            if ($weekRide) {
+                return [
+                    'time_go' => $weekRide->{"time-go"},
+                    'time_back' => $weekRide->{"time-back"},
+                    'date' => $weekRide->{"date-of-ser"},
+                    'type' => 'weekly',
+                    'road_way' => $weekRide->{"road-way"}
+                ];
+            }
+
+            $dailyRide = DayRideBooking::where('passenger-id', auth()->user()->id)
+                ->whereIn('date-of-ser', $weeklyDate['date'])
+                ->when($roadWay == 'to' || $roadWay == 'both', function ($query) use ($weeklyDate) {
+                    $query->whereIn('time-go', $weeklyDate['time_go']);
+                })
+                ->when($roadWay == 'from' || $roadWay == 'both', function ($query) use ($weeklyDate) {
+                    $query->whereIn('time-back', $weeklyDate['time_back']);
+                })
+                ->first();
+
+            if ($dailyRide) {
+                return [
+                    'time_go' => $dailyRide->{"time-go"},
+                    'time_back' => $dailyRide->{"time-back"},
+                    'date' => $dailyRide->{"date-of-ser"},
+                    'type' => 'daily',
+                    'road_way' => $weekRide->{"road-way"}
+                ];
+            }
         }
 
-
-        $weekRides = WeekRideBooking::where('passenger-id', $passengerId)
-            ->whereIn('date-of-ser', $date)
-            ->when($roadWay == 'to' || $roadWay == 'both', function ($query) use ($timeGo) {
-                $query->whereIn('time-go', $timeGo);
-            })->when($roadWay == 'from' || $roadWay == 'both', function ($query) use ($timeBack) {
-                $query->whereIn('time-back', $timeBack);
-            })->get()
-            ->toArray();
-
-        if (count($weekRides))
-            return false;
-
-
-        $dailyRides = DayRideBooking::where('passenger-id', $passengerId)
-            ->whereIn('date-of-ser', $date)
-            ->when($roadWay == 'to' || $roadWay == 'both', function ($query) use ($timeGo) {
-                $query->whereIn('time-go', $timeGo);
-            })->when($roadWay == 'from' || $roadWay == 'both', function ($query) use ($timeBack) {
-                $query->whereIn('time-back', $timeBack);
-            })->get()
-            ->toArray();
-
-        if (count($dailyRides))
-            return false;
-
-        return true;
+        return [];
     }
 
     public function sendToAllDrivers(Request $request)

@@ -261,40 +261,49 @@ class DailyDriverController extends BaseController
         return $this->sendResponse($success, __('Drivers'));
     }
 
-    private function checkScheduleTime($time, $roadWay): bool
+    private function checkScheduleTime($time, $roadWay): array
     {
-        $passengerId = auth()->user()->id;
-        $date = $time['date'];
-        $timeBack = $time['time_back'];
-        $timeGo = $time['time_go'];
-
-        $weekRides = WeekRideBooking::where('passenger-id', $passengerId)
-            ->where('date-of-ser', $date)
-            ->when($roadWay == 'to' || $roadWay == 'both', function ($query) use ($timeGo) {
-                $query->where('time-go', $timeGo);
-            })->when($roadWay == 'from' || $roadWay == 'both', function ($query) use ($timeBack) {
-                $query->where('time-back', $timeBack);
+        $weeklyRide = WeekRideBooking::where('passenger-id', auth()->user()->id)
+            ->where('date-of-ser', $time['date'])
+            ->when($roadWay == 'to' || $roadWay == 'both', function ($query) use ($time) {
+                $query->where('time-go', $time['time_go']);
+            })
+            ->when($roadWay == 'from' || $roadWay == 'both', function ($query) use ($time) {
+                $query->where('time-back', $time['time_back']);
             })
             ->first();
 
-        if ($weekRides) {
-            return false;
+        if ($weeklyRide) {
+            return [
+                'time_go' => $weeklyRide->{"time-go"},
+                'time_back' => $weeklyRide->{"time-back"},
+                'date' => $weeklyRide->{"date-of-ser"},
+                'type' => 'weekly',
+                'road_way' => $weeklyRide->{"road-way"}
+            ];
         }
 
-        $dailyRides = DayRideBooking::where('passenger-id', $passengerId)
-            ->where('date-of-ser', $date)
-            ->when($roadWay == 'to' || $roadWay == 'both', function ($query) use ($timeGo) {
-                $query->where('time-go', $timeGo);
-            })->when($roadWay == 'from' || $roadWay == 'both', function ($query) use ($timeBack) {
-                $query->where('time-back', $timeBack);
+        $dailyRide = DayRideBooking::where('passenger-id', auth()->user()->id)
+            ->where('date-of-ser', $time['date'])
+            ->when($roadWay == 'to' || $roadWay == 'both', function ($query) use ($time) {
+                $query->where('time-go', $time['time_go']);
+            })
+            ->when($roadWay == 'from' || $roadWay == 'both', function ($query) use ($time) {
+                $query->where('time-back', $time['time_back']);
             })
             ->first();
 
-        if ($dailyRides) {
-            return false;
+        if ($dailyRide) {
+            return [
+                'time_go' => $dailyRide->{"time-go"},
+                'time_back' => $dailyRide->{"time-back"},
+                'date' => $dailyRide->{"date-of-ser"},
+                'type' => 'daily',
+                'road_way' => $dailyRide->{"road-way"}
+            ];
         }
 
-        return true;
+        return [];
     }
 
     public function selectDriver(Request $request)
@@ -304,7 +313,7 @@ class DailyDriverController extends BaseController
             'lng'               => 'required|string',
             'neighborhood_id'   => 'required|numeric',
             'university_id'     => 'required|numeric',
-            'driver_id'         => 'required|numeric',
+            'driver_id'         => 'required|numeric|exists:users,id',
             'ride_type_id'      => 'required|numeric',
             'date'              => 'required|string',
             'time_go'           => 'sometimes|nullable|string',
@@ -342,9 +351,15 @@ class DailyDriverController extends BaseController
             'time_back' => $timeBack
         ], $roadWay);
 
-        if (!$checkSchedule) {
-            Log::info("There is rides send an error");
-            return $this->sendError(__('Validation Error.'), [ __("Sorry you already booked ride at the same date before")], 422);
+        if (isset($checkSchedule['road_way'])) {
+            return $this->sendError(__('Validation Error.'),
+                [
+                    __("already_booked", [
+                        'type' => __($checkSchedule['type']),
+                        'road_way' => __($checkSchedule['road_way']),
+                        'date' => $checkSchedule['date']
+                    ])
+                ], 422);
         }
 
         $savingData = [

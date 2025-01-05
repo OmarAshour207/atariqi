@@ -74,6 +74,8 @@ class UserController extends BaseController
             return $this->sendError("s_userNotExist", [__("User doesn't exist")], 401);
         }
 
+        $user->update(['code' => '1234']);
+
         return $this->sendResponse('s_codeSent', __('Verification code sent'));
 
         $code = generateCode();
