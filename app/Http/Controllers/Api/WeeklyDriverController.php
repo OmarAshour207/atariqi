@@ -170,6 +170,8 @@ class WeeklyDriverController extends BaseController
             ->get()
             ->toArray();
 
+        Log::info("Uni Driving", $uniDrivers);
+
         if (!count($uniDrivers)) {
             $groupId = $this->getGroupId();
             $savingData['group-id'] = $groupId;
@@ -183,8 +185,8 @@ class WeeklyDriverController extends BaseController
             ->when($roadWay == 'both', function ($query) use ($neighborhoodId, $roadWay) {
                 $query->join('drivers-neighborhoods', function ($join) use ($neighborhoodId, $roadWay) {
                     $join->on('drivers-neighborhoods.driver-id', '=', 'drivers-services.driver-id')
-                        ->where("drivers-neighborhoods.neighborhoods-to", 'LIKE', "%$neighborhoodId|%")
-                        ->where("drivers-neighborhoods.neighborhoods-from", 'LIKE', "%$neighborhoodId|%");
+                        ->where("drivers-neighborhoods.neighborhoods-to", 'LIKE', "%$neighborhoodId%")
+                        ->where("drivers-neighborhoods.neighborhoods-from", 'LIKE', "%$neighborhoodId%");
                 });
             })
             ->when($roadWay != 'both', function ($query) use ($neighborhoodId, $roadWay) {
