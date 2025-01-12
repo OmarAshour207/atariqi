@@ -385,7 +385,7 @@ class WeeklyDriverController extends BaseController
     {
         foreach ($weeklyDates as $weeklyDate) {
             $weekRide = WeekRideBooking::where('passenger-id', auth()->user()->id)
-                ->whereIn('date-of-ser', $weeklyDate['date'])
+                ->where('date-of-ser', $weeklyDate['date'])
                 ->when($roadWay == 'to' || $roadWay == 'both', function ($query) use ($weeklyDate) {
                     $query->whereIn('time-go', $weeklyDate['time_go']);
                 })
@@ -405,7 +405,7 @@ class WeeklyDriverController extends BaseController
             }
 
             $dailyRide = DayRideBooking::where('passenger-id', auth()->user()->id)
-                ->whereIn('date-of-ser', $weeklyDate['date'])
+                ->where('date-of-ser', $weeklyDate['date'])
                 ->when($roadWay == 'to' || $roadWay == 'both', function ($query) use ($weeklyDate) {
                     $query->whereIn('time-go', $weeklyDate['time_go']);
                 })
