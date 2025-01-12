@@ -387,10 +387,10 @@ class WeeklyDriverController extends BaseController
             $weekRide = WeekRideBooking::where('passenger-id', auth()->user()->id)
                 ->where('date-of-ser', $weeklyDate['date'])
                 ->when($roadWay == 'to' || $roadWay == 'both', function ($query) use ($weeklyDate) {
-                    $query->whereIn('time-go', $weeklyDate['time_go']);
+                    $query->where('time-go', $weeklyDate['time_go']);
                 })
                 ->when($roadWay == 'from' || $roadWay == 'both', function ($query) use ($weeklyDate) {
-                    $query->whereIn('time-back', $weeklyDate['time_back']);
+                    $query->where('time-back', $weeklyDate['time_back']);
                 })
                 ->first();
 
@@ -407,10 +407,10 @@ class WeeklyDriverController extends BaseController
             $dailyRide = DayRideBooking::where('passenger-id', auth()->user()->id)
                 ->where('date-of-ser', $weeklyDate['date'])
                 ->when($roadWay == 'to' || $roadWay == 'both', function ($query) use ($weeklyDate) {
-                    $query->whereIn('time-go', $weeklyDate['time_go']);
+                    $query->where('time-go', $weeklyDate['time_go']);
                 })
                 ->when($roadWay == 'from' || $roadWay == 'both', function ($query) use ($weeklyDate) {
-                    $query->whereIn('time-back', $weeklyDate['time_back']);
+                    $query->where('time-back', $weeklyDate['time_back']);
                 })
                 ->first();
 
