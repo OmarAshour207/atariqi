@@ -160,7 +160,7 @@
     "Please pay your dues to activate your services again. Note: you can deliver your previously accepted rides": "من فضلك قم بدفع مستحقاتك. ملاحظة: تستطيع قبول رحلات الطلبات السابقه.",
     "The driver change this ride to group ride and accept another passenger located at: ": "قام السائق بتحويل هذه الرحلة إلى رحلة جماعية وقبول راكب آخر موجود في ",
     "The ride changed to group ride": "قام السائق بتحويل الرحلة إلى رحلة جماعية",
-    "already_booked": "عذرًا، لقد حجزت بالفعل رحلة :type :road_way الجامعة في التاريخ :date من قبل.",
+    "already_booked": "عذرا لا يمكنك حجز رحله ، لأن لديك حجز سابق لنفس اليوم و الوجهة قريب من وقت الحجز الحالي الذي اخترته",
     "weekly": "أسبوعية",
     "from": "من",
     "daily": "يومية"

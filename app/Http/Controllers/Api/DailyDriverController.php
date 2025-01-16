@@ -266,10 +266,42 @@ class DailyDriverController extends BaseController
         $weeklyRide = WeekRideBooking::where('passenger-id', auth()->user()->id)
             ->where('date-of-ser', $time['date'])
             ->when($roadWay == 'to' || $roadWay == 'both', function ($query) use ($time) {
-                $query->where('time-go', $time['time_go']);
+                $timeGo = Carbon::parse($time['time_go']);
+
+                $subHours = $timeGo->copy()->subHours(4);
+                if ($subHours->lt($timeGo->copy()->startOfDay())) {
+                    $subHours = $timeGo->copy()->startOfDay();
+                }
+
+                // Add 4 hours, but ensure it doesn't go above the end of the day
+                $addHours = $timeGo->copy()->addHours(4);
+                if ($addHours->gt($timeGo->copy()->endOfDay())) {
+                    $addHours = $timeGo->copy()->endOfDay();
+                }
+
+                $subHours = $subHours->format('H:i:s');
+                $addHours = $addHours->format('H:i:s');
+
+                $query->whereBetween('time-go', [$subHours, $addHours]);
             })
             ->when($roadWay == 'from' || $roadWay == 'both', function ($query) use ($time) {
-                $query->where('time-back', $time['time_back']);
+                $timeBack = Carbon::parse($time['time_back']);
+
+                $subHours = $timeBack->copy()->subHours(4);
+                if ($subHours->lt($timeBack->copy()->startOfDay())) {
+                    $subHours = $timeBack->copy()->startOfDay();
+                }
+
+                // Add 4 hours, but ensure it doesn't go above the end of the day
+                $addHours = $timeBack->copy()->addHours(4);
+                if ($addHours->gt($timeBack->copy()->endOfDay())) {
+                    $addHours = $timeBack->copy()->endOfDay();
+                }
+
+                $subHours = $subHours->format('H:i:s');
+                $addHours = $addHours->format('H:i:s');
+
+                $query->whereBetween('time-back', [$subHours, $addHours]);
             })
             ->first();
 
@@ -286,10 +318,42 @@ class DailyDriverController extends BaseController
         $dailyRide = DayRideBooking::where('passenger-id', auth()->user()->id)
             ->where('date-of-ser', $time['date'])
             ->when($roadWay == 'to' || $roadWay == 'both', function ($query) use ($time) {
-                $query->where('time-go', $time['time_go']);
+                $timeGo = Carbon::parse($time['time_go']);
+
+                $subHours = $timeGo->copy()->subHours(4);
+                if ($subHours->lt($timeGo->copy()->startOfDay())) {
+                    $subHours = $timeGo->copy()->startOfDay();
+                }
+
+                // Add 4 hours, but ensure it doesn't go above the end of the day
+                $addHours = $timeGo->copy()->addHours(4);
+                if ($addHours->gt($timeGo->copy()->endOfDay())) {
+                    $addHours = $timeGo->copy()->endOfDay();
+                }
+
+                $subHours = $subHours->format('H:i:s');
+                $addHours = $addHours->format('H:i:s');
+
+                $query->whereBetween('time-go', [$subHours, $addHours]);
             })
             ->when($roadWay == 'from' || $roadWay == 'both', function ($query) use ($time) {
-                $query->where('time-back', $time['time_back']);
+                $timeBack = Carbon::parse($time['time_back']);
+
+                $subHours = $timeBack->copy()->subHours(4);
+                if ($subHours->lt($timeBack->copy()->startOfDay())) {
+                    $subHours = $timeBack->copy()->startOfDay();
+                }
+
+                // Add 4 hours, but ensure it doesn't go above the end of the day
+                $addHours = $timeBack->copy()->addHours(4);
+                if ($addHours->gt($timeBack->copy()->endOfDay())) {
+                    $addHours = $timeBack->copy()->endOfDay();
+                }
+
+                $subHours = $subHours->format('H:i:s');
+                $addHours = $addHours->format('H:i:s');
+
+                $query->whereBetween('time-back', [$subHours, $addHours]);
             })
             ->first();
 
@@ -690,8 +754,9 @@ class DailyDriverController extends BaseController
             'locale'    => 'sometimes|nullable|string'
         ]);
 
-        if($validator->fails())
+        if($validator->fails()) {
             return $this->sendError(__('Validation Error.'), $validator->errors()->getMessages(), 422);
+        }
 
         $data = $validator->validated();
         $id = $data['id'];
