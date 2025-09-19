@@ -20,7 +20,8 @@ use App\Http\Controllers\Api\Driver\{DailyTripsController,
     DuesController,
     AnnouncementController,
     TripsGroupController,
-    PackageController
+    PackageController,
+    SubscriptionController
 };
 
 use Illuminate\Support\Facades\Route;
@@ -144,6 +145,8 @@ Route::group([
             Route::post('trips/group/get', [TripsGroupController::class, 'get']);
 
             Route::post('trip/current', [\App\Http\Controllers\Api\TripController::class , 'getDriverTrips']);
+
+            Route::post('subscribe', [SubscriptionController::class, 'subscribe']);
 
         });
     });
