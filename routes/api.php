@@ -19,7 +19,8 @@ use App\Http\Controllers\Api\Driver\{DailyTripsController,
     WeeklyTripController,
     DuesController,
     AnnouncementController,
-    TripsGroupController
+    TripsGroupController,
+    PackageController
 };
 
 use Illuminate\Support\Facades\Route;
@@ -45,6 +46,7 @@ Route::group([
     Route::post('driver/register', [RegisterController::class, 'register']);
     Route::post('driver/login', [LoginController::class, 'login']);
     Route::post('driver/verify', [LoginController::class, 'verify']);
+    Route::post('driver/packages', [PackageController::class, 'index']);
 
     Route::post('drivers/times/{id}', [ImmediateDriverController::class, 'getTimes']);
 

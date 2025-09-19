@@ -8,6 +8,7 @@ use App\Http\Resources\DriverInfoResource;
 use App\Models\DriverInfo;
 use App\Models\DriversCar;
 use App\Models\User;
+use App\Models\UserPackage;
 use App\Rules\UniquePhoneNumberForUserType;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -79,6 +80,13 @@ class RegisterController extends BaseController
                     'driver-type-id' => $data['driver-type-id'],
                 ]
             ));
+
+            $driverPackage = UserPackage::create([
+                'user_id'       => $user->id,
+                'package_id'    => 1,
+                'start_date'    => now(),
+                'end_date'      => now()->addYear()
+            ]);
 
             DB::commit();
         } catch (\Exception $e) {

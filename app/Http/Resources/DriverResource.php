@@ -2,8 +2,7 @@
 
 namespace App\Http\Resources;
 
-use App\Models\DriverInfo;
-use App\Models\DriversCar;
+use App\Http\Resources\Driver\PackageResource;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class DriverResource extends JsonResource
@@ -28,6 +27,7 @@ class DriverResource extends JsonResource
             'driver_info'       => new DriverInfoResource($this->driverInfo),
             'driver_car'        => new DriverCarResource($this->driverCar),
             'neighbourhoods'    => NeighbourResource::collection($this->university->cityUni->neighbours),
+            'package'           => new PackageResource($this->whenLoaded('activePackage'))
         ];
     }
 }

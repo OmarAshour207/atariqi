@@ -101,4 +101,23 @@ class User extends Authenticatable
     {
         return $this->hasMany(PaymentReminder::class, 'driver-id', 'id');
     }
+
+    public function packages()
+    {
+        return $this->hasMany(UserPackage::class);
+    }
+
+    public function activePackage()
+    {
+        return $this->hasOneThrough(
+        Package::class,        // The final model we want to access
+        UserPackage::class,    // The intermediate model
+        'user_id',             // Foreign key on UserPackage table
+        'id',                  // Foreign key on Package table
+        'id',                  // Local key on User table
+        'package_id'           // Local key on UserPackage table
+        )->where('user_packages.status', UserPackage::STATUS_ACTIVE)
+        ->where('user_packages.end_date', '>=', now())
+        ->latest('user_packages.created_at');
+    }
 }

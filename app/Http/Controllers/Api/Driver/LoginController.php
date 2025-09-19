@@ -65,7 +65,7 @@ class LoginController extends BaseController
         $code = $data['code'];
         $phoneNumber = $data['phone-no'];
 
-        $user = User::with('driverInfo', 'driverCar')
+        $user = User::with('driverInfo', 'driverCar', 'activePackage')
             ->where('phone-no', $phoneNumber)
             ->where('user-type', 'driver')
             ->first();
@@ -83,6 +83,7 @@ class LoginController extends BaseController
             'code'      => null,
             'fcm_token' => $data['fcm_token']
         ]);
+
         return $this->sendResponse($success, __('User Logged Successfully.'));
 
         if($user->code != $code) {
