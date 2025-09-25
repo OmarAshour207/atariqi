@@ -23,21 +23,13 @@ class SubscriptionController extends BaseController
             return $this->sendError(__('Validation Error.'), $validator->errors()->getMessages(), 422);
         }
 
-        $userActivePackage = UserPackage::where('user_id', auth()->user()->id)->get();
+        $userActivePackage = UserPackage::where('user_id', auth()->user()->id)->first();
 
-        foreach($userActivePackage as $activePackage) {
-            if($activePackage->package_id == $request->package_id) {
-                return $this->sendError(__('You are already subscribed to this package.'), [
-                    __('You are already subscribed to this package.')
-                ], 422);
-            }
 
-            if($activePackage->status != Package::FREE) {
-                return $this->sendError(__('You are already subscribed to package, upgrade package.'), [
-                    __('You are already subscribed to package, upgrade package.')
-                ], 422);
-            }
-
+        if($userActivePackage->package_id == $request->package_id && $userActivePackage->interval == $request->type) {
+            return $this->sendError(__('You are already subscribed to this package.'), [
+                __('You are already subscribed to this package.')
+            ], 422);
         }
 
         $package = Package::find($request->package_id);
@@ -48,16 +40,39 @@ class SubscriptionController extends BaseController
             ], 422);
         }
 
-        $data = $validator->validated();
-        $data['user_id'] = auth()->user()->id;
-        $data['status'] = UserPackage::STATUS_ACTIVE;
-        $data['start_date'] = now();
-        $data['end_date'] = $request->type == 'monthly' ? now()->addMonth() : now()->addYear();
-        $data['interval'] = $request->type;
+        try {
 
-        UserPackage::create($data);
+            DB::beginTransaction();
 
-        return $this->sendResponse([], __('You have successfully subscribed to the package.'));
+            UserPackageHistory::create([
+                'user_id' => auth()->user()->id,
+                'package_id' => $userActivePackage->package_id,
+                'status' => $userActivePackage->status,
+                'start_date' => $userActivePackage->start_date,
+                'end_date' => $userActivePackage->end_date,
+                'canceled_date' => now(),
+                'interval' => $userActivePackage->interval,
+            ]);
+
+            $userActivePackage->delete();
+
+            UserPackage::create([
+                'user_id' => auth()->user()->id,
+                'package_id' => $request->package_id,
+                'status' => UserPackage::STATUS_ACTIVE,
+                'start_date' => now(),
+                'end_date' => $request->type == 'monthly' ? now()->addMonth() : now()->addYear(),
+                'interval' => $request->type,
+            ]);
+
+            DB::commit();
+
+            return $this->sendResponse([], __('You have successfully subscribed to the package.'));
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return $this->sendError($e->getMessage(), [], 500);
+        }
     }
 
     public function upgrade(Request $request)
