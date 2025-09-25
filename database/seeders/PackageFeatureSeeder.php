@@ -15,9 +15,44 @@ class PackageFeatureSeeder extends Seeder
      */
     public function run()
     {
+        // PackageFeature::create([
+        //     'package_id' => 1,
+        //     'feature_id' => 1,
+        // ]);
+
         PackageFeature::create([
-            'package_id' => 1,
+            'package_id' => 2,
             'feature_id' => 1,
+        ]);
+
+        PackageFeature::create([
+            'package_id' => 2,
+            'feature_id' => 2,
+        ]);
+
+        PackageFeature::create([
+            'package_id' => 3,
+            'feature_id' => 2,
+        ]);
+
+        PackageFeature::create([
+            'package_id' => 3,
+            'feature_id' => 3,
+        ]);
+
+        PackageFeature::create([
+            'package_id' => 4,
+            'feature_id' => 1,
+        ]);
+
+        PackageFeature::create([
+            'package_id' => 4,
+            'feature_id' => 2,
+        ]);
+
+        PackageFeature::create([
+            'package_id' => 4,
+            'feature_id' => 3,
         ]);
     }
 }

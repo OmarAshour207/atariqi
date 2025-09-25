@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Api\Driver;
 
 use App\Http\Controllers\Api\BaseController;
 use App\Http\Resources\Driver\PackageResource;
+use App\Http\Resources\Driver\UserPackageResource;
 use App\Models\DriversServices;
+use App\Models\UserPackage;
 use Illuminate\Support\Facades\DB;
 
 class DriverController extends BaseController
@@ -12,11 +14,16 @@ class DriverController extends BaseController
     public function DriverRate()
     {
         $success = array();
+
+        $activePackage = UserPackage::where('user_id', auth()->user()->id)
+            ->where('status', UserPackage::STATUS_ACTIVE)
+            ->first();
+
         $success['rate'] = auth()->user()->driverInfo->{"driver-rate"};
         $success['finished_rides'] = $this->getFinishedRides();
         $success['cancelled_rides'] = $this->getCancelledRides();
         $success['service_started'] = $this->checkStartService();
-        $success['package'] = new PackageResource(auth()->user()->activePackage);
+        $success['active_package'] = new UserPackageResource($activePackage);
 
         return $this->sendResponse($success, __('Data'));
     }

@@ -17,10 +17,21 @@ class UserPackage extends Model
     protected $fillable = [
         'package_id',
         'user_id',
+        'interval',
         'start_date',
         'end_date',
         'status',
     ];
+
+    public function getStatusTextAttribute(): string
+    {
+        return match ($this->status) {
+            self::STATUS_ACTIVE => 'Active',
+            self::STATUS_EXPIRED => 'Expired',
+            self::STATUS_CANCELLED => 'Cancelled',
+            default => 'Unknown',
+        };
+    }
 
     public function package(): BelongsTo
     {

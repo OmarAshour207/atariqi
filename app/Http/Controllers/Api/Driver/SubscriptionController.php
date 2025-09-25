@@ -21,13 +21,21 @@ class SubscriptionController extends BaseController
             return $this->sendError(__('Validation Error.'), $validator->errors()->getMessages(), 422);
         }
 
-        $userActivePackage = UserPackage::where('user_id', auth()->user()->id)
-            ->where('package_id', $request->package_id)
-            ->first();
-        if($userActivePackage) {
-            return $this->sendError(__('You are already subscribed to this package.'), [
-                __('You are already subscribed to this package.')
-            ], 422);
+        $userActivePackage = UserPackage::where('user_id', auth()->user()->id)->get();
+
+        foreach($userActivePackage as $activePackage) {
+            if($activePackage->id == $request->package_id) {
+                return $this->sendError(__('You are already subscribed to this package.'), [
+                    __('You are already subscribed to this package.')
+                ], 422);
+            }
+
+            if($activePackage->status != Package::FREE) {
+                return $this->sendError(__('You are already subscribed to package, upgrade package.'), [
+                    __('You are already subscribed to package, upgrade package.')
+                ], 422);
+            }
+
         }
 
         $package = Package::find($request->package_id);
@@ -43,6 +51,7 @@ class SubscriptionController extends BaseController
         $data['status'] = UserPackage::STATUS_ACTIVE;
         $data['start_date'] = now();
         $data['end_date'] = $request->type == 'monthly' ? now()->addMonth() : now()->addYear();
+        $data['interval'] = $request->type;
 
         UserPackage::create($data);
 
