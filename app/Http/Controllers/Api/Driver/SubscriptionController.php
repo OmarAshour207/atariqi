@@ -21,6 +21,15 @@ class SubscriptionController extends BaseController
             return $this->sendError(__('Validation Error.'), $validator->errors()->getMessages(), 422);
         }
 
+        $userActivePackage = UserPackage::where('user_id', auth()->user()->id)
+            ->where('package_id', $request->package_id)
+            ->first();
+        if($userActivePackage) {
+            return $this->sendError(__('You are already subscribed to this package.'), [
+                __('You are already subscribed to this package.')
+            ], 422);
+        }
+
         $package = Package::find($request->package_id);
 
         if($package->status == Package::SOON) {
