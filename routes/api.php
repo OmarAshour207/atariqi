@@ -147,8 +147,8 @@ Route::group([
             Route::post('trip/current', [\App\Http\Controllers\Api\TripController::class , 'getDriverTrips']);
 
             Route::post('subscribe', [SubscriptionController::class, 'subscribe']);
-            Route::post('renew', [SubscriptionController::class, 'renew']);
-            Route::post('upgrade', [SubscriptionController::class, 'upgrade']);
+            // Route::post('renew', [SubscriptionController::class, 'renew']);
+            // Route::post('upgrade', [SubscriptionController::class, 'upgrade']);
             // Route::post('downgrade', [SubscriptionController::class, 'downgrade']);
             Route::post('cancel', [SubscriptionController::class, 'cancel']);
 

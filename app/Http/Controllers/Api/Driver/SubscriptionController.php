@@ -165,8 +165,19 @@ class SubscriptionController extends BaseController
                 'interval' => $userActivePackage->interval,
             ]);
 
-            $userActivePackage->update([
-                'status' => UserPackage::STATUS_CANCELLED,
+            $userActivePackage->delete();
+
+            $freePackage = Package::where('price', 0)
+                ->where('status', Package::FREE)
+                ->first();
+
+            UserPackage::create([
+                'package_id' => $freePackage->id,
+                'user_id' => auth()->user()->id,
+                'start_date' => now(),
+                'end_date' => now()->addYear(),
+                'status' => UserPackage::STATUS_ACTIVE,
+                'interval' => 'yearly',
             ]);
 
             DB::commit();

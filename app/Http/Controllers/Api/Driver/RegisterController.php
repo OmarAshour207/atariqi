@@ -7,6 +7,7 @@ use App\Http\Resources\DriverCarResource;
 use App\Http\Resources\DriverInfoResource;
 use App\Models\DriverInfo;
 use App\Models\DriversCar;
+use App\Models\Package;
 use App\Models\User;
 use App\Models\UserPackage;
 use App\Rules\UniquePhoneNumberForUserType;
@@ -81,11 +82,17 @@ class RegisterController extends BaseController
                 ]
             ));
 
-            $driverPackage = UserPackage::create([
+            $freePackage = Package::where('price', 0)
+                ->where('status', Package::FREE)
+                ->first();
+
+            UserPackage::create([
                 'user_id'       => $user->id,
-                'package_id'    => 1,
+                'package_id'    => $freePackage->id,
                 'start_date'    => now(),
-                'end_date'      => now()->addYear()
+                'end_date'      => now()->addYear(),
+                'status'        => UserPackage::STATUS_ACTIVE,
+                'interval'     => 'yearly'
             ]);
 
             DB::commit();
