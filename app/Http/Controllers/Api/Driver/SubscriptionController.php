@@ -167,9 +167,7 @@ class SubscriptionController extends BaseController
 
             $userActivePackage->delete();
 
-            $freePackage = Package::where('price', 0)
-                ->where('status', Package::FREE)
-                ->first();
+            $freePackage = Package::where('status', Package::FREE)->first();
 
             UserPackage::create([
                 'package_id' => $freePackage->id,

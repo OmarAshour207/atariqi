@@ -33,9 +33,7 @@ class CheckFinishedSubscriptionsCommand extends Command
     {
         $today = Carbon::today()->format('Y-m-d');
 
-        $freePackage = Package::where('price', 0)
-            ->where('status', Package::FREE)
-            ->first();
+        $freePackage = Package::where('status', Package::FREE)->first();
 
         UserPackage::where('end_date', '<', $today)
             ->where('status', UserPackage::STATUS_ACTIVE)
