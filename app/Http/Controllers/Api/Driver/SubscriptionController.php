@@ -158,7 +158,7 @@ class SubscriptionController extends BaseController
             UserPackageHistory::create([
                 'user_id' => auth()->user()->id,
                 'package_id' => $userActivePackage->package_id,
-                'status' => $userActivePackage->status,
+                'status' => UserPackage::STATUS_CANCELLED,
                 'start_date' => $userActivePackage->start_date,
                 'end_date' => $userActivePackage->end_date,
                 'canceled_date' => now(),

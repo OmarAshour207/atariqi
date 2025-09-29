@@ -120,6 +120,13 @@ class UserController extends BaseController
             'code'      => null,
             'fcm_token' => $data['fcm_token']
         ]);
+
+        UserLogin::create([
+            'user-id'       => $user->id,
+            'date-time'     => now(),
+            'login-logout'  => 1
+        ]);
+
         return $this->sendResponse($success, __('User Logged Successfully.'));
 
         if($user->code != $code) {
@@ -129,12 +136,6 @@ class UserController extends BaseController
         $user->update([
             'code'      => null,
             'fcm_token' => $data['fcm_token']
-        ]);
-
-        UserLogin::create([
-            'user-id'       => $user->id,
-            'date-time'     => now(),
-            'login-logout'  => 1
         ]);
 
         $success['token'] = $user->createToken('atariqi')->plainTextToken;
