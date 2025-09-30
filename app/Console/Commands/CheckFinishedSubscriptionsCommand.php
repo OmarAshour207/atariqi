@@ -39,8 +39,10 @@ class CheckFinishedSubscriptionsCommand extends Command
             ->where('status', UserPackage::STATUS_ACTIVE)
             ->chunk(100, function ($userPackages) use ($freePackage) {
                 foreach ($userPackages as $userPackage) {
+
+                    $userId = $userPackage->user_id;
                     UserPackageHistory::create([
-                        'user_id' => $userPackage->user_id,
+                        'user_id' => $userId,
                         'package_id' => $userPackage->package_id,
                         'status' => UserPackage::STATUS_EXPIRED,
                         'start_date' => $userPackage->start_date,
@@ -49,8 +51,10 @@ class CheckFinishedSubscriptionsCommand extends Command
                         'interval' => $userPackage->interval,
                     ]);
 
+                    $userPackage->delete();
+
                     UserPackage::create([
-                        'user_id' => $userPackage->user_id,
+                        'user_id' => $userId,
                         'package_id' => $freePackage->id,
                         'status' => UserPackage::STATUS_ACTIVE,
                         'start_date' => now(),
@@ -58,7 +62,6 @@ class CheckFinishedSubscriptionsCommand extends Command
                         'interval' => 'yearly',
                     ]);
 
-                    $userPackage->delete();
                 }
             });
 
