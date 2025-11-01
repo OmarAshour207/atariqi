@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\Driver\PaymentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -15,4 +16,10 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('welcome');
+});
+
+Route::prefix('payment/telr')->group(function () {
+    Route::get('success', [PaymentController::class, 'success'])->name('telr.payment.success');
+    Route::get('failed', [PaymentController::class, 'failed'])->name('telr.payment.failed');
+    Route::get('declined', [PaymentController::class, 'declined'])->name('telr.payment.declined');
 });
