@@ -21,7 +21,9 @@ use App\Http\Controllers\Api\Driver\{DailyTripsController,
     AnnouncementController,
     TripsGroupController,
     PackageController,
-    SubscriptionController
+    SubscriptionController,
+    WebhookController,
+    PaymentController
 };
 
 use Illuminate\Support\Facades\Route;
@@ -29,6 +31,15 @@ use Illuminate\Support\Facades\Route;
 Route::group([
     'middleware'    => 'locale'
 ], function () {
+
+    Route::prefix('payment/telr')->group(function () {
+        Route::get('success', [PaymentController::class, 'success'])->name('telr.payment.success');
+        Route::get('failed', [PaymentController::class, 'failed'])->name('telr.payment.failed');
+        Route::get('declined', [PaymentController::class, 'declined'])->name('telr.payment.declined');
+    });
+
+    Route::post('webhook/telr', [WebhookController::class, 'handleWebhook'])->name('telr.webhook');
+
 
     Route::post("test/notify", [HomeController::class, 'test']);
 
