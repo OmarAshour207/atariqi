@@ -16,12 +16,12 @@ class WebhookController extends BaseController
     {
         Log::channel('payment')->info('Telr Webhook Received:', $request->all());
 
+        $order = Order::where('id', $request->input('tran_cartid'))
+            ->where('status', Order::STATUS_PENDING)
+            ->first();
+
         if($request->input('tran_status') === 'A') {
             Log::channel('payment')->info('Payment Authorized for Order Ref: ' . $request->input('tran_cartid'));
-
-            $order = Order::where('id', $request->input('tran_cartid'))
-                ->where('status', Order::STATUS_PENDING)
-                ->first();
 
             if($order && $order->type === Order::TYPE_SUBSCRIPTION) {
                 return $this->subscribe($order);
@@ -33,6 +33,9 @@ class WebhookController extends BaseController
 
             return response()->json(['status' => 'ignored']);
         }
+
+        $order->update(['status' => Order::STATUS_FAILED]);
+        Log::channel('payment')->info('Payment Failed for Order Ref: ' . $request->input('tran_cartid'));
 
         return response()->json(['status' => 'success']);
     }
