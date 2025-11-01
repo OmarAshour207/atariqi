@@ -19,7 +19,7 @@ class WebhookController extends BaseController
         if($request->input('tran_status') === 'A') {
             Log::channel('payment')->info('Payment Authorized for Order Ref: ' . $request->input('tran_cartid'));
 
-            $order = Order::where('payment_gateway_id', $request->input('tran_cartid'))
+            $order = Order::where('id', $request->input('tran_cartid'))
                 ->where('status', Order::STATUS_PENDING)
                 ->first();
 
