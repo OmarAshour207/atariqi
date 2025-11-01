@@ -16,7 +16,6 @@ class WebhookController extends BaseController
     {
         Log::channel('payment')->info('Telr Webhook Received:', $request->all());
 
-
         if($request->input('tran_status') === 'A') {
             Log::channel('payment')->info('Payment Authorized for Order Ref: ' . $request->input('tran_cartid'));
 
@@ -43,6 +42,8 @@ class WebhookController extends BaseController
         try {
             DB::beginTransaction();
 
+            Log::channel('payment')->info('Processing subscription for Order ID: ' . $order->id);
+
             $order->update(['status' => Order::STATUS_COMPLETED]);
 
             UserPackageHistory::create([
@@ -65,10 +66,17 @@ class WebhookController extends BaseController
 
             DB::commit();
 
+            Log::channel('payment')->info('Completed subscription for Order ID: ' . $order->id);
+
             return $this->sendResponse([], __('You have successfully subscribed to the package.'));
 
         } catch (\Exception $e) {
             DB::rollBack();
+            Log::channel('payment')->info('An error occurred while processing the webhook:', [
+                'error' => $e->getMessage(),
+                'line' => $e->getLine(),
+                'file' => $e->getFile(),
+            ]);
             return $this->sendError($e->getMessage(), [], 500);
         }
     }

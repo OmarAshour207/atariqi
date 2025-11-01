@@ -94,7 +94,7 @@ class SubscriptionController extends BaseController
             'status' => Order::STATUS_PENDING,
             'interval' => $request->type,
             'description' => $package->name_en,
-            'type' => Order::TYPE_SUBSCRIPTION,
+            'type' => $userActivePackage ? Order::TYPE_UPGRADE : Order::TYPE_SUBSCRIPTION,
         ]);
 
         $payload = [
