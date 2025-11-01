@@ -22,6 +22,7 @@ class TelrService
             'method'        => 'create',
             'store'         => $this->config['store_id'],
             'authkey'      => $this->config['auth_key'],
+            'framed'        => 0,
 
             'order'         => [
                 'cartid'    => $orderData['order_id'],
@@ -43,12 +44,13 @@ class TelrService
             ],
 
             'return' => [
-                'authorized'    => $this->config['authorized_url'],
+                'authorised'    => $this->config['authorised_url'],
                 'cancelled'     => $this->config['cancelled_url'],
                 'declined'    => $this->config['declined_url'],
             ]
         ];
 
+        dd($payload);
         $response = Http::withHeaders(['Content-Type' => 'application/json'])
                         ->post($this->config['endpoint'], $payload)
                         ->json();
