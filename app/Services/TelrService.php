@@ -50,7 +50,6 @@ class TelrService
             ]
         ];
 
-        dd($payload);
         $response = Http::withHeaders(['Content-Type' => 'application/json'])
                         ->post($this->config['endpoint'], $payload)
                         ->json();
