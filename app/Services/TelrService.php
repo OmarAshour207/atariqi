@@ -42,9 +42,11 @@ class TelrService
                 'phone' => $orderData['customer_phone'] ?? '',
             ],
 
-            'authorized'    => $this->config['authorized_url'],
-            'cancelled'     => $this->config['cancelled_url'],
-            'declined'    => $this->config['declined_url'],
+            'return' => [
+                'authorized'    => $this->config['authorized_url'],
+                'cancelled'     => $this->config['cancelled_url'],
+                'declined'    => $this->config['declined_url'],
+            ]
         ];
 
         $response = Http::withHeaders(['Content-Type' => 'application/json'])
