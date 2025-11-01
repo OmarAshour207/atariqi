@@ -3,7 +3,11 @@
 namespace App\Http\Controllers\Api\Driver;
 
 use App\Http\Controllers\Api\BaseController;
+use App\Models\Order;
+use App\Models\UserPackage;
+use App\Models\UserPackageHistory;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class WebhookController extends BaseController
@@ -12,6 +16,103 @@ class WebhookController extends BaseController
     {
         Log::channel('payment')->info('Telr Webhook Received:', $request->all());
 
+
+        if($request->input('tran_status') === 'A') {
+            Log::channel('payment')->info('Payment Authorized for Order Ref: ' . $request->input('tran_cartid'));
+
+            $order = Order::where('payment_gateway_id', $request->input('tran_cartid'))
+                ->where('status', Order::STATUS_PENDING)
+                ->first();
+
+            if($order && $order->type === Order::TYPE_SUBSCRIPTION) {
+                return $this->subscribe($order);
+            }
+
+            if($order && $order->type === Order::TYPE_UPGRADE) {
+                return $this->upgrade($order);
+            }
+
+            return response()->json(['status' => 'ignored']);
+        }
+
         return response()->json(['status' => 'success']);
     }
+
+    public function subscribe(Order $order)
+    {
+        try {
+            DB::beginTransaction();
+
+            $order->update(['status' => Order::STATUS_COMPLETED]);
+
+            UserPackageHistory::create([
+                'user_id' => $order->user_id,
+                'package_id' => $order->package_id,
+                'status' => UserPackage::STATUS_ACTIVE,
+                'start_date' => now(),
+                'end_date' => $order->interval == 'monthly' ? now()->addMonth() : now()->addYear(),
+                'interval' => $order->interval,
+            ]);
+
+            UserPackage::create([
+                'user_id' => $order->user_id,
+                'package_id' => $order->package_id,
+                'status' => UserPackage::STATUS_ACTIVE,
+                'start_date' => now(),
+                'end_date' => $order->interval == 'monthly' ? now()->addMonth() : now()->addYear(),
+                'interval' => $order->interval,
+            ]);
+
+            DB::commit();
+
+            return $this->sendResponse([], __('You have successfully subscribed to the package.'));
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return $this->sendError($e->getMessage(), [], 500);
+        }
+    }
+
+    public function upgrade(Order $order)
+    {
+        try {
+            $userActivePackage = UserPackage::where('user_id', $order->user_id)
+                ->where('status', UserPackage::STATUS_ACTIVE)
+                ->first();
+
+            DB::beginTransaction();
+
+            $order->update(['status' => Order::STATUS_COMPLETED]);
+
+            UserPackageHistory::create([
+                'user_id' => $order->user_id,
+                'package_id' => $userActivePackage->package_id,
+                'status' => $userActivePackage->status,
+                'start_date' => $userActivePackage->start_date,
+                'end_date' => $userActivePackage->end_date,
+                'canceled_date' => now(),
+                'interval' => $userActivePackage->interval,
+            ]);
+
+            $userActivePackage->delete();
+
+            UserPackage::create([
+                'user_id' => $order->user_id,
+                'package_id' => $order->package_id,
+                'status' => UserPackage::STATUS_ACTIVE,
+                'start_date' => now(),
+                'end_date' => $order->interval == 'monthly' ? now()->addMonth() : now()->addYear(),
+                'interval' => $order->interval,
+            ]);
+
+            DB::commit();
+
+            return $this->sendResponse([], __('You have successfully upgraded the package.'));
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return $this->sendError($e->getMessage(), [], 500);
+        }
+    }
+
 }

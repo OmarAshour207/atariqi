@@ -26,6 +26,8 @@ return new class extends Migration
 
             $table->decimal('amount', 10, 2);
             $table->string('payment_gateway_id')->nullable();
+            $table->string('type')->nullable();
+
             $table->text('description')->nullable();
             $table->timestamps();
         });

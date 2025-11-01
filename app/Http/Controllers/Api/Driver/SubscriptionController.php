@@ -94,6 +94,7 @@ class SubscriptionController extends BaseController
             'status' => Order::STATUS_PENDING,
             'interval' => $request->type,
             'description' => $package->name_en,
+            'type' => Order::TYPE_SUBSCRIPTION,
         ]);
 
         $payload = [
@@ -111,42 +112,6 @@ class SubscriptionController extends BaseController
         ];
 
         return $this->initiatePayment($payload, $order);
-    }
-
-    public function createSubscription()
-    {
-        try {
-
-            DB::beginTransaction();
-            UserPackageHistory::create([
-                'user_id' => auth()->user()->id,
-                'package_id' => $userActivePackage->package_id,
-                'status' => $userActivePackage->status,
-                'start_date' => $userActivePackage->start_date,
-                'end_date' => $userActivePackage->end_date,
-                'canceled_date' => now(),
-                'interval' => $userActivePackage->interval,
-            ]);
-
-            $userActivePackage->delete();
-
-            UserPackage::create([
-                'user_id' => auth()->user()->id,
-                'package_id' => $request->package_id,
-                'status' => UserPackage::STATUS_ACTIVE,
-                'start_date' => now(),
-                'end_date' => $request->type == 'monthly' ? now()->addMonth() : now()->addYear(),
-                'interval' => $request->type,
-            ]);
-
-            DB::commit();
-
-            return $this->sendResponse([], __('You have successfully subscribed to the package.'));
-
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return $this->sendError($e->getMessage(), [], 500);
-        }
     }
 
     public function createOrder($data)
@@ -184,38 +149,33 @@ class SubscriptionController extends BaseController
             ], 422);
         }
 
-        try {
-            DB::beginTransaction();
+        $package = Package::where('id',$request->package_id)->first();
 
-            UserPackageHistory::create([
-                'user_id' => auth()->user()->id,
-                'package_id' => $userActivePackage->package_id,
-                'status' => $userActivePackage->status,
-                'start_date' => $userActivePackage->start_date,
-                'end_date' => $userActivePackage->end_date,
-                'canceled_date' => now(),
-                'interval' => $userActivePackage->interval,
-            ]);
+        $order = Order::create([
+            'user_id' =>  auth()->user()->id,
+            'package_id' => $package->id,
+            'amount' => $request->type == 'monthly' ? $package->price_monthly : $package->price_annual,
+            'status' => Order::STATUS_PENDING,
+            'interval' => $request->type,
+            'description' => $package->name_en,
+            'type' => Order::TYPE_UPGRADE,
+        ]);
 
-            $userActivePackage->delete();
+        $payload = [
+            'order_id' => $order->id,
+            'amount' => $request->type == 'monthly' ? $package->price_monthly : $package->price_annual,
+            'description' => $package->name_en,
 
-            UserPackage::create([
-                'user_id' => auth()->user()->id,
-                'package_id' => $request->package_id,
-                'status' => UserPackage::STATUS_ACTIVE,
-                'start_date' => now(),
-                'end_date' => $request->type == 'monthly' ? now()->addMonth() : now()->addYear(),
-                'interval' => $request->type,
-            ]);
+            'user_id' => auth()->user()->id,
 
-            DB::commit();
+            'customer_email' => auth()->user()->email,
+            'customer_phone' => auth()->user()->{"phone-no"},
 
-            return $this->sendResponse([], __('You have successfully upgraded the package.'));
+            'customer_first_name' => auth()->user()->{"user-first-name"},
+            'customer_last_name' =>  auth()->user()->{"user-last-name"},
+        ];
 
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return $this->sendError($e->getMessage(), [], 500);
-        }
+        return $this->initiatePayment($payload, $order);
     }
 
     public function cancel()

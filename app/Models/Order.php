@@ -13,6 +13,9 @@ class Order extends Model
     const STATUS_COMPLETED = 2;
     const STATUS_FAILED = 3;
 
+    const TYPE_SUBSCRIPTION = 'subscription';
+    const TYPE_UPGRADE = 'upgrade';
+
     protected $fillable = [
         'user_id',
         'package_id',
@@ -20,6 +23,7 @@ class Order extends Model
         'status',
         'interval',
         'payment_gateway_id',
+        'type',
         'description',
     ];
 

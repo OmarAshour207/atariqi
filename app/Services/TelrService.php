@@ -41,9 +41,6 @@ class TelrService
                 'email' => $orderData['customer_email'] ?? '',
                 'phone' => $orderData['customer_phone'] ?? '',
             ],
-            "address" => [
-                "country" => "SA"
-            ],
 
             'authorized'    => $this->config['authorized_url'],
             'cancelled'     => $this->config['cancelled_url'],
