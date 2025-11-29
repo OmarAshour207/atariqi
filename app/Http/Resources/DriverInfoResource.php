@@ -21,6 +21,9 @@ class DriverInfoResource extends JsonResource
             'driver-neighborhood'   => $this->{"driver-neighborhood"},
             'driver-rate'           => $this->{"driver-rate"},
             'driver-license-link'   => url("uploads/$driverId") . "/" . $this->{"driver-license-link"},
+            'identity_number'   => $this->identity_number,
+            'date_of_birth'       => $this->date_of_birth,
+            'date_of_birth_hijri' => $this->date_of_birth_hijri,
             'allow-disabilities'    => $this->{"allow-disabilities"},
             'date-of-add'           => $this->{"date-of-add"},
             'date-of-edit'          => $this->{"date-of-edit"}

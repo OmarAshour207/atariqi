@@ -39,6 +39,11 @@ class RegisterController extends BaseController
             'car-color'         => 'required|string',
             'car-number'        => 'required|numeric',
             'license_img'       => 'required|mimes:jpeg,jpg,png',
+
+            'identity_number'   => 'required|string|unique:driver-info,identity_number',
+            'date_of_birth'       => 'nullable|date',
+            'date_of_birth_hijri' => 'nullable|date',
+
             'car_form_img'      => 'required|mimes:jpeg,jpg,png',
             'car_front_img'     => 'required|mimes:jpeg,jpg,png',
             'car_back_img'      => 'required|mimes:jpeg,jpg,png',
@@ -72,7 +77,10 @@ class RegisterController extends BaseController
                 'car-number'    => $data['car-number'],
                 'car-letters'   => $data['car-letters'],
                 'car-color'     => $data['car-color'],
-                'driver-license-link' => $images['license_img']
+                'driver-license-link' => $images['license_img'],
+                'identity_number'   => $data['identity_number'],
+                'date_of_birth'       => $data['date_of_birth'] ?? null,
+                'date_of_birth_hijri' => $data['date_of_birth_hijri'] ?? null,
             ]);
 
             $driverCar = DriversCar::create(array_merge(
