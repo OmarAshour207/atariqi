@@ -57,6 +57,8 @@ Route::group([
 
     Route::middleware(['auth:sanctum'])->group(function () {
 
+        Route::post('trip/update/location', [\App\Http\Controllers\Api\TripController::class , 'updateLocation']);
+
         Route::middleware('is_passenger')->group(function() {
 
             Route::post('trip/current', [\App\Http\Controllers\Api\TripController::class , 'getPassengerTrips']);

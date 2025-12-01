@@ -57,6 +57,8 @@ class RegisterController extends BaseController
             return $this->sendError(__('Validation Error.'), $validator->errors()->getMessages(), 422);
         }
         $data = $validator->validated();
+        $data['date_of_birth'] = isset($data['date_of_birth']) ? convertArabicDateToEnglish($data['date_of_birth']) : null;
+        $data['date_of_birth_hijri'] = isset($data['date_of_birth_hijri']) ? convertArabicDateToEnglish($data['date_of_birth_hijri']) : null;
 
         $data['approval'] = 0;
 

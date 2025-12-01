@@ -22,6 +22,8 @@ class RideBooking extends Model
         'service-id',
         'action',
         'road-way',
+        'current-lat',
+        'current-lng',
         'university-id',
         'date-of-add'
     ];

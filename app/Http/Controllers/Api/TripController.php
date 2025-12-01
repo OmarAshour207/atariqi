@@ -7,12 +7,16 @@ use App\Http\Resources\Driver\SugWeeklyDriverResource;
 use App\Http\Resources\Trip\SuggestDailyCurrentResource;
 use App\Http\Resources\Trip\SuggestDriverCurrentResource;
 use App\Http\Resources\Trip\SuggestWeeklyCurrentResource;
+use App\Models\DayRideBooking;
+use App\Models\RideBooking;
 use App\Models\SugDayDriver;
 use App\Models\SugWeekDriver;
 use App\Models\SuggestionDriver;
 use App\Models\WeekRideBooking;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
 
 class TripController extends BaseController
 {
@@ -112,5 +116,38 @@ class TripController extends BaseController
         }
 
         return $this->sendResponse($result, __('Data'));
+    }
+
+    public function updateLocation(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'trip_id'   => 'required|numeric',
+            'type'      => 'required|string',
+            'lat'       => 'required|string',
+            'lng'       => 'required|string'
+        ]);
+
+        if($validator->fails()) {
+            return $this->sendError(__('Validation Error.'), $validator->errors()->getMessages(), 422);
+        }
+
+        $data = $validator->validated();
+
+        if ($data['type'] == 'immediate') {
+            $trip = RideBooking::where('id', $data['trip_id'])->first();
+        } elseif ($data['type'] == 'daily') {
+            $trip = DayRideBooking::where('id', $data['trip_id'])->first();
+        } elseif ($data['type'] == 'weekly') {
+            $trip = WeekRideBooking::where('id', $data['trip_id'])->first();
+        } else {
+            return $this->sendError(__('Invalid trip type'), [], 422);
+        }
+
+        $trip->update([
+            'current-lat' => $data['lat'],
+            'current-lng' => $data['lng'],
+        ]);
+
+        return $this->sendResponse([], __('Location updated successfully'));
     }
 }
