@@ -92,7 +92,7 @@ class RegisterController extends BaseController
                 ]
             ));
 
-            $freePackage = Package::where('price', 0)
+            $freePackage = Package::where('price_monthly', 0)
                 ->where('status', Package::FREE)
                 ->first();
 
