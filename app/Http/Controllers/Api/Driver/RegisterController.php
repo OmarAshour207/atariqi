@@ -41,8 +41,8 @@ class RegisterController extends BaseController
             'license_img'       => 'required|mimes:jpeg,jpg,png',
 
             'identity_number'   => 'required|string|unique:driver-info,identity_number',
-            'date_of_birth'       => 'nullable|date',
-            'date_of_birth_hijri' => 'nullable|date',
+            'date_of_birth'       => 'nullable|string',
+            'date_of_birth_hijri' => 'nullable|string',
 
             'car_form_img'      => 'required|mimes:jpeg,jpg,png',
             'car_front_img'     => 'required|mimes:jpeg,jpg,png',
