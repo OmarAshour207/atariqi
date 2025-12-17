@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\Driver\PaymentController;
+use App\Http\Controllers\HomeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -14,9 +15,8 @@ use App\Http\Controllers\Api\Driver\PaymentController;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', [HomeController::class, 'home'])->name('home');
+Route::get('/login', [LoginController::class, 'login'])->name('login');
 
 Route::prefix('payment/telr')->group(function () {
     Route::get('success', [PaymentController::class, 'success'])->name('telr.payment.success');
