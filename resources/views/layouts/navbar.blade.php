@@ -1,7 +1,7 @@
 <!-- Navbar -->
 <nav class="navbar navbar-expand-lg bg-white border-bottom sticky-top">
   <div class="container">
-    <a class="navbar-brand d-flex align-items-center" href="#">
+    <a class="navbar-brand d-flex align-items-center" href="{{ route('home') }}">
       <span class="fw-bold text-brand">رافقني</span>
     </a>
     <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#nav">

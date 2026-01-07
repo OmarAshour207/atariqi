@@ -10,10 +10,10 @@
         <h1 class="display-5 fw-bold lh-sm mb-3">رفيقك اليومي للتنقّل الذكي</h1>
         <p class="lead text-secondary mb-4">حل موثوق لرحلاتك اليومية والتجارية مع تجربة سلسة، آمنة، وسريعة. كل بيانات هذه الصفحة تُجلب لحظيًا من قاعدة بيانات الشركة.</p>
         <div class="d-flex gap-2 app-badges flex-wrap">
-          <a id="appStoreLink" class="d-inline-block" href="#" target="_blank" rel="noopener">
+          <a id="appStoreLink" class="d-inline-block" href="{{ setting('app_store') }}" target="_blank" rel="noopener">
             <img src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="App Store">
           </a>
-          <a id="playStoreLink" class="d-inline-block" href="#" target="_blank" rel="noopener">
+          <a id="playStoreLink" class="d-inline-block" href="{{ setting('play_store') }}" target="_blank" rel="noopener">
             <img src="https://play.google.com/intl/en_us/badges/static/images/badges/ar_badge_web_generic.png" alt="Google Play" style="height:60px">
           </a>
         </div>

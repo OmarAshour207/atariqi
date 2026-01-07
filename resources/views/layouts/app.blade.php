@@ -66,8 +66,8 @@
         <div class="col-md-3">
             <h6>روابط</h6>
             <ul class="list-unstyled small">
-            <li><a href="support.html">الدعم الفني</a></li>
-            <li><a href="login.html">دخول الموظفين</a></li>
+            <li><a href="{{ route('support') }}">الدعم الفني</a></li>
+            <li><a href="{{ route('dashboard.login') }}">دخول الموظفين</a></li>
             </ul>
         </div>
         <div class="col-md-3">
