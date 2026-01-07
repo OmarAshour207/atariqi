@@ -66,5 +66,6 @@ class Kernel extends HttpKernel
         'locale' => \App\Http\Middleware\LocaleCheck::class,
         'is_driver' => \App\Http\Middleware\IsDriver::class,
         'is_passenger' => \App\Http\Middleware\IsPassenger::class,
+        'is_admin' => \App\Http\Middleware\IsAdmin::class,
     ];
 }

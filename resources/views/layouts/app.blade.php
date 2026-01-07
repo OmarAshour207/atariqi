@@ -91,101 +91,90 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
-    // سنة الفوتر
-    document.getElementById('year').textContent = new Date().getFullYear();
+        // Define the base URL for use in JavaScript
+        const BASE_URL = "{{ url('/') }}";
 
-    // جلب بيانات الصفحة من قاعدة البيانات
-    fetch('/api/site')
-        .then(r=>r.ok?r.json():Promise.reject(r))
-        .then(data=>{
-        // عن الشركة
-        document.getElementById('aboutText').textContent = data.about?.text ?? '';
-        const aboutBullets = document.getElementById('aboutBullets');
-        (data.about?.bullets ?? []).forEach(b=>{
-            const li = document.createElement('li');
-            li.innerHTML = `<i class="bi bi-check2-circle text-brand ms-1"></i>${b}`;
-            aboutBullets.appendChild(li);
-        });
+        // سنة الفوتر
+        document.getElementById('year').textContent = new Date().getFullYear();
 
-        // عن التطبيق – المزايا
-        document.getElementById('appText').textContent = data.app?.text ?? '';
-        const fWrap = document.getElementById('features');
-        (data.app?.features ?? []).forEach(f=>{
-            fWrap.insertAdjacentHTML('beforeend', `
-            <div class="col-md-6 col-lg-4">
-                <div class="h-100 p-4 bg-white rounded-3 shadow-soft">
-                <div class="fs-2 text-brand"><i class="bi ${f.icon||'bi-stars'}"></i></div>
-                <h5 class="mt-3 mb-2">${f.title}</h5>
-                <p class="text-secondary mb-0">${f.desc}</p>
-                </div>
-            </div>
-            `);
-        });
+        // جلب بيانات الصفحة من قاعدة البيانات
+        fetch('/homepage-sections')
+            .then(r => r.ok ? r.json() : Promise.reject(r))
+            .then(data => {
+                // عن الشركة
+                document.getElementById('about_us_content').innerHTML = data.about_us?.content ?? '';
 
-        // الأرقام
-        const sRow = document.getElementById('statsRow');
-        (data.stats ?? []).forEach(s=>{
-            sRow.insertAdjacentHTML('beforeend', `
-            <div class="col-6 col-lg-3">
-                <div class="p-4 bg-white rounded-3 shadow-soft text-center">
-                <div class="display-6 fw-bold text-brand">${new Intl.NumberFormat('ar-EG').format(s.value)}</div>
-                <div class="small text-secondary">${s.label}</div>
-                </div>
-            </div>
-            `);
-        });
+                // عن التطبيق – المزايا
+                document.getElementById('appText').textContent = data.about_app?.content ?? '';
+                const fWrap = document.getElementById('features');
+                fWrap.innerHTML = data.about_app?.content ?? '';
 
-        // الشركاء
-        const pRow = document.getElementById('partnersRow');
-        (data.partners ?? []).forEach(p=>{
-            pRow.insertAdjacentHTML('beforeend', `
-            <div class="col-6 col-md-3 col-lg-2">
-                <div class="p-3 bg-white rounded-3 shadow-soft text-center">
-                <img src="${p.logo}" class="img-fluid" alt="${p.name}">
-                </div>
-            </div>
-            `);
-        });
+                // الأرقام
+                const sRow = document.getElementById('statsRow');
+                console.log(data.stats);
 
-        // التعليقات
-        const tRow = document.getElementById('testimonialsRow');
-        (data.testimonials ?? []).forEach(t=>{
-            tRow.insertAdjacentHTML('beforeend', `
-            <div class="col-md-6 col-lg-4">
-                <div class="h-100 p-4 bg-white rounded-3 shadow-soft">
-                <div class="d-flex align-items-center gap-3">
-                    <img class="avatar" src="${t.avatar||'https://i.pravatar.cc/80'}" alt="${t.name}">
-                    <div>
-                    <div class="fw-semibold">${t.name}</div>
-                    <div class="small text-secondary">${t.role||''}</div>
+                (data.stats ?? []).forEach(s => {
+                    sRow.insertAdjacentHTML('beforeend', `
+                    <div class="col-6 col-lg-3">
+                        <div class="p-4 bg-white rounded-3 shadow-soft text-center">
+                            <div class="display-6 fw-bold text-brand">${new Intl.NumberFormat('ar-EG').format(s.number)}</div>
+                            <div class="small text-secondary">${s.label}</div>
+                        </div>
                     </div>
-                </div>
-                <p class="mt-3 mb-0">“${t.text}”</p>
-                </div>
-            </div>
-            `);
-        });
+                    `);
+                });
 
-        // الإنجازات
-        const aRow = document.getElementById('achievementsRow');
-        (data.achievements ?? []).forEach(a=>{
-            aRow.insertAdjacentHTML('beforeend', `
-            <div class="col-md-6 col-lg-4">
-                <div class="h-100 p-4 bg-white rounded-3 shadow-soft">
-                <div class="fs-2 text-brand"><i class="bi ${a.icon||'bi-award'}"></i></div>
-                <h5 class="mt-2">${a.title}</h5>
-                <p class="text-secondary mb-0">${a.desc}</p>
-                </div>
-            </div>
-            `);
-        });
+                // الشركاء
+                const pRow = document.getElementById('partnersRow');
+                (data.partners ?? []).forEach(p => {
+                    pRow.insertAdjacentHTML('beforeend', `
+                    <div class="col-6 col-md-3 col-lg-2">
+                        <div class="p-3 bg-white rounded-3 shadow-soft text-center">
+                            <img src="${p.icon ? BASE_URL + p.icon : 'https://i.pravatar.cc/80'}" class="img-fluid" alt="${p.name}">
+                        </div>
+                    </div>
+                    `);
+                });
 
-        // روابط المتاجر + فوتر
-        document.getElementById('appStoreLink').href = data.stores?.appStore || '#';
-        document.getElementById('playStoreLink').href = data.stores?.playStore || '#';
-        document.getElementById('footerAbout').textContent = data.footerAbout || data.about?.text || '';
-        })
-        .catch(err=>console.error('API /api/site error', err));
+                // التعليقات
+                const tRow = document.getElementById('testimonialsRow');
+                (data.testimonials ?? []).forEach(t => {
+                    tRow.insertAdjacentHTML('beforeend', `
+                    <div class="col-md-6 col-lg-4">
+                        <div class="h-100 p-4 bg-white rounded-3 shadow-soft">
+                            <div class="d-flex align-items-center gap-3">
+                                <img class="avatar" src="${t.icon ? BASE_URL + t.icon : 'https://i.pravatar.cc/80'}" alt="${t.name}">
+                                <div>
+                                    <div class="fw-semibold">${t.name}</div>
+                                    <div class="small text-secondary">${t.title || ''}</div>
+                                </div>
+                            </div>
+                            <p class="mt-3 mb-0">“${t.description}”</p>
+                        </div>
+                    </div>
+                    `);
+                });
+
+                // الإنجازات
+                const aRow = document.getElementById('achievementsRow');
+                (data.achievements ?? []).forEach(a => {
+                    aRow.insertAdjacentHTML('beforeend', `
+                    <div class="col-md-6 col-lg-4">
+                        <div class="h-100 p-4 bg-white rounded-3 shadow-soft">
+                            <div class="fs-2 text-brand"><i class="bi ${a.icon || 'bi-award'}"></i></div>
+                            <h5 class="mt-2">${a.title}</h5>
+                            <p class="text-secondary mb-0">${a.description}</p>
+                        </div>
+                    </div>
+                    `);
+                });
+
+                // روابط المتاجر + فوتر
+                document.getElementById('appStoreLink').href = data.stores?.appStore || '#';
+                document.getElementById('playStoreLink').href = data.stores?.playStore || '#';
+                document.getElementById('footerAbout').textContent = data.footerAbout || data.about?.text || '';
+            })
+            .catch(err => console.error('API /api/homepage-sections error', err));
     </script>
 
     @stack('scripts')

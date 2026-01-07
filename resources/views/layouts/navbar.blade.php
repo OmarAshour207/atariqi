@@ -17,8 +17,8 @@
         <li class="nav-item"><a class="nav-link" href="#achievements">إنجازاتنا</a></li>
       </ul>
       <div class="d-flex gap-2">
-        <a href="support.html" class="btn btn-outline-secondary">الدعم الفني</a>
-        <a href="login.html" class="btn btn-brand">دخول الموظفين</a>
+        <a href="{{ route('support') }}" class="btn btn-outline-secondary">الدعم الفني</a>
+        <a href="{{ route('dashboard.login') }}" class="btn btn-brand">دخول الموظفين</a>
       </div>
     </div>
   </div>

@@ -22,6 +22,8 @@ class User extends Authenticatable
         'user-stage-id',
         'call-key-id',
         'email',
+        'password',
+        'is_admin',
         'approval',
         'user-type',
         'image',

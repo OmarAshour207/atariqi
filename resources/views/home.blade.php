@@ -35,10 +35,10 @@
       <div class="col-lg-6">
         <img src="https://picsum.photos/800/520?random=9" class="rounded-3 w-100 shadow-soft" alt="عن الشركة">
       </div>
-      <div class="col-lg-6">
-        <h2 class="fw-bold mb-3">عن الشركة</h2>
-        <p id="aboutText" class="text-secondary mb-3">…</p>
-        <ul class="list-unstyled small text-secondary mb-0" id="aboutBullets"></ul>
+      <div class="col-lg-6" id="about_us_content">
+        <!-- <h2 class="fw-bold mb-3 about_us_title">عن الشركة</h2> -->
+        <!-- <p id="aboutText" class="text-secondary mb-3">…</p> -->
+        <!-- <ul class="list-unstyled small text-secondary mb-0" id="aboutBullets"></ul> -->
       </div>
     </div>
   </div>

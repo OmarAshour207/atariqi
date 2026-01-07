@@ -30,7 +30,7 @@
         <div class="input-group">
           <input type="email" class="form-control" name="email" required placeholder="username@altariqi.com">
           <span class="input-group-text">@company</span>
-          <div class="invalid-feedback">أدخل بريدًا صحيحًا ضمن نطاق الدومين.</div>
+            <div class="invalid-feedback">أدخل بريدًا صحيحًا ضمن نطاق الدومين.</div>
         </div>
         <div class="form-text">لن يُقبل سوى البريد المنتهي بدومين الشركة (مثلًا: @altariqi.com).</div>
       </div>
@@ -40,13 +40,13 @@
         <div class="input-group">
           <input type="password" class="form-control" name="password" minlength="8" required>
           <button class="btn btn-outline-secondary" type="button" id="togglePass"><i class="bi bi-eye"></i></button>
-          <div class="invalid-feedback">كلمة المرور لا تقل عن 8 أحرف.</div>
+            <div class="invalid-feedback">كلمة المرور لا تقل عن 8 أحرف.</div>
         </div>
       </div>
 
       <div class="d-flex justify-content-between align-items-center mb-3">
         <div class="form-check">
-          <input class="form-check-input" type="checkbox" id="remember">
+          <input class="form-check-input" name="remember" type="checkbox" id="remember">
           <label class="form-check-label" for="remember">تذكرني</label>
         </div>
         <a href="#" class="small">نسيت كلمة المرور؟</a>
@@ -61,7 +61,7 @@
 
     <hr>
     <div class="text-center">
-      <a href="index.html" class="small"><i class="bi bi-arrow-right-short"></i> العودة للموقع</a>
+      <a href="{{ route('home') }}" class="small"><i class="bi bi-arrow-right-short"></i> العودة للموقع</a>
     </div>
   </div>
 </div>
@@ -76,7 +76,7 @@
   });
 
   // تحقق من نطاق الدومين (عدّل الدومين هنا)
-  const COMPANY_DOMAIN = 'altariqi.com';
+  const COMPANY_DOMAIN = 'atariqi.com';
 
   document.getElementById('loginForm').addEventListener('submit', async (e)=>{
     e.preventDefault();
@@ -85,25 +85,28 @@
     if(!form.checkValidity()) return;
 
     const email = form.email.value.trim().toLowerCase();
-    if(!email.endsWith('@'+COMPANY_DOMAIN)){
-      showAlert('loginAlert','يسمح فقط ببريد الدومين الرسمي: @'+COMPANY_DOMAIN,'danger');
-      return;
-    }
+    // if(!email.endsWith('@'+COMPANY_DOMAIN)){
+    //   showAlert('loginAlert','يسمح فقط ببريد الدومين الرسمي: @'+COMPANY_DOMAIN,'danger');
+    //   return;
+    // }
 
     try{
-      const res = await fetch('/api/auth/login', {
+      const res = await fetch('/dashboard/login', {
         method:'POST',
-        headers:{'Content-Type':'application/json'},
+        headers:{
+            'Content-Type':'application/json',
+            'X-CSRF-TOKEN':'{{ csrf_token() }}'
+        },
         body: JSON.stringify({
           email,
           password: form.password.value,
-          remember: document.getElementById('remember').checked
+          remember: document.getElementById('remember').checked,
         })
       });
       if(!res.ok) throw new Error('unauthorized');
       const data = await res.json();
       showAlert('loginAlert','تم الدخول بنجاح. جارٍ تحويلك للوحة التحكم…','success');
-      setTimeout(()=>{ window.location.href = data.redirect || '/dashboard'; }, 900);
+      setTimeout(()=>{ window.location.href = data.redirect_url || '/dashboard/index'; }, 900);
     }catch(err){
       showAlert('loginAlert','بيانات الدخول غير صحيحة أو الحساب غير مخوّل.','danger');
     }
