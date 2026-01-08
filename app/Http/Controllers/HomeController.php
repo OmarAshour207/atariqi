@@ -22,8 +22,6 @@ class HomeController extends Controller
 
     public function homepageSections()
     {
-        $sections = HomepageSection::groupBy('section_key')->get();
-
         $data = [
             'about_us' => HomepageSection::where('section_key', 'about_us')->first(),
             'about_app' => HomepageSection::where('section_key', 'about_app')->first(),
