@@ -26,7 +26,7 @@ class TestimonialController extends Controller
             'name' => 'nullable|string|max:255',
             'title' => 'nullable|string|max:255',
             'description' => 'nullable|string',
-            'icon' => 'nullable',
+            'icon' => 'nullable|image',
         ]);
 
         // Handle image upload if needed
@@ -54,7 +54,7 @@ class TestimonialController extends Controller
         $validated = $request->validate([
             'title' => 'nullable|string|max:255',
             'content' => 'nullable|string',
-            'icon' => 'nullable',
+            'icon' => 'nullable|image',
         ]);
 
         // Handle image upload if needed

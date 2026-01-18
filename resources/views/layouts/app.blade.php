@@ -73,9 +73,9 @@
         <div class="col-md-3">
             <h6>تابعنا</h6>
             <div class="d-flex gap-3 fs-4">
-            <a href="#"><i class="bi bi-twitter-x"></i></a>
-            <a href="#"><i class="bi bi-instagram"></i></a>
-            <a href="#"><i class="bi bi-linkedin"></i></a>
+            <a href="{{ setting('twitter') }}"><i class="bi bi-twitter-x"></i></a>
+            <a href="{{ setting('instagram') }}"><i class="bi bi-instagram"></i></a>
+            <a href="{{ setting('linkedin') }}"><i class="bi bi-linkedin"></i></a>
             </div>
         </div>
         </div>
@@ -103,21 +103,21 @@
             .then(data => {
                 // عن الشركة
                 document.getElementById('about_us_content').innerHTML = data.about_us?.content ?? '';
+                document.getElementById('about_us_icon').src = data.about_us?.icon ? BASE_URL + data.about_us.icon : 'https://i.pravatar.cc/80';
 
                 // عن التطبيق – المزايا
-                document.getElementById('appText').textContent = data.about_app?.content ?? '';
-                const fWrap = document.getElementById('features');
-                fWrap.innerHTML = data.about_app?.content ?? '';
+                document.getElementById('appText').innerHTML = data.about_app?.content ?? '';
+                // const fWrap = document.getElementById('features');
+                // fWrap.innerHTML = data.about_app?.content ?? '';
 
                 // الأرقام
                 const sRow = document.getElementById('statsRow');
-                console.log(data.stats);
 
                 (data.stats ?? []).forEach(s => {
                     sRow.insertAdjacentHTML('beforeend', `
                     <div class="col-6 col-lg-3">
                         <div class="p-4 bg-white rounded-3 shadow-soft text-center">
-                            <div class="display-6 fw-bold text-brand">${new Intl.NumberFormat('ar-EG').format(s.number)}</div>
+                            <div class="display-6 fw-bold text-brand">${s.number}</div>
                             <div class="small text-secondary">${s.label}</div>
                         </div>
                     </div>

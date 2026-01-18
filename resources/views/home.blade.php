@@ -33,7 +33,7 @@
   <div class="container">
     <div class="row g-4 align-items-center">
       <div class="col-lg-6">
-        <img src="https://picsum.photos/800/520?random=9" class="rounded-3 w-100 shadow-soft" alt="عن الشركة">
+        <img id="about_us_icon" src="https://picsum.photos/800/520?random=9" class="rounded-3 w-100 shadow-soft" alt="عن الشركة">
       </div>
       <div class="col-lg-6" id="about_us_content">
         <!-- <h2 class="fw-bold mb-3 about_us_title">عن الشركة</h2> -->
@@ -50,7 +50,7 @@
     <div class="row g-4">
       <div class="col-12">
         <h2 class="fw-bold mb-3">عن التطبيق</h2>
-        <p id="appText" class="text-secondary">…</p>
+        <p id="appText">…</p>
       </div>
       <div id="features" class="row g-4"></div>
     </div>

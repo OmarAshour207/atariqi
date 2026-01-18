@@ -27,7 +27,7 @@ Route::get('/', [HomeController::class, 'home'])->name('home');
 Route::get('/support', [HomeController::class, 'support'])->name('support');
 Route::get('/homepage-sections', [HomeController::class, 'homepageSections'])->name('homepage.sections');
 
-Route::get('dashboard/login', [LoginController::class, 'showLogin'])->name('dashboard.login');
+Route::get('dashboard/login', [LoginController::class, 'showLogin'])->name('dashboard.loginForm');
 Route::post('dashboard/login', [LoginController::class, 'login'])->name('dashboard.login');
 
 Route::middleware(['auth', 'is_admin'])->prefix('dashboard')->group(function () {

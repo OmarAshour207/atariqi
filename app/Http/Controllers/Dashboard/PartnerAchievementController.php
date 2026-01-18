@@ -27,13 +27,13 @@ class PartnerAchievementController extends Controller
         $validated = $request->validate([
             'title' => 'nullable|string|max:255',
             'description' => 'nullable|string|max:255',
-            'icon' => 'nullable',
+            'icon' => 'nullable|image',
             'type' => 'nullable|string|max:255'
         ]);
 
         // Handle image upload if needed
         if ($request->hasFile('icon')) {
-            $path = $request->file('icon')->store('homepage-stats', 'public');
+            $path = $request->file('icon')->store('partners', 'public');
             $validated['icon'] = '/storage/' . $path;
         }
 
@@ -45,28 +45,28 @@ class PartnerAchievementController extends Controller
 
     public function edit(Request $request, $id)
     {
-        $stat = PartnerAchievement::findOrFail($id);
-        return view('dashboard.partner_achievements.edit', compact('stat'));
+        $partnerAchievement = PartnerAchievement::findOrFail($id);
+        return view('dashboard.partner_achievements.edit', compact('partnerAchievement'));
     }
 
     public function update(Request $request, $id)
     {
-        $stat = PartnerAchievement::findOrFail($id);
+        $partnerAchievement = PartnerAchievement::findOrFail($id);
 
         $validated = $request->validate([
             'title' => 'nullable|string|max:255',
             'description' => 'nullable|string|max:255',
-            'icon' => 'nullable|url|max:500',
+            'icon' => 'nullable|image',
             'type' => 'nullable|string|max:255'
         ]);
 
         // Handle image upload if needed
         if ($request->hasFile('icon')) {
-            $path = $request->file('icon')->store('homepage-stats', 'public');
+            $path = $request->file('icon')->store('partners', 'public');
             $validated['icon'] = '/storage/' . $path;
         }
 
-        $stat->update($validated);
+        $partnerAchievement->update($validated);
         return redirect()->route('partner-achievements.index', ['type' => $validated['type'] ?? null])
             ->with('success', 'Stat updated successfully.');
     }

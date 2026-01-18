@@ -25,7 +25,7 @@ class HomepageStatController extends Controller
         $validated = $request->validate([
             'number' => 'nullable|string|max:255',
             'label' => 'nullable|string|max:255',
-            'icon' => 'nullable'
+            'icon' => 'nullable|image',
         ]);
 
         // Handle image upload if needed
@@ -53,7 +53,7 @@ class HomepageStatController extends Controller
         $validated = $request->validate([
             'number' => 'nullable|string|max:255',
             'label' => 'nullable|string|max:255',
-            'icon' => 'nullable|url|max:500',
+            'icon' => 'nullable|image',
         ]);
 
         // Handle image upload if needed
@@ -63,7 +63,7 @@ class HomepageStatController extends Controller
         }
 
         $stat->update($validated);
-        return redirect()->back()
+        return redirect()->route('homepage-stats.index')
             ->with('success', 'Section updated successfully.');
     }
 

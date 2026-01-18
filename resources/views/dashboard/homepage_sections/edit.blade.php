@@ -13,6 +13,7 @@
                     <nav aria-label="breadcrumb">
                         <ol class="breadcrumb mb-0">
                             <li class="breadcrumb-item"><a href="{{ route('dashboard.index') }}"><i class="material-icons icon-20pt">home</i> {{ __('Home') }} </a></li>
+                            <li class="breadcrumb-item">{{ request()->segments()[2] ?? '' }}</li>
                             <li class="breadcrumb-item active" aria-current="page">{{ __('Edit') }}</li>
                         </ol>
                     </nav>

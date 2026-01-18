@@ -22,6 +22,15 @@ use Illuminate\Support\Facades\Log;
 
 class HomeController extends BaseController
 {
+    public function test()
+    {
+        sendNotification([
+            'title' => 'test Title',
+            'body' => 'test description',
+            'tokens' => ['eZObSH63ToGe9YfyYa3rzd:APA91bFmsoCurAtLLDcmc3sY9L5BjiqMujoSWEudy4KHh6MT3gl1ISOk5zuEl78qMwryXnhGfLZZOrRuQ1VzJQq-vCkL5MA-zUiMF7siz4cieQF0orwo1Cq7ubzF8QHFiFlO41oqnA7W']
+        ]);
+    }
+
     public function get()
     {
         $services = Service::all();

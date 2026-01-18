@@ -30,7 +30,7 @@ class HomepageSectionController extends Controller
         $validated = $request->validate([
             'title' => 'nullable|string|max:255',
             'content' => 'nullable|string',
-            'icon' => 'nullable|url|max:500',
+            'icon' => 'nullable|image',
         ]);
 
         // Handle image upload if needed

@@ -19,7 +19,7 @@
         <div class="container-fluid page__container">
 
             <div class="card card-form__body card-body">
-                <form method="post" action="{{ route('partner_achievements.update', $partnerAchievement->id) }}" enctype="multipart/form-data">
+                <form method="post" action="{{ route('partner-achievements.update', $partnerAchievement->id) }}" enctype="multipart/form-data">
 
                     @csrf
                     @method('put')

@@ -27,8 +27,8 @@ class HomeController extends Controller
             'about_app' => HomepageSection::where('section_key', 'about_app')->first(),
             'stats' => HomepageStat::all(),
             'testimonials' => Testimonial::all(),
-            'achievements' => PartnerAchievement::where('type', 'achievement')->get(),
-            'partners' => PartnerAchievement::where('type', 'partner')->get(),
+            'achievements' => PartnerAchievement::where('type', 'achievements')->get(),
+            'partners' => PartnerAchievement::where('type', 'partners')->get(),
         ];
 
         return response()->json($data);
