@@ -55,7 +55,7 @@
                         <li class="sidebar-menu-item">
                             <a class="sidebar-menu-button" href="{{ route('partner-achievements.index', ['type' => 'achievements']) }}">
                                 <i class="fa fa-info"></i>
-                                <span class="sidebar-menu-text"> {{ __('Partner Achievements') }}</span>
+                                <span class="sidebar-menu-text"> {{ __('Our Achievements') }}</span>
                             </a>
                         </li>
 

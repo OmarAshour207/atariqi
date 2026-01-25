@@ -11,7 +11,7 @@
                             <li class="breadcrumb-item active" aria-current="page">{{ __('Edit') }}</li>
                         </ol>
                     </nav>
-                    <h1 class="m-0"> {{ __('Partner Achievements') }} </h1>
+                    <h1 class="m-0"> {{ $partnerAchievement->type == 'partners' ? __('Our Partners') : __('Our Achievements') }} </h1>
                 </div>
             </div>
         </div>
@@ -31,10 +31,12 @@
                         <input id="title" name="title" dir="auto" type="text" class="form-control" placeholder="{{ __("Title") }}" value="{{ old("title", $partnerAchievement->title) }}">
                     </div>
 
-                    <div class="form-group">
-                        <label for="description">{{ __("Description") }}</label>
-                        <textarea id="description" name="description" class="form-control">{{ old("description", $partnerAchievement->description) }}</textarea>
-                    </div>
+                    @if($partnerAchievement->type != 'partners')
+                        <div class="form-group">
+                            <label for="description">{{ __("Description") }}</label>
+                            <textarea id="description" name="description" class="form-control">{{ old("description", $partnerAchievement->description) }}</textarea>
+                        </div>
+                    @endif
 
                     <div class="form-group">
                         <label for="icon"> {{ __("Icon") }}</label>

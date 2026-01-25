@@ -172,7 +172,7 @@
                 // روابط المتاجر + فوتر
                 document.getElementById('appStoreLink').href = data.stores?.appStore || '#';
                 document.getElementById('playStoreLink').href = data.stores?.playStore || '#';
-                document.getElementById('footerAbout').textContent = data.footerAbout || data.about?.text || '';
+                document.getElementById('footerAbout').innerHTML = data.about_us?.content ?? '';
             })
             .catch(err => console.error('API /api/homepage-sections error', err));
     </script>

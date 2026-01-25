@@ -8,10 +8,10 @@
                     <nav aria-label="breadcrumb">
                         <ol class="breadcrumb mb-0">
                             <li class="breadcrumb-item"><a href="{{ route('dashboard.index') }}"><i class="material-icons icon-20pt">home</i> {{ __('Home') }} </a></li>
-                            <li class="breadcrumb-item active" aria-current="page">{{ __('stats') }}</li>
+                            <li class="breadcrumb-item active" aria-current="page">{{ __('Our Numbers') }}</li>
                         </ol>
                     </nav>
-                    <h1 class="m-0"> {{ __('stats') }} </h1>
+                    <h1 class="m-0"> {{ __('Our Numbers') }} </h1>
                 </div>
                 <a href="{{ route('homepage-stats.create') }}" class="btn btn-success ml-3">{{ __('Create') }} <i class="material-icons">add</i></a>
             </div>

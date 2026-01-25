@@ -11,7 +11,7 @@
                             <li class="breadcrumb-item active" aria-current="page">{{ __('Create') }}</li>
                         </ol>
                     </nav>
-                    <h1 class="m-0"> {{ __('Partner Achievements') }} </h1>
+                    <h1 class="m-0"> {{ request()->get('type') == 'partners' ? __('Our Partners') : __('Our Achievements') }} </h1>
                 </div>
             </div>
         </div>
