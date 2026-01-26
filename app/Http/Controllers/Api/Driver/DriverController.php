@@ -23,7 +23,7 @@ class DriverController extends BaseController
         $success['finished_rides'] = $this->getFinishedRides();
         $success['cancelled_rides'] = $this->getCancelledRides();
         $success['service_started'] = $this->checkStartService();
-        $success['active_package'] = new UserPackageResource($activePackage);
+        $success['active_package'] = $activePackage ? new UserPackageResource($activePackage) : null;
 
         return $this->sendResponse($success, __('Data'));
     }
