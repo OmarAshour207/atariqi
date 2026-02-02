@@ -35,7 +35,7 @@
 
                             <th> # </th>
                             <th> {{ __('Name') }} </th>
-                            <th> {{ __('Title') }} </th>
+                            <th> {{ __('Stars') }} </th>
                             <th> {{ __('Description') }} </th>
                             <th> {{ __('Action') }} </th>
                             </tr>
@@ -65,7 +65,7 @@
                             <td>
                                 <div class="d-flex align-items-center">
                                     <div class="d-flex align-items-center">
-                                        {{ mb_substr($testimonial->title, 0, 20) }}
+                                        {{ $testimonial->title }}
                                     </div>
                                 </div>
                             </td>

@@ -32,6 +32,13 @@
                         </li>
 
                         <li class="sidebar-menu-item">
+                            <a class="sidebar-menu-button" href="{{ route('homepage-sections.edit', ['homepage_section' => 'sliders']) }}">
+                                <i class="fa fa-info"></i>
+                                <span class="sidebar-menu-text"> {{ __('Sliders') }}</span>
+                            </a>
+                        </li>
+
+                        <li class="sidebar-menu-item">
                             <a class="sidebar-menu-button" href="{{ route('homepage-stats.index', ) }}">
                                 <i class="fa fa-info"></i>
                                 <span class="sidebar-menu-text"> {{ __('Our Numbers') }}</span>

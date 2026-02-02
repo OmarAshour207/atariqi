@@ -31,8 +31,8 @@
 
 
                     <div class="form-group">
-                        <label for="title"> {{ __("Title") }}</label>
-                        <input id="title" name="title" dir="auto" type="text" class="form-control" placeholder="{{ __("Title") }}" value="{{ old("title") }}">
+                        <label for="stars"> {{ __("Stars Number") }}</label>
+                        <input id="stars" name="title" dir="auto" min="1" max="5" type="number" class="form-control" placeholder="{{ __("Stars Number") }}" value="{{ old("title") }}">
                     </div>
 
                     <div class="form-group">

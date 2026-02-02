@@ -12,7 +12,9 @@ class HomeController extends Controller
 {
     public function home()
     {
-        return view('home');
+        return view('home', [
+            'slider' => HomepageSection::where('section_key', 'sliders')->first(),
+        ]);
     }
 
     public function support()

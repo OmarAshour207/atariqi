@@ -61,7 +61,7 @@
         <div class="row g-4">
         <div class="col-md-6">
             <h5>عن رافقني</h5>
-            <p class="small text-white-50" id="footerAbout">…</p>
+            <p class="small text-white-50">{{ setting('address') }}</p>
         </div>
         <div class="col-md-3">
             <h6>روابط</h6>
@@ -146,7 +146,9 @@
                                 <img class="avatar" src="${t.icon ? BASE_URL + t.icon : 'https://i.pravatar.cc/80'}" alt="${t.name}">
                                 <div>
                                     <div class="fw-semibold">${t.name}</div>
-                                    <div class="small text-secondary">${t.title || ''}</div>
+                                    <div class="small text-secondary">
+                                        ${'<i class="bi bi-star-fill text-warning"></i>'.repeat(t.title || 0)}
+                                    </div>
                                 </div>
                             </div>
                             <p class="mt-3 mb-0">“${t.description}”</p>

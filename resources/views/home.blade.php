@@ -7,8 +7,8 @@
     <div class="row align-items-center g-4">
       <div class="col-lg-6">
         <span class="badge badge-soft mb-3"><i class="bi bi-geo-alt-fill me-1"></i>على طريقي – رافقني</span>
-        <h1 class="display-5 fw-bold lh-sm mb-3">رفيقك اليومي للتنقّل الذكي</h1>
-        <p class="lead text-secondary mb-4">حل موثوق لرحلاتك اليومية والتجارية مع تجربة سلسة، آمنة، وسريعة. كل بيانات هذه الصفحة تُجلب لحظيًا من قاعدة بيانات الشركة.</p>
+        <h1 class="display-5 fw-bold lh-sm mb-3">{{ $slider->title }}</h1>
+        <p class="lead text-secondary mb-4">{!! $slider->content !!}</p>
         <div class="d-flex gap-2 app-badges flex-wrap">
           <a id="appStoreLink" class="d-inline-block" href="{{ setting('app_store') }}" target="_blank" rel="noopener">
             <img src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="App Store">
@@ -20,7 +20,7 @@
       </div>
       <div class="col-lg-6">
         <div class="bg-white rounded-xxl p-3 shadow-soft">
-          <img src="https://picsum.photos/960/540?random=12" class="w-100 rounded-3" alt="لقطة توضيحية للتطبيق">
+          <img src="{{ url($slider->icon) }}" class="w-100 rounded-3" alt="لقطة توضيحية للتطبيق">
         </div>
       </div>
     </div>
@@ -60,7 +60,7 @@
 <!-- الأرقام -->
 <section id="stats" class="py-5">
   <div class="container">
-    <h2 class="fw-bold mb-4">أرقام نفخر بها</h2>
+    <h2 class="fw-bold mb-4">تواصل معنا عبر</h2>
     <div class="row g-4" id="statsRow">
       <!-- يتم ملؤها دِيناميكيًا -->
     </div>
