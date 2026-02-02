@@ -20,7 +20,7 @@
       </div>
       <div class="col-lg-6">
         <div class="bg-white rounded-xxl p-3 shadow-soft">
-          <img src="{{ url($slider->icon) }}" class="w-100 rounded-3" alt="لقطة توضيحية للتطبيق">
+          <img src="{{ $slider->icon ? url($slider->icon) : '' }}" class="w-100 rounded-3" alt="لقطة توضيحية للتطبيق">
         </div>
       </div>
     </div>
