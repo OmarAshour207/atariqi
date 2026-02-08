@@ -31,10 +31,13 @@
                         <input id="title" name="title" dir="auto" type="text" class="form-control" placeholder="{{ __("Title") }}" value="{{ old("title") }}">
                     </div>
 
-                    <div class="form-group">
-                        <label for="description"> {{ __("Description") }}</label>
-                        <textarea id="description" name="description" dir="auto" class="form-control" placeholder="{{ __("Description") }}" rows="4">{{ old("description") }}</textarea>
-                    </div>
+                    @if(request()->get('type') != 'partners')
+
+                        <div class="form-group">
+                            <label for="description"> {{ __("Description") }}</label>
+                            <textarea id="description" name="description" dir="auto" class="form-control" placeholder="{{ __("Description") }}" rows="4">{{ old("description") }}</textarea>
+                        </div>
+                    @endif
 
                     <div class="form-group">
                         <label for="icon"> {{ __("Icon") }}</label>
