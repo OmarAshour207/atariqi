@@ -60,7 +60,7 @@
     <div class="container pb-4">
         <div class="row g-4">
         <div class="col-md-6">
-            <h5>عن رافقني</h5>
+            <h5>رافقني</h5>
             <p class="small text-white-50">{{ setting('address') }}</p>
         </div>
         <div class="col-md-3">

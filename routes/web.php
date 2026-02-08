@@ -30,7 +30,7 @@ Route::get('/homepage-sections', [HomeController::class, 'homepageSections'])->n
 Route::get('dashboard/login', [LoginController::class, 'showLogin'])->name('dashboard.loginForm');
 Route::post('dashboard/login', [LoginController::class, 'login'])->name('dashboard.login');
 
-Route::middleware(['auth', 'is_admin'])->prefix('dashboard')->group(function () {
+Route::middleware(['is_admin'])->prefix('dashboard')->group(function () {
     Route::get('index', [DashboardHomeController::class, 'index'])->name('dashboard.index');
 
     Route::Resource('homepage-sections', HomepageSectionController::class);
