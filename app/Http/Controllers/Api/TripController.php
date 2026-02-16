@@ -13,6 +13,7 @@ use App\Models\SugDayDriver;
 use App\Models\SugWeekDriver;
 use App\Models\SuggestionDriver;
 use App\Models\WeekRideBooking;
+use App\Services\WaslService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -20,6 +21,13 @@ use Illuminate\Support\Facades\Validator;
 
 class TripController extends BaseController
 {
+    protected $waslService;
+
+    public function __construct(WaslService $waslService)
+    {
+        $this->waslService = $waslService;
+    }
+
     public function getPassengerTrips()
     {
         $today = Carbon::today()->format('Y-m-d');
@@ -147,6 +155,8 @@ class TripController extends BaseController
             'current-lat' => $data['lat'],
             'current-lng' => $data['lng'],
         ]);
+
+        $this->waslService->updateTripLocation($trip);
 
         return $this->sendResponse([], __('Location updated successfully'));
     }

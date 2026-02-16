@@ -19,6 +19,7 @@ class DriverInfo extends Model
         'car-model',
         'car-number',
         'car-letters',
+        'sequence-number',
         'car-color',
         'driver-neighborhood',
         'driver-rate',

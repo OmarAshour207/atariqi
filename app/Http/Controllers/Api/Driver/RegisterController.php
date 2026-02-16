@@ -11,6 +11,7 @@ use App\Models\Package;
 use App\Models\User;
 use App\Models\UserPackage;
 use App\Rules\UniquePhoneNumberForUserType;
+use App\Services\WaslService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
@@ -19,6 +20,13 @@ use Illuminate\Support\Facades\Validator;
 
 class RegisterController extends BaseController
 {
+    protected $waslService;
+
+    public function __construct(WaslService $waslService)
+    {
+        $this->waslService = $waslService;
+    }
+
     public function register(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -43,6 +51,7 @@ class RegisterController extends BaseController
             'identity_number'   => 'required|string|unique:driver-info,identity_number',
             'date_of_birth'       => 'nullable|string',
             'date_of_birth_hijri' => 'nullable|string',
+            'sequence_number'     => 'required|string',
 
             'car_form_img'      => 'required|mimes:jpeg,jpg,png',
             'car_front_img'     => 'required|mimes:jpeg,jpg,png',
@@ -79,6 +88,7 @@ class RegisterController extends BaseController
                 'car-number'    => $data['car-number'],
                 'car-letters'   => $data['car-letters'],
                 'car-color'     => $data['car-color'],
+                'sequence-number' => $data['sequence_number'],
                 'driver-license-link' => $images['license_img'],
                 'identity_number'   => $data['identity_number'],
                 'date_of_birth'       => $data['date_of_birth'] ?? null,
@@ -104,6 +114,8 @@ class RegisterController extends BaseController
                 'status'        => UserPackage::STATUS_ACTIVE,
                 'interval'     => 'yearly'
             ]);
+
+            $this->waslService->registerDriver($user);
 
             DB::commit();
         } catch (\Exception $e) {
