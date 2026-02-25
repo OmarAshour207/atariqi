@@ -34,6 +34,7 @@ class RegisterResource extends JsonResource
     function splitChars(string $str): array
     {
         mb_internal_encoding('UTF-8');
+        $str = str_replace(' ', '', $str);
         return mb_str_split($str);
     }
 }

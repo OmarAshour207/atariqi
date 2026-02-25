@@ -29,6 +29,8 @@ class RegisterController extends BaseController
 
     public function register(Request $request)
     {
+        Log::info('Driver registration attempt', ['request_data' => $request->all()]);
+
         $validator = Validator::make($request->all(), [
             'user-first-name'   => 'required|string|max:20',
             'user-last-name'    => 'required|string|max:20',
