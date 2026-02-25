@@ -95,7 +95,8 @@
         method:'POST',
         headers:{
             'Content-Type':'application/json',
-            'X-CSRF-TOKEN':'{{ csrf_token() }}'
+            'X-CSRF-TOKEN':'{{ csrf_token() }}',
+            'accept':'application/json'
         },
         body: JSON.stringify({
           email,

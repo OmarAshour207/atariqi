@@ -18,13 +18,13 @@ class LoginController extends Controller
     public function login(Request $request)
     {
         $request->validate([
-            'email' => 'required|email|exists:users,email',
+            'email' => 'required|email|exists:admins,email',
             'password' => 'required|string|min:6',
         ]);
 
         $credentials = $request->only('email', 'password');
 
-        if (!auth()->attempt($credentials)) {
+        if (!auth()->guard('admin')->attempt($credentials)) {
             return response()->json([
                 'success' => false,
                 'message' => 'The provided credentials do not match our records.',
@@ -41,7 +41,7 @@ class LoginController extends Controller
     public function logout(Request $request)
     {
         Session::flush();
-        Auth::logout();
+        Auth::guard('admin')->logout();
         return redirect()->route('dashboard.login');
     }
 

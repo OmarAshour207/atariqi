@@ -58,16 +58,16 @@
                     <li class="nav-item dropdown">
                         <a href="#account_menu" class="nav-link dropdown-toggle" data-toggle="dropdown" data-caret="false">
                                     <span class="mr-1 d-flex-inline">
-                                        <span class="text-light"> {{ auth()->user()->name }} </span>
+                                        <span class="text-light"> {{ auth()->guard('admin')->user()->name }} </span>
                                     </span>
-                            <img src="{{ auth()->user()->thumbImage }}" class="rounded-circle" width="32" alt="Frontted">
+                            <img src="{{ auth()->guard('admin')->user()->thumbImage }}" class="rounded-circle" width="32" alt="Frontted">
                         </a>
                         <div id="account_menu" class="dropdown-menu dropdown-menu-right">
                             <div class="dropdown-item-text dropdown-item-text--lh">
                                 <div>
-                                    <strong> {{ auth()->user()->name }} </strong>
+                                    <strong> {{ auth()->guard('admin')->user()->name }} </strong>
                                 </div>
-                                <div class="text-muted"> @ {{ auth()->user()->email }}</div>
+                                <div class="text-muted"> @ {{ auth()->guard('admin')->user()->email }}</div>
                             </div>
                             <div class="dropdown-divider"></div>
                             <a class="dropdown-item" href="{{ route('dashboard.index') }}"><i class="material-icons">dvr</i> {{ __('Dashboard') }}</a>

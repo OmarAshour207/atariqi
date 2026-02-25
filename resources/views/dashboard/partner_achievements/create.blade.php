@@ -39,10 +39,12 @@
                         </div>
                     @endif
 
-                    <div class="form-group">
-                        <label for="icon"> {{ __("Icon") }}</label>
-                        <input id="icon" name="icon" dir="auto" type="file" class="form-control" placeholder="{{ __("Icon") }}" value="{{ old("icon") }}">
-                    </div>
+                    @if(request()->get('type') == 'partners')
+                        <div class="form-group">
+                            <label for="icon"> {{ __("Icon") }}</label>
+                            <input id="icon" name="icon" dir="auto" type="file" class="form-control" placeholder="{{ __("Icon") }}" value="{{ old("icon") }}">
+                        </div>
+                    @endif
 
                     <div class="text-right mb-5">
                         <input type="submit" class="btn btn-success" value="{{ __('Add') }}">

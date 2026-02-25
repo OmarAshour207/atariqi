@@ -11,7 +11,7 @@
                             <li class="breadcrumb-item active" aria-current="page">{{ request()->get('type') == 'partners' ? __('Our Partners') : __('Partner Achievements') }}</li>
                         </ol>
                     </nav>
-                    <h1 class="m-0"> {{ request()->get('type') == 'partners' ? __('Our Partners') : __('Partner Achievements') }} </h1>
+                    <h1 class="m-0"> {{ request()->get('type') == 'partners' ? __('Our Partners') : __('Our Achievements') }} </h1>
                 </div>
                 <a href="{{ route('partner-achievements.create', ['type' => request()->input('type', 'partners')]) }}" class="btn btn-success ml-3">{{ __('Create') }} <i class="material-icons">add</i></a>
             </div>

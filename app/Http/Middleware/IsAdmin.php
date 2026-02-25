@@ -16,7 +16,7 @@ class IsAdmin
      */
     public function handle(Request $request, Closure $next)
     {
-        if (!auth()->check() || !auth()->user()->is_admin) {
+        if (!auth()->guard('admin')->check()) {
             return redirect()->route('dashboard.login');
         }
         return $next($request);
