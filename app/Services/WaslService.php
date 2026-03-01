@@ -83,7 +83,9 @@ class WaslService
                 return $response->json();
             }
 
-            throw new \Exception($response->body());
+            $responseBody = $response->json();
+
+            throw new \Exception($responseBody['resultMsg'] ?? $response->body());
 
         } catch (\Exception $e) {
             Log::channel('wasl')->error('Error storing trip to Wasl', ['trip_id' => $trip->id, 'error' => $e->getMessage()]);
