@@ -49,7 +49,7 @@ class WaslService
 
             $responseBody = $response->json();
 
-            throw new \Exception($responseBody['resultMsg'] ?? $response->body());
+            throw new \Exception($responseBody['resultMsg'] ?? __('Failed to register driver to Wasl'));
 
         } catch (\Exception $e) {
             Log::channel('wasl')->error('Error registering driver to Wasl', ['driver_id' => $driver->id, 'error' => $e->getMessage()]);
