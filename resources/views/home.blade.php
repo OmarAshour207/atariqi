@@ -48,11 +48,13 @@
 <section id="app" class="py-5 bg-white">
   <div class="container">
     <div class="row g-4">
-      <div class="col-12">
+      <div class="col-lg-6">
+        <img id="about_app_icon" src="https://picsum.photos/800/520?random=9" class="rounded-3 w-100 shadow-soft" alt="عن التطبيق">
+      </div>
+      <div class="col-lg-6" id="about_app_content">
         <h2 class="fw-bold mb-3">عن التطبيق</h2>
         <p id="appText">…</p>
       </div>
-      <div id="features" class="row g-4"></div>
     </div>
   </div>
 </section>

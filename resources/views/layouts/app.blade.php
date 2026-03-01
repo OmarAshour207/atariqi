@@ -107,6 +107,7 @@
 
                 // عن التطبيق – المزايا
                 document.getElementById('appText').innerHTML = data.about_app?.content ?? '';
+                document.getElementById('about_app_icon').src = data.about_app?.icon ? BASE_URL + data.about_app.icon : 'https://i.pravatar.cc/80';
                 // const fWrap = document.getElementById('features');
                 // fWrap.innerHTML = data.about_app?.content ?? '';
 
@@ -127,9 +128,10 @@
                 // الشركاء
                 const pRow = document.getElementById('partnersRow');
                 (data.partners ?? []).forEach(p => {
+                    // i need to make the images with same height and auto width, and make them centered inside their container
                     pRow.insertAdjacentHTML('beforeend', `
                     <div class="col-6 col-md-3 col-lg-2">
-                        <div class="p-3 bg-white rounded-3 shadow-soft text-center">
+                        <div class="p-3 bg-white rounded-3 shadow-soft text-center d-flex align-items-center justify-content-center" style="height:100px">
                             <img src="${p.icon ? BASE_URL + p.icon : 'https://i.pravatar.cc/80'}" class="img-fluid" alt="${p.name}">
                         </div>
                     </div>
