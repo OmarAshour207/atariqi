@@ -17,7 +17,7 @@
                             <li class="breadcrumb-item active" aria-current="page">{{ __('Edit') }}</li>
                         </ol>
                     </nav>
-                    <h1 class="m-0"> {{ __('Homepage Sections') }} </h1>
+                    <h1 class="m-0"> {{ request()->segments()[2] ?? '' }} </h1>
                 </div>
             </div>
         </div>

@@ -123,7 +123,7 @@ class RegisterController extends BaseController
         } catch (\Exception $e) {
             Log::error("there is an error while storing user {$e->getMessage()}");
             DB::rollBack();
-            return $this->sendError('s_unexpected_error', [__('Unexpected Error!')], 422);
+            return $this->sendError('s_unexpected_error', [$e->getMessage()], 422);
         }
 
         $success['driver'] = $user;

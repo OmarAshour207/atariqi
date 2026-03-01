@@ -122,4 +122,9 @@ class User extends Authenticatable
         ->where('user_packages.end_date', '>=', now())
         ->latest('user_packages.created_at');
     }
+
+    public function getFullNameAttribute()
+    {
+        return $this->{'user-first-name'} . ' ' . $this->{'user-last-name'};
+    }
 }

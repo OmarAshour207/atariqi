@@ -8,7 +8,7 @@
                     <nav aria-label="breadcrumb">
                         <ol class="breadcrumb mb-0">
                             <li class="breadcrumb-item"><a href="{{ route('dashboard.index') }}"><i class="material-icons icon-20pt">home</i> {{ __('Home') }} </a></li>
-                            <li class="breadcrumb-item active" aria-current="page">{{ request()->get('type') == 'partners' ? __('Our Partners') : __('Partner Achievements') }}</li>
+                            <li class="breadcrumb-item active" aria-current="page">{{ request()->get('type') == 'partners' ? __('Our Partners') : __('Our Achievements') }}</li>
                         </ol>
                     </nav>
                     <h1 class="m-0"> {{ request()->get('type') == 'partners' ? __('Our Partners') : __('Our Achievements') }} </h1>
