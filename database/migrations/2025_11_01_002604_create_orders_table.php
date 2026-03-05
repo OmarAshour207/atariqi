@@ -19,7 +19,7 @@ return new class extends Migration
             $table->bigInteger('user_id');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
 
-            $table->foreignId('package_id')->constrained()->onDelete('cascade');
+            $table->foreignId('package_id')->nullable()->constrained()->onDelete('cascade');
 
             $table->tinyInteger('status')->default(Order::STATUS_PENDING);
             $table->string('interval')->default('monthly');

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Driver;
 
 use App\Http\Controllers\Api\BaseController;
+use App\Models\FinancialDue;
 use App\Models\Order;
 use App\Models\UserPackage;
 use App\Models\UserPackageHistory;
@@ -29,6 +30,17 @@ class WebhookController extends BaseController
 
             if($order && $order->type === Order::TYPE_UPGRADE) {
                 return $this->upgrade($order);
+            }
+
+            if($order && $order->type === Order::TYPE_PAY_DUE) {
+                $order->update(['status' => Order::STATUS_COMPLETED]);
+                Log::channel('payment')->info('Dues Payment Completed for Order Ref: ' . $request->input('tran_cartid'));
+                FinancialDue::create([
+                    'driver-id' => $order->user_id,
+                    'amount' => $order->amount,
+                    'date-of-add' => now()
+                ]);
+                return $this->sendResponse([], __('Dues payment completed successfully.'));
             }
 
             return response()->json(['status' => 'ignored']);

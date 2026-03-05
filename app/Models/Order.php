@@ -15,6 +15,7 @@ class Order extends Model
 
     const TYPE_SUBSCRIPTION = 'subscription';
     const TYPE_UPGRADE = 'upgrade';
+    const TYPE_PAY_DUE = 'pay_due';
 
     protected $fillable = [
         'user_id',

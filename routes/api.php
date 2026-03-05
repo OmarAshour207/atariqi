@@ -142,6 +142,8 @@ Route::group([
 
             Route::get('dues', [DuesController::class, 'getData']);
 
+            Route::post('dues/pay', [DuesController::class, 'payDues']);
+
             Route::get('announcements', [AnnouncementController::class, 'index']);
 
             Route::get('trips/{type}/today', [DailyTripsController::class, 'getToday']);
