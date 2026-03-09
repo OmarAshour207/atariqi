@@ -38,10 +38,10 @@ class SuggestionDriver extends Model
     {
         return $query->where('action', 5)
             ->when($dates[0]['start_date'], function ($query, $startDate) {
-                $query->whereDate('date-of-add', '>=', $startDate);
+                $query->where('date-of-add', '>=', $startDate);
             })
             ->when($dates[0]['end_date'], function ($query, $endDate) {
-                $query->whereDate('date-of-add', '<=', $endDate);
+                $query->where('date-of-add', '<=', $endDate);
             })
             ->where('driver-id', $userId);
     }
