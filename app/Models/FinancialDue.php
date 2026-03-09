@@ -15,7 +15,8 @@ class FinancialDue extends Model
 
     protected $fillable = [
         'driver-id',
-        'amount'
+        'amount',
+        'date-of-add'
     ];
 
     protected $casts = [
