@@ -16,7 +16,6 @@ use App\Models\SugDayDriver;
 use App\Models\SugWeekDriver;
 use App\Models\User;
 use App\Models\WeekUnrideRate;
-use App\Services\WaslService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -25,13 +24,6 @@ use Illuminate\Support\Facades\Validator;
 
 class TripController extends BaseController
 {
-    protected $waslService;
-
-    public function __construct(WaslService $waslService)
-    {
-        $this->waslService = $waslService;
-    }
-
     public function updateAction(Request $request): JsonResponse
     {
         Log::info("Update action with type {$request->input('type')} with Action: {$request->input('action')}");
@@ -277,8 +269,6 @@ class TripController extends BaseController
         $unrideRateModel::updateOrCreate([
             'sug-id'    => $request->input('sug-id')
         ], $validator->validated());
-
-        $this->waslService->storeTrip($ride);
 
         return $this->sendResponse([], __('Registered successfully'));
     }

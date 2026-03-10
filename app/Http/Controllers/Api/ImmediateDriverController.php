@@ -4,15 +4,20 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Resources\DriverInfoResource;
 use App\Http\Resources\RideBookingResource;
+use App\Models\DayRideBooking;
 use App\Models\DriverInfo;
 use App\Models\DriverSchedule;
 use App\Models\DriversServices;
 use App\Models\Neighbour;
 use App\Models\RideBooking;
 use App\Models\Service;
+use App\Models\SugDayDriver;
 use App\Models\SuggestionDriver;
+use App\Models\SugWeekDriver;
 use App\Models\University;
 use App\Models\User;
+use App\Models\WeekRideBooking;
+use App\Services\WaslService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -21,6 +26,13 @@ use Illuminate\Support\Facades\Validator;
 
 class ImmediateDriverController extends BaseController
 {
+    protected $waslService;
+
+    public function __construct(WaslService $waslService)
+    {
+        $this->waslService = $waslService;
+    }
+
     public function getService($id)
     {
         return Service::whereId($id)->first();
@@ -333,6 +345,8 @@ class ImmediateDriverController extends BaseController
         $validator = Validator::make($request->all(), [
             'rate'      => 'required|numeric|max:5',
             'driver-id' => 'required|numeric',
+            'trip_id'  => 'required|numeric',
+            'type'     => 'required|string|in:immediate,daily,weekly',
             'locale'    => 'sometimes|nullable|string'
         ]);
 
@@ -356,7 +370,45 @@ class ImmediateDriverController extends BaseController
             'driver-rate' => $newRate
         ]);
 
+        $rideModel = $this->getBookingModel($data['type']);
+        $booking = $rideModel::where('id', $data['trip_id'])->first();
+
+        if (!$booking) {
+            return $this->sendError(__('Trip not found'), [__('Trip not found')]);
+        }
+
+        $sugModel = $this->getSugModel($data['type']);
+
+        $ride = $sugModel::with('passenger', 'booking', 'driver')
+            ->where('booking-id', $booking->id)
+            ->where('driver-id', $request->input('driver-id'))
+            ->first();
+
+        $this->waslService->storeTrip($ride);
+
         return $this->sendResponse(new DriverInfoResource($driverInfo), __('Updated successfully'));
+    }
+
+    private function getSugModel($type)
+    {
+        if ($type == 'daily') {
+            return SugDayDriver::class;
+        } elseif ($type == 'weekly') {
+            return SugWeekDriver::class;
+        }
+
+        return SuggestionDriver::class;
+    }
+
+    private function getBookingModel($type)
+    {
+        if ($type == 'daily') {
+            return DayRideBooking::class;
+        } elseif ($type == 'weekly') {
+            return WeekRideBooking::class;
+        }
+
+        return RideBooking::class;
     }
 
     public function getTimes($id)
