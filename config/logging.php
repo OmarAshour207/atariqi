@@ -69,14 +69,14 @@ return [
 
         'payment' => [
             'driver' => 'daily',
-            'path' => storage_path('logs/payment.log'),
+            'path' => storage_path('logs/payment/laravel.log'),
             'level' => env('LOG_LEVEL', 'debug'),
             'days' => 14,
         ],
 
         'wasl' => [
             'driver' => 'daily',
-            'path' => storage_path('logs/wasl.log'),
+            'path' => storage_path('logs/wasl/laravel.log'),
             'level' => env('LOG_LEVEL', 'debug'),
             'days' => 14,
         ],
