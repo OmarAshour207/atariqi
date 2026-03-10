@@ -370,19 +370,19 @@ class ImmediateDriverController extends BaseController
             'driver-rate' => $newRate
         ]);
 
-        $rideModel = $this->getBookingModel($data['type']);
-        $booking = $rideModel::where('id', $data['trip_id'])->first();
+        if($request->input('type') == 'immediate') {
+            $ride = SuggestionDriver::with('booking', 'passenger', 'driver')
+                ->where('booking-id', $data['trip_id'])
+                ->where('driver-id', $driverId)
+                ->first();
+        } else {
+            $sugModel = $this->getSugModel($request->input('type'));
 
-        if (!$booking) {
-            return $this->sendError(__('Trip not found'), [__('Trip not found')]);
+            $ride = $sugModel::with('booking', 'passenger', 'driver')
+                ->where('id', $data['trip_id'])
+                ->where('driver-id', $driverId)
+                ->first();
         }
-
-        $sugModel = $this->getSugModel($data['type']);
-
-        $ride = $sugModel::with('passenger', 'booking', 'driver')
-            ->where('booking-id', $booking->id)
-            ->where('driver-id', $request->input('driver-id'))
-            ->first();
 
         $this->waslService->storeTrip($ride);
 
