@@ -94,6 +94,9 @@
         // Define the base URL for use in JavaScript
         const BASE_URL = "{{ url('/') }}";
 
+        // add js var to get the locale from session, and default to 'en' if not set
+        const LOCALE = "{{ session('locale', 'en') }}";
+
         // سنة الفوتر
         document.getElementById('year').textContent = new Date().getFullYear();
 
@@ -102,11 +105,12 @@
             .then(r => r.ok ? r.json() : Promise.reject(r))
             .then(data => {
                 // عن الشركة
-                document.getElementById('about_us_content').innerHTML = data.about_us?.content ?? '';
+                // if locale is arabic, show content_ar, otherwise show content
+                document.getElementById('about_us_content').innerHTML = LOCALE === 'ar' ? data.about_us?.content_ar ?? '' : data.about_us?.content ?? '';
                 document.getElementById('about_us_icon').src = data.about_us?.icon ? BASE_URL + data.about_us.icon : 'https://i.pravatar.cc/80';
 
                 // عن التطبيق – المزايا
-                document.getElementById('appText').innerHTML = data.about_app?.content ?? '';
+                document.getElementById('appText').innerHTML = LOCALE === 'ar' ? data.about_app?.content_ar ?? '' : data.about_app?.content ?? '';
                 document.getElementById('about_app_icon').src = data.about_app?.icon ? BASE_URL + data.about_app.icon : 'https://i.pravatar.cc/80';
                 // const fWrap = document.getElementById('features');
                 // fWrap.innerHTML = data.about_app?.content ?? '';
@@ -119,7 +123,7 @@
                     <div class="col-6 col-lg-3">
                         <div class="p-4 bg-white rounded-3 shadow-soft text-center">
                             <div class="display-6 fw-bold text-brand">${s.number}</div>
-                            <div class="small text-secondary">${s.label}</div>
+                            <div class="small text-secondary">${ LOCALE === 'ar' ? s.label_ar ?? s.label : s.label }</div>
                         </div>
                     </div>
                     `);
@@ -167,7 +171,7 @@
                         <div class="h-100 p-4 bg-white rounded-3 shadow-soft">
                             <div class="fs-2 text-brand"><i class="bi ${a.icon || 'bi-award'}"></i></div>
                             <h5 class="mt-2">${a.title}</h5>
-                            <p class="text-secondary mb-0">${a.description}</p>
+                            <p class="text-secondary mb-0">${ LOCALE === 'ar' ? a.description_ar ?? a.description : a.description }</p>
                         </div>
                     </div>
                     `);
@@ -176,7 +180,7 @@
                 // روابط المتاجر + فوتر
                 document.getElementById('appStoreLink').href = data.stores?.appStore || '#';
                 document.getElementById('playStoreLink').href = data.stores?.playStore || '#';
-                document.getElementById('footerAbout').innerHTML = data.about_us?.content ?? '';
+                document.getElementById('footerAbout').innerHTML = LOCALE === 'ar' ? data.about_us?.content_ar ?? '' : data.about_us?.content ?? '';
             })
             .catch(err => console.error('API /api/homepage-sections error', err));
     </script>

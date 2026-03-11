@@ -33,8 +33,19 @@
                     @include('dashboard.partials._errors')
 
                     <div class="form-group">
+                        <label for="title_ar"> {{ __("Title Arabic") }}</label>
+                        <input id="title_ar" name="title_ar" dir="auto" type="text" class="form-control" placeholder="{{ __("Title Arabic") }}" value="{{ old("title_ar", $section->title_ar) }}">
+                    </div>
+
+                    <div class="form-group">
                         <label for="title"> {{ __("Title") }}</label>
                         <input id="title" name="title" dir="auto" type="text" class="form-control" placeholder="{{ __("Title") }}" value="{{ old("title", $section->title) }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="content_ar">{{ __("Content Arabic") }}</label>
+                        <textarea id="content_ar" name="content_ar" class="form-control" style="display: none;">{!! old("content_ar", $section->content_ar) !!}</textarea>
+                        <div id="quill-editor-ar" style="height: 150px;">{!! old("content_ar", $section->content_ar) !!}</div>
                     </div>
 
                     <div class="form-group">
@@ -64,38 +75,64 @@
     <script src="{{ asset('dashboard/js/quill.js') }}"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
+            // Initialize Quill for content
             var quill = new Quill('#quill-editor', {
                 theme: 'snow',
                 placeholder: 'Content',
             });
 
-            // Sync content on every change (better approach)
-    var textarea = document.querySelector('textarea[name="content"]');
+            var textarea = document.querySelector('textarea[name="content"]');
 
-    // Load existing content into Quill if editing
-    if (textarea && textarea.value) {
-        quill.clipboard.dangerouslyPasteHTML(textarea.value);
-    }
-
-    // Sync on every text change
-    quill.on('text-change', function() {
-        if (textarea) {
-            textarea.value = quill.root.innerHTML;
-            console.log('Synced content:', textarea.value.substring(0, 50) + '...');
-        }
-    });
-
-    // Also sync on form submit as backup
-    const form = document.querySelector('form');
-    if (form) {
-        form.addEventListener('submit', function (e) {
-            console.log('Form submitting...');
-            if (textarea) {
-                textarea.value = quill.root.innerHTML;
-                console.log('Final content set:', textarea.value.length, 'chars');
+            if (textarea && textarea.value) {
+                quill.clipboard.dangerouslyPasteHTML(textarea.value);
             }
-        });
-    }
+
+            quill.on('text-change', function() {
+                if (textarea) {
+                    textarea.value = quill.root.innerHTML;
+                    console.log('Synced content:', textarea.value.substring(0, 50) + '...');
+                }
+            });
+
+            const form = document.querySelector('form');
+            if (form) {
+                form.addEventListener('submit', function (e) {
+                    console.log('Form submitting...');
+                    if (textarea) {
+                        textarea.value = quill.root.innerHTML;
+                        console.log('Final content set:', textarea.value.length, 'chars');
+                    }
+                });
+            }
+
+            // Initialize Quill for content_ar
+            var quillAr = new Quill('#quill-editor-ar', {
+                theme: 'snow',
+                placeholder: 'Content Arabic',
+            });
+
+            var textareaAr = document.querySelector('textarea[name="content_ar"]');
+
+            if (textareaAr && textareaAr.value) {
+                quillAr.clipboard.dangerouslyPasteHTML(textareaAr.value);
+            }
+
+            quillAr.on('text-change', function() {
+                if (textareaAr) {
+                    textareaAr.value = quillAr.root.innerHTML;
+                    console.log('Synced content_ar:', textareaAr.value.substring(0, 50) + '...');
+                }
+            });
+
+            if (form) {
+                form.addEventListener('submit', function (e) {
+                    console.log('Form submitting...');
+                    if (textareaAr) {
+                        textareaAr.value = quillAr.root.innerHTML;
+                        console.log('Final content_ar set:', textareaAr.value.length, 'chars');
+                    }
+                });
+            }
         });
     </script>
 @endpush

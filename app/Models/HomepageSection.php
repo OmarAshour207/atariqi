@@ -12,7 +12,9 @@ class HomepageSection extends Model
     protected $fillable = [
         'section_key',
         'title',
+        'title_ar',
         'content',
+        'content_ar',
         'icon',
         'is_active',
     ];

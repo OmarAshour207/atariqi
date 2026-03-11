@@ -42,6 +42,11 @@
                     </div>
 
                     <div class="form-group">
+                        <label for="description_ar">{{ __("Description (Arabic)") }}</label>
+                        <textarea id="description_ar" name="description_ar" class="form-control">{{ old("description_ar", $testimonial->description_ar) }}</textarea>
+                    </div>
+
+                    <div class="form-group">
                         <label for="icon"> {{ __("Icon") }}</label>
                         <input id="icon" name="icon" type="file" class="form-control" placeholder="{{ __("Icon") }}" value="{{ old("icon") }}">
                     </div>

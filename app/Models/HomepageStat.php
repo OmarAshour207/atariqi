@@ -12,6 +12,7 @@ class HomepageStat extends Model
     protected $fillable = [
         'number',
         'label',
+        'label_ar',
         'icon',
     ];
 }

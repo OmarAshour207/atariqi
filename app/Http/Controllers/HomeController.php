@@ -36,4 +36,11 @@ class HomeController extends Controller
         return response()->json($data);
     }
 
+    public function changeLocale($locale)
+    {
+        if (in_array($locale, ['en', 'ar'])) {
+            session(['locale' => $locale]);
+        }
+        return redirect()->back();
+    }
 }

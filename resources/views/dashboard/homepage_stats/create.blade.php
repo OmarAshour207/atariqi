@@ -29,6 +29,10 @@
                         <input id="number" name="number" dir="auto" type="text" class="form-control" placeholder="{{ __("Number") }}" value="{{ old("number") }}">
                     </div>
 
+                    <div class="form-group">
+                        <label for="label_ar"> {{ __("Label Arabic") }}</label>
+                        <input id="label_ar" name="label_ar" dir="auto" type="text" class="form-control" placeholder="{{ __("Label Arabic") }}" value="{{ old("label_ar") }}">
+                    </div>
 
                     <div class="form-group">
                         <label for="label"> {{ __("Label") }}</label>

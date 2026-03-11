@@ -33,6 +33,11 @@
                     </div>
 
                     <div class="form-group">
+                        <label for="label_ar"> {{ __("Label Arabic") }}</label>
+                        <input id="label_ar" name="label_ar" dir="auto" type="text" class="form-control" placeholder="{{ __("Label Arabic") }}" value="{{ old("label_ar", $stat->label_ar) }}">
+                    </div>
+
+                    <div class="form-group">
                         <label for="label"> {{ __("Label") }}</label>
                         <input id="label" name="label" dir="auto" type="text" class="form-control" placeholder="{{ __("Label") }}" value="{{ old("label", $stat->label) }}">
                     </div>

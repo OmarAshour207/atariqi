@@ -27,11 +27,20 @@
                     <input type="hidden" name="type" value="{{ request()->get('type') }}">
 
                     <div class="form-group">
+                        <label for="title_ar"> {{ __("Title Arabic") }}</label>
+                        <input id="title_ar" name="title_ar" dir="auto" type="text" class="form-control" placeholder="{{ __("Title Arabic") }}" value="{{ old("title_ar") }}">
+                    </div>
+
+                    <div class="form-group">
                         <label for="title"> {{ __("Title") }}</label>
                         <input id="title" name="title" dir="auto" type="text" class="form-control" placeholder="{{ __("Title") }}" value="{{ old("title") }}">
                     </div>
 
                     @if(request()->get('type') != 'partners')
+                        <div class="form-group">
+                            <label for="description_ar"> {{ __("Description Arabic") }}</label>
+                            <textarea id="description_ar" name="description_ar" dir="auto" class="form-control" placeholder="{{ __("Description Arabic") }}" rows="4">{{ old("description_ar") }}</textarea>
+                        </div>
 
                         <div class="form-group">
                             <label for="description"> {{ __("Description") }}</label>

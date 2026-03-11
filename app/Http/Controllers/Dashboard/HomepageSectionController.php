@@ -29,7 +29,9 @@ class HomepageSectionController extends Controller
 
         $validated = $request->validate([
             'title' => 'nullable|string|max:255',
+            'title_ar' => 'nullable|string|max:255',
             'content' => 'nullable|string',
+            'content_ar' => 'nullable|string',
             'icon' => 'nullable|image',
         ]);
 

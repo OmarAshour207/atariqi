@@ -27,8 +27,24 @@
                     <input type="hidden" name="section_key" value="{{ request('section') }}">
 
                     <div class="form-group">
+                        <label for="title_ar"> {{ __("Title Arabic") }}</label>
+                        <input id="title_ar" name="title_ar" dir="auto" type="text" class="form-control" placeholder="{{ __("Title Arabic") }}" value="{{ old("title_ar") }}">
+                    </div>
+
+                    <div class="form-group">
                         <label for="title"> {{ __("Title") }}</label>
                         <input id="title" name="title" dir="auto" type="text" class="form-control" placeholder="{{ __("Title") }}" value="{{ old("title") }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="content_ar"> {{ __("Content Arabic") }}</label>
+                        <textarea id="content_ar" name="content_ar" dir="auto" class="form-control" placeholder="{{ __("Content Arabic") }}" rows="4">{{ old("content_ar") }}</textarea>
+                    </div>
+
+                    <div style="height: 150px;" data-toggle="quill" data-quill-placeholder="Quill WYSIWYG editor">
+                        <h1>Hello World!</h1>
+                        <p>Some initial <strong>bold</strong> text</p>
+                        <p><br></p>
                     </div>
 
                     <div class="form-group">

@@ -36,6 +36,11 @@
                     </div>
 
                     <div class="form-group">
+                        <label for="description_ar"> {{ __("Description (Arabic)") }}</label>
+                        <textarea id="description_ar" name="description_ar" dir="auto" class="form-control" placeholder="{{ __("Description (Arabic)") }}" rows="4">{{ old("description_ar") }}</textarea>
+                    </div>
+
+                    <div class="form-group">
                         <label for="description"> {{ __("Description") }}</label>
                         <textarea id="description" name="description" dir="auto" class="form-control" placeholder="{{ __("Description") }}" rows="4">{{ old("description") }}</textarea>
                     </div>

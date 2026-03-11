@@ -26,7 +26,9 @@ class PartnerAchievementController extends Controller
     {
         $validated = $request->validate([
             'title' => 'nullable|string|max:255',
+            'title_ar' => 'nullable|string|max:255',
             'description' => 'nullable|string|max:255',
+            'description_ar' => 'nullable|string|max:255',
             'icon' => 'nullable|image',
             'type' => 'nullable|string|max:255'
         ]);
@@ -55,7 +57,9 @@ class PartnerAchievementController extends Controller
 
         $validated = $request->validate([
             'title' => 'nullable|string|max:255',
+            'title_ar' => 'nullable|string|max:255',
             'description' => 'nullable|string|max:255',
+            'description_ar' => 'nullable|string|max:255',
             'icon' => 'nullable|image',
             'type' => 'nullable|string|max:255'
         ]);

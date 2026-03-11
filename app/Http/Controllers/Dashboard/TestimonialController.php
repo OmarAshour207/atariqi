@@ -25,7 +25,9 @@ class TestimonialController extends Controller
         $validated = $request->validate([
             'name' => 'nullable|string|max:255',
             'title' => 'nullable|string|max:255',
+            'title_ar' => 'nullable|string|max:255',
             'description' => 'nullable|string',
+            'description_ar' => 'nullable|string',
             'icon' => 'nullable|image',
         ]);
 
@@ -52,8 +54,11 @@ class TestimonialController extends Controller
         $section = Testimonial::findOrFail($id);
 
         $validated = $request->validate([
+            'name' => 'nullable|string|max:255',
+            'title_ar' => 'nullable|string|max:255',
             'title' => 'nullable|string|max:255',
-            'content' => 'nullable|string',
+            'description_ar' => 'nullable|string',
+            'description' => 'nullable|string',
             'icon' => 'nullable|image',
         ]);
 

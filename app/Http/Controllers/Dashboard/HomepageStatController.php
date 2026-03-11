@@ -25,6 +25,7 @@ class HomepageStatController extends Controller
         $validated = $request->validate([
             'number' => 'nullable|string|max:255',
             'label' => 'nullable|string|max:255',
+            'label_ar' => 'nullable|string|max:255',
             'icon' => 'nullable|image',
         ]);
 
@@ -53,6 +54,7 @@ class HomepageStatController extends Controller
         $validated = $request->validate([
             'number' => 'nullable|string|max:255',
             'label' => 'nullable|string|max:255',
+            'label_ar' => 'nullable|string|max:255',
             'icon' => 'nullable|image',
         ]);
 

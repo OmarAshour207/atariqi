@@ -27,11 +27,21 @@
                     @include('dashboard.partials._errors')
 
                     <div class="form-group">
+                        <label for="title_ar"> {{ __("Title Arabic") }}</label>
+                        <input id="title_ar" name="title_ar" dir="auto" type="text" class="form-control" placeholder="{{ __("Title Arabic") }}" value="{{ old("title_ar", $partnerAchievement->title_ar) }}">
+                    </div>
+
+                    <div class="form-group">
                         <label for="title"> {{ __("Title") }}</label>
                         <input id="title" name="title" dir="auto" type="text" class="form-control" placeholder="{{ __("Title") }}" value="{{ old("title", $partnerAchievement->title) }}">
                     </div>
 
                     @if($partnerAchievement->type != 'partners')
+                        <div class="form-group">
+                            <label for="description_ar">{{ __("Description Arabic") }}</label>
+                            <textarea id="description_ar" name="description_ar" class="form-control">{{ old("description_ar", $partnerAchievement->description_ar) }}</textarea>
+                        </div>
+
                         <div class="form-group">
                             <label for="description">{{ __("Description") }}</label>
                             <textarea id="description" name="description" class="form-control">{{ old("description", $partnerAchievement->description) }}</textarea>

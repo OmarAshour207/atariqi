@@ -15,6 +15,11 @@
         <li class="nav-item"><a class="nav-link" href="#partners">التعاونات</a></li>
         <li class="nav-item"><a class="nav-link" href="#testimonials">تعليقاتكم</a></li>
         <li class="nav-item"><a class="nav-link" href="#achievements">إنجازاتنا</a></li>
+        <li class="nav-item">
+            <a class="nav-link" href="{{ session('locale', 'en') === 'ar' ? route('change.locale', ['locale' => 'en']) : route('change.locale', ['locale' => 'ar']) }}">
+                {{ session('locale', 'en') === 'ar' ? 'English' : 'العربية' }}
+            </a>
+        </li>
       </ul>
       <div class="d-flex gap-2">
         <a href="{{ route('support') }}" class="btn btn-outline-secondary">الدعم الفني</a>
