@@ -26,6 +26,7 @@ use App\Http\Controllers\Dashboard\PartnerAchievementController;
 Route::get('/', [HomeController::class, 'home'])->name('home');
 Route::get('/support', [HomeController::class, 'support'])->name('support');
 Route::get('/homepage-sections', [HomeController::class, 'homepageSections'])->name('homepage.sections');
+Route::get('/locale/{locale}', [HomeController::class, 'changeLocale'])->name('change.locale');
 
 Route::get('dashboard/login', [LoginController::class, 'showLogin'])->name('dashboard.loginForm');
 Route::post('dashboard/login', [LoginController::class, 'login'])->name('dashboard.login');
