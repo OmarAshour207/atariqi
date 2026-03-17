@@ -7,6 +7,7 @@ use App\Models\HomepageSection;
 use App\Models\HomepageStat;
 use App\Models\PartnerAchievement;
 use App\Models\Testimonial;
+use Illuminate\Http\Request;
 
 class HomeController extends Controller
 {
@@ -38,9 +39,15 @@ class HomeController extends Controller
 
     public function changeLocale($locale)
     {
-        if (in_array($locale, ['en', 'ar'])) {
+        $allowed = ['en', 'ar'];
+
+        if (in_array($locale, $allowed)) {
             session(['locale' => $locale]);
+            app()->setLocale($locale);
+        } else {
+            app()->setLocale(config('app.locale'));
         }
+
         return redirect()->back();
     }
 }

@@ -4,5 +4,16 @@
     "The :attribute must contain at least one symbol.": "The :attribute must contain at least one symbol.",
     "The :attribute must contain at least one uppercase and one lowercase letter.": "The :attribute must contain at least one uppercase and one lowercase letter.",
     "The given :attribute has appeared in a data leak. Please choose a different :attribute.": "The given :attribute has appeared in a data leak. Please choose a different :attribute.",
-    "already_booked": "Sorry you already booked a :type ride :road_way University at date :date before."
+    "already_booked": "Sorry you already booked a :type ride :road_way University at date :date before.",
+    "About Company": "About Company",
+    "About App": "About App",
+    "Stats": "Stats",
+    "Partners": "Partners",
+    "Testimonials": "Testimonials",
+    "Achievements": "Achievements",
+    "Contact Us": "Contact Us",
+    "Support": "Support",
+    "Dashboard Login": "Dashboard Login",
+    "Home": "Home",
+    "Rafiqni": "Rafiqni"
 }

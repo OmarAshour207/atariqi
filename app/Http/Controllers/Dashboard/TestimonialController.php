@@ -45,7 +45,7 @@ class TestimonialController extends Controller
 
     public function edit(Request $request, $id)
     {
-        $testimonial = Testimonial::firstOrFail();
+        $testimonial = Testimonial::findOrFail($id);
         return view('dashboard.testimonials.edit', compact('testimonial'));
     }
 

@@ -60,18 +60,18 @@
     <div class="container pb-4">
         <div class="row g-4">
         <div class="col-md-6">
-            <h5>رافقني</h5>
+            <h5>{{ __('Rafiqni') }}</h5>
             <p class="small text-white-50">{{ setting('address') }}</p>
         </div>
         <div class="col-md-3">
-            <h6>روابط</h6>
+            <h6>{{ __('Links') }}</h6>
             <ul class="list-unstyled small">
-            <li><a href="{{ route('support') }}">الدعم الفني</a></li>
-            <li><a href="{{ route('dashboard.login') }}">دخول الموظفين</a></li>
+            <li><a href="{{ route('support') }}">{{ __('Support') }}</a></li>
+            <li><a href="{{ route('dashboard.login') }}">{{ __('Dashboard Login') }}</a></li>
             </ul>
         </div>
         <div class="col-md-3">
-            <h6>تابعنا</h6>
+            <h6>{{ __('Follow Us') }}</h6>
             <div class="d-flex gap-3 fs-4">
             <a href="{{ setting('twitter') }}"><i class="bi bi-twitter-x"></i></a>
             <a href="{{ setting('instagram') }}"><i class="bi bi-instagram"></i></a>
@@ -81,8 +81,8 @@
         </div>
         <hr class="border-secondary">
         <div class="d-flex justify-content-between small text-white-50">
-        <span>© <span id="year"></span> على طريقي – رافقني</span>
-        <span>جميع الحقوق محفوظة</span>
+        <span>© <span id="year"></span> {{ __('Atariqi - Rafiqni') }}</span>
+        <span>{{ __('Copyrights reserved') }}</span>
         </div>
     </div>
     </footer>
@@ -95,7 +95,7 @@
         const BASE_URL = "{{ url('/') }}";
 
         // add js var to get the locale from session, and default to 'en' if not set
-        const LOCALE = "{{ session('locale', 'en') }}";
+        const LOCALE = "{{ app()->getLocale() }}";
 
         // سنة الفوتر
         document.getElementById('year').textContent = new Date().getFullYear();

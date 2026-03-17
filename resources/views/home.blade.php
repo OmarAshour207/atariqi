@@ -6,9 +6,9 @@
   <div class="container py-4">
     <div class="row align-items-center g-4">
       <div class="col-lg-6">
-        <span class="badge badge-soft mb-3"><i class="bi bi-geo-alt-fill me-1"></i>على طريقي – رافقني</span>
-        <h1 class="display-5 fw-bold lh-sm mb-3">{{ $slider->title }}</h1>
-        <p class="lead text-secondary mb-4">{!! $slider->content !!}</p>
+        <span class="badge badge-soft mb-3"><i class="bi bi-geo-alt-fill me-1"></i>{{ __('Atariqi - Rafiqni') }}</span>
+        <h1 class="display-5 fw-bold lh-sm mb-3">{{ app()->getLocale() === 'ar' ? $slider->title_ar : $slider->title }}</h1>
+        <p class="lead text-secondary mb-4">{!! app()->getLocale() === 'ar' ? $slider->content_ar : $slider->content !!}</p>
         <div class="d-flex gap-2 app-badges flex-wrap">
           <a id="appStoreLink" class="d-inline-block" href="{{ setting('app_store') }}" target="_blank" rel="noopener">
             <img src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="App Store">
@@ -49,7 +49,7 @@
   <div class="container">
     <div class="row g-4">
       <div class="col-lg-6" id="about_app_content">
-        <h2 class="fw-bold mb-3">عن التطبيق</h2>
+        <h2 class="fw-bold mb-3">{{ __('About App') }}</h2>
         <p id="appText">…</p>
       </div>
       <div class="col-lg-6">
@@ -62,7 +62,7 @@
 <!-- الأرقام -->
 <section id="stats" class="py-5">
   <div class="container">
-    <h2 class="fw-bold mb-4">تواصل معنا عبر</h2>
+    <h2 class="fw-bold mb-4">{{ __('Contact Us via') }}</h2>
     <div class="row g-4" id="statsRow">
       <!-- يتم ملؤها دِيناميكيًا -->
     </div>
@@ -72,7 +72,7 @@
 <!-- التعاونات -->
 <section id="partners" class="py-5 bg-white">
   <div class="container">
-    <h2 class="fw-bold mb-4">شركاؤنا</h2>
+    <h2 class="fw-bold mb-4">{{ __('Our Partners') }}</h2>
     <div class="row g-4" id="partnersRow">
       <!-- شعارات الشركاء -->
     </div>
@@ -82,7 +82,7 @@
 <!-- تعليقاتكم -->
 <section id="testimonials" class="py-5">
   <div class="container">
-    <h2 class="fw-bold mb-4">ماذا يقول عملاؤنا</h2>
+    <h2 class="fw-bold mb-4">{{ __('What Our Customers Say') }}</h2>
     <div class="row g-4" id="testimonialsRow"></div>
   </div>
 </section>
@@ -90,7 +90,7 @@
 <!-- إنجازاتنا -->
 <section id="achievements" class="py-5 bg-white">
   <div class="container">
-    <h2 class="fw-bold mb-4">إنجازاتنا</h2>
+    <h2 class="fw-bold mb-4">{{ __('Our Achievements') }}</h2>
     <div class="row g-4" id="achievementsRow"></div>
   </div>
 </section>
@@ -99,9 +99,9 @@
 <section class="py-5 text-center">
   <div class="container">
     <div class="p-4 p-lg-5 bg-brand text-white rounded-3">
-      <h3 class="mb-3">ابدأ رحلتك مع رافقني الآن</h3>
-      <p class="mb-4">حمّل التطبيق وجرّب تجربة تنقّل موثوقة وسريعة.</p>
-      <a href="#top" class="btn btn-light">العودة للأعلى</a>
+      <h3 class="mb-3">{{ __('Start Your Journey with Rafiqni Now') }}</h3>
+      <p class="mb-4">{{ __('Download the app and try a reliable and fast transit experience.') }}</p>
+      <a href="#top" class="btn btn-light">{{ __('Go Back to Top') }}</a>
     </div>
   </div>
 </section>

@@ -71,7 +71,7 @@ class PartnerAchievementController extends Controller
         }
 
         $partnerAchievement->update($validated);
-        return redirect()->route('partner-achievements.index', ['type' => $validated['type'] ?? null])
+        return redirect()->route('partner-achievements.index', ['type' => $partnerAchievement->type ?? null])
             ->with('success', 'Stat updated successfully.');
     }
 
