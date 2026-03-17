@@ -170,7 +170,7 @@
                     <div class="col-md-6 col-lg-4">
                         <div class="h-100 p-4 bg-white rounded-3 shadow-soft">
                             <div class="fs-2 text-brand"><i class="bi ${a.icon || 'bi-award'}"></i></div>
-                            <h5 class="mt-2">${a.title}</h5>
+                            <h5 class="mt-2">${ LOCALE === 'ar' ? a.title_ar ?? a.title : a.title }</h5>
                             <p class="text-secondary mb-0">${ LOCALE === 'ar' ? a.description_ar ?? a.description : a.description }</p>
                         </div>
                     </div>
