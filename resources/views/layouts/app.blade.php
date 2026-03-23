@@ -44,6 +44,19 @@
         .avatar{width:48px;height:48px;border-radius:50%;object-fit:cover}
         footer a{color:#e6f5f4;text-decoration:none}
         footer a:hover{text-decoration:underline}
+
+        .stat-number {
+            white-space: nowrap;
+            overflow: hidden;
+            font-size: clamp(0.8rem, 3vw, 2rem);
+            line-height: 1.2;
+        }
+
+        .fit-image {
+            height: clamp(180px, 40vw, 400px);
+            width: 100%;
+            object-fit: contain;
+        }
     </style>
 
     @stack('styles')
@@ -122,7 +135,7 @@
                     sRow.insertAdjacentHTML('beforeend', `
                     <div class="col-6 col-lg-3">
                         <div class="p-4 bg-white rounded-3 shadow-soft text-center">
-                            <div class="display-6 fw-bold text-brand">${s.number}</div>
+                            <div class="display-6 fw-bold text-brand stat-number">${s.number}</div>
                             <div class="small text-secondary">${ LOCALE === 'ar' ? s.label_ar ?? s.label : s.label }</div>
                         </div>
                     </div>

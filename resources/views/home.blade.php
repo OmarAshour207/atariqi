@@ -59,7 +59,7 @@
   <div class="container">
     <div class="row g-4 align-items-center">
       <div class="col-lg-6">
-        <img id="about_us_icon" src="https://picsum.photos/800/520?random=9" class="rounded-3 w-100 shadow-soft" alt="عن الشركة" style="height: 400px; width: auto; object-fit: contain;">
+        <img id="about_us_icon" src="https://picsum.photos/800/520?random=9" class="rounded-3 w-100 shadow-soft fit-image" alt="عن الشركة">
       </div>
       <div class="col-lg-6" id="about_us_content">
         <!-- <h2 class="fw-bold mb-3 about_us_title">عن الشركة</h2> -->
@@ -79,7 +79,7 @@
         <p id="appText">…</p>
       </div>
       <div class="col-lg-6">
-        <img id="about_app_icon" src="https://picsum.photos/800/520?random=9" class="rounded-3 w-100 shadow-soft" alt="عن التطبيق" style="height: 400px; width: auto; object-fit: contain;">
+        <img id="about_app_icon" src="https://picsum.photos/800/520?random=9" class="rounded-3 w-100 shadow-soft fit-image" alt="عن التطبيق">
       </div>
     </div>
   </div>
