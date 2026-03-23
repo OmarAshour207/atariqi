@@ -11,7 +11,7 @@
       <ul class="navbar-nav me-auto">
         <li class="nav-item"><a class="nav-link" href="#about">{{ __('About Company') }}</a></li>
         <li class="nav-item"><a class="nav-link" href="#app">{{ __('About App') }}</a></li>
-        <li class="nav-item"><a class="nav-link" href="#stats">{{ __('Stats') }}</a></li>
+        <li class="nav-item"><a class="nav-link" href="#stats">{{ __('Contact Us') }}</a></li>
         <li class="nav-item"><a class="nav-link" href="#partners">{{ __('Partners') }}</a></li>
         <li class="nav-item"><a class="nav-link" href="#testimonials">{{ __('Testimonials') }}</a></li>
         <li class="nav-item"><a class="nav-link" href="#achievements">{{ __('Achievements') }}</a></li>

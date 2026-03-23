@@ -127,4 +127,9 @@ class User extends Authenticatable
     {
         return $this->{'user-first-name'} . ' ' . $this->{'user-last-name'};
     }
+
+    public function getFullPhoneNumberAttribute()
+    {
+        return '+' . $this->callingKey->{"call-key"} . $this->{'phone-no'};
+    }
 }

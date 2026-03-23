@@ -1,5 +1,24 @@
 @extends('layouts.app')
 
+@push('styles')
+    <style>
+        .badge-img {
+    height: 60px !important;
+    object-fit: contain;
+}
+
+/* Apple looks smaller → scale up */
+.app-store {
+    transform: scale(0.9);
+}
+
+/* Google looks bigger → scale down */
+.play-store {
+    transform: scale(1.3);
+}
+    </style>
+@endpush
+
 @section('content')
 <!-- Hero -->
 <header class="hero py-5">
@@ -9,13 +28,20 @@
         <span class="badge badge-soft mb-3"><i class="bi bi-geo-alt-fill me-1"></i>{{ __('Atariqi - Rafiqni') }}</span>
         <h1 class="display-5 fw-bold lh-sm mb-3">{{ app()->getLocale() === 'ar' ? $slider->title_ar : $slider->title }}</h1>
         <p class="lead text-secondary mb-4">{!! app()->getLocale() === 'ar' ? $slider->content_ar : $slider->content !!}</p>
-        <div class="d-flex gap-2 app-badges flex-wrap">
-          <a id="appStoreLink" class="d-inline-block" href="{{ setting('app_store') }}" target="_blank" rel="noopener">
-            <img src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="App Store">
-          </a>
-          <a id="playStoreLink" class="d-inline-block" href="{{ setting('play_store') }}" target="_blank" rel="noopener">
-            <img src="https://play.google.com/intl/en_us/badges/static/images/badges/ar_badge_web_generic.png" alt="Google Play" style="height:60px">
-          </a>
+        <div class="d-flex gap-2 app-badges flex-wrap align-items-center">
+        <a href="{{ setting('app_store') }}" target="_blank">
+            <img
+            src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg"
+            alt="App Store"
+            class="badge-img app-store">
+        </a>
+
+        <a href="{{ setting('play_store') }}" target="_blank">
+            <img
+            src="https://play.google.com/intl/en_us/badges/static/images/badges/ar_badge_web_generic.png"
+            alt="Google Play"
+            class="badge-img play-store">
+        </a>
         </div>
       </div>
       <div class="col-lg-6">
@@ -33,7 +59,7 @@
   <div class="container">
     <div class="row g-4 align-items-center">
       <div class="col-lg-6">
-        <img id="about_us_icon" src="https://picsum.photos/800/520?random=9" class="rounded-3 w-100 shadow-soft" alt="عن الشركة">
+        <img id="about_us_icon" src="https://picsum.photos/800/520?random=9" class="rounded-3 w-100 shadow-soft" alt="عن الشركة" style="height: 400px; width: auto; object-fit: contain;">
       </div>
       <div class="col-lg-6" id="about_us_content">
         <!-- <h2 class="fw-bold mb-3 about_us_title">عن الشركة</h2> -->
@@ -49,11 +75,11 @@
   <div class="container">
     <div class="row g-4">
       <div class="col-lg-6" id="about_app_content">
-        <h2 class="fw-bold mb-3">{{ __('About App') }}</h2>
+        <!-- <h2 class="fw-bold mb-3">{{ __('About App') }}</h2> -->
         <p id="appText">…</p>
       </div>
       <div class="col-lg-6">
-        <img id="about_app_icon" src="https://picsum.photos/800/520?random=9" class="rounded-3 w-100 shadow-soft" alt="عن التطبيق">
+        <img id="about_app_icon" src="https://picsum.photos/800/520?random=9" class="rounded-3 w-100 shadow-soft" alt="عن التطبيق" style="height: 400px; width: auto; object-fit: contain;">
       </div>
     </div>
   </div>
