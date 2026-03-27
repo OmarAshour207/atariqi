@@ -53,7 +53,7 @@
         }
 
         .fit-image {
-            height: clamp(180px, 40vw, 400px);
+            height: clamp(180px, 40vw, 424px);
             width: 100%;
             object-fit: contain;
         }
