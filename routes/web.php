@@ -11,6 +11,8 @@ use App\Http\Controllers\Dashboard\HomepageSectionController;
 use App\Http\Controllers\Dashboard\HomepageStatController;
 use App\Http\Controllers\Dashboard\TestimonialController;
 use App\Http\Controllers\Dashboard\PartnerAchievementController;
+use App\Http\Controllers\Dashboard\EditDriverInfoRequestController;
+use App\Http\Controllers\Dashboard\DriverController;
 
 /*
 |--------------------------------------------------------------------------
@@ -41,6 +43,11 @@ Route::middleware(['is_admin'])->prefix('dashboard')->group(function () {
     Route::Resource('testimonials', TestimonialController::class);
 
     Route::Resource('partner-achievements', PartnerAchievementController::class);
+
+    Route::Resource('drivers', DriverController::class);
+    Route::post('drivers/{driver}/update-status', [DriverController::class, 'updateStatus'])->name('drivers.updateStatus');
+
+    Route::Resource('edit-info-request', EditDriverInfoRequestController::class);
 
     Route::get('profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::post('profile/update', [ProfileController::class, 'update'])->name('profile.update');

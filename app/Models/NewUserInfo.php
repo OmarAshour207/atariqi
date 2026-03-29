@@ -51,4 +51,24 @@ class NewUserInfo extends Model
     {
         return $this->belongsTo(Stage::class, 'user-stage-id');
     }
+
+    public function driverInfo()
+    {
+        return $this->hasOne(NewDriverInfo::class, 'driver-id', 'user-id');
+    }
+
+    public function driverCar()
+    {
+        return $this->hasOne(NewDriverCar::class, 'driver-id', 'user-id');
+    }
+
+    public function getFullNameAttribute()
+    {
+        return $this->attributes['user-first-name'] . ' ' . $this->attributes['user-last-name'];
+    }
+
+    public function getFullPhoneNumberAttribute()
+    {
+        return $this->attributes['phone-no'];
+    }
 }

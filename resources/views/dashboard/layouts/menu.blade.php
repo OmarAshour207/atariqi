@@ -10,6 +10,7 @@
                     </a>
                 </li>
 
+                <!-- Homepage Sections -->
                 <li class="sidebar-menu-item">
                     <a class="sidebar-menu-button" data-toggle="collapse" href="#homepage_sections">
                         <i class="sidebar-menu-icon sidebar-menu-icon--left fa fa-globe"></i>
@@ -68,6 +69,33 @@
 
                     </ul>
                 </li>
+
+                <!-- Drivers -->
+                <li class="sidebar-menu-item">
+                    <a class="sidebar-menu-button" data-toggle="collapse" href="#drivers">
+                        <i class="sidebar-menu-icon sidebar-menu-icon--left fa fa-globe"></i>
+                        <span class="sidebar-menu-text"> {{ __('Drivers') }} </span>
+                        <span class="ml-auto sidebar-menu-toggle-icon"></span>
+                    </a>
+                    <ul class="sidebar-submenu collapse" id="drivers">
+                        <li class="sidebar-menu-item">
+                            <a class="sidebar-menu-button" href="{{ route('drivers.index') }}">
+                                <i class="fa fa-user"></i>
+                                <span class="sidebar-menu-text"> {{ __('Drivers') }}</span>
+                            </a>
+                        </li>
+
+                        <li class="sidebar-menu-item">
+                            <a class="sidebar-menu-button" href="{{ route('edit-info-request.index') }}">
+                                <i class="fa fa-info"></i>
+                                <span class="sidebar-menu-text"> {{ __('Edit Info Request') }}</span>
+                            </a>
+                        </li>
+
+
+                    </ul>
+                </li>
+
 
                 {{-- Settings --}}
                 <li class="sidebar-menu-item">
