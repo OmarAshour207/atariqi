@@ -45,6 +45,11 @@ Route::middleware(['is_admin'])->prefix('dashboard')->group(function () {
     Route::Resource('partner-achievements', PartnerAchievementController::class);
 
     Route::Resource('drivers', DriverController::class);
+
+    Route::get('driver/packages', [DriverController::class, 'packages'])->name('drivers.packages');
+    Route::get('drivers/{driver}/packages', [DriverController::class, 'packagePlans'])->name('drivers.packagePlans');
+    Route::post('drivers/{driver}/packages/assign', [DriverController::class, 'assignPackage'])->name('drivers.assignPackage');
+
     Route::post('drivers/{driver}/update-status', [DriverController::class, 'updateStatus'])->name('drivers.updateStatus');
 
     Route::Resource('edit-info-request', EditDriverInfoRequestController::class);

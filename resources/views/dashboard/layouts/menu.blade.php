@@ -92,6 +92,12 @@
                             </a>
                         </li>
 
+                        <li class="sidebar-menu-item">
+                            <a class="sidebar-menu-button" href="{{ route('drivers.packages') }}">
+                                <i class="fa fa-gift"></i>
+                                <span class="sidebar-menu-text"> {{ __('Driver Package Management') }}</span>
+                            </a>
+                        </li>
 
                     </ul>
                 </li>
