@@ -9,10 +9,18 @@ use App\Models\Neighbour;
 use App\Models\Stage;
 use App\Models\University;
 use App\Models\User;
+use App\Services\WaslService;
 use Illuminate\Http\Request;
 
 class DriverController extends Controller
 {
+    private $waslService;
+
+    public function __construct(WaslService $waslService)
+    {
+        $this->waslService = $waslService;
+    }
+
     public function index(Request $request)
     {
         $drivers = User::with('callingKey')
@@ -24,14 +32,20 @@ class DriverController extends Controller
 
     public function show(User $driver)
     {
-        $universities = University::all();
-        $stages = Stage::all();
-        $neighborhoods = Neighbour::all();
-        $driverTypes = DriverType::all();
+        try {
+            $driver->load('callingKey', 'driverInfo', 'driverCar');
+            $universities = University::all();
+            $stages = Stage::all();
+            $neighborhoods = Neighbour::all();
+            $driverTypes = DriverType::all();
+            $waslResponse = $this->waslService->checkDriverEligibility($driver->driverInfo->identity_number);
+            $waslResponse = $waslResponse ? json_decode($waslResponse, true) : null;
+        }
+        catch (\Exception $e) {
+            \Log::error('Error fetching driver details: ' . $e->getMessage());
+        }
 
-        $driver->load('callingKey', 'driverInfo', 'driverCar');
-
-        return view('dashboard.drivers.show', compact('driver', 'universities', 'stages', 'neighborhoods', 'driverTypes'));
+        return view('dashboard.drivers.show', compact('driver', 'universities', 'stages', 'neighborhoods', 'driverTypes', 'waslResponse'));
     }
 
     public function edit(User $driver)

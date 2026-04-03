@@ -177,6 +177,37 @@
                                 </select>
                             </div>
 
+                            <div class="row">
+                                <div class="col-6">
+                                    <div class="form-group">
+                                        <label for="driver-wasl-status"> {{ __("Driver Wasl status") }}</label>
+                                        <input id="driver-wasl-status" name="driver-wasl-status" dir="auto" type="text" class="form-control" placeholder="{{ __("Driver Wasl status") }}" value="{{ isset($waslResponse['driverEligibility']) ? $waslResponse['driverEligibility'] : __('Unknown') }}" disabled>
+                                    </div>
+                                </div>
+
+                                <div class="col-6">
+                                    <div class="form-group">
+                                        <label for="driver-wasl-reason"> {{ __("Driver Wasl Reason") }}</label>
+                                        <input id="driver-wasl-reason" name="driver-wasl-reason" dir="auto" type="text" class="form-control" value="{{ isset($waslResponse['criminalRecordStatus']) ? $waslResponse['criminalRecordStatus'] : __('Unknown') }}" disabled>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-6">
+                                    <div class="form-group">
+                                        <label for="vehicle-wasl-status"> {{ __("Vehicle Wasl Status") }}</label>
+                                        <input id="vehicle-wasl-status" name="vehicle-wasl-status" dir="auto" type="text" class="form-control" placeholder="{{ __("Vehicle Wasl Status") }}" value="{{ isset($waslResponse['vehicles'][0]['vehicleEligibility']) ? $waslResponse['vehicles'][0]['vehicleEligibility'] : __('Unknown') }}" disabled>
+                                    </div>
+                                </div>
+
+                                <div class="col-6">
+                                    <div class="form-group">
+                                        <label for="vehicle-reason"> {{ __("Vehicle Wasl Reason") }}</label>
+                                        <input id="vehicle-reason" name="vehicle-reason" dir="auto" type="text" class="form-control" placeholder="{{ __("Vehicle Wasl Reason") }}" value="{{ isset($waslResponse['vehicles'][0]['rejectionReasons']) ? $waslResponse['vehicles'][0]['rejectionReasons'] : __('Unknown') }}" disabled>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                         <div class="tab-pane show fade" id="driver-car">

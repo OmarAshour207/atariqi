@@ -198,4 +198,38 @@ class WaslService
         }
     }
 
+    // Check driver eligibility
+    public function checkDriverEligibility($identityNumber)
+    {
+        Log::channel('wasl')->info('Checking driver eligibility with Wasl', ['identity_number' => $identityNumber]);
+
+        if (!$this->config['enabled']) {
+            return null;
+        }
+
+        try {
+            $response = Http::withHeaders([
+                'client-id' => $this->config['client_key'],
+                'app-id'     => $this->config['app_id'],
+                'app-key'    => $this->config['app_key'],
+                'Content-Type' => 'application/json'
+            ])
+            ->get($this->config['api_url'] . '/api/dispatching/v2/drivers/eligibility/' . $identityNumber);
+
+            Log::channel('wasl')->info('Received response from Wasl for driver eligibility check', ['identity_number' => $identityNumber, 'status' => $response->status(), 'body' => $response->body()]);
+
+            // if ($response->successful()) {
+                return $response->json();
+            // }
+
+            $responseBody = $response->json();
+
+            throw new \Exception($responseBody['resultMsg'] ?? $response->body());
+
+        } catch (\Exception $e) {
+            Log::channel('wasl')->error('Error checking driver eligibility with Wasl', ['identity_number' => $identityNumber, 'error' => $e->getMessage()]);
+            throw new \Exception('Wasl API Error: ' . $e->getMessage());
+        }
+    }
+
 }
