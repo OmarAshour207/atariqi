@@ -18,10 +18,13 @@ use App\Models\DelImmediateInfo;
 use App\Models\SugDayDriver;
 use App\Models\SugWeekDriver;
 use App\Models\SuggestionDriver;
+use App\Models\FinancialDue;
 use App\Services\WaslService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use App\Mail\PaymentReminderMail;
+use Illuminate\Support\Facades\Mail;
 
 class DriverController extends Controller
 {
@@ -169,6 +172,117 @@ class DriverController extends Controller
         });
 
         return view('dashboard.drivers.rates', compact('drivers'));
+    }
+
+    public function trips(Request $request)
+    {
+        $driverId = $request->get('driver_id');
+        $tripType = $request->get('trip_type');
+
+        // Build query based on filters
+        $trips = collect();
+
+        if (!$tripType || $tripType === 'immediate') {
+            $query = SuggestionDriver::with(['driver', 'passenger', 'deliveryInfo', 'booking']);
+
+            if ($driverId) {
+                $query->where('driver-id', $driverId);
+            }
+
+            $immediateTrips = $query->get()->map(function ($trip) {
+                $trip->trip_type = 'immediate';
+                $trip->revenue = $trip->deliveryInfo ? $trip->deliveryInfo->passenger_rate : 0;
+                $trip->sort_date = $trip->{'date-of-add'};
+                return $trip;
+            });
+
+            $trips = $trips->concat($immediateTrips);
+        }
+
+        if (!$tripType || $tripType === 'daily') {
+            $query = SugDayDriver::with(['driver', 'passenger', 'deliveryInfo', 'booking']);
+
+            if ($driverId) {
+                $query->where('driver-id', $driverId);
+            }
+
+            $dailyTrips = $query->get()->map(function ($trip) {
+                $trip->trip_type = 'daily';
+                $trip->revenue = $trip->deliveryInfo ? $trip->deliveryInfo->passenger_rate : 0;
+                $trip->sort_date = $trip->{'date-of-add'};
+                return $trip;
+            });
+
+            $trips = $trips->concat($dailyTrips);
+        }
+
+        if (!$tripType || $tripType === 'weekly') {
+            $query = SugWeekDriver::with(['driver', 'passenger', 'deliveryInfo', 'booking']);
+
+            if ($driverId) {
+                $query->where('driver-id', $driverId);
+            }
+
+            $weeklyTrips = $query->get()->map(function ($trip) {
+                $trip->trip_type = 'weekly';
+                $trip->revenue = $trip->deliveryInfo ? $trip->deliveryInfo->passenger_rate : 0;
+                $trip->sort_date = $trip->{'date-of-add'};
+                return $trip;
+            });
+
+            $trips = $trips->concat($weeklyTrips);
+        }
+
+        // Sort by date and paginate
+        $sortedTrips = $trips->sortByDesc('sort_date')->values();
+        $perPage = 20;
+        $currentPage = $request->get('page', 1);
+        $paginatedTrips = new \Illuminate\Pagination\LengthAwarePaginator(
+            $sortedTrips->forPage($currentPage, $perPage),
+            $sortedTrips->count(),
+            $perPage,
+            $currentPage,
+            ['path' => $request->url(), 'pageName' => 'page']
+        );
+
+        // Preserve query parameters in pagination links
+        if ($driverId) {
+            $paginatedTrips->appends('driver_id', $driverId);
+        }
+        if ($tripType) {
+            $paginatedTrips->appends('trip_type', $tripType);
+        }
+
+        // Get all drivers for filter dropdown
+        $drivers = User::where('user-type', 'driver')->select('id', 'user-first-name', 'user-last-name')->get();
+
+        return view('dashboard.drivers.trips', compact('paginatedTrips', 'drivers', 'driverId', 'tripType'));
+    }
+
+    public function sendPaymentReminder(Request $request, User $driver)
+    {
+        $request->validate([
+            'amount' => 'required|numeric|min:0',
+        ]);
+
+        // Create or update financial due record
+        FinancialDue::updateOrCreate(
+            ['driver-id' => $driver->id],
+            [
+                'amount' => $request->amount,
+                'date-of-add' => now()
+            ]
+        );
+
+        // Send reminder email
+        $details = [
+            'name' => $driver->{'user-first-name'} . ' ' . $driver->{'user-last-name'},
+            'amount' => $request->amount
+        ];
+
+        Mail::to($driver->email)->send(new PaymentReminderMail($details));
+
+        return redirect()->back()->with('success', __('Payment reminder sent successfully to driver.'));
     }
 
     public function edit(User $driver)

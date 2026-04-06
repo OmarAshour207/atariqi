@@ -51,6 +51,8 @@ Route::middleware(['is_admin'])->prefix('dashboard')->group(function () {
     Route::get('drivers/{driver}/packages', [DriverController::class, 'packagePlans'])->name('drivers.packagePlans');
     Route::post('drivers/{driver}/packages/assign', [DriverController::class, 'assignPackage'])->name('drivers.assignPackage');
     Route::get('driver/rates', [DriverController::class, 'driverRates'])->name('drivers.rates');
+    Route::get('driver/trips', [DriverController::class, 'trips'])->name('drivers.trips');
+    Route::post('drivers/{driver}/send-payment-reminder', [DriverController::class, 'sendPaymentReminder'])->name('drivers.sendPaymentReminder');
     Route::post('drivers/{driver}/update-status', [DriverController::class, 'updateStatus'])->name('drivers.updateStatus');
 
     Route::Resource('drivers', DriverController::class);

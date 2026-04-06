@@ -150,10 +150,8 @@
             n.show();
         });
     });
-
-
-    {{--CKEDITOR.config.language =  "{{ app()->getLocale() }}";--}}
 </script>
+
 @stack('admin_scripts')
 
 </body>

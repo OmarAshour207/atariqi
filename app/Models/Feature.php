@@ -24,4 +24,9 @@ class Feature extends Model
         return $this->belongsTo(Service::class);
     }
 
+    public function packages()
+    {
+        return $this->belongsToMany(Package::class, 'package_features');
+    }
+
 }

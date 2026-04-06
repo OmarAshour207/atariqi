@@ -64,6 +64,33 @@
                         </select>
                     </div>
 
+                    <div class="form-group">
+                        <label for="features">{{ __('Features') }}</label>
+                        <select name="features[]" id="features" class="form-control" multiple style="height: 200px;">
+                            @php
+                                $features = \App\Models\Feature::with('service')->get()->groupBy('service.service');
+                            @endphp
+                            @foreach($features as $serviceName => $serviceFeatures)
+                                @if($serviceName)
+                                    <optgroup label="{{ $serviceName }}">
+                                        @foreach($serviceFeatures as $feature)
+                                            <option value="{{ $feature->id }}" {{ in_array($feature->id, old('features', [])) ? 'selected' : '' }}>
+                                                {{ $feature->name_en }} @if($feature->name_ar) ({{ $feature->name_ar }}) @endif
+                                            </option>
+                                        @endforeach
+                                    </optgroup>
+                                @else
+                                    @foreach($serviceFeatures as $feature)
+                                        <option value="{{ $feature->id }}" {{ in_array($feature->id, old('features', [])) ? 'selected' : '' }}>
+                                            {{ $feature->name_en }} @if($feature->name_ar) ({{ $feature->name_ar }}) @endif
+                                        </option>
+                                    @endforeach
+                                @endif
+                            @endforeach
+                        </select>
+                        <small class="form-text text-muted">{{ __('Hold Ctrl (or Cmd on Mac) to select multiple features') }}</small>
+                    </div>
+
                     <div class="text-right">
                         <a href="{{ route('packages.index') }}" class="btn btn-secondary">{{ __('Cancel') }}</a>
                         <button type="submit" class="btn btn-primary">{{ __('Save Package') }}</button>
@@ -73,3 +100,32 @@
         </div>
     </div>
 @endsection
+
+@section('admin_scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Enhance multi-select with better UX
+    const featuresSelect = document.getElementById('features');
+
+    if (featuresSelect) {
+        // Add selected features counter
+        const selectedCounter = document.createElement('small');
+        selectedCounter.className = 'form-text text-info';
+        selectedCounter.style.display = 'none';
+        featuresSelect.parentNode.appendChild(selectedCounter);
+
+        function updateCounter() {
+            const selectedOptions = Array.from(featuresSelect.selectedOptions);
+            if (selectedOptions.length > 0) {
+                selectedCounter.textContent = selectedOptions.length + ' features selected';
+                selectedCounter.style.display = 'block';
+            } else {
+                selectedCounter.style.display = 'none';
+            }
+        }
+
+        featuresSelect.addEventListener('change', updateCounter);
+        updateCounter(); // Initial count
+    }
+});
+</script>
