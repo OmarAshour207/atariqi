@@ -12,6 +12,12 @@ use App\Models\User;
 use App\Models\Package;
 use App\Models\UserPackage;
 use App\Models\UserPackageHistory;
+use App\Models\DelDailyInfo;
+use App\Models\DelWeekInfo;
+use App\Models\DelImmediateInfo;
+use App\Models\SugDayDriver;
+use App\Models\SugWeekDriver;
+use App\Models\SuggestionDriver;
 use App\Services\WaslService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -121,6 +127,48 @@ class DriverController extends Controller
         });
 
         return redirect()->route('drivers.packages')->with('success', __('Package assignment updated successfully.'));
+    }
+
+    public function driverRates(Request $request)
+    {
+        // Get all drivers
+        $drivers = User::where('user-type', 'driver')
+            ->with(['callingKey'])
+            ->paginate(20);
+
+        // Calculate ratings for each driver
+        $drivers->getCollection()->transform(function ($driver) {
+            // Get daily delivery ratings
+            $dailyRatings = DelDailyInfo::whereHas('ride', function($query) use ($driver) {
+                $query->where('driver-id', $driver->id);
+            })->whereNotNull('passenger-rate')->pluck('passenger-rate')->toArray();
+
+            // Get weekly delivery ratings
+            $weeklyRatings = DelWeekInfo::whereHas('ride', function($query) use ($driver) {
+                $query->where('driver-id', $driver->id);
+            })->whereNotNull('passenger-rate')->pluck('passenger-rate')->toArray();
+
+            // Get immediate delivery ratings
+            $immediateRatings = DelImmediateInfo::whereHas('ride', function($query) use ($driver) {
+                $query->where('driver-id', $driver->id);
+            })->whereNotNull('passenger-rate')->pluck('passenger-rate')->toArray();
+
+            // Combine all ratings
+            $allRatings = array_merge($dailyRatings, $weeklyRatings, $immediateRatings);
+
+            // Calculate statistics
+            $driver->total_ratings = count($allRatings);
+            $driver->average_rating = $allRatings ? round(array_sum($allRatings) / count($allRatings), 1) : null;
+            $driver->rating_breakdown = [
+                'daily' => count($dailyRatings),
+                'weekly' => count($weeklyRatings),
+                'immediate' => count($immediateRatings)
+            ];
+
+            return $driver;
+        });
+
+        return view('dashboard.drivers.rates', compact('drivers'));
     }
 
     public function edit(User $driver)

@@ -12,6 +12,7 @@ use App\Http\Controllers\Dashboard\HomepageStatController;
 use App\Http\Controllers\Dashboard\TestimonialController;
 use App\Http\Controllers\Dashboard\PartnerAchievementController;
 use App\Http\Controllers\Dashboard\EditDriverInfoRequestController;
+use App\Http\Controllers\Dashboard\PackageController;
 use App\Http\Controllers\Dashboard\DriverController;
 
 /*
@@ -44,13 +45,15 @@ Route::middleware(['is_admin'])->prefix('dashboard')->group(function () {
 
     Route::Resource('partner-achievements', PartnerAchievementController::class);
 
-    Route::Resource('drivers', DriverController::class);
+    Route::resource('packages', PackageController::class);
 
     Route::get('driver/packages', [DriverController::class, 'packages'])->name('drivers.packages');
     Route::get('drivers/{driver}/packages', [DriverController::class, 'packagePlans'])->name('drivers.packagePlans');
     Route::post('drivers/{driver}/packages/assign', [DriverController::class, 'assignPackage'])->name('drivers.assignPackage');
-
+    Route::get('driver/rates', [DriverController::class, 'driverRates'])->name('drivers.rates');
     Route::post('drivers/{driver}/update-status', [DriverController::class, 'updateStatus'])->name('drivers.updateStatus');
+
+    Route::Resource('drivers', DriverController::class);
 
     Route::Resource('edit-info-request', EditDriverInfoRequestController::class);
 
