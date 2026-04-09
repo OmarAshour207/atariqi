@@ -12,13 +12,21 @@ class RegisterResource extends JsonResource
         $carLetters = $this->driverInfo->{"car-letters"};
         $plateLetters = $this->splitChars($carLetters);
 
+        // Remove 966 prefix from phone number if it exists
+        $phoneNo = $this->{"phone-no"};
+        if (strpos($phoneNo, '966') === 0) {
+            $phoneNo = substr($phoneNo, 3);
+        }
+
+        $mobileNumber = $this->callingKey->{"call-key"} . $phoneNo;
+
         return [
             "driver" => [
                 "identityNumber" => $this->driverInfo->identity_number,
                 "dateOfBirthHijri" => $this->driverInfo->date_of_birth_hijri,
                 "dateOfBirthGregorian" => $this->driverInfo->date_of_birth,
                 "emailAddress" => $this->email,
-                "mobileNumber" => '+' . $this->callingKey->{"call-key"} . $this->{"phone-no"},
+                "mobileNumber" => $mobileNumber,
             ],
             "vehicle" => [
                 "sequenceNumber" => $this->driverInfo->{"sequence-number"},

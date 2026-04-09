@@ -130,6 +130,11 @@ class User extends Authenticatable
 
     public function getFullPhoneNumberAttribute()
     {
-        return '+' . $this->callingKey->{"call-key"} . $this->{'phone-no'};
+        // Remove 966 prefix from phone number if it exists
+        $phoneNo = $this->{'phone-no'};
+        if (strpos($phoneNo, '966') === 0) {
+            $phoneNo = substr($phoneNo, 3);
+        }
+        return '+' . $this->callingKey->{"call-key"} . $phoneNo;
     }
 }

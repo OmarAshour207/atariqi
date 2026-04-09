@@ -47,7 +47,13 @@ class UserController extends BaseController
         $user = User::create($data);
         $success['user'] = $user;
 
-        $phoneNumber = '+' . $user->callingKey->{"call-key"} . $user->{"phone-no"};
+        // Remove 966 prefix from phone number if it exists
+        $phoneNo = $user->{"phone-no"};
+        if (strpos($phoneNo, '966') === 0) {
+            $phoneNo = substr($phoneNo, 3);
+        }
+
+        $phoneNumber = '+' . $user->callingKey->{"call-key"} . $phoneNo;
 
         sendSMS($phoneNumber, $code);
 
