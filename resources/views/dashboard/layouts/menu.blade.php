@@ -123,6 +123,22 @@
                     </ul>
                 </li>
 
+                <!-- Users -->
+                <li class="sidebar-menu-item">
+                    <a class="sidebar-menu-button" data-toggle="collapse" href="#users">
+                        <i class="sidebar-menu-icon sidebar-menu-icon--left fa fa-users"></i>
+                        <span class="sidebar-menu-text"> {{ __('Users') }} </span>
+                        <span class="ml-auto sidebar-menu-toggle-icon"></span>
+                    </a>
+                    <ul class="sidebar-submenu collapse" id="users">
+                        <li class="sidebar-menu-item">
+                            <a class="sidebar-menu-button" href="{{ route('users.index') }}">
+                                <i class="fa fa-user"></i>
+                                <span class="sidebar-menu-text"> {{ __('Users Management') }}</span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
 
                 {{-- Settings --}}
                 <li class="sidebar-menu-item">

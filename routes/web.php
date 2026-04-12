@@ -13,6 +13,7 @@ use App\Http\Controllers\Dashboard\TestimonialController;
 use App\Http\Controllers\Dashboard\PartnerAchievementController;
 use App\Http\Controllers\Dashboard\EditDriverInfoRequestController;
 use App\Http\Controllers\Dashboard\PackageController;
+use App\Http\Controllers\Dashboard\UserController;
 use App\Http\Controllers\Dashboard\DriverController;
 
 /*
@@ -56,6 +57,11 @@ Route::middleware(['is_admin'])->prefix('dashboard')->group(function () {
     Route::post('drivers/{driver}/update-status', [DriverController::class, 'updateStatus'])->name('drivers.updateStatus');
 
     Route::Resource('drivers', DriverController::class);
+
+    Route::get('user/trips', [UserController::class, 'index'])->name('users.trips');
+    Route::get('user/rates', [UserController::class, 'rates'])->name('users.rates');
+
+    Route::Resource('users', UserController::class);
 
     Route::Resource('edit-info-request', EditDriverInfoRequestController::class);
 

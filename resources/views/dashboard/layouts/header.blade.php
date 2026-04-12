@@ -10,6 +10,11 @@
                     <span class="navbar-toggler-icon"></span>
                 </button>
 
+                <!-- Desktop Sidebar Toggle -->
+                <button class="navbar-toggler navbar-toggler-right d-none d-lg-block" type="button" data-toggle="sidebar">
+                    <i class="material-icons">menu</i>
+                </button>
+
 
                 <!-- Navbar Brand -->
                 <a href="{{ route('dashboard.index') }}" class="navbar-brand ">
