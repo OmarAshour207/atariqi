@@ -10,6 +10,9 @@ use App\Models\DelImmediateInfo;
 use App\Models\SugDayDriver;
 use App\Models\SugWeekDriver;
 use App\Models\SuggestionDriver;
+use App\Models\DayUnrideRate;
+use App\Models\WeekUnrideRate;
+use App\Models\ImmediateUnrideRate;
 use Illuminate\Http\Request;
 
 class UserController extends Controller
@@ -137,5 +140,53 @@ class UserController extends Controller
         ];
 
         return view('dashboard.users.rates', compact('user', 'allRatings', 'stats'));
+    }
+
+    public function unrideRates(Request $request)
+    {
+        // Get all unride rates with their related ride information
+        $unrideRates = collect();
+
+        // Get immediate unride rates
+        $immediateUnrideRates = ImmediateUnrideRate::with(['ride.driver', 'ride.passenger'])
+            ->get()
+            ->map(function($rate) {
+                $rate->trip_type = 'immediate';
+                $rate->sort_date = $rate->ride->{'date-of-add'} ?? now();
+                return $rate;
+            });
+
+        // Get daily unride rates
+        $dailyUnrideRates = DayUnrideRate::with(['ride.driver', 'ride.passenger'])
+            ->get()
+            ->map(function($rate) {
+                $rate->trip_type = 'daily';
+                $rate->sort_date = $rate->ride->{'date-of-add'} ?? now();
+                return $rate;
+            });
+
+        // Get weekly unride rates
+        $weeklyUnrideRates = WeekUnrideRate::with(['ride.driver', 'ride.passenger'])
+            ->get()
+            ->map(function($rate) {
+                $rate->trip_type = 'weekly';
+                $rate->sort_date = $rate->ride->{'date-of-add'} ?? now();
+                return $rate;
+            });
+
+        // Combine all unride rates
+        $allUnrideRates = $immediateUnrideRates->concat($dailyUnrideRates)->concat($weeklyUnrideRates)
+            ->sortByDesc('sort_date');
+
+        // Calculate statistics
+        $stats = [
+            'total_unride_rates' => $allUnrideRates->count(),
+            'immediate_count' => $immediateUnrideRates->count(),
+            'daily_count' => $dailyUnrideRates->count(),
+            'weekly_count' => $weeklyUnrideRates->count(),
+            'average_rating' => $allUnrideRates->where('rate', '>', 0)->avg('rate') ?? 0,
+        ];
+
+        return view('dashboard.users.unride-rates', compact('allUnrideRates', 'stats'));
     }
 }

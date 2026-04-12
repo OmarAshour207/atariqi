@@ -60,6 +60,7 @@ Route::middleware(['is_admin'])->prefix('dashboard')->group(function () {
 
     Route::get('user/trips', [UserController::class, 'index'])->name('users.trips');
     Route::get('user/rates', [UserController::class, 'rates'])->name('users.rates');
+    Route::get('user/unride-rates', [UserController::class, 'unrideRates'])->name('users.unride-rates');
 
     Route::Resource('users', UserController::class);
 
