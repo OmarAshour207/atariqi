@@ -25,6 +25,7 @@ class User extends Authenticatable
         'password',
         'is_admin',
         'approval',
+        'reject-reason',
         'user-type',
         'image',
         'date-of-add',

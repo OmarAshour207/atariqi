@@ -21,6 +21,8 @@
             <div class="card card-form__body card-body">
                 <form method="post" action="{{ route('drivers.updateStatus', $driver->id) }}">
 
+                    @include('dashboard.partials._errors')
+
                     @csrf
                     @method('post')
 
@@ -107,6 +109,11 @@
                                     <option value="1" {{ old('approval', $driver->approval) == 1 ? 'selected' : '' }}> {{ __('Approved') }} </option>
                                     <option value="2" {{ old('approval', $driver->approval) == 2 ? 'selected' : '' }}> {{ __('Rejected') }} </option>
                                 </select>
+                            </div>
+
+                            <div class="form-group col-lg-12">
+                                <label for="reject-reason">{{ __('Reject Reason') }}</label>
+                                <textarea id="reject-reason" name="reject-reason" class="form-control" rows="3" placeholder="{{ __('Enter reject reason when rejecting driver') }}" {{ $driver->approval != 0 ? 'disabled' : '' }}>{{ old('reject-reason', $driver->{"reject-reason"}) }}</textarea>
                             </div>
 
                             <div class="form-group">

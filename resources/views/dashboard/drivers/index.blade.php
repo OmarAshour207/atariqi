@@ -19,6 +19,50 @@
 
         <div class="container-fluid page__container">
 
+            <!-- Filters -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">{{ __('Filters') }}</h5>
+                </div>
+                <div class="card-body">
+                    <form method="GET" action="{{ route('drivers.index') }}" class="row">
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="name">{{ __('Name') }}</label>
+                                <input type="text" class="form-control" id="name" name="name" value="{{ request('name') }}" placeholder="{{ __('Search by name or email') }}">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="email">{{ __('Email') }}</label>
+                                <input type="email" class="form-control" id="email" name="email" value="{{ request('email') }}" placeholder="{{ __('Search by email') }}">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="phone">{{ __('Phone') }}</label>
+                                <input type="text" class="form-control" id="phone" name="phone" value="{{ request('phone') }}" placeholder="{{ __('Search by phone') }}">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="approval">{{ __('Approval Status') }}</label>
+                                <select class="form-control" id="approval" name="approval">
+                                    <option value="">{{ __('All') }}</option>
+                                    <option value="0" {{ request('approval') === '0' ? 'selected' : '' }}>{{ __('Pending') }}</option>
+                                    <option value="1" {{ request('approval') === '1' ? 'selected' : '' }}>{{ __('Approved') }}</option>
+                                    <option value="2" {{ request('approval') === '2' ? 'selected' : '' }}>{{ __('Rejected') }}</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-primary">{{ __('Filter') }}</button>
+                            <a href="{{ route('drivers.index') }}" class="btn btn-secondary">{{ __('Clear Filters') }}</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
             <div class="card">
                 <div class="table-responsive" data-toggle="lists" data-lists-values='["js-lists-values-employee-name"]'>
 
@@ -27,11 +71,13 @@
                             <tr>
 
                             <th style="width: 5%;"> # </th>
-                            <th style="width: 20%;"> {{ __('Full Name') }} </th>
-                            <th style="width: 20%;"> {{ __('Email') }} </th>
-                            <th style="width: 15%;"> {{ __('Phone Number') }} </th>
-                            <th style="width: 20%;"> {{ __('Approval') }} </th>
-                            <th style="width: 20%;"> {{ __('Action') }} </th>
+                            <th style="width: 15%;"> {{ __('Full Name') }} </th>
+                            <th style="width: 15%;"> {{ __('Email') }} </th>
+                            <th style="width: 12%;"> {{ __('Phone Number') }} </th>
+                            <th style="width: 12%;"> {{ __('University') }} </th>
+                            <th style="width: 12%;"> {{ __('Stage') }} </th>
+                            <th style="width: 10%;"> {{ __('Approval') }} </th>
+                            <th style="width: 17%;"> {{ __('Action') }} </th>
                             </tr>
                         </thead>
                         <tbody class="list" id="companies">
@@ -69,7 +115,31 @@
                             <td>
                                 <div class="d-flex align-items-center">
                                     <div class="d-flex align-items-center">
-                                        {{ $driver->approval }}
+                                        {{ $driver->university->{"name-ar"} ?? __('Not Specified') }}
+                                    </div>
+                                </div>
+                            </td>
+
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="d-flex align-items-center">
+                                        {{ $driver->stage->{"name-ar"} ?? __('Not Specified') }}
+                                    </div>
+                                </div>
+                            </td>
+
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="d-flex align-items-center">
+                                        @if($driver->approval == 0)
+                                            <span class="badge badge-warning">{{ __('Pending') }}</span>
+                                        @elseif($driver->approval == 1)
+                                            <span class="badge badge-success">{{ __('Approved') }}</span>
+                                        @elseif($driver->approval == 2)
+                                            <span class="badge badge-danger">{{ __('Rejected') }}</span>
+                                        @else
+                                            <span class="badge badge-secondary">{{ __('Unknown') }}</span>
+                                        @endif
                                     </div>
                                 </div>
                             </td>

@@ -23,6 +23,7 @@ use App\Services\WaslService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use App\Mail\DriverRejectedMail;
 use App\Mail\PaymentReminderMail;
 use Illuminate\Support\Facades\Mail;
 
@@ -37,15 +38,41 @@ class DriverController extends Controller
 
     public function index(Request $request)
     {
-        $drivers = User::with('callingKey')
-            ->where('user-type', 'driver')
-            ->paginate(20);
+        $query = User::with(['callingKey', 'university', 'stage'])
+            ->where('user-type', 'driver');
+
+        // Filter by name
+        if ($request->filled('name')) {
+            $query->where(function ($q) use ($request) {
+                $q->where('user-first-name', 'like', '%' . $request->name . '%')
+                  ->orWhere('user-last-name', 'like', '%' . $request->name . '%')
+                  ->orWhere('email', 'like', '%' . $request->name . '%');
+            });
+        }
+
+        // Filter by email
+        if ($request->filled('email')) {
+            $query->where('email', 'like', '%' . $request->email . '%');
+        }
+
+        // Filter by phone
+        if ($request->filled('phone')) {
+            $query->where('phone-no', 'like', '%' . $request->phone . '%');
+        }
+
+        // Filter by approval
+        if ($request->filled('approval') && $request->approval !== '') {
+            $query->where('approval', $request->approval);
+        }
+
+        $drivers = $query->paginate(20)->appends($request->query());
 
         return view('dashboard.drivers.index', compact('drivers'));
     }
 
     public function show(User $driver)
     {
+        $waslResponse = '';
         try {
             $driver->load('callingKey', 'driverInfo', 'driverCar');
             $universities = University::all();
@@ -312,10 +339,20 @@ class DriverController extends Controller
     public function updateStatus(User $driver, Request $request)
     {
         $request->validate([
-            'approval' => 'required:in:0,1,2',
+            'approval' => ['required', 'in:0,1,2'],
+            'reject-reason' => ['required_if:approval,2', 'nullable', 'string', 'max:1000'],
         ]);
 
-        $driver->update(['approval' => $request->approval]);
+        $updateData = [
+            'approval' => $request->approval,
+            'reject-reason' => $request->approval == 2 ? $request->input('reject-reason') : null,
+        ];
+
+        $driver->update($updateData);
+
+        if ($request->approval == 2) {
+            Mail::to($driver->email)->send(new DriverRejectedMail($driver, $request->input('reject-reason')));
+        }
 
         return redirect()->route('drivers.index')->with('success', 'Driver status updated successfully.');
     }
