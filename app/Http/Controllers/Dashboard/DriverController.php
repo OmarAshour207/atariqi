@@ -15,6 +15,7 @@ use App\Models\UserPackageHistory;
 use App\Models\DelDailyInfo;
 use App\Models\DelWeekInfo;
 use App\Models\DelImmediateInfo;
+use App\Models\CaptainRequestDecision;
 use App\Models\SugDayDriver;
 use App\Models\SugWeekDriver;
 use App\Models\SuggestionDriver;
@@ -343,14 +344,30 @@ class DriverController extends Controller
             'reject-reason' => ['required_if:approval,2', 'nullable', 'string', 'max:1000'],
         ]);
 
+        $oldApproval = $driver->approval;
+        $newApproval = (int) $request->approval;
+
         $updateData = [
-            'approval' => $request->approval,
-            'reject-reason' => $request->approval == 2 ? $request->input('reject-reason') : null,
+            'approval' => $newApproval,
+            'reject-reason' => $newApproval === 2 ? $request->input('reject-reason') : null,
         ];
 
         $driver->update($updateData);
 
-        if ($request->approval == 2) {
+        if (in_array($newApproval, [1, 2], true) && $newApproval !== $oldApproval) {
+            $employeeId = auth()->guard('admin')->id();
+
+            CaptainRequestDecision::create([
+                'user_id' => $driver->id,
+                'action_type' => $newApproval === 1 ? 'approved' : 'rejected',
+                'old_approval' => $oldApproval,
+                'new_approval' => $newApproval,
+                'reasondecided_by_employee_id' => $employeeId,
+                'reject_reason' => $newApproval === 2 ? $request->input('reject-reason') : null,
+            ]);
+        }
+
+        if ($newApproval === 2) {
             Mail::to($driver->email)->send(new DriverRejectedMail($driver, $request->input('reject-reason')));
         }
 

@@ -100,6 +100,11 @@ class User extends Authenticatable
         return $this->hasMany(DriversServices::class, 'driver-id', 'id');
     }
 
+    public function captainRequestDecisions()
+    {
+        return $this->hasMany(CaptainRequestDecision::class, 'user_id');
+    }
+
     public function paymentReminders()
     {
         return $this->hasMany(PaymentReminder::class, 'driver-id', 'id');
