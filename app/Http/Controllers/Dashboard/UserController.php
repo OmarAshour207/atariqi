@@ -13,6 +13,8 @@ use App\Models\SuggestionDriver;
 use App\Models\DayUnrideRate;
 use App\Models\WeekUnrideRate;
 use App\Models\ImmediateUnrideRate;
+use App\Models\University;
+use App\Models\Stage;
 use Illuminate\Http\Request;
 
 class UserController extends Controller
@@ -36,6 +38,29 @@ class UserController extends Controller
             $query->where('phone-no', 'like', '%' . $request->phone . '%');
         }
 
+        // Filter by gender
+        if ($request->filled('gender')) {
+            $query->where('gender', $request->gender);
+        }
+
+        // Filter by university
+        if ($request->filled('university_id')) {
+            $query->where('university-id', $request->university_id);
+        }
+
+        // Filter by stage
+        if ($request->filled('stage_id')) {
+            $query->where('user-stage-id', $request->stage_id);
+        }
+
+        // Filter by registration date range
+        if ($request->filled('date_from')) {
+            $query->where('date-of-add', '>=', $request->date_from);
+        }
+        if ($request->filled('date_to')) {
+            $query->where('date-of-add', '<=', $request->date_to . ' 23:59:59');
+        }
+
         $users = $query->paginate(20)->appends($request->query());
 
         // Calculate trip counts for each user
@@ -55,7 +80,11 @@ class UserController extends Controller
             return $user;
         });
 
-        return view('dashboard.users.index', compact('users'));
+        // Get filter options
+        $universities = University::all();
+        $stages = Stage::all();
+
+        return view('dashboard.users.index', compact('users', 'universities', 'stages'));
     }
 
     public function show(User $user)

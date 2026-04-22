@@ -184,7 +184,7 @@
                                         {{ $package->statusText }}
                                     </span>
                                 </td>
-                                <td>{{ $package->created_at->format('Y-m-d') }}</td>
+                                <td>{{ optional($package->created_at)->format('Y-m-d') ?? '-' }}</td>
                                 <td>
                                     <a href="{{ route('packages.edit', $package->id) }}" class="btn btn-sm btn-primary">
                                         <i class="fa fa-edit"></i> {{ __('Edit') }}
