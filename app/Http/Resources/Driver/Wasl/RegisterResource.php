@@ -18,7 +18,7 @@ class RegisterResource extends JsonResource
             $phoneNo = substr($phoneNo, 3);
         }
 
-        $mobileNumber = $this->callingKey->{"call-key"} . $phoneNo;
+        $mobileNumber = '+' . $this->callingKey->{"call-key"} . $phoneNo;
 
         return [
             "driver" => [
