@@ -71,6 +71,36 @@ class DriverController extends Controller
         return view('dashboard.drivers.index', compact('drivers'));
     }
 
+    public function newDrivers(Request $request)
+    {
+        $query = User::with(['callingKey', 'university', 'stage'])
+            ->where('user-type', 'driver')
+            ->where('approval', 0);
+
+        // Filter by name
+        if ($request->filled('name')) {
+            $query->where(function ($q) use ($request) {
+                $q->where('user-first-name', 'like', '%' . $request->name . '%')
+                  ->orWhere('user-last-name', 'like', '%' . $request->name . '%')
+                  ->orWhere('email', 'like', '%' . $request->name . '%');
+            });
+        }
+
+        // Filter by email
+        if ($request->filled('email')) {
+            $query->where('email', 'like', '%' . $request->email . '%');
+        }
+
+        // Filter by phone
+        if ($request->filled('phone')) {
+            $query->where('phone-no', 'like', '%' . $request->phone . '%');
+        }
+
+        $drivers = $query->paginate(20)->appends($request->query());
+
+        return view('dashboard.drivers.new_drivers', compact('drivers'));
+    }
+
     public function show(User $driver)
     {
         $waslResponse = '';

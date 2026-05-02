@@ -58,6 +58,8 @@ Route::middleware(['is_admin'])->prefix('dashboard')->group(function () {
 
     Route::Resource('drivers', DriverController::class);
 
+    Route::get('new-drivers', [DriverController::class, 'newDrivers'])->name('new-drivers.index');
+
     Route::get('user/trips', [UserController::class, 'index'])->name('users.trips');
     Route::get('user/rates', [UserController::class, 'rates'])->name('users.rates');
     Route::get('user/unride-rates', [UserController::class, 'unrideRates'])->name('users.unride-rates');

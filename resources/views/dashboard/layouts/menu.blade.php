@@ -86,6 +86,13 @@
                         </li>
 
                         <li class="sidebar-menu-item">
+                            <a class="sidebar-menu-button" href="{{ route('new-drivers.index') }}">
+                                <i class="fa fa-user"></i>
+                                <span class="sidebar-menu-text"> {{ __('New Drivers') }}</span>
+                            </a>
+                        </li>
+
+                        <li class="sidebar-menu-item">
                             <a class="sidebar-menu-button" href="{{ route('edit-info-request.index') }}">
                                 <i class="fa fa-info"></i>
                                 <span class="sidebar-menu-text"> {{ __('Edit Info Request') }}</span>
