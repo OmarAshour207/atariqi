@@ -13,6 +13,7 @@ use App\Http\Controllers\Dashboard\TestimonialController;
 use App\Http\Controllers\Dashboard\PartnerAchievementController;
 use App\Http\Controllers\Dashboard\EditDriverInfoRequestController;
 use App\Http\Controllers\Dashboard\PackageController;
+use App\Http\Controllers\Dashboard\FeatureController;
 use App\Http\Controllers\Dashboard\UserController;
 use App\Http\Controllers\Dashboard\DriverController;
 
@@ -47,6 +48,8 @@ Route::middleware(['is_admin'])->prefix('dashboard')->group(function () {
     Route::Resource('partner-achievements', PartnerAchievementController::class);
 
     Route::resource('packages', PackageController::class);
+
+    Route::resource('features', FeatureController::class);
 
     Route::get('driver/packages', [DriverController::class, 'packages'])->name('drivers.packages');
     Route::get('drivers/{driver}/packages', [DriverController::class, 'packagePlans'])->name('drivers.packagePlans');

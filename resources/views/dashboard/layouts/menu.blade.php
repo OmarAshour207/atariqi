@@ -114,6 +114,13 @@
                         </li>
 
                         <li class="sidebar-menu-item">
+                            <a class="sidebar-menu-button" href="{{ route('features.index') }}">
+                                <i class="fa fa-box"></i>
+                                <span class="sidebar-menu-text"> {{ __('Features') }}</span>
+                            </a>
+                        </li>
+
+                        <li class="sidebar-menu-item">
                             <a class="sidebar-menu-button" href="{{ route('drivers.rates') }}">
                                 <i class="fa fa-star"></i>
                                 <span class="sidebar-menu-text"> {{ __('Driver Passenger Rates') }}</span>
