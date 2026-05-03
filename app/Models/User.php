@@ -129,6 +129,11 @@ class User extends Authenticatable
         ->latest('user_packages.created_at');
     }
 
+    public function passengerRate()
+    {
+        return $this->hasOne(PassengerRate::class, 'user-id', 'id');
+    }
+
     public function getFullNameAttribute()
     {
         return $this->{'user-first-name'} . ' ' . $this->{'user-last-name'};

@@ -152,6 +152,12 @@
                             </a>
                         </li>
                         <li class="sidebar-menu-item">
+                            <a class="sidebar-menu-button" href="{{ route('passengers.index') }}">
+                                <i class="fa fa-users"></i>
+                                <span class="sidebar-menu-text"> {{ __('Passengers') }}</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-menu-item">
                             <a class="sidebar-menu-button" href="{{ route('users.unride-rates') }}">
                                 <i class="fa fa-star-half-alt"></i>
                                 <span class="sidebar-menu-text"> {{ __('Unride Rates') }}</span>
