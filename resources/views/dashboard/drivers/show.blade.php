@@ -105,15 +105,15 @@
                                 <label for="approval"> {{ __('Approval') }}</label> <br>
                                 <select id="approval" name="approval" data-toggle="select" class="form-control select2" disabled>
                                     <option value="" selected> {{ __('approval') }} </option>
-                                    <option value="0" {{ old('approval', $driver->approval) == 0 ? 'selected' : '' }}> {{ __('Pending') }} </option>
+                                    <option value="2" {{ old('approval', $driver->approval) == 2 ? 'selected' : '' }}> {{ __('Pending') }} </option>
                                     <option value="1" {{ old('approval', $driver->approval) == 1 ? 'selected' : '' }}> {{ __('Approved') }} </option>
-                                    <option value="2" {{ old('approval', $driver->approval) == 2 ? 'selected' : '' }}> {{ __('Rejected') }} </option>
+                                    <option value="3" {{ old('approval', $driver->approval) == 3 ? 'selected' : '' }}> {{ __('Rejected') }} </option>
                                 </select>
                             </div>
 
                             <div class="form-group col-lg-12">
                                 <label for="reject-reason">{{ __('Reject Reason') }}</label>
-                                <textarea id="reject-reason" name="reject-reason" class="form-control" rows="3" placeholder="{{ __('Enter reject reason when rejecting driver') }}" {{ $driver->approval != 0 ? 'disabled' : '' }}>{{ old('reject-reason', $driver->{"reject-reason"}) }}</textarea>
+                                <textarea id="reject-reason" name="reject-reason" class="form-control" rows="3" placeholder="{{ __('Enter reject reason when rejecting driver') }}" {{ $driver->approval != 3 ? 'disabled' : '' }}>{{ old('reject-reason', $driver->{"reject-reason"}) }}</textarea>
                             </div>
 
                             <div class="form-group">
@@ -292,10 +292,10 @@
                         </div>
                     </div>
 
-                    @if ($driver->approval == 0)
+                    @if ($driver->approval == 2)
                         <div class="text-right mb-5">
                             <button type="submit" name="approval" value="1" class="btn btn-success">{{ __('Accept') }}</button>
-                            <button type="submit" name="approval" value="2" class="btn btn-danger">{{ __('Reject') }}</button>
+                            <button type="submit" name="approval" value="3" class="btn btn-danger">{{ __('Reject') }}</button>
                         </div>
                     @endif
 

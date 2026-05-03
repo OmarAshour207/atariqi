@@ -107,7 +107,9 @@ class PassengerController extends Controller
         }
 
         try {
-        $rating = $passenger->passengerRate ?? PassengerRate::where('user-id', $passenger->id)->first();
+            $rating = $passenger->passengerRate ?? PassengerRate::where('user-id', $passenger->id)->first();
+
+            $passenger->update(['approval' => 3]);
 
             return redirect()->route('passengers.index')->with('success', __('Passenger has been banned successfully.'));
         } catch (\Exception $e) {
@@ -147,16 +149,16 @@ class PassengerController extends Controller
     public function updateApproval(Request $request, User $passenger)
     {
         $request->validate([
-            'approval' => 'required|in:0,1,2',
+            'approval' => 'required|in:1,2,3',
         ]);
 
         try {
             $passenger->update(['approval' => $request->approval]);
 
             $approvalText = [
-                0 => __('Banned'),
                 1 => __('Approved'),
-                2 => __('Pending Review')
+                2 => __('Pending Review'),
+                3 => __('Banned')
             ];
 
             return redirect()->route('passengers.show', $passenger->id)
@@ -165,5 +167,70 @@ class PassengerController extends Controller
             return redirect()->route('passengers.show', $passenger->id)
                 ->with('error', __('Unable to update passenger status.'));
         }
+    }
+
+    public function allTrips(Request $request)
+    {
+        // Get immediate trips
+        $immediateTrips = SuggestionDriver::with(['passenger', 'driver'])
+            ->when($request->filled('passenger_id'), function($q) use ($request) {
+                $q->where('passenger-id', $request->passenger_id);
+            })
+            ->when($request->filled('driver_id'), function($q) use ($request) {
+                $q->where('driver-id', $request->driver_id);
+            })
+            ->when($request->filled('date_from'), function($q) use ($request) {
+                $q->where('date-of-add', '>=', $request->date_from);
+            })
+            ->when($request->filled('date_to'), function($q) use ($request) {
+                $q->where('date-of-add', '<=', $request->date_to . ' 23:59:59');
+            })
+            ->latest('date-of-add')
+            ->paginate(20, ['*'], 'immediate_page')
+            ->appends($request->query());
+
+        // Get daily trips
+        $dailyTrips = SugDayDriver::with(['passenger', 'driver'])
+            ->when($request->filled('passenger_id'), function($q) use ($request) {
+                $q->where('passenger-id', $request->passenger_id);
+            })
+            ->when($request->filled('driver_id'), function($q) use ($request) {
+                $q->where('driver-id', $request->driver_id);
+            })
+            ->when($request->filled('date_from'), function($q) use ($request) {
+                $q->where('date-of-add', '>=', $request->date_from);
+            })
+            ->when($request->filled('date_to'), function($q) use ($request) {
+                $q->where('date-of-add', '<=', $request->date_to . ' 23:59:59');
+            })
+            ->latest('date-of-add')
+            ->paginate(20, ['*'], 'daily_page')
+            ->appends($request->query());
+
+        // Get weekly trips
+        $weeklyTrips = SugWeekDriver::with(['passenger', 'driver'])
+            ->when($request->filled('passenger_id'), function($q) use ($request) {
+                $q->where('passenger-id', $request->passenger_id);
+            })
+            ->when($request->filled('driver_id'), function($q) use ($request) {
+                $q->where('driver-id', $request->driver_id);
+            })
+            ->when($request->filled('date_from'), function($q) use ($request) {
+                $q->where('date-of-add', '>=', $request->date_from);
+            })
+            ->when($request->filled('date_to'), function($q) use ($request) {
+                $q->where('date-of-add', '<=', $request->date_to . ' 23:59:59');
+            })
+            ->latest('date-of-add')
+            ->paginate(20, ['*'], 'weekly_page')
+            ->appends($request->query());
+
+        // Get filter options
+        $passengers = User::where('user-type', 'passenger')->where('approval', 1)->get();
+        $drivers = User::where('user-type', 'driver')->where('approval', 1)->get();
+
+        return view('dashboard.passengers.all-trips', compact(
+            'immediateTrips', 'dailyTrips', 'weeklyTrips', 'passengers', 'drivers'
+        ));
     }
 }

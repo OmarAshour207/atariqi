@@ -73,6 +73,7 @@ Route::middleware(['is_admin'])->prefix('dashboard')->group(function () {
     Route::get('passengers', [PassengerController::class, 'index'])->name('passengers.index');
     Route::get('passengers/{passenger}', [PassengerController::class, 'show'])->name('passengers.show');
     Route::get('passengers/{passenger}/trips', [PassengerController::class, 'trips'])->name('passengers.trips');
+    Route::get('passengers-trips', [PassengerController::class, 'allTrips'])->name('passengers.all-trips');
     Route::post('passengers/{passenger}/ban', [PassengerController::class, 'ban'])->name('passengers.ban');
     Route::post('passengers/{passenger}/update-approval', [PassengerController::class, 'updateApproval'])->name('passengers.updateApproval');
 

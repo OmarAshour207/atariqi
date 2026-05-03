@@ -49,9 +49,9 @@
                                 <label for="approval">{{ __('Approval Status') }}</label>
                                 <select class="form-control" id="approval" name="approval">
                                     <option value="">{{ __('All') }}</option>
-                                    <option value="0" {{ request('approval') === '0' ? 'selected' : '' }}>{{ __('Pending') }}</option>
+                                    <option value="2" {{ request('approval') === '2' ? 'selected' : '' }}>{{ __('Pending') }}</option>
                                     <option value="1" {{ request('approval') === '1' ? 'selected' : '' }}>{{ __('Approved') }}</option>
-                                    <option value="2" {{ request('approval') === '2' ? 'selected' : '' }}>{{ __('Rejected') }}</option>
+                                    <option value="3" {{ request('approval') === '3' ? 'selected' : '' }}>{{ __('Rejected') }}</option>
                                 </select>
                             </div>
                         </div>
@@ -131,11 +131,11 @@
                             <td>
                                 <div class="d-flex align-items-center">
                                     <div class="d-flex align-items-center">
-                                        @if($driver->approval == 0)
+                                        @if($driver->approval == 2)
                                             <span class="badge badge-warning">{{ __('Pending') }}</span>
                                         @elseif($driver->approval == 1)
                                             <span class="badge badge-success">{{ __('Approved') }}</span>
-                                        @elseif($driver->approval == 2)
+                                        @elseif($driver->approval == 3)
                                             <span class="badge badge-danger">{{ __('Rejected') }}</span>
                                         @else
                                             <span class="badge badge-secondary">{{ __('Unknown') }}</span>

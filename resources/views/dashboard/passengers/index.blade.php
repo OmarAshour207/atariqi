@@ -13,6 +13,7 @@
                     </nav>
                     <h1 class="m-0">{{ __('Passengers') }}</h1>
                 </div>
+                <a href="{{ route('passengers.all-trips') }}" class="btn btn-info">{{ __('All Trips') }}</a>
             </div>
         </div>
 

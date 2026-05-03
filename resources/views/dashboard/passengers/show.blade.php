@@ -123,7 +123,7 @@
                                     <select name="approval" id="approval" class="form-control">
                                         <option value="1" {{ $passenger->approval == 1 ? 'selected' : '' }}>{{ __('Approve') }}</option>
                                         <option value="2" {{ $passenger->approval == 2 ? 'selected' : '' }}>{{ __('Pending Review') }}</option>
-                                        <option value="0" {{ $passenger->approval == 0 ? 'selected' : '' }}>{{ __('Ban') }}</option>
+                                        <option value="3" {{ $passenger->approval == 3 ? 'selected' : '' }}>{{ __('Ban') }}</option>
                                     </select>
                                 </div>
                                 <button type="submit" class="btn btn-primary btn-block">{{ __('Update Status') }}</button>
@@ -142,6 +142,9 @@
                         <div class="card-body">
                             <a href="{{ route('passengers.trips', $passenger->id) }}" class="btn btn-primary">
                                 <i class="fas fa-route"></i> {{ __('View Trips') }}
+                            </a>
+                            <a href="{{ route('passengers.all-trips') }}" class="btn btn-info">
+                                <i class="fas fa-list"></i> {{ __('All Passenger Trips') }}
                             </a>
                             <button type="button" class="btn btn-warning" onclick="alert('{{ __('Complaints feature to be implemented') }}')">
                                 <i class="fas fa-exclamation-circle"></i> {{ __('View Complaints') }}

@@ -158,6 +158,12 @@
                             </a>
                         </li>
                         <li class="sidebar-menu-item">
+                            <a class="sidebar-menu-button" href="{{ route('passengers.all-trips') }}">
+                                <i class="fa fa-route"></i>
+                                <span class="sidebar-menu-text"> {{ __('All Passenger Trips') }}</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-menu-item">
                             <a class="sidebar-menu-button" href="{{ route('users.unride-rates') }}">
                                 <i class="fa fa-star-half-alt"></i>
                                 <span class="sidebar-menu-text"> {{ __('Unride Rates') }}</span>
