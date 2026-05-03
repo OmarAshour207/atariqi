@@ -28,38 +28,86 @@
             <div class="row">
                 <div class="col-md-8">
                     <div class="card">
-                        <div class="card-header">
+                        <div class="card-header d-flex justify-content-between align-items-center">
                             <h3 class="card-title">{{ __('Personal Information') }}</h3>
+                            @if($passenger->newUserInfo)
+                                <span class="badge badge-warning">{{ __('Update Requested') }}</span>
+                            @endif
                         </div>
                         <div class="card-body">
                             <div class="row">
                                 <div class="col-md-6">
                                     <h6 class="text-muted">{{ __('First Name') }}</h6>
-                                    <p>{{ $passenger->{'user-first-name'} }}</p>
+                                    <p>
+                                        {{ $passenger->{'user-first-name'} }}
+                                        @if($passenger->newUserInfo && $passenger->newUserInfo->{'user-first-name'} !== $passenger->{'user-first-name'})
+                                            <br><small class="text-info">
+                                                <i class="fas fa-arrow-right"></i> {{ $passenger->newUserInfo->{'user-first-name'} }}
+                                            </small>
+                                        @endif
+                                    </p>
                                 </div>
                                 <div class="col-md-6">
                                     <h6 class="text-muted">{{ __('Last Name') }}</h6>
-                                    <p>{{ $passenger->{'user-last-name'} }}</p>
+                                    <p>
+                                        {{ $passenger->{'user-last-name'} }}
+                                        @if($passenger->newUserInfo && $passenger->newUserInfo->{'user-last-name'} !== $passenger->{'user-last-name'})
+                                            <br><small class="text-info">
+                                                <i class="fas fa-arrow-right"></i> {{ $passenger->newUserInfo->{'user-last-name'} }}
+                                            </small>
+                                        @endif
+                                    </p>
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-md-6">
                                     <h6 class="text-muted">{{ __('Email') }}</h6>
-                                    <p>{{ $passenger->email }}</p>
+                                    <p>
+                                        {{ $passenger->email }}
+                                        @if($passenger->newUserInfo && $passenger->newUserInfo->email !== $passenger->email)
+                                            <br><small class="text-info">
+                                                <i class="fas fa-arrow-right"></i> {{ $passenger->newUserInfo->email }}
+                                            </small>
+                                        @endif
+                                    </p>
                                 </div>
                                 <div class="col-md-6">
                                     <h6 class="text-muted">{{ __('Phone') }}</h6>
-                                    <p>+{{ optional($passenger->callingKey)->{'call-key'} }}{{ $passenger->{'phone-no'} }}</p>
+                                    <p>
+                                        +{{ optional($passenger->callingKey)->{'call-key'} }}{{ $passenger->{'phone-no'} }}
+                                        @if($passenger->newUserInfo && $passenger->newUserInfo->{'phone-no'} !== $passenger->{'phone-no'})
+                                            <br><small class="text-info">
+                                                <i class="fas fa-arrow-right"></i>
+                                                +{{ optional($passenger->newUserInfo->callingKey)->{'call-key'} }}{{ $passenger->newUserInfo->{'phone-no'} }}
+                                            </small>
+                                        @endif
+                                    </p>
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-md-6">
                                     <h6 class="text-muted">{{ __('University') }}</h6>
-                                    <p>{{ optional($passenger->university)->{'name-ar'} ?? optional($passenger->university)->{'name-en'} ?? '-' }}</p>
+                                    <p>
+                                        {{ optional($passenger->university)->{'name-ar'} ?? optional($passenger->university)->{'name-en'} ?? '-' }}
+                                        @if($passenger->newUserInfo && $passenger->newUserInfo->{'university-id'} !== $passenger->{'university-id'})
+                                            <br><small class="text-info">
+                                                <i class="fas fa-arrow-right"></i>
+                                                {{ optional($passenger->newUserInfo->university)->{'name-ar'} ?? optional($passenger->newUserInfo->university)->{'name-en'} ?? '-' }}
+                                            </small>
+                                        @endif
+                                    </p>
                                 </div>
                                 <div class="col-md-6">
                                     <h6 class="text-muted">{{ __('Stage') }}</h6>
-                                    <p>{{ optional($passenger->stage)->{'name-ar'} ?? optional($passenger->stage)->{'name-en'} ?? '-' }}</p>
+                                    <p>
+                                        {{ optional($passenger->stage)->{'name-ar'} ?? optional($passenger->stage)->{'name-en'} ?? '-' }}
+                                        @if($passenger->newUserInfo && $passenger->newUserInfo->{'user-stage-id'} !== $passenger->{'user-stage-id'})
+                                            <br><small class="text-info">
+                                                <i class="fas fa-arrow-right"></i>
+                                                {{ optional($passenger->newUserInfo->stage)->{'name-ar'} ?? optional($passenger->newUserInfo->stage)->{'name-en'} ?? '-' }}
+                                            </small>
+                                        @endif
+                                    </p>
                                 </div>
                             </div>
                             <div class="row">
@@ -140,11 +188,37 @@
                             <h3 class="card-title">{{ __('Actions') }}</h3>
                         </div>
                         <div class="card-body">
+                            @if($passenger->newUserInfo && $passenger->approval == 2)
+                                <div class="alert alert-info mb-3">
+                                    <h6><i class="fas fa-user-edit"></i> {{ __('Profile Update Request') }}</h6>
+                                    <p>{{ __('This passenger has requested profile changes that need approval.') }}</p>
+                                    <div class="btn-group">
+                                        <form action="{{ route('passengers.approve-profile-update', $passenger->id) }}" method="post" class="d-inline-block">
+                                            @csrf
+                                            @method('post')
+                                            <button type="submit" class="btn btn-sm btn-success" onclick="return confirm('{{ __('Are you sure you want to approve this profile update?') }}');">
+                                                <i class="fas fa-check"></i> {{ __('Approve Update') }}
+                                            </button>
+                                        </form>
+                                        <form action="{{ route('passengers.reject-profile-update', $passenger->id) }}" method="post" class="d-inline-block ml-1">
+                                            @csrf
+                                            @method('post')
+                                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('{{ __('Are you sure you want to reject this profile update?') }}');">
+                                                <i class="fas fa-times"></i> {{ __('Reject Update') }}
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            @endif
+
                             <a href="{{ route('passengers.trips', $passenger->id) }}" class="btn btn-primary">
                                 <i class="fas fa-route"></i> {{ __('View Trips') }}
                             </a>
                             <a href="{{ route('passengers.all-trips') }}" class="btn btn-info">
                                 <i class="fas fa-list"></i> {{ __('All Passenger Trips') }}
+                            </a>
+                            <a href="{{ route('passengers.profile-update-requests') }}" class="btn btn-secondary">
+                                <i class="fas fa-user-edit"></i> {{ __('Profile Update Requests') }}
                             </a>
                             <button type="button" class="btn btn-warning" onclick="alert('{{ __('Complaints feature to be implemented') }}')">
                                 <i class="fas fa-exclamation-circle"></i> {{ __('View Complaints') }}

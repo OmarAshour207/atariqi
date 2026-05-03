@@ -134,6 +134,11 @@ class User extends Authenticatable
         return $this->hasOne(PassengerRate::class, 'user-id', 'id');
     }
 
+    public function newUserInfo()
+    {
+        return $this->hasOne(NewUserInfo::class, 'user-id', 'id');
+    }
+
     public function getFullNameAttribute()
     {
         return $this->{'user-first-name'} . ' ' . $this->{'user-last-name'};

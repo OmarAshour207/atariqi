@@ -7,10 +7,7 @@ use App\Models\User;
 use App\Models\PassengerRate;
 use App\Models\University;
 use App\Models\Stage;
-use App\Models\SuggestionDriver;
-use App\Models\SugDayDriver;
-use App\Models\SugWeekDriver;
-use Illuminate\Http\Request;
+use App\Models\NewUserInfo;
 
 class PassengerController extends Controller
 {
@@ -92,7 +89,7 @@ class PassengerController extends Controller
             return redirect()->route('passengers.index')->with('error', __('Invalid passenger.'));
         }
 
-        $passenger->load(['callingKey', 'university', 'stage', 'passengerRate']);
+        $passenger->load(['callingKey', 'university', 'stage', 'passengerRate', 'newUserInfo']);
         return view('dashboard.passengers.show', compact('passenger'));
     }
 
@@ -232,5 +229,77 @@ class PassengerController extends Controller
         return view('dashboard.passengers.all-trips', compact(
             'immediateTrips', 'dailyTrips', 'weeklyTrips', 'passengers', 'drivers'
         ));
+    }
+
+    public function profileUpdateRequests()
+    {
+        // Get all passengers with approval = 2 (pending review)
+        $passengers = User::with(['callingKey', 'university', 'stage', 'newUserInfo'])
+            ->where('user-type', 'passenger')
+            ->where('approval', 2)
+            ->whereHas('newUserInfo') // Only passengers who have new profile data
+            ->paginate(20);
+
+        return view('dashboard.passengers.profile-update-requests', compact('passengers'));
+    }
+
+    public function approveProfileUpdate(User $passenger)
+    {
+        // Check if passenger has pending profile update
+        if ($passenger->approval !== 2 || !$passenger->newUserInfo) {
+            return redirect()->route('passengers.show', $passenger->id)
+                ->with('error', __('No pending profile update found for this passenger.'));
+        }
+
+        try {
+            // Update passenger with new information
+            $newInfo = $passenger->newUserInfo;
+
+            $passenger->update([
+                'user-first-name' => $newInfo->{'user-first-name'},
+                'user-last-name' => $newInfo->{'user-last-name'},
+                'phone-no' => $newInfo->{'phone-no'},
+                'email' => $newInfo->email,
+                'call-key-id' => $newInfo->{'call-key-id'},
+                'university-id' => $newInfo->{'university-id'},
+                'user-stage-id' => $newInfo->{'user-stage-id'},
+                'approval' => 1, // Set back to approved
+                'date-of-edit' => now()
+            ]);
+
+            // Delete the new user info record
+            $newInfo->delete();
+
+            return redirect()->route('passengers.profile-update-requests')
+                ->with('success', __('Profile update approved successfully.'));
+        } catch (\Exception $e) {
+            return redirect()->route('passengers.show', $passenger->id)
+                ->with('error', __('Unable to approve profile update.'));
+        }
+    }
+
+    public function rejectProfileUpdate(User $passenger)
+    {
+        // Check if passenger has pending profile update
+        if ($passenger->approval !== 2 || !$passenger->newUserInfo) {
+            return redirect()->route('passengers.show', $passenger->id)
+                ->with('error', __('No pending profile update found for this passenger.'));
+        }
+
+        try {
+            // Delete the new user info record and set approval back to 1
+            $passenger->newUserInfo->delete();
+
+            $passenger->update([
+                'approval' => 1, // Set back to approved
+                'date-of-edit' => now()
+            ]);
+
+            return redirect()->route('passengers.profile-update-requests')
+                ->with('success', __('Profile update rejected successfully.'));
+        } catch (\Exception $e) {
+            return redirect()->route('passengers.show', $passenger->id)
+                ->with('error', __('Unable to reject profile update.'));
+        }
     }
 }
