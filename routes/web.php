@@ -35,7 +35,7 @@ Route::get('/homepage-sections', [HomeController::class, 'homepageSections'])->n
 Route::get('/locale/{locale}', [HomeController::class, 'changeLocale'])->name('change.locale');
 
 Route::get('dashboard/login', [LoginController::class, 'showLogin'])->name('dashboard.loginForm');
-Route::post('dashboard/login', [LoginController::class, 'login'])->name('dashboard.login');
+Route::post('dashboard/login', [LoginController::class, 'login'])->middleware('login.throttle')->name('dashboard.login');
 
 Route::middleware(['is_admin'])->prefix('dashboard')->group(function () {
     Route::get('index', [DashboardHomeController::class, 'index'])->name('dashboard.index');

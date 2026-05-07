@@ -45,11 +45,11 @@
       </div>
 
       <div class="d-flex justify-content-between align-items-center mb-3">
-        <div class="form-check">
+        <!-- <div class="form-check">
           <input class="form-check-input" name="remember" type="checkbox" id="remember">
           <label class="form-check-label" for="remember">تذكرني</label>
         </div>
-        <a href="#" class="small">نسيت كلمة المرور؟</a>
+        <a href="#" class="small">نسيت كلمة المرور؟</a> -->
       </div>
 
       <div class="d-grid">
@@ -85,10 +85,10 @@
     if(!form.checkValidity()) return;
 
     const email = form.email.value.trim().toLowerCase();
-    // if(!email.endsWith('@'+COMPANY_DOMAIN)){
-    //   showAlert('loginAlert','يسمح فقط ببريد الدومين الرسمي: @'+COMPANY_DOMAIN,'danger');
-    //   return;
-    // }
+    if(!email.endsWith('@'+COMPANY_DOMAIN)){
+       showAlert('loginAlert','يسمح فقط ببريد الدومين الرسمي: @'+COMPANY_DOMAIN,'danger');
+       return;
+    }
 
     try{
       const res = await fetch('/dashboard/login', {
