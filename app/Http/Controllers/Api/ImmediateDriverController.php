@@ -151,10 +151,10 @@ class ImmediateDriverController extends BaseController
 
         // TODO:: Check in suggestions-drivers table the drivers with action = 2 and exclude them
 
-//        $finalDriversId = array();
+       $finalDriversId = array();
 
         foreach ($suggestDriverId as $driver) {
-//            $finalDriversId[] = $driver->{"suggest-driver-id"};
+           $finalDriversId[] = $driver->{"suggest-driver-id"};
             SuggestionDriver::create([
                 'booking-id'    => $rideBooking->id,
                 'passenger-id'  => $passengerId,
@@ -164,11 +164,11 @@ class ImmediateDriverController extends BaseController
             ]);
         }
 
-//        $drivers = DriverInfo::with('driver')
-//            ->whereIn('driver-id', $finalDriversId)
-//            ->get();
+       $drivers = DriverInfo::with('driver')
+           ->whereIn('driver-id', $finalDriversId)
+           ->get();
 
-        $success['drivers'] = [];//DriverInfoResource::collection($drivers);
+        $success['drivers'] = DriverInfoResource::collection($drivers);
 
         $neighborhood = Neighbour::findOrFail($neighborhoodId);
         $university = University::whereId($universityId)->first();
