@@ -16,7 +16,7 @@ class CaptainRequestDecision extends Model
         'action_type',
         'old_approval',
         'new_approval',
-        'reasondecided_by_employee_id',
+        'decided_by_employee_id',
         'reject_reason',
     ];
 
@@ -27,6 +27,6 @@ class CaptainRequestDecision extends Model
 
     public function employee()
     {
-        return $this->belongsTo(Admin::class, 'reasondecided_by_employee_id');
+        return $this->belongsTo(Admin::class, 'decided_by_employee_id');
     }
 }

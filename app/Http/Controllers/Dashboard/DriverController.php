@@ -410,7 +410,7 @@ class DriverController extends Controller
                 'action_type' => $newApproval === 1 ? 'approved' : 'rejected',
                 'old_approval' => $oldApproval,
                 'new_approval' => $newApproval,
-                'reasondecided_by_employee_id' => $employeeId,
+                'decided_by_employee_id' => $employeeId,
                 'reject_reason' => $newApproval === 2 ? $request->input('reject-reason') : null,
             ]);
         }
