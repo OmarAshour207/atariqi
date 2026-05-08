@@ -85,10 +85,6 @@
     if(!form.checkValidity()) return;
 
     const email = form.email.value.trim().toLowerCase();
-    if(!email.endsWith('@'+COMPANY_DOMAIN)){
-       showAlert('loginAlert','يسمح فقط ببريد الدومين الرسمي: @'+COMPANY_DOMAIN,'danger');
-       return;
-    }
 
     try{
       const res = await fetch('/dashboard/login', {
@@ -100,8 +96,7 @@
         },
         body: JSON.stringify({
           email,
-          password: form.password.value,
-          remember: document.getElementById('remember').checked,
+          password: form.password.value
         })
       });
       if(!res.ok) throw new Error('unauthorized');

@@ -25,7 +25,7 @@
                     <h5 class="card-title mb-0">{{ __('Filters') }}</h5>
                 </div>
                 <div class="card-body">
-                    <form method="GET" action="{{ route('drivers.index') }}" class="row">
+                    <form method="GET" action="{{ route('new-drivers.index') }}" class="row">
                         <div class="col-md-3">
                             <div class="form-group">
                                 <label for="name">{{ __('Name') }}</label>
@@ -44,9 +44,45 @@
                                 <input type="text" class="form-control" id="phone" name="phone" value="{{ request('phone') }}" placeholder="{{ __('Search by phone') }}">
                             </div>
                         </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="gender">{{ __('Gender') }}</label>
+                                <select class="form-control" id="gender" name="gender">
+                                    <option value="">{{ __('All') }}</option>
+                                    <option value="Male" @if(request('gender') === 'Male') selected @endif>{{ __('Male') }}</option>
+                                    <option value="Female" @if(request('gender') === 'Female') selected @endif>{{ __('Female') }}</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="university-id">{{ __('University') }}</label>
+                                <select class="form-control" id="university-id" name="university-id">
+                                    <option value="">{{ __('All') }}</option>
+                                    @foreach($universities as $university)
+                                        <option value="{{ $university->id }}" @if(request('university-id') == $university->id) selected @endif>
+                                            {{ $university->{"name-ar"} ?? $university->{"name-en"} }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="user-stage-id">{{ __('Stage') }}</label>
+                                <select class="form-control" id="user-stage-id" name="user-stage-id">
+                                    <option value="">{{ __('All') }}</option>
+                                    @foreach($stages as $stage)
+                                        <option value="{{ $stage->id }}" @if(request('user-stage-id') == $stage->id) selected @endif>
+                                            {{ $stage->{"name-ar"} ?? $stage->{"name-en"} }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
                         <div class="col-12">
                             <button type="submit" class="btn btn-primary">{{ __('Filter') }}</button>
-                            <a href="{{ route('drivers.index') }}" class="btn btn-secondary">{{ __('Clear Filters') }}</a>
+                            <a href="{{ route('new-drivers.index') }}" class="btn btn-secondary">{{ __('Clear Filters') }}</a>
                         </div>
                     </form>
                 </div>

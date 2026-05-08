@@ -96,9 +96,27 @@ class DriverController extends Controller
             $query->where('phone-no', 'like', '%' . $request->phone . '%');
         }
 
+        // Filter by gender
+        if ($request->filled('gender')) {
+            $query->where('gender', $request->gender);
+        }
+
+        // Filter by university-id
+        if ($request->filled('university-id')) {
+            $query->where('university-id', $request->get('university-id'));
+        }
+
+        // Filter by user-stage-id
+        if ($request->filled('user-stage-id')) {
+            $query->where('user-stage-id', $request->get('user-stage-id'));
+        }
+
         $drivers = $query->paginate(20)->appends($request->query());
 
-        return view('dashboard.drivers.new_drivers', compact('drivers'));
+        $universities = University::all();
+        $stages = Stage::all();
+
+        return view('dashboard.drivers.new_drivers', compact('drivers', 'universities', 'stages'));
     }
 
     public function show(User $driver)
