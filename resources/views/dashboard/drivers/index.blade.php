@@ -148,9 +148,6 @@
                                     <i class="fa fa-eye fa-2x"></i>
                                 </a>
 
-                                <a href="{{ route('drivers.edit', $driver->id) }}" class="btn btn-sm btn-link">
-                                    <i class="fa fa-edit fa-2x"></i>
-                                </a>
                             </td>
                         </tr>
                         @empty
