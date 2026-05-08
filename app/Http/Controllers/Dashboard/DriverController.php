@@ -388,8 +388,8 @@ class DriverController extends Controller
     public function updateStatus(User $driver, Request $request)
     {
         $request->validate([
-            'approval' => ['required', 'in:0,1,2'],
-            'reject-reason' => ['required_if:approval,2', 'nullable', 'string', 'max:1000'],
+            'approval' => ['required', 'in:1,2,3'],
+            'reject-reason' => ['required_if:approval,3', 'nullable', 'string', 'max:1000'],
         ]);
 
         $oldApproval = $driver->approval;
@@ -397,7 +397,7 @@ class DriverController extends Controller
 
         $updateData = [
             'approval' => $newApproval,
-            'reject-reason' => $newApproval === 2 ? $request->input('reject-reason') : null,
+            'reject-reason' => $newApproval === 3 ? $request->input('reject-reason') : null,
         ];
 
         $driver->update($updateData);
@@ -411,11 +411,11 @@ class DriverController extends Controller
                 'old_approval' => $oldApproval,
                 'new_approval' => $newApproval,
                 'decided_by_employee_id' => $employeeId,
-                'reject_reason' => $newApproval === 2 ? $request->input('reject-reason') : null,
+                'reject_reason' => $newApproval === 3 ? $request->input('reject-reason') : null,
             ]);
         }
 
-        if ($newApproval === 2) {
+        if ($newApproval === 3) {
             Mail::to($driver->email)->send(new DriverRejectedMail($driver, $request->input('reject-reason')));
         }
 

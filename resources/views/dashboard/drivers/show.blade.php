@@ -19,7 +19,7 @@
         <div class="container-fluid page__container">
 
             <div class="card card-form__body card-body">
-                <form method="post" action="{{ route('drivers.updateStatus', $driver->id) }}">
+                <form method="post" action="{{ route('drivers.updateStatus', $driver->id) }}" class="submit-form">
 
                     @include('dashboard.partials._errors')
 
@@ -111,10 +111,7 @@
                                 </select>
                             </div>
 
-                            <div class="form-group col-lg-12">
-                                <label for="reject-reason">{{ __('Reject Reason') }}</label>
-                                <textarea id="reject-reason" name="reject-reason" class="form-control" rows="3" placeholder="{{ __('Enter reject reason when rejecting driver') }}" {{ $driver->approval != 3 ? 'disabled' : '' }}>{{ old('reject-reason', $driver->{"reject-reason"}) }}</textarea>
-                            </div>
+                            <input type="hidden" id="reject-reason" name="reject-reason" value="{{ old('reject-reason', $driver->{"reject-reason"}) }}">
 
                             <div class="form-group">
                                 <label for="image"> {{ __('User Image') }}</label>
@@ -295,7 +292,7 @@
                     @if ($driver->approval == 2)
                         <div class="text-right mb-5">
                             <button type="submit" name="approval" value="1" class="btn btn-success">{{ __('Accept') }}</button>
-                            <button type="submit" name="approval" value="3" class="btn btn-danger">{{ __('Reject') }}</button>
+                            <button type="button" class="btn btn-danger" onclick="showRejectModal()">{{ __('Reject') }}</button>
                         </div>
                     @endif
 
@@ -304,4 +301,87 @@
         </div>
         <!-- // END drawer-layout__content -->
     </div>
+
+    <!-- Reject Reason Modal -->
+    <div class="modal fade" id="rejectModal" tabindex="-1" role="dialog" aria-labelledby="rejectModalLabel" aria-hidden="true" style="z-index: 9999;">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="rejectModalLabel">{{ __('Reject Driver') }}</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="modal-reject-reason">{{ __('Rejection Reason') }} <span class="text-danger">*</span></label>
+                        <textarea id="modal-reject-reason" class="form-control" rows="4" placeholder="{{ __('Enter the reason for rejecting this driver') }}"></textarea>
+                        <small class="form-text text-muted">{{ __('Please provide a clear reason for the rejection') }}</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ __('Cancel') }}</button>
+                    <button type="button" class="btn btn-danger" onclick="confirmRejectDriver()">{{ __('Confirm Rejection') }}</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .modal-backdrop {
+            z-index: 9998 !important;
+            pointer-events: none !important;
+            background-color: transparent !important;
+        }
+        .modal-backdrop.show {
+            opacity: 0 !important;
+            z-index: 9998 !important;
+            pointer-events: none !important;
+        }
+        .modal.show {
+            z-index: 9999 !important;
+            pointer-events: auto !important;
+        }
+        .modal.show .modal-dialog {
+            pointer-events: auto !important;
+        }
+    </style>
+
+    <script>
+        function showRejectModal() {
+            const modal = document.getElementById('rejectModal');
+            if (modal) {
+                $('#rejectModal').modal('show');
+                document.getElementById('modal-reject-reason').value = '';
+                document.getElementById('modal-reject-reason').focus();
+            }
+        }
+
+        function confirmRejectDriver() {
+            const reason = document.getElementById('modal-reject-reason').value.trim();
+
+            if (!reason) {
+                alert('{{ __("Please enter a rejection reason") }}');
+                document.getElementById('modal-reject-reason').focus();
+                return false;
+            }
+
+            // Fill the hidden field with the reason
+            document.getElementById('reject-reason').value = reason;
+
+            // Set approval to 3 (rejected)
+            const approvalInput = document.createElement('input');
+            approvalInput.type = 'hidden';
+            approvalInput.name = 'approval';
+            approvalInput.value = '3';
+
+            // Get the form and submit it
+            const form = document.querySelector('.submit-form');
+            form.appendChild(approvalInput);
+
+            // Close modal and submit
+            $('#rejectModal').modal('hide');
+            form.submit();
+        }
+    </script>
 @endsection
