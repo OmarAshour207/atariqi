@@ -22,7 +22,7 @@
                     <table class="table table-striped">
                         <thead>
                         <tr>
-                            <th>#</th>
+                            <th>{{ __('#') }}</th>
                             <th>{{ __('Driver Name') }}</th>
                             <th>{{ __('Email') }}</th>
                             <th>{{ __('Phone') }}</th>

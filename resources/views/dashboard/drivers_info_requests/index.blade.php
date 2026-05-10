@@ -26,7 +26,7 @@
                         <thead>
                             <tr>
 
-                            <th style="width: 5%;"> # </th>
+                            <th style="width: 5%;"> {{ __('#') }} </th>
                             <th style="width: 20%;"> {{ __('Full Name') }} </th>
                             <th style="width: 20%;"> {{ __('Email') }} </th>
                             <th style="width: 15%;"> {{ __('Phone Number') }} </th>

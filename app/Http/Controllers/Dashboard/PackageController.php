@@ -3,8 +3,12 @@
 namespace App\Http\Controllers\Dashboard;
 
 use App\Http\Controllers\Controller;
+use App\Mail\NewPackageNotificationMail;
 use App\Models\Package;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 
 class PackageController extends Controller
 {
@@ -23,6 +27,16 @@ class PackageController extends Controller
                 $q->where('name_en', 'like', '%' . $request->name . '%')
                   ->orWhere('name_ar', 'like', '%' . $request->name . '%');
             });
+        }
+
+        if ($request->filled('min_price')) {
+            $query->where('price_monthly', '>=', $request->min_price)
+                  ->orWhere('price_annual', '>=', $request->min_price);
+        }
+
+        if ($request->filled('max_price')) {
+            $query->where('price_monthly', '<=', $request->max_price)
+                  ->orWhere('price_annual', '<=', $request->max_price);
         }
 
         // Filter by features
@@ -62,14 +76,80 @@ class PackageController extends Controller
             'features.*' => 'exists:features,id'
         ]);
 
-        $package = Package::create($request->only(['name_ar', 'name_en', 'price_monthly', 'price_annual', 'status']));
+        $adminId = auth()->guard('admin')->id();
+        $packageData = $request->only(['name_ar', 'name_en', 'price_monthly', 'price_annual', 'status']);
 
-        // Sync features if provided
-        if ($request->has('features')) {
-            $package->features()->sync($request->features);
+        DB::beginTransaction();
+        try {
+            $package = Package::create($packageData);
+
+            if ($request->has('features')) {
+                $package->features()->sync($request->features);
+            }
+
+            DB::table('subscription_employee_log')->insert([
+                'employee_id' => $adminId,
+                'package_id' => $package->id,
+                'action_type' => 'created',
+                'description' => __('New package created by employee.'),
+                'payload' => json_encode($package->toArray()),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            DB::commit();
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return redirect()->route('packages.index')->with('error', __('Unable to create package.'));
         }
 
-        return redirect()->route('packages.index')->with('success', __('Package created successfully.'));
+        $customers = User::where('user-type', 'passenger')
+            ->whereNotNull('email')
+            ->get();
+
+        $emailLogId = DB::table('platform_email_log')->insertGetId([
+            'email_type' => 'new_package_notification',
+            'package_id' => $package->id,
+            'subject' => __('New Package Available'),
+            'total_recipients' => $customers->count(),
+            'sent_count' => 0,
+            'failed_count' => 0,
+            'failed_recipients' => null,
+            'details' => null,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        $sentCount = 0;
+        $failedCount = 0;
+        $failedRecipients = [];
+
+        foreach ($customers as $customer) {
+            try {
+                Mail::to($customer->email)->send(new NewPackageNotificationMail($package, $customer));
+                $sentCount++;
+            } catch (\Throwable $e) {
+                $failedCount++;
+                $failedRecipients[] = $customer->email;
+            }
+        }
+
+        DB::table('platform_email_log')->where('id', $emailLogId)->update([
+            'sent_count' => $sentCount,
+            'failed_count' => $failedCount,
+            'failed_recipients' => $failedRecipients ? json_encode($failedRecipients) : null,
+            'details' => $failedCount > 0
+                ? __('Some emails failed to send to customers.')
+                : __('All notification emails were sent successfully.'),
+            'updated_at' => now(),
+        ]);
+
+        $message = __('Package created successfully.');
+        if ($failedCount > 0) {
+            $message .= ' ' . __(':count emails failed to send.', ['count' => $failedCount]);
+        }
+
+        return redirect()->route('packages.index')->with('success', $message);
     }
 
     public function edit(Package $package)

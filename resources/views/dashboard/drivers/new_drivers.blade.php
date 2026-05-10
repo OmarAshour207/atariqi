@@ -95,7 +95,7 @@
                         <thead>
                             <tr>
 
-                            <th style="width: 5%;"> # </th>
+                            <th style="width: 5%;"> {{ __('#') }} </th>
                             <th style="width: 15%;"> {{ __('Full Name') }} </th>
                             <th style="width: 15%;"> {{ __('Email') }} </th>
                             <th style="width: 12%;"> {{ __('Phone Number') }} </th>

@@ -29,7 +29,7 @@
                     <table class="table table-striped">
                         <thead>
                         <tr>
-                            <th>#</th>
+                            <th>{{ __('#') }}</th>
                             <th>{{ __('Full Name') }}</th>
                             <th>{{ __('Email') }}</th>
                             <th>{{ __('Current Package') }}</th>
