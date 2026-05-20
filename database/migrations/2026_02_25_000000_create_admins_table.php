@@ -18,8 +18,6 @@ return new class extends Migration
             $table->string('name');
             $table->string('email')->unique();
             $table->string('password');
-            $table->string('phone')->nullable();
-            $table->string('image')->nullable();
             $table->string('type')->default('admin');
             $table->timestamps();
         });

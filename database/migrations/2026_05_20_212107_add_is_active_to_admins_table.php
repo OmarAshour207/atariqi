@@ -15,6 +15,8 @@ return new class extends Migration
     {
         Schema::table('admins', function (Blueprint $table) {
             $table->boolean('is_active')->default(true)->after('type');
+            $table->dropColumn('phone');
+            $table->dropColumn('image');
         });
     }
 
