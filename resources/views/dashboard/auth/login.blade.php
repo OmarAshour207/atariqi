@@ -86,6 +86,11 @@
 
     const email = form.email.value.trim().toLowerCase();
 
+    if(!email.endsWith('@'+COMPANY_DOMAIN)){
+       showAlert('loginAlert','يسمح فقط ببريد الدومين الرسمي: @'+COMPANY_DOMAIN,'danger');
+       return;
+    }
+
     try{
       const res = await fetch('/dashboard/login', {
         method:'POST',
