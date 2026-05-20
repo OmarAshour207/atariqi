@@ -23,7 +23,7 @@ class LoginController extends Controller
         ]);
 
         $credentials = $request->only('email', 'password');
-        $credentials['is_active'] = true;
+        $credentials['is_active'] = 1;
 
         if (!auth()->guard('admin')->attempt(...$credentials)) {
             return response()->json([
