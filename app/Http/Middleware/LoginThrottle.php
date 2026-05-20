@@ -19,7 +19,7 @@ class LoginThrottle
             // Send email to admin
             Mail::to(config('mail.admin_email'))->send(new UnauthorizedLoginAttempt($request));
 
-            return response()->json(['message' => 'Too many login attempts. Please try again in 1 hour.'], 429);
+            return response()->json(['message' => 'عدد محاولات تسجيل الدخول كبير جدًا. يرجى المحاولة مرة أخرى بعد ساعة واحدة.'], 429);
         }
 
         $response = $next($request);

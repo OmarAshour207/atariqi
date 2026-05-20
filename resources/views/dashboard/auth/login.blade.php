@@ -104,12 +104,20 @@
           password: form.password.value
         })
       });
-      if(!res.ok) throw new Error('unauthorized');
-      const data = await res.json();
+
+      const data = await res.json().catch(() => ({}));
+
+      if(!res.ok) {
+        const message = data.message || data.error || res.statusText || 'حدث خطأ أثناء تسجيل الدخول.';
+        throw new Error(message);
+      }
+
       showAlert('loginAlert','تم الدخول بنجاح. جارٍ تحويلك للوحة التحكم…','success');
       setTimeout(()=>{ window.location.href = data.redirect_url || '/dashboard/index'; }, 900);
     }catch(err){
-      showAlert('loginAlert','بيانات الدخول غير صحيحة أو الحساب غير مخوّل.','danger');
+        console.error('Login error:', err);
+        const message = err.message || 'بيانات الدخول غير صحيحة أو الحساب غير مخوّل.';
+      showAlert('loginAlert',message,'danger');
     }
   });
 
