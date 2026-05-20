@@ -25,7 +25,7 @@ class LoginController extends Controller
         $credentials = $request->only('email', 'password');
         $credentials['is_active'] = 1;
 
-        if (!auth()->guard('admin')->attempt(...$credentials)) {
+        if (!auth()->guard('admin')->attempt($credentials)) {
             return response()->json([
                 'success' => false,
                 'message' => 'The provided credentials do not match our records.',
