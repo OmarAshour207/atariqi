@@ -8,6 +8,10 @@ use App\Models\PassengerRate;
 use App\Models\University;
 use App\Models\Stage;
 use App\Models\NewUserInfo;
+use App\Models\SugDayDriver;
+use App\Models\SuggestionDriver;
+use App\Models\SugWeekDriver;
+use Illuminate\Http\Request;
 
 class PassengerController extends Controller
 {
