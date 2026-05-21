@@ -14,6 +14,7 @@
     <!-- Perfect Scrollbar -->
     <link type="text/css" href="{{ asset('dashboard/vendor/perfect-scrollbar.css') }}" rel="stylesheet">
 
+    @if(session('locale') == 'ar')
         <link type="text/css" href="{{ asset('dashboard/css/app.rtl.css') }}" rel="stylesheet">
         <link type="text/css" href="{{ asset('dashboard/css/vendor-fontawesome-free.rtl.css') }}" rel="stylesheet">
         <link type="text/css" href="{{ asset('dashboard/css/vendor-material-icons.rtl.css') }}" rel="stylesheet">
@@ -23,8 +24,8 @@
 
         <!-- Dropzone -->
         <link type="text/css" href="{{ asset('dashboard/css/vendor-dropzone.rtl.css')}}" rel="stylesheet">
-
-        <!-- <link type="text/css" href="{{ asset('dashboard/css/app.css') }}" rel="stylesheet">
+    @else
+        <link type="text/css" href="{{ asset('dashboard/css/app.css') }}" rel="stylesheet">
 
         <link type="text/css" href="{{ asset('dashboard/css/vendor-fontawesome-free.css') }}" rel="stylesheet">
 
@@ -33,8 +34,9 @@
         <link type="text/css" href="{{ asset('dashboard/css/vendor-flatpickr.css') }}" rel="stylesheet">
         <link type="text/css" href="{{ asset('dashboard/css/vendor-flatpickr-airbnb.css') }}" rel="stylesheet">
 
-        <link type="text/css" href="{{ asset('dashboard/css/vendor-dropzone.css') }}" rel="stylesheet"> -->
+        <link type="text/css" href="{{ asset('dashboard/css/vendor-dropzone.css') }}" rel="stylesheet">
 
+    @endif
 {{--        <link type="text/css" href="{{ asset('dashboard/vendor/daterangepicker.css') }}">--}}
 
 
@@ -151,6 +153,9 @@
         });
     });
 </script>
+
+<script src="{{ asset("dashboard/vendor/select2/select2.min.js") }}"></script>
+<script src="{{ asset("dashboard/js/select2.js") }}"></script>
 
 @stack('admin_scripts')
 

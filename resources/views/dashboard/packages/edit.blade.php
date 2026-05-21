@@ -1,5 +1,16 @@
 @extends('dashboard.layouts.app')
 
+@push('admin_styles')
+    @if(session('locale') == 'ar')
+        <link type="text/css" href=" {{ asset("dashboard/css/vendor-select2.rtl.css") }}" rel="stylesheet">
+    @else
+    @endif
+            <link type="text/css" href=" {{ asset("dashboard/css/vendor-select2.css") }}" rel="stylesheet">
+
+    <link type="text/css" href="{{ asset("dashboard/vendor/select2/select2.min.css") }}" rel="stylesheet">
+@endpush
+
+
 @section('content')
     <div class="mdk-drawer-layout__content page">
         <div class="container-fluid page__heading-container">
@@ -67,20 +78,21 @@
 
                     <div class="form-group">
                         <label for="features">{{ __('Features') }}</label>
-                        <select name="features[]" id="features" class="form-control" multiple style="height: 200px;">
+                        <select class="form-control" id="features" name="features[]" data-toggle="select" multiple="multiple">
                             @php
                                 $features = \App\Models\Feature::with('service')->get()->groupBy('service.service');
                                 $selectedFeatures = old('features', $package->features->pluck('id')->toArray());
                             @endphp
-                            @foreach($features as $serviceName => $serviceFeatures)
+
+                            @forelse($features as $serviceName => $serviceFeatures)
                                 @if($serviceName)
-                                    <optgroup label="{{ $serviceName }}">
-                                        @foreach($serviceFeatures as $feature)
-                                            <option value="{{ $feature->id }}" {{ in_array($feature->id, $selectedFeatures) ? 'selected' : '' }}>
-                                                {{ $feature->name_en }} @if($feature->name_ar) ({{ $feature->name_ar }}) @endif
-                                            </option>
-                                        @endforeach
-                                    </optgroup>
+                                <optgroup label="{{ $serviceName }}">
+                                    @foreach($serviceFeatures as $feature)
+                                        <option value="{{ $feature->id }}" {{ in_array($feature->id, $selectedFeatures) ? 'selected' : '' }}>
+                                            {{ $feature->name_en }} @if($feature->name_ar) ({{ $feature->name_ar }}) @endif
+                                        </option>
+                                    @endforeach
+                                </optgroup>
                                 @else
                                     @foreach($serviceFeatures as $feature)
                                         <option value="{{ $feature->id }}" {{ in_array($feature->id, $selectedFeatures) ? 'selected' : '' }}>
@@ -88,9 +100,10 @@
                                         </option>
                                     @endforeach
                                 @endif
-                            @endforeach
+                            @empty
+                                <option value="" disabled>{{ __('No Features available') }}</option>
+                            @endforelse
                         </select>
-                        <small class="form-text text-muted">{{ __('Hold Ctrl (or Cmd on Mac) to select multiple features') }}</small>
                     </div>
 
                     <div class="text-right">
@@ -102,32 +115,3 @@
         </div>
     </div>
 @endsection
-
-@section('admin_scripts')
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Enhance multi-select with better UX
-    const featuresSelect = document.getElementById('features');
-
-    if (featuresSelect) {
-        // Add selected features counter
-        const selectedCounter = document.createElement('small');
-        selectedCounter.className = 'form-text text-info';
-        selectedCounter.style.display = 'none';
-        featuresSelect.parentNode.appendChild(selectedCounter);
-
-        function updateCounter() {
-            const selectedOptions = Array.from(featuresSelect.selectedOptions);
-            if (selectedOptions.length > 0) {
-                selectedCounter.textContent = selectedOptions.length + ' features selected';
-                selectedCounter.style.display = 'block';
-            } else {
-                selectedCounter.style.display = 'none';
-            }
-        }
-
-        featuresSelect.addEventListener('change', updateCounter);
-        updateCounter(); // Initial count
-    }
-});
-</script>
