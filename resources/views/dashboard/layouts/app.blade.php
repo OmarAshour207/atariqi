@@ -14,7 +14,7 @@
     <!-- Perfect Scrollbar -->
     <link type="text/css" href="{{ asset('dashboard/vendor/perfect-scrollbar.css') }}" rel="stylesheet">
 
-    @if(session('locale') == 'ar')
+    @if(app()->getLocale() == 'ar')
         <link type="text/css" href="{{ asset('dashboard/css/app.rtl.css') }}" rel="stylesheet">
         <link type="text/css" href="{{ asset('dashboard/css/vendor-fontawesome-free.rtl.css') }}" rel="stylesheet">
         <link type="text/css" href="{{ asset('dashboard/css/vendor-material-icons.rtl.css') }}" rel="stylesheet">
