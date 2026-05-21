@@ -1,11 +1,11 @@
 @extends('dashboard.layouts.app')
 
 @push('admin_styles')
-    @if(session('locale') == 'ar')
+    @if(app()->getLocale() == 'ar')
         <link type="text/css" href=" {{ asset("dashboard/css/vendor-select2.rtl.css") }}" rel="stylesheet">
     @else
     @endif
-            <link type="text/css" href=" {{ asset("dashboard/css/vendor-select2.css") }}" rel="stylesheet">
+    <link type="text/css" href=" {{ asset("dashboard/css/vendor-select2.css") }}" rel="stylesheet">
 
     <link type="text/css" href="{{ asset("dashboard/vendor/select2/select2.min.css") }}" rel="stylesheet">
 @endpush
