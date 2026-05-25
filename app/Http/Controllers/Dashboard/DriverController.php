@@ -122,6 +122,7 @@ class DriverController extends Controller
     public function show(User $driver)
     {
         $waslResponse = '';
+        $isBanned = false;
         try {
             $driver->load('callingKey', 'driverInfo', 'driverCar');
             $universities = University::all();
@@ -130,12 +131,13 @@ class DriverController extends Controller
             $driverTypes = DriverType::all();
             $waslResponse = $this->waslService->checkDriverEligibility($driver->driverInfo->identity_number);
             $waslResponse = $waslResponse ? json_decode($waslResponse, true) : null;
+            $isBanned = \App\Models\DriverBanned::where('driver-id', $driver->id)->exists();
         }
         catch (\Exception $e) {
             \Log::error('Error fetching driver details: ' . $e->getMessage());
         }
 
-        return view('dashboard.drivers.show', compact('driver', 'universities', 'stages', 'neighborhoods', 'driverTypes', 'waslResponse'));
+        return view('dashboard.drivers.show', compact('driver', 'universities', 'stages', 'neighborhoods', 'driverTypes', 'waslResponse', 'isBanned'));
     }
 
     public function packages(Request $request)
