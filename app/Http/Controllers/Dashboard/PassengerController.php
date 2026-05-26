@@ -157,13 +157,18 @@ class PassengerController extends Controller
             $passenger->update(['approval' => $request->approval]);
 
             $approvalText = [
-                1 => __('Approved'),
-                2 => __('Pending Review'),
-                3 => __('Banned')
+                1 => __('approved'),
+                2 => __('pending review'),
+                3 => __('rejected')
             ];
 
+            // Send email notification
+            $status = $request->approval == 1 ? 'approved' : ($request->approval == 3 ? 'rejected' : 'pending');
+            $info = $request->input('info', null); // Optionally pass extra info from request
+            \Mail::to($passenger->email)->send(new \App\Mail\PassengerStatusMail($passenger, $status, $info));
+
             return redirect()->route('passengers.show', $passenger->id)
-                ->with('success', __('Passenger status updated to') . ' ' . $approvalText[$request->approval]);
+                ->with('success', __('Passenger status updated to') . ' ' . __($approvalText[$request->approval]));
         } catch (\Exception $e) {
             return redirect()->route('passengers.show', $passenger->id)
                 ->with('error', __('Unable to update passenger status.'));
