@@ -50,13 +50,13 @@
                             <div class="row">
                                 <div class="col-6">
                                     <div class="form-group">
-                                        <label for="user-first-name"> {{ __("First Name") }}</label>
+                                        <label for="user-first-name"> {{ __("First name") }}</label>
                                         <input id="user-first-name" name="user-first-name" dir="auto" type="text" class="form-control" placeholder="{{ __("First Name") }}" value="{{ old("user-first-name", $driver->{"user-first-name"}) }}" disabled>
                                     </div>
                                 </div>
                                 <div class="col-6">
                                     <div class="form-group">
-                                        <label for="user-last-name"> {{ __("Last Name") }}</label>
+                                        <label for="user-last-name"> {{ __("Last name") }}</label>
                                         <input id="user-last-name" name="user-last-name" dir="auto" type="text" class="form-control" placeholder="{{ __("Last Name") }}" value="{{ old("user-last-name", $driver->{"user-last-name"}) }}" disabled>
                                     </div>
                                 </div>
@@ -77,9 +77,28 @@
                                 </div>
                             </div>
 
-                            <div class="form-group">
-                                <label for="gender"> {{ __("Gender") }}</label>
-                                <input id="gender" name="gender" dir="auto" type="text" class="form-control" placeholder="{{ __("Gender") }}" value="{{ old("gender", $driver->gender) }}" disabled>
+                            <div class="row">
+                                <div class="col-6 form-group">
+                                    <label for="gender"> {{ __("Gender") }}</label>
+                                    <input id="gender" name="gender" dir="auto" type="text" class="form-control" placeholder="{{ __("Gender") }}" value="{{ old("gender", $driver->gender) }}" disabled>
+                                </div>
+
+                                <div class="col-6 form-group">
+                                    <label for="identity_number"> {{ __("Identity Number") }}</label>
+                                    <input id="identity_number" name="identity_number" dir="auto" type="text" class="form-control" placeholder="{{ __("Identity Number") }}" value="{{ old("identity_number", $driver->driverInfo ? $driver->driverInfo->identity_number : '') }}" disabled>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-6 form-group">
+                                    <label for="date_of_birth"> {{ __("Date of Birth") }}</label>
+                                    <input id="date_of_birth" name="date_of_birth" dir="auto" type="text" class="form-control" placeholder="{{ __("Date of Birth") }}" value="{{ old("date_of_birth", $driver->driverInfo ? $driver->driverInfo->date_of_birth : '') }}" disabled>
+                                </div>
+
+                                <div class="col-6 form-group">
+                                    <label for="date_of_birth_hajri"> {{ __("Date of Birth (Hijri)") }}</label>
+                                    <input id="date_of_birth_hajri" name="date_of_birth_hajri" dir="auto" type="text" class="form-control" placeholder="{{ __("Date of Birth (Hijri)") }}" value="{{ old("date_of_birth_hajri", $driver->driverInfo ? $driver->driverInfo->date_of_birth_hijri : '') }}" disabled>
+                                </div>
                             </div>
 
                             <div class="row no-gutters">
@@ -87,17 +106,19 @@
                                     <div class="row">
                                         <div class="form-group col">
                                             <label for="university-id">{{ __('University') }}</label>
-                                            <select id="university-id" name="university-id" data-toggle="select" class="form-control select2" disabled>
-                                                <option value="" selected> {{ __('University') }} </option>
+                                            <select id="university-id" name="university-id" class="form-control" disabled>
                                                 @foreach ($universities as $university)
-                                                    <option value="{{ $university->id }}" {{ old('university-id', $driver->{"university-id"}) == $university->id ? 'selected' : '' }}> {{ $university->{"name-ar"} }} </option>
+                                                    <option value="{{ $university->id }}"
+                                                        {{ old('university-id', $driver->{"university-id"}) == $university->id ? 'selected' : '' }}>
+                                                            {{ $university->{"name-ar"} }}
+                                                    </option>
                                                 @endforeach
                                             </select>
                                         </div>
 
                                         <div class="form-group col">
                                             <label for="stage-id">{{ __('Stage') }}</label>
-                                            <select id="stage-id" name="user-stage-id" data-toggle="select" class="form-control select2" disabled>
+                                            <select id="stage-id" name="user-stage-id" class="form-control select2" disabled>
                                                 <option value="" selected> {{ __('Stage') }} </option>
                                                 @foreach ($stages as $stage)
                                                     <option value="{{ $stage->id }}" {{ old('user-stage-id', $driver->{"user-stage-id"}) == $stage->id ? 'selected' : '' }}> {{ $stage->{"name-ar"} }} </option>
@@ -110,7 +131,7 @@
 
                             <div class="form-group col-lg-6">
                                 <label for="approval"> {{ __('Approval') }}</label> <br>
-                                <select id="approval" name="approval" data-toggle="select" class="form-control select2" disabled>
+                                <select id="approval" name="approval" class="form-control select2" disabled>
                                     <option value="" selected> {{ __('Approval') }} </option>
                                     <option value="2" {{ old('approval', $driver->approval) == 2 ? 'selected' : '' }}> {{ __('Pending') }} </option>
                                     <option value="1" {{ old('approval', $driver->approval) == 1 ? 'selected' : '' }}> {{ __('Approved') }} </option>
@@ -180,7 +201,7 @@
 
                             <div class="form-group">
                                 <label for="driver-neighborhood"> {{ __("Driver Neighborhood") }}</label>
-                                <select id="driver-neighborhood" name="driver-neighborhood" data-toggle="select" class="form-control select2" disabled>
+                                <select id="driver-neighborhood" name="driver-neighborhood" class="form-control select2" disabled>
                                     <option value="" selected> {{ $driver->driverInfo ? $driver->driverInfo->{"driver-neighborhood"} : '' }} </option>
                                     <!-- @foreach ($neighborhoods as $neighborhood)
                                         <option value="{{ $neighborhood->id }}" {{ old('driver-neighborhood', $driver->driverInfo ? $driver->driverInfo->{"driver-neighborhood"} : '') == $neighborhood->id ? 'selected' : '' }}> {{ $neighborhood->{"neighborhood-ar"} }} </option>
@@ -226,7 +247,7 @@
                                 <div class="col-6">
                                     <div class="form-group">
                                         <label for="driver-type"> {{ __("Driver Type") }}</label>
-                                        <select id="driver-type" name="driver-type-id" data-toggle="select" class="form-control select2">
+                                        <select id="driver-type" name="driver-type-id" class="form-control select2">
                                             <option value=""> {{ __('Driver Type') }} </option>
                                             @foreach ($driverTypes as $driverType)
                                                 <option value="{{ $driverType->id }}" {{ old('driver-type-id', $driver->driverCar ? $driver->driverCar->{"driver-type-id"} : '') == $driverType->id ? 'selected' : '' }}> {{ $driverType->{"name-ar"} }} </option>

@@ -29,7 +29,7 @@
                         <div class="col-md-3">
                             <div class="form-group">
                                 <label for="name">{{ __('Name') }}</label>
-                                <input type="text" class="form-control" id="name" name="name" value="{{ request('name') }}" placeholder="{{ __('Search by name or email') }}">
+                                <input type="text" class="form-control" id="name" name="name" value="{{ request('name') }}" placeholder="{{ __('Search by name') }}">
                             </div>
                         </div>
                         <div class="col-md-3">
@@ -172,14 +172,10 @@
                                 <a href="{{ route('drivers.show', $driver->id) }}" class="btn btn-sm btn-link">
                                     <i class="fa fa-eye fa-2x"></i>
                                 </a>
-
-                                <a href="{{ route('drivers.edit', $driver->id) }}" class="btn btn-sm btn-link">
-                                    <i class="fa fa-edit fa-2x"></i>
-                                </a>
                             </td>
                         </tr>
                         @empty
-                            <h1> {{ __('No records') }} </h1>
+                            <h1> {{ __('No Registration Requests') }} </h1>
                         @endforelse
                         </tbody>
                     </table>
