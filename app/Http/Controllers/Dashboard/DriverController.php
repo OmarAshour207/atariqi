@@ -16,6 +16,7 @@ use App\Models\DelDailyInfo;
 use App\Models\DelWeekInfo;
 use App\Models\DelImmediateInfo;
 use App\Models\CaptainRequestDecision;
+use App\Models\CaptianRequestAssignment;
 use App\Models\SugDayDriver;
 use App\Models\SugWeekDriver;
 use App\Models\SuggestionDriver;
@@ -26,6 +27,8 @@ use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use App\Mail\DriverRejectedMail;
 use App\Mail\PaymentReminderMail;
+use App\Models\DriverBanned;
+use App\Models\Admin;
 use Illuminate\Support\Facades\Mail;
 
 class DriverController extends Controller
@@ -39,7 +42,7 @@ class DriverController extends Controller
 
     public function index(Request $request)
     {
-        $query = User::with(['callingKey', 'university', 'stage'])
+        $query = User::with(['callingKey', 'university', 'stage', 'driverInfo', 'latestDue'])
             ->where('user-type', 'driver');
 
         // Filter by name
@@ -122,22 +125,27 @@ class DriverController extends Controller
     public function show(User $driver)
     {
         $waslResponse = '';
-        $isBanned = false;
+        $banned = null;
+
         try {
-            $driver->load('callingKey', 'driverInfo', 'driverCar');
+            $driver->load('callingKey', 'driverInfo', 'driverCar', 'driverNeighborhood', 'activePackage');
             $universities = University::all();
             $stages = Stage::all();
             $neighborhoods = Neighbour::all();
             $driverTypes = DriverType::all();
             $waslResponse = $this->waslService->checkDriverEligibility($driver->driverInfo->identity_number);
             $waslResponse = $waslResponse ? json_decode($waslResponse, true) : null;
-            $isBanned = \App\Models\DriverBanned::where('driver-id', $driver->id)->exists();
+            $banned = DriverBanned::where('driver_identity', $driver->driverInfo->identity_number)
+                ->where('driver_no', $driver->{"phone-no"})
+                ->first();
+            $admins = Admin::all();
         }
         catch (\Exception $e) {
             \Log::error('Error fetching driver details: ' . $e->getMessage());
+            $admins = collect();
         }
 
-        return view('dashboard.drivers.show', compact('driver', 'universities', 'stages', 'neighborhoods', 'driverTypes', 'waslResponse', 'isBanned'));
+        return view('dashboard.drivers.show', compact('driver', 'universities', 'stages', 'neighborhoods', 'driverTypes', 'waslResponse', 'banned', 'admins'));
     }
 
     public function packages(Request $request)
@@ -402,6 +410,16 @@ class DriverController extends Controller
             'reject-reason' => $newApproval === 3 ? $request->input('reject-reason') : null,
         ];
 
+        if($request->input('approval') == 3) {
+            DriverBanned::create([
+                'assigned_by_employee_id' => auth()->guard('admin')->id(),
+                'driver_identity' => $driver->driverInfo->identity_number,
+                'driver_no' => $driver->{"phone-no"},
+                'driver_car_no' => $driver->driverInfo->{"car-number"} ?? null,
+                'note' => $request->input('reject-reason'),
+            ]);
+        }
+
         $driver->update($updateData);
 
         if (in_array($newApproval, [1, 2], true) && $newApproval !== $oldApproval) {
@@ -422,5 +440,56 @@ class DriverController extends Controller
         }
 
         return redirect()->route('drivers.index')->with('success', 'Driver status updated successfully.');
+    }
+
+    public function assignToAdmin(User $driver, Request $request)
+    {
+        $request->validate([
+            'assign_note' => ['required', 'string', 'max:1000'],
+            'assigned_admin' => ['required', 'exists:admins,id'],
+        ]);
+
+        CaptianRequestAssignment::create([
+            'user_id' => $driver->id,
+            'assigned_from_employee_id' => auth()->guard('admin')->id(),
+            'assigned_to_employee_id' => $request->input('assigned_admin'),
+            'note' => $request->input('assign_note'),
+            'status' => 'assigned',
+        ]);
+
+        return redirect()->back()->with('success', __('Driver assignment submitted successfully.'));
+    }
+
+    public function ban(User $driver, Request $request)
+    {
+        $request->validate([
+            'ban_reason' => ['required', 'string', 'max:1000'],
+        ]);
+
+        $driverRate = $driver->driverInfo?->{"driver-rate"};
+        if ($driverRate === null || $driverRate >= 1) {
+            return redirect()->back()->with('error', __('Driver cannot be banned. Rating is not below 1.'));
+        }
+
+        DriverBanned::create([
+            'assigned_from_employee_id' => auth()->guard('admin')->id(),
+            'driver_identity' => $driver->driverInfo->identity_number,
+            'driver_no' => $driver->{"phone-no"},
+            'driver_car_no' => $driver->driverInfo->{"car-number"} ?? null,
+            'note' => $request->input('ban_reason'),
+        ]);
+
+        $driver->update(['approval' => 3, 'reject-reason' => $request->input('ban_reason')]);
+
+        CaptainRequestDecision::create([
+            'user_id' => $driver->id,
+            'action_type' => 'banned',
+            'old_approval' => $driver->approval,
+            'new_approval' => 3,
+            'decided_by_employee_id' => auth()->guard('admin')->id(),
+            'reject_reason' => $request->input('ban_reason'),
+        ]);
+
+        return redirect()->route('drivers.index')->with('success', __('Driver has been banned successfully.'));
     }
 }

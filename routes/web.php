@@ -59,6 +59,8 @@ Route::middleware(['is_admin'])->prefix('dashboard')->group(function () {
     Route::get('driver/trips', [DriverController::class, 'trips'])->name('drivers.trips');
     Route::post('drivers/{driver}/send-payment-reminder', [DriverController::class, 'sendPaymentReminder'])->name('drivers.sendPaymentReminder');
     Route::post('drivers/{driver}/update-status', [DriverController::class, 'updateStatus'])->name('drivers.updateStatus');
+    Route::post('drivers/{driver}/assign-to-admins', [DriverController::class, 'assignToAdmin'])->name('drivers.assignToAdmin');
+    Route::post('drivers/{driver}/ban', [DriverController::class, 'ban'])->name('drivers.ban');
 
     Route::Resource('drivers', DriverController::class);
 

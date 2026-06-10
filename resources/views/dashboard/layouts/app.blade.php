@@ -44,6 +44,7 @@
     <script src="{{ asset('dashboard/js/noty.js') }}" type="text/javascript"></script>
 {{--    <link href="{{ asset('dashboard/css/mint.css') }}" rel="stylesheet">--}}
     <link href="{{ asset('dashboard/css/sunset.css') }}" rel="stylesheet">
+    <link href="{{ asset('dashboard/css/lightbox.css') }}" rel="stylesheet">
 
     @stack('admin_styles')
 </head>
@@ -156,6 +157,7 @@
 
 <script src="{{ asset("dashboard/vendor/select2/select2.min.js") }}"></script>
 <script src="{{ asset("dashboard/js/select2.js") }}"></script>
+<script src="{{ asset('dashboard/js/lightbox.js') }}"></script>
 
 @stack('admin_scripts')
 

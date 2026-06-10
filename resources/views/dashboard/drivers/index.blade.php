@@ -29,7 +29,7 @@
                         <div class="col-md-3">
                             <div class="form-group">
                                 <label for="name">{{ __('Name') }}</label>
-                                <input type="text" class="form-control" id="name" name="name" value="{{ request('name') }}" placeholder="{{ __('Search by name or email') }}">
+                                <input type="text" class="form-control" id="name" name="name" value="{{ request('name') }}" placeholder="{{ __('Search by name') }}">
                             </div>
                         </div>
                         <div class="col-md-3">
@@ -75,7 +75,8 @@
                             <th style="width: 15%;"> {{ __('Email') }} </th>
                             <th style="width: 12%;"> {{ __('Phone Number') }} </th>
                             <th style="width: 12%;"> {{ __('University') }} </th>
-                            <th style="width: 12%;"> {{ __('Stage') }} </th>
+                            <th style="width: 12%;"> {{ __('Rate') }} </th>
+                            <th style="width: 10%;"> {{ __('Dues') }} </th>
                             <th style="width: 10%;"> {{ __('Approval') }} </th>
                             <th style="width: 17%;"> {{ __('Action') }} </th>
                             </tr>
@@ -123,7 +124,15 @@
                             <td>
                                 <div class="d-flex align-items-center">
                                     <div class="d-flex align-items-center">
-                                        {{ $driver->stage->{"name-ar"} ?? __('Not Specified') }}
+                                        {{ $driver->driverInfo->{"driver-rate"} ?? __('Not Specified') }}
+                                    </div>
+                                </div>
+                            </td>
+
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="d-flex align-items-center">
+                                        {{ $driver->latestDue?->amount ?? '0' }}
                                     </div>
                                 </div>
                             </td>
@@ -148,10 +157,16 @@
                                     <i class="fa fa-eye fa-2x"></i>
                                 </a>
 
+                                @if ($driver->approval == 2)
+                                    <a href="{{ route('drivers.edit', $driver->id) }}" class="btn btn-sm btn-link">
+                                        <i class="fa fa-edit fa-2x"></i>
+                                    </a>
+                                @endif
+
                             </td>
                         </tr>
                         @empty
-                            <h1> {{ __('No records') }} </h1>
+                            <h1> {{ __('No Results matched') }} </h1>
                         @endforelse
                         </tbody>
                     </table>

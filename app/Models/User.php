@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\FinancialDue;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -83,6 +84,11 @@ class User extends Authenticatable
     public function driverCar()
     {
         return $this->hasOne(DriversCar::class, 'driver-id', 'id');
+    }
+
+    public function latestDue()
+    {
+        return $this->hasOne(FinancialDue::class, 'driver-id', 'id')->latestOfMany();
     }
 
     public function driverNeighborhood()

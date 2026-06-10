@@ -12,14 +12,16 @@ class DriverBanned extends Model
     protected $table = 'drivers-banned';
 
     protected $fillable = [
-        'driver-id',
-        'reason',
-        'banned-by',
+        'assigned_from_employee_id',
+        'driver_identity',
+        'driver_no',
+        'driver_car_no',
+        'note',
     ];
 
 
-    public function driver()
+    public function employee()
     {
-        return $this->belongsTo(User::class, 'driver-id');
+        return $this->belongsTo(User::class, 'assigned_from_employee_id');
     }
 }

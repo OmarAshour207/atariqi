@@ -9,9 +9,11 @@ return new class extends Migration {
     {
         Schema::create('drivers-banned', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('driver-id');
-            $table->string('reason')->nullable();
-            $table->unsignedBigInteger('banned-by')->nullable();
+            $table->unsignedBigInteger('assigned_from_employee_id')->nullable();
+            $table->string('driver_identity');
+            $table->string('driver_no');
+            $table->string('driver_car_no');
+            $table->string('note')->nullable();
             $table->timestamps();
         });
     }

@@ -19,11 +19,11 @@
         <div class="container-fluid page__container">
 
 
-            @if(isset($isBanned) && $isBanned)
                 <div class="alert alert-warning">
-                    <strong>{{ __('Warning: This driver is banned before!') }}</strong>
+                    <strong>
+                        {{ __('Warning: This driver is banned before!') }}:
+                    </strong><br> {{ __('Reason') }}: {{ $banned?->note }} <br>
                 </div>
-            @endif
 
             <div class="card card-form__body card-body">
                 <form method="post" action="{{ route('drivers.updateStatus', $driver->id) }}" class="submit-form">
@@ -143,7 +143,13 @@
 
                             <div class="form-group">
                                 <label for="image"> {{ __('User Image') }}</label>
-                                <img src="{{ $driver->image ? url('uploads/' . $driver->id . '/' . $driver->image) : 'https://i.pravatar.cc/80' }}" alt="{{ $driver->fullName }}" class="img-fluid d-block mb-2" style="max-width: 150px;">
+                                @if($driver->image)
+                                    <a href="{{ url('uploads/' . $driver->id . '/' . $driver->image) }}" data-lightbox="profile-image" data-title="profile-image">
+                                        <img id="img-preview" class="img-fluid d-block mb-2" style="max-width: 150px;" src="{{ url('uploads/' . $driver->id . '/' . $driver->image) }}"/>
+                                    </a>
+                                @else
+                                    <img id="img-preview" src="https://ami-sni.com/wp-content/themes/consultix/images/no-image-found-360x250.png" width="100px" />
+                                @endif
                             </div>
                         </div>
 
@@ -200,7 +206,7 @@
                             </div>
 
                             <div class="form-group">
-                                <label for="driver-neighborhood"> {{ __("Driver Neighborhood") }}</label>
+                                <label for="driver-neighborhood"> {{ __('Driver Neighborhood') }}</label>
                                 <select id="driver-neighborhood" name="driver-neighborhood" class="form-control select2" disabled>
                                     <option value="" selected> {{ $driver->driverInfo ? $driver->driverInfo->{"driver-neighborhood"} : '' }} </option>
                                     <!-- @foreach ($neighborhoods as $neighborhood)
@@ -209,11 +215,40 @@
                                 </select>
                             </div>
 
+                            <div class="form-group">
+                                <label for="neighborhoods-from"> {{ __('Neighborhoods From') }}</label>
+                                @php
+                                    $fromNames = '';
+                                    if($driver->driverNeighborhood && $driver->driverNeighborhood->{"neighborhoods-from"}) {
+                                        $fromIds = array_filter(array_map('trim', explode('|', $driver->driverNeighborhood->{"neighborhoods-from"})));
+                                        $fromNames = $neighborhoods->whereIn('id', $fromIds)->pluck(app()->getLocale() === 'en' ? 'neighborhood-en' : 'neighborhood-ar')->implode(' | ');
+                                    }
+                                @endphp
+                                <input id="neighborhoods-from" type="text" class="form-control" value="{{ $fromNames }}" disabled>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="neighborhoods-to"> {{ __('Neighborhoods To') }}</label>
+                                @php
+                                    $toNames = '';
+                                    if($driver->driverNeighborhood && $driver->driverNeighborhood->{"neighborhoods-to"}) {
+                                        $toIds = array_filter(array_map('trim', explode('|', $driver->driverNeighborhood->{"neighborhoods-to"})));
+                                        $toNames = $neighborhoods->whereIn('id', $toIds)->pluck(app()->getLocale() === 'en' ? 'neighborhood-en' : 'neighborhood-ar')->implode(' | ');
+                                    }
+                                @endphp
+                                <input id="neighborhoods-to" type="text" class="form-control" value="{{ $toNames }}" disabled>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="current-subscription"> {{ __('Current Subscription') }}</label>
+                                <input id="current-subscription" type="text" class="form-control" value="{{ $driver->activePackage ? ($driver->activePackage->name_ar ?? $driver->activePackage->name_en) : __('None') }}" disabled>
+                            </div>
+
                             <div class="row">
                                 <div class="col-6">
                                     <div class="form-group">
-                                        <label for="driver-wasl-status"> {{ __("Driver Wasl status") }}</label>
-                                        <input id="driver-wasl-status" name="driver-wasl-status" dir="auto" type="text" class="form-control" placeholder="{{ __("Driver Wasl status") }}" value="{{ isset($waslResponse['driverEligibility']) ? $waslResponse['driverEligibility'] : __('Unknown') }}" disabled>
+                                        <label for="driver-wasl-status"> {{ __("Driver Wasl Status") }}</label>
+                                        <input id="driver-wasl-status" name="driver-wasl-status" dir="auto" type="text" class="form-control" placeholder="{{ __("Driver Wasl Status") }}" value="{{ isset($waslResponse['driverEligibility']) ? $waslResponse['driverEligibility'] : __('Unknown') }}" disabled>
                                     </div>
                                 </div>
 
@@ -259,26 +294,50 @@
 
                             <div class="form-group">
                                 <label for="car_form_img"> {{ __('Car Form Image') }}</label>
-                                <img src="{{ $driver->driverCar && $driver->driverCar->{"car_form_img"} ? url('uploads/' . $driver->id . '/' . $driver->driverCar->{"car_form_img"}) : 'https://i.pravatar.cc/80' }}" alt="{{ $driver->fullName }}" class="img-fluid d-block mb-2" style="max-width: 150px;">
+                                @if($driver->driverCar && $driver->driverCar->{"car_form_img"})
+                                    <a href="{{ url('uploads/' . $driver->id . '/' . $driver->driverCar->{"car_form_img"}) }}" data-lightbox="car-form-image" data-title="{{ __('Car Form Image') }}">
+                                        <img id="car-form-img" class="img-fluid d-block mb-2" style="max-width: 150px;" src="{{ url('uploads/' . $driver->id . '/' . $driver->driverCar->{"car_form_img"}) }}"/>
+                                    </a>
+                                @else
+                                    <img id="car-form-img" src="https://ami-sni.com/wp-content/themes/consultix/images/no-image-found-360x250.png" width="100px" />
+                                @endif
                             </div>
 
                             <div class="form-group">
                                 <label for="license_img"> {{ __('License Image') }}</label>
-                                <img src="{{ $driver->driverCar && $driver->driverCar->{"license_img"} ? url('uploads/' . $driver->id . '/' . $driver->driverCar->{"license_img"}) : 'https://i.pravatar.cc/80' }}" alt="{{ $driver->fullName }}" class="img-fluid d-block mb-2" style="max-width: 150px;">
+                                @if($driver->driverCar && $driver->driverCar->{"license_img"})
+                                    <a href="{{ url('uploads/' . $driver->id . '/' . $driver->driverCar->{"license_img"}) }}" data-lightbox="license-image" data-title="{{ __('License Image') }}">
+                                        <img id="license-img" class="img-fluid d-block mb-2" style="max-width: 150px;" src="{{ url('uploads/' . $driver->id . '/' . $driver->driverCar->{"license_img"}) }}"/>
+                                    </a>
+                                @else
+                                    <img id="license-img" src="https://ami-sni.com/wp-content/themes/consultix/images/no-image-found-360x250.png" width="100px" />
+                                @endif
                             </div>
 
                             <div class="row">
                                 <div class="col-6">
                                     <div class="form-group">
                                         <label for="car_front_img"> {{ __('Car Front Image') }}</label>
-                                        <img src="{{ $driver->driverCar && $driver->driverCar->{"car_front_img"} ? url('uploads/' . $driver->id . '/' . $driver->driverCar->{"car_front_img"}) : 'https://i.pravatar.cc/80' }}" alt="{{ $driver->fullName }}" class="img-fluid d-block mb-2" style="max-width: 150px;">
+                                        @if($driver->driverCar && $driver->driverCar->{"car_front_img"})
+                                            <a href="{{ url('uploads/' . $driver->id . '/' . $driver->driverCar->{"car_front_img"}) }}" data-lightbox="car-front-image" data-title="{{ __('Car Front Image') }}">
+                                                <img id="car-front-img" class="img-fluid d-block mb-2" style="max-width: 150px;" src="{{ url('uploads/' . $driver->id . '/' . $driver->driverCar->{"car_front_img"}) }}"/>
+                                            </a>
+                                        @else
+                                            <img id="car-front-img" src="https://ami-sni.com/wp-content/themes/consultix/images/no-image-found-360x250.png" width="100px" />
+                                        @endif
                                     </div>
                                 </div>
 
                                 <div class="col-6">
                                     <div class="form-group">
                                         <label for="car_back_img"> {{ __('Car Back Image') }}</label>
-                                        <img src="{{ $driver->driverCar && $driver->driverCar->{"car_back_img"} ? url('uploads/' . $driver->id . '/' . $driver->driverCar->{"car_back_img"}) : 'https://i.pravatar.cc/80' }}" alt="{{ $driver->fullName }}" class="img-fluid d-block mb-2" style="max-width: 150px;">
+                                        @if($driver->driverCar && $driver->driverCar->{"car_back_img"})
+                                            <a href="{{ url('uploads/' . $driver->id . '/' . $driver->driverCar->{"car_back_img"}) }}" data-lightbox="car-back-image" data-title="{{ __('Car Back Image') }}">
+                                                <img id="car-back-img" class="img-fluid d-block mb-2" style="max-width: 150px;" src="{{ url('uploads/' . $driver->id . '/' . $driver->driverCar->{"car_back_img"}) }}"/>
+                                            </a>
+                                        @else
+                                            <img id="car-back-img" src="https://ami-sni.com/wp-content/themes/consultix/images/no-image-found-360x250.png" width="100px" />
+                                        @endif
                                     </div>
                                 </div>
                             </div>
@@ -287,14 +346,26 @@
                                 <div class="col-6">
                                     <div class="form-group">
                                         <label for="car_rside_img"> {{ __('Car Right Side Image') }}</label>
-                                        <img src="{{ $driver->driverCar && $driver->driverCar->{"car_rside_img"} ? url('uploads/' . $driver->id . '/' . $driver->driverCar->{"car_rside_img"}) : 'https://i.pravatar.cc/80' }}" alt="{{ $driver->fullName }}" class="img-fluid d-block mb-2" style="max-width: 150px;">
+                                        @if($driver->driverCar && $driver->driverCar->{"car_rside_img"})
+                                            <a href="{{ url('uploads/' . $driver->id . '/' . $driver->driverCar->{"car_rside_img"}) }}" data-lightbox="car-right-side-image" data-title="{{ __('Car Right Side Image') }}">
+                                                <img id="car-rside-img" class="img-fluid d-block mb-2" style="max-width: 150px;" src="{{ url('uploads/' . $driver->id . '/' . $driver->driverCar->{"car_rside_img"}) }}"/>
+                                            </a>
+                                        @else
+                                            <img id="car-rside-img" src="https://ami-sni.com/wp-content/themes/consultix/images/no-image-found-360x250.png" width="100px" />
+                                        @endif
                                     </div>
                                 </div>
 
                                 <div class="col-6">
                                     <div class="form-group">
                                         <label for="car_lside_img"> {{ __('Car Left Side Image') }}</label>
-                                        <img src="{{ $driver->driverCar && $driver->driverCar->{"car_lside_img"} ? url('uploads/' . $driver->id . '/' . $driver->driverCar->{"car_lside_img"}) : 'https://i.pravatar.cc/80' }}" alt="{{ $driver->fullName }}" class="img-fluid d-block mb-2" style="max-width: 150px;">
+                                        @if($driver->driverCar && $driver->driverCar->{"car_lside_img"})
+                                            <a href="{{ url('uploads/' . $driver->id . '/' . $driver->driverCar->{"car_lside_img"}) }}" data-lightbox="car-left-side-image" data-title="{{ __('Car Left Side Image') }}">
+                                                <img id="car-lside-img" class="img-fluid d-block mb-2" style="max-width: 150px;" src="{{ url('uploads/' . $driver->id . '/' . $driver->driverCar->{"car_lside_img"}) }}"/>
+                                            </a>
+                                        @else
+                                            <img id="car-lside-img" src="https://ami-sni.com/wp-content/themes/consultix/images/no-image-found-360x250.png" width="100px" />
+                                        @endif
                                     </div>
                                 </div>
                             </div>
@@ -303,14 +374,26 @@
                                 <div class="col-6">
                                     <div class="form-group">
                                         <label for="car_insideFront_img"> {{ __('Car Inside Front Image') }}</label>
-                                        <img src="{{ $driver->driverCar && $driver->driverCar->{"car_insideFront_img"} ? url('uploads/' . $driver->id . '/' . $driver->driverCar->{"car_insideFront_img"}) : 'https://i.pravatar.cc/80' }}" alt="{{ $driver->fullName }}" class="img-fluid d-block mb-2" style="max-width: 150px;">
+                                        @if($driver->driverCar && $driver->driverCar->{"car_insideFront_img"})
+                                            <a href="{{ url('uploads/' . $driver->id . '/' . $driver->driverCar->{"car_insideFront_img"}) }}" data-lightbox="car-inside-front-image" data-title="{{ __('Car Inside Front Image') }}">
+                                                <img id="car-inside-front-img" class="img-fluid d-block mb-2" style="max-width: 150px;" src="{{ url('uploads/' . $driver->id . '/' . $driver->driverCar->{"car_insideFront_img"}) }}"/>
+                                            </a>
+                                        @else
+                                            <img id="car-inside-front-img" src="https://ami-sni.com/wp-content/themes/consultix/images/no-image-found-360x250.png" width="100px" />
+                                        @endif
                                     </div>
                                 </div>
 
                                 <div class="col-6">
                                     <div class="form-group">
                                         <label for="car_insideBack_img"> {{ __('Car Inside Back Image') }}</label>
-                                        <img src="{{ $driver->driverCar && $driver->driverCar->{"car_insideBack_img"} ? url('uploads/' . $driver->id . '/' . $driver->driverCar->{"car_insideBack_img"}) : 'https://i.pravatar.cc/80' }}" alt="{{ $driver->fullName }}" class="img-fluid d-block mb-2" style="max-width: 150px;">
+                                        @if($driver->driverCar && $driver->driverCar->{"car_insideBack_img"})
+                                            <a href="{{ url('uploads/' . $driver->id . '/' . $driver->driverCar->{"car_insideBack_img"}) }}" data-lightbox="car-inside-back-image" data-title="{{ __('Car Inside Back Image') }}">
+                                                <img id="car-inside-back-img" class="img-fluid d-block mb-2" style="max-width: 150px;" src="{{ url('uploads/' . $driver->id . '/' . $driver->driverCar->{"car_insideBack_img"}) }}"/>
+                                            </a>
+                                        @else
+                                            <img id="car-inside-back-img" src="https://ami-sni.com/wp-content/themes/consultix/images/no-image-found-360x250.png" width="100px" />
+                                        @endif
                                     </div>
                                 </div>
                             </div>
@@ -320,7 +403,11 @@
                     @if ($driver->approval == 2)
                         <div class="text-right mb-5">
                             <button type="submit" name="approval" value="1" class="btn btn-success">{{ __('Accept') }}</button>
+                            <button type="button" class="btn btn-primary" onclick="showAssignModal()">{{ __('Assign') }}</button>
                             <button type="button" class="btn btn-danger" onclick="showRejectModal()">{{ __('Reject') }}</button>
+                            @if($driver->driverInfo && floatval($driver->driverInfo->{"driver-rate"}) < 1)
+                                <button type="button" class="btn btn-danger" onclick="showBanModal()">{{ __('Ban Driver') }}</button>
+                            @endif
                         </div>
                     @endif
 
@@ -355,6 +442,70 @@
         </div>
     </div>
 
+    <!-- Assign Driver Modal -->
+    <div class="modal fade" id="assignModal" tabindex="-1" role="dialog" aria-labelledby="assignModalLabel" aria-hidden="true" style="z-index: 9999;">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <form id="assign-form" action="{{ route('drivers.assignToAdmin', $driver->id) }}" method="post">
+                    @csrf
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="assignModalLabel">{{ __('Assign Driver') }}</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="assign-note">{{ __('Assignment Note') }} <span class="text-danger">*</span></label>
+                            <textarea id="assign-note" name="assign_note" class="form-control" rows="4" placeholder="{{ __('Enter a note for this assignment') }}"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="assigned-admin">{{ __('Assign To Admin') }} <span class="text-danger">*</span></label>
+                            <select id="assigned-admin" name="assigned_admin" class="form-control select2">
+                                @foreach($admins as $admin)
+                                    <option value="{{ $admin->id }}">{{ $admin->name }} @if($admin->email) ({{ $admin->email }}) @endif</option>
+                                @endforeach
+                            </select>
+                            <small class="form-text text-muted">{{ __('Select an admin to assign this driver to.') }}</small>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ __('Cancel') }}</button>
+                        <button type="button" class="btn btn-primary" onclick="confirmAssignDriver()">{{ __('Ok') }}</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ban Driver Modal -->
+    <div class="modal fade" id="banModal" tabindex="-1" role="dialog" aria-labelledby="banModalLabel" aria-hidden="true" style="z-index: 9999;">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <form id="ban-form" action="{{ route('drivers.ban', $driver->id) }}" method="post">
+                    @csrf
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="banModalLabel">{{ __('Ban Driver') }}</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="ban-reason">{{ __('Ban Reason') }} <span class="text-danger">*</span></label>
+                            <textarea id="ban-reason" name="ban_reason" class="form-control" rows="4" placeholder="{{ __('Enter the reason for banning this driver') }}"></textarea>
+                            <small class="form-text text-muted">{{ __('Provide a reason for this ban.') }}</small>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ __('Cancel') }}</button>
+                        <button type="button" class="btn btn-danger" onclick="confirmBanDriver()">{{ __('Confirm Ban') }}</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <style>
         .modal-backdrop {
             z-index: 9998 !important;
@@ -385,6 +536,15 @@
             }
         }
 
+        function showBanModal() {
+            const modal = document.getElementById('banModal');
+            if (modal) {
+                $('#banModal').modal('show');
+                document.getElementById('ban-reason').value = '';
+                document.getElementById('ban-reason').focus();
+            }
+        }
+
         function confirmRejectDriver() {
             const reason = document.getElementById('modal-reject-reason').value.trim();
 
@@ -410,6 +570,89 @@
             // Close modal and submit
             $('#rejectModal').modal('hide');
             form.submit();
+        }
+
+        function showAssignModal() {
+            const modal = document.getElementById('assignModal');
+            if (modal) {
+                $('#assignModal').modal('show');
+                document.getElementById('assign-note').value = '';
+                const assignedAdmins = document.getElementById('assigned-admin');
+                if (assignedAdmins) {
+                    Array.from(assignedAdmins.options).forEach(option => option.selected = false);
+                    if (window.$ && $.fn.select2) {
+                        $('#assigned-admin').val([]).trigger('change');
+                    }
+                }
+                document.getElementById('assign-note').focus();
+            }
+        }
+
+        function confirmAssignDriver() {
+            const note = document.getElementById('assign-note').value.trim();
+            const assignedAdmins = document.getElementById('assigned-admin');
+            const selectedAdmins = assignedAdmins ? Array.from(assignedAdmins.selectedOptions).map(option => option.value) : [];
+
+            if (!note) {
+                alert('{{ __("Please enter an assignment note") }}');
+                document.getElementById('assign-note').focus();
+                return false;
+            }
+
+            if (!selectedAdmins.length) {
+                alert('{{ __("Please select at least one admin") }}');
+                assignedAdmins.focus();
+                return false;
+            }
+
+            document.getElementById('assign-form').submit();
+        }
+
+        function confirmBanDriver() {
+            const reason = document.getElementById('ban-reason').value.trim();
+
+            if (!reason) {
+                alert('{{ __("Please enter a ban reason") }}');
+                document.getElementById('ban-reason').focus();
+                return false;
+            }
+
+            // Fill the hidden field with the reason
+            document.getElementById('ban-reason').value = reason;
+
+            // Set approval to 4 (banned)
+            const approvalInput = document.createElement('input');
+            approvalInput.type = 'hidden';
+            approvalInput.name = 'approval';
+            approvalInput.value = '4';
+
+            // Get the form and submit it
+            const form = document.querySelector('.submit-form');
+            form.appendChild(approvalInput);
+
+            // Close modal and submit
+            $('#banModal').modal('hide');
+            form.submit();
+        }
+
+        function confirmAssignDriver() {
+            const note = document.getElementById('assign-note').value.trim();
+            const assignedAdmins = document.getElementById('assigned-admin');
+            const selectedAdmins = assignedAdmins ? Array.from(assignedAdmins.selectedOptions).map(option => option.value) : [];
+
+            if (!note) {
+                alert('{{ __("Please enter an assignment note") }}');
+                document.getElementById('assign-note').focus();
+                return false;
+            }
+
+            if (!selectedAdmins.length) {
+                alert('{{ __("Please select at least one admin") }}');
+                assignedAdmins.focus();
+                return false;
+            }
+
+            document.getElementById('assign-form').submit();
         }
     </script>
 @endsection
