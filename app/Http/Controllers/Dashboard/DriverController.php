@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\DriverNeighborhood;
 use App\Models\DriverType;
 use App\Models\Neighbour;
+use App\Models\PlatformEmailLog;
 use App\Models\Stage;
 use App\Models\University;
 use App\Models\User;
@@ -437,6 +438,14 @@ class DriverController extends Controller
 
         if ($newApproval === 3) {
             Mail::to($driver->email)->send(new DriverRejectedMail($driver, $request->input('reject-reason')));
+            PlatformEmailLog::create([
+                'assigned_from_employee_id' => auth()->guard('admin')->id(),
+                'driver_id' => $driver->id,
+                'driver_email' => $driver->email,
+                'email_type' => 'driver_banned',
+                'status' => 'sent',
+                'error_message' => null,
+            ]);
         }
 
         return redirect()->route('drivers.index')->with('success', 'Driver status updated successfully.');

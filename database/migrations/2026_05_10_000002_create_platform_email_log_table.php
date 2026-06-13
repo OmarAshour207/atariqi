@@ -10,14 +10,12 @@ return new class extends Migration
     {
         Schema::create('platform_email_log', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('assigned_from_employee_id')->nullable();
+            $table->unsignedBigInteger('driver_id')->nullable();
+            $table->string('driver_email')->nullable();
             $table->string('email_type');
-            $table->unsignedBigInteger('package_id')->nullable();
-            $table->string('subject');
-            $table->integer('total_recipients')->default(0);
-            $table->integer('sent_count')->default(0);
-            $table->integer('failed_count')->default(0);
-            $table->text('failed_recipients')->nullable();
-            $table->text('details')->nullable();
+            $table->string('status')->nullable();
+            $table->text('error_message')->nullable();
             $table->timestamps();
         });
     }

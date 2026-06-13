@@ -4,16 +4,22 @@ namespace App\Http\Controllers\Dashboard;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Dashboard\DriverInfo\UpdateDriverInfoRequest;
+use App\Mail\DriverAcceptedMail;
+use App\Mail\DriverInfoAcceptedMail;
+use App\Mail\DriverRejectedMail;
+use App\Models\CaptainRequestDecision;
 use App\Models\DriverNeighborhood;
 use App\Models\DriverType;
 use App\Models\Neighbour;
 use App\Models\NewDriverCar;
 use App\Models\NewDriverInfo;
 use App\Models\NewUserInfo;
+use App\Models\PlatformEmailLog;
 use App\Models\Stage;
 use App\Models\University;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 
 class EditDriverInfoRequestController extends Controller
 {
@@ -50,10 +56,20 @@ class EditDriverInfoRequestController extends Controller
         $newDriverInfo = NewDriverInfo::where('driver-id', $driver->id)->first();
         $newCarInfo = NewDriverCar::where('driver-id', $driver->id)->first();
 
+        $driver->update(['approval' => 1]);
+
         if($request->input('approval') == 3) {
             // Store rejection reason before deletion
             $rejectionReason = $request->input('rejection-reason', 'Request rejected by administrator');
-            $driver->update(['reject-reason' => $rejectionReason]);
+
+            CaptainRequestDecision::create([
+                'user_id' => $driver->id,
+                'action_type' => 'edit_driver_info',
+                'old_approval' => $driver->approval,
+                'new_approval' => 3,
+                'decided_by_employee_id' => auth()->guard('admin')->id(),
+                'reject_reason' => $rejectionReason,
+            ]);
 
             $newUserInfo?->delete();
             $newDriverInfo?->delete();
@@ -62,40 +78,40 @@ class EditDriverInfoRequestController extends Controller
         }
 
         $userfields = [
-            'user-first-name' => $newUserInfo->{'user-first-name'},
-            'user-last-name' => $newUserInfo->{'user-last-name'},
-            'email' => $newUserInfo->email,
-            'phone-no' => $newUserInfo->{'phone-no'},
-            'gender' => $newUserInfo->gender,
-            'image' => $newUserInfo->image,
-            'university-id' => $newUserInfo->{"university-id"},
-            'user-stage-id' => $newUserInfo->{"user-stage-id"}
+            'user-first-name' => $newUserInfo?->{'user-first-name'},
+            'user-last-name' => $newUserInfo?->{'user-last-name'},
+            'email' => $newUserInfo?->email,
+            'phone-no' => $newUserInfo?->{'phone-no'},
+            'gender' => $newUserInfo?->gender,
+            'image' => $newUserInfo?->image,
+            'university-id' => $newUserInfo?->{"university-id"},
+            'user-stage-id' => $newUserInfo?->{"user-stage-id"}
         ];
 
         $driver->update($userfields);
 
         $driverInfoFields = [
-            'car-brand' => $newDriverInfo->{'car-brand'},
-            'car-model' => $newDriverInfo->{'car-model'},
-            'car-number' => $newDriverInfo->{'car-number'},
-            'car-letters' => $newDriverInfo->{'car-letters'},
-            'car-color' => $newDriverInfo->{'car-color'},
-            'driver-license-link' => $newDriverInfo->{'driver-license-link'},
-            'allow-disabilities' => $newDriverInfo->{'allow-disabilities'} ?? 'no',
+            'car-brand' => $newDriverInfo?->{'car-brand'},
+            'car-model' => $newDriverInfo?->{'car-model'},
+            'car-number' => $newDriverInfo?->{'car-number'},
+            'car-letters' => $newDriverInfo?->{'car-letters'},
+            'car-color' => $newDriverInfo?->{'car-color'},
+            'driver-license-link' => $newDriverInfo?->{'driver-license-link'},
+            'allow-disabilities' => $newDriverInfo?->{'allow-disabilities'} ?? 'no',
         ];
 
         $driver->driverInfo->update($driverInfoFields);
 
         $driverCarFields = [
-            'driver-type-id' => $newCarInfo->{'driver-type-id'},
-            'car_form_img' => $newCarInfo->car_form_img,
-            'licnese_img' => $newCarInfo->licnese_img,
-            'car_front_img' => $newCarInfo->car_front_img,
-            'car_back_img' => $newCarInfo->car_back_img,
-            'car_rside_img' => $newCarInfo->car_rside_img,
-            'car_lside_img' => $newCarInfo->car_lside_img,
-            'car_insideFront_img' => $newCarInfo->car_insideFront_img,
-            'car_insideBack_img' => $newCarInfo->car_insideBack_img,
+            'driver-type-id' => $newCarInfo?->{'driver-type-id'},
+            'car_form_img' => $newCarInfo?->car_form_img,
+            'licnese_img' => $newCarInfo?->licnese_img,
+            'car_front_img' => $newCarInfo?->car_front_img,
+            'car_back_img' => $newCarInfo?->car_back_img,
+            'car_rside_img' => $newCarInfo?->car_rside_img,
+            'car_lside_img' => $newCarInfo?->car_lside_img,
+            'car_insideFront_img' => $newCarInfo?->car_insideFront_img,
+            'car_insideBack_img' => $newCarInfo?->car_insideBack_img,
         ];
 
         $driver->driverCar->update($driverCarFields);
@@ -103,6 +119,29 @@ class EditDriverInfoRequestController extends Controller
         $newUserInfo->delete();
         $newDriverInfo->delete();
         $newCarInfo->delete();
+
+        CaptainRequestDecision::create([
+            'user_id' => $driver->id,
+            'action_type' => 'edit_driver_info',
+            'old_approval' => $request->input('approval'),
+            'new_approval' => 1,
+            'decided_by_employee_id' => auth()->guard('admin')->id(),
+        ]);
+
+        if ($request->input('approval') === 3) {
+            Mail::to($driver->email)->send(new DriverRejectedMail($driver, $request->input('reject-reason')));
+        } else {
+            Mail::to($driver->email)->send(new DriverInfoAcceptedMail($driver));
+        }
+
+        PlatformEmailLog::create([
+            'assigned_from_employee_id' => auth()->guard('admin')->id(),
+            'driver_id' => $driver->id,
+            'driver_email' => $driver->email,
+            'email_type' => $request->input('approval') === 3 ? 'driver_rejection' : 'driver_info_update',
+            'status' => 'sent',
+            'error_message' => null,
+        ]);
 
         return redirect()->route('edit-info-request.index')->with('success', 'Driver updated successfully.');
     }
