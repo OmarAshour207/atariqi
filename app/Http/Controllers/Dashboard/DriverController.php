@@ -18,6 +18,10 @@ use App\Models\DelWeekInfo;
 use App\Models\DelImmediateInfo;
 use App\Models\CaptainRequestDecision;
 use App\Models\CaptianRequestAssignment;
+use App\Models\EmployeePackageLog;
+use App\Mail\PackageAssignmentMail;
+use Illuminate\Support\Facades\Mail;
+use Carbon\Carbon;
 use App\Models\SugDayDriver;
 use App\Models\SugWeekDriver;
 use App\Models\SuggestionDriver;
@@ -25,12 +29,10 @@ use App\Models\FinancialDue;
 use App\Services\WaslService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
 use App\Mail\DriverRejectedMail;
 use App\Mail\PaymentReminderMail;
 use App\Models\DriverBanned;
 use App\Models\Admin;
-use Illuminate\Support\Facades\Mail;
 
 class DriverController extends Controller
 {
@@ -189,7 +191,7 @@ class DriverController extends Controller
 
             if ($activeUserPackage) {
                 if ($activeUserPackage->package_id == $package->id && $activeUserPackage->interval == $request->interval) {
-                    throw new \Exception(__('User already on this package option.'));
+                    return redirect()->back()->with('error', __('User already has this package assigned with the same interval.'));
                 }
 
                 UserPackageHistory::create([
@@ -198,7 +200,7 @@ class DriverController extends Controller
                     'status' => $activeUserPackage->status,
                     'start_date' => $activeUserPackage->start_date,
                     'end_date' => $activeUserPackage->end_date,
-                    'interval' => $activeUserPackage->interval,
+                    'interval' => $activeUserPackage->interval ?? 'monthly',
                 ]);
 
                 $activeUserPackage->delete();
@@ -215,6 +217,37 @@ class DriverController extends Controller
                 'status' => UserPackage::STATUS_ACTIVE,
             ]);
         });
+
+        EmployeePackageLog::create([
+            'assigned_from_employee_id' => auth()->guard('admin')->id(),
+            'driver_id' => $driver->id,
+            'id_package_old' => $driver->activePackage?->package_id,
+            'id_package_new' => $package->id,
+            'status' => 'assigned',
+        ]);
+
+        // Send email notification to driver
+        try {
+            Mail::to($driver->email)->send(new PackageAssignmentMail($driver, $package, $request->interval));
+
+            PlatformEmailLog::create([
+                'assigned_from_employee_id' => auth()->guard('admin')->id(),
+                'driver_id' => $driver->id,
+                'driver_email' => $driver->email,
+                'email_type' => 'package_assignment',
+                'status' => 'sent',
+                'error_message' => null,
+            ]);
+        } catch (\Throwable $e) {
+            PlatformEmailLog::create([
+                'assigned_from_employee_id' => auth()->guard('admin')->id(),
+                'driver_id' => $driver->id,
+                'driver_email' => $driver->email,
+                'email_type' => 'package_assignment',
+                'status' => 'failed',
+                'error_message' => $e->getMessage(),
+            ]);
+        }
 
         return redirect()->route('drivers.packages')->with('success', __('Package assignment updated successfully.'));
     }
