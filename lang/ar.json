@@ -412,5 +412,18 @@
     "Please provide a reason for rejection":"يرجى تقديم سبب لرفض  .",
     "Enter rejection reason...":"أدخل سبب الرفض...",
     "This reason will be sent to the driver.":"سيتم إرسال هذا السبب إلى السائق.",
-    "Driver info update request rejected successfully.":"تم رفض طلب تحديث معلومات السائق بنجاح."
+    "Driver info update request rejected successfully.":"تم رفض طلب تحديث معلومات السائق بنجاح.",
+    "Filter by Trip Type":"تصفية حسب نوع الرحلة",
+    "Filter by Driver":"تصفية حسب السائق",
+    "All Drivers":"جميع السائقين",
+    "All Types":"جميع الأنواع",
+    "Booking ID":"رقم الحجز",
+    "Driver": "السائق",
+    "Passenger": "الراكب",
+    "Trip Type": "نوع الرحلة",
+    "Cost": "التكلفة",
+    "Location": "الموقع",
+    "Immediate": "لحظي",
+    "Daily": "يومي",
+    "Weekly": "أسبوعي"
 }

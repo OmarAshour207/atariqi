@@ -270,7 +270,7 @@ class DriverController extends Controller
         $trips = collect();
 
         if (!$tripType || $tripType === 'immediate') {
-            $query = SuggestionDriver::with(['driver', 'passenger', 'deliveryInfo', 'booking']);
+            $query = SuggestionDriver::with(['driver', 'passenger', 'deliveryInfo', 'booking', 'booking.university', 'booking.neighborhood', 'booking.service']);
 
             if ($driverId) {
                 $query->where('driver-id', $driverId);
@@ -287,7 +287,7 @@ class DriverController extends Controller
         }
 
         if (!$tripType || $tripType === 'daily') {
-            $query = SugDayDriver::with(['driver', 'passenger', 'deliveryInfo', 'booking']);
+            $query = SugDayDriver::with(['driver', 'passenger', 'deliveryInfo', 'booking', 'booking.university', 'booking.neighborhood', 'booking.service']);
 
             if ($driverId) {
                 $query->where('driver-id', $driverId);
@@ -304,7 +304,7 @@ class DriverController extends Controller
         }
 
         if (!$tripType || $tripType === 'weekly') {
-            $query = SugWeekDriver::with(['driver', 'passenger', 'deliveryInfo', 'booking']);
+            $query = SugWeekDriver::with(['driver', 'passenger', 'deliveryInfo', 'booking', 'booking.university', 'booking.neighborhood', 'booking.service']);
 
             if ($driverId) {
                 $query->where('driver-id', $driverId);

@@ -3,6 +3,7 @@
 @section('title', __('Driver Trips'))
 
 @section('content')
+    <div class="mdk-drawer-layout__content page">
 <div class="container-fluid">
     <div class="row">
         <div class="col-12">
@@ -56,19 +57,20 @@
                             <thead>
                                 <tr>
                                     <th>{{ __('#') }}</th>
+                                    <th>{{ __('Booking ID') }}</th>
                                     <th>{{ __('Driver') }}</th>
                                     <th>{{ __('Passenger') }}</th>
                                     <th>{{ __('Trip Type') }}</th>
                                     <th>{{ __('Date') }}</th>
-                                    <th>{{ __('Revenue (SAR)') }}</th>
-                                    <th>{{ __('Status') }}</th>
-                                    <th>{{ __('Actions') }}</th>
+                                    <th>{{ __('Cost') }}</th>
+                                    <th>{{ __('Location') }}</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @forelse($paginatedTrips as $index => $trip)
                                     <tr>
                                         <td>{{ $paginatedTrips->firstItem() + $index }}</td>
+                                        <td>{{ $trip->{"booking-id"} }}</td>
                                         <td>
                                             @if($trip->driver)
                                                 <a href="{{ route('drivers.show', $trip->driver->id) }}">
@@ -91,58 +93,10 @@
                                             </span>
                                         </td>
                                         <td>{{ \Carbon\Carbon::parse($trip->{'date-of-add'})->format('Y-m-d H:i') }}</td>
-                                        <td>{{ number_format($trip->revenue, 2) }}</td>
-                                        <td>
-                                            @if($trip->action == 5)
-                                                <span class="badge badge-success">{{ __('Completed') }}</span>
-                                            @elseif($trip->action == 1)
-                                                <span class="badge badge-warning">{{ __('Pending') }}</span>
-                                            @elseif($trip->action == 2)
-                                                <span class="badge badge-info">{{ __('Accepted') }}</span>
-                                            @else
-                                                <span class="badge badge-secondary">{{ __('Other') }}</span>
-                                            @endif
-                                        </td>
-                                        <td>
-                                            @if($trip->driver && $trip->revenue > 0)
-                                                <button type="button" class="btn btn-sm btn-warning" data-toggle="modal" data-target="#reminderModal{{ $trip->id }}">
-                                                    {{ __('Send Reminder') }}
-                                                </button>
-                                            @endif
-                                        </td>
+                                        <td>{{ $trip->booking->service->cost ?? 0 }}</td>
+                                        <td>{{ $trip->booking->{"road-way"} == 'from' ? $trip->booking->university->{"name-ar"} : $trip->booking->neighborhood->{"neighborhood-ar"} }}</td>
                                     </tr>
 
-                                    <!-- Payment Reminder Modal -->
-                                    @if($trip->driver && $trip->revenue > 0)
-                                    <div class="modal fade" id="reminderModal{{ $trip->id }}" tabindex="-1" role="dialog" aria-labelledby="reminderModalLabel{{ $trip->id }}" aria-hidden="true">
-                                        <div class="modal-dialog" role="document">
-                                            <div class="modal-content">
-                                                <div class="modal-header">
-                                                    <h5 class="modal-title" id="reminderModalLabel{{ $trip->id }}">{{ __('Send Payment Reminder') }}</h5>
-                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                        <span aria-hidden="true">&times;</span>
-                                                    </button>
-                                                </div>
-                                                <form method="POST" action="{{ route('drivers.sendPaymentReminder', $trip->driver->id) }}">
-                                                    @csrf
-                                                    <div class="modal-body">
-                                                        <div class="form-group">
-                                                            <label for="amount{{ $trip->id }}">{{ __('Amount (SAR)') }}</label>
-                                                            <input type="number" step="0.01" class="form-control" id="amount{{ $trip->id }}" name="amount" value="{{ $trip->revenue }}" required>
-                                                        </div>
-                                                        <p>{{ __('Send payment reminder to') }}: {{ $trip->driver->{'user-first-name'} . ' ' . $trip->driver->{'user-last-name'} }}</p>
-                                                        <p>{{ __('Trip Type') }}: {{ ucfirst($trip->trip_type) }}</p>
-                                                        <p>{{ __('Trip Date') }}: {{ \Carbon\Carbon::parse($trip->{'date-of-add'})->format('Y-m-d H:i') }}</p>
-                                                    </div>
-                                                    <div class="modal-footer">
-                                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ __('Cancel') }}</button>
-                                                        <button type="submit" class="btn btn-primary">{{ __('Send Reminder') }}</button>
-                                                    </div>
-                                                </form>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    @endif
                                 @empty
                                     <tr>
                                         <td colspan="8" class="text-center">{{ __('No trips found') }}</td>
@@ -161,4 +115,5 @@
         </div>
     </div>
 </div>
+    </div>
 @endsection
