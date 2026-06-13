@@ -29,6 +29,7 @@ class EditDriverInfoRequestController extends Controller
     public function show($driver)
     {
         $newDriverInfo = NewUserInfo::where('user-id', $driver)->firstOrFail();
+        $oldDriver = User::findOrFail($driver);
 
         $universities = University::all();
         $stages = Stage::all();
@@ -36,8 +37,9 @@ class EditDriverInfoRequestController extends Controller
         $driverTypes = DriverType::all();
 
         $newDriverInfo->load('callingKey', 'driverInfo', 'driverCar');
+        $oldDriver->load('driverInfo', 'driverCar');
 
-        return view('dashboard.drivers_info_requests.show', compact('newDriverInfo', 'universities', 'stages', 'neighborhoods', 'driverTypes'));
+        return view('dashboard.drivers_info_requests.show', compact('newDriverInfo', 'oldDriver', 'universities', 'stages', 'neighborhoods', 'driverTypes'));
     }
 
     public function update($driver, UpdateDriverInfoRequest $request)
@@ -48,10 +50,14 @@ class EditDriverInfoRequestController extends Controller
         $newDriverInfo = NewDriverInfo::where('driver-id', $driver->id)->first();
         $newCarInfo = NewDriverCar::where('driver-id', $driver->id)->first();
 
-        if($request->input('approval') == 2) {
-            $newUserInfo->delete();
-            $newDriverInfo->delete();
-            $newCarInfo->delete();
+        if($request->input('approval') == 3) {
+            // Store rejection reason before deletion
+            $rejectionReason = $request->input('rejection-reason', 'Request rejected by administrator');
+            $driver->update(['reject-reason' => $rejectionReason]);
+
+            $newUserInfo?->delete();
+            $newDriverInfo?->delete();
+            $newCarInfo?->delete();
             return redirect()->route('edit-info-request.index')->with('success', 'Driver info update request rejected successfully.');
         }
 

@@ -24,7 +24,8 @@ class UpdateDriverInfoRequest extends FormRequest
     public function rules()
     {
         return [
-            'approval' => 'required|boolean',
+            'approval' => 'required|numeric|in:1,3',
+            "rejection-reason" => 'required_if:approval,3|string|max:255',
 
             // // User fields
             // 'user-first-name' => 'required|string|max:255',

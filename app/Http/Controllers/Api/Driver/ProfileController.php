@@ -60,6 +60,7 @@ class ProfileController extends BaseController
             'car_lside_img'         => 'nullable|image|mimes:jpeg,jpg,png',
             'car_insideFront_img'   => 'nullable|image|mimes:jpeg,jpg,png',
             'car_insideBack_img'    => 'nullable|image|mimes:jpeg,jpg,png',
+            'car_form_img'      => 'nullable|mimes:jpeg,jpg,png',
         ]);
 
         $data = $validator->validated();
@@ -87,9 +88,9 @@ class ProfileController extends BaseController
             'car-letters'       => 'required|string',
             'car-color'         => 'required|string',
             'car-number'        => 'required|numeric',
+            'sequence-number'    => 'required|numeric',
             'driver-type-id'    => 'required|numeric',
             'license_img'       => 'nullable|mimes:jpeg,jpg,png',
-            'car_form_img'      => 'nullable|mimes:jpeg,jpg,png',
         ]);
 
         $data = $validator->validated();
@@ -104,17 +105,17 @@ class ProfileController extends BaseController
         NewDriverInfo::create(array_merge(
             $data, $images
         ));
-        NewDriverCar::create(array_merge(
-            $data, $images
-        ));
+        // NewDriverCar::create(array_merge(
+        //     $data, $images
+        // ));
 
         auth()->user()->driverInfo->update([
             'approval'  => 2
         ]);
 
-        auth()->user()->driverCar->update([
-            'approval'  => 2
-        ]);
+        // auth()->user()->driverCar->update([
+        //     'approval'  => 2
+        // ]);
 
         return $this->sendResponse([],
             __('Your request for edit will be reviewed, and we will respond to you as soon as possible'));
