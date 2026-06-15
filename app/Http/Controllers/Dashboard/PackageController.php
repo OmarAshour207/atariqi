@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Dashboard;
 use App\Http\Controllers\Controller;
 use App\Mail\NewPackageNotificationMail;
 use App\Models\Package;
+use App\Models\PlatformEmailLog;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -29,14 +30,14 @@ class PackageController extends Controller
             });
         }
 
-        if ($request->filled('min_price')) {
-            $query->where('price_monthly', '>=', $request->min_price)
-                  ->orWhere('price_annual', '>=', $request->min_price);
+        if ($request->filled('monthly_price')) {
+            $query->where('price_monthly', '=', $request->monthly_price);
+                //   ->orWhere('price_annual', '=', $request->monthly_price);
         }
 
-        if ($request->filled('max_price')) {
-            $query->where('price_monthly', '<=', $request->max_price)
-                  ->orWhere('price_annual', '<=', $request->max_price);
+        if ($request->filled('annual_price')) {
+            $query->where('price_annual', '=', $request->annual_price);
+                //   ->orWhere('price_monthly', '<=', $request->annual_price);
         }
 
         // Filter by features
@@ -107,42 +108,33 @@ class PackageController extends Controller
             ->whereNotNull('email')
             ->get();
 
-        $emailLogId = DB::table('platform_email_log')->insertGetId([
-            'email_type' => 'new_package_notification',
-            'package_id' => $package->id,
-            'subject' => __('New Package Available'),
-            'total_recipients' => $customers->count(),
-            'sent_count' => 0,
-            'failed_count' => 0,
-            'failed_recipients' => null,
-            'details' => null,
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
-
         $sentCount = 0;
         $failedCount = 0;
-        $failedRecipients = [];
 
         foreach ($customers as $customer) {
             try {
                 Mail::to($customer->email)->send(new NewPackageNotificationMail($package, $customer));
+                PlatformEmailLog::create([
+                    'assigned_from_employee_id' => $adminId,
+                    'driver_id' => $customer->id,
+                    'driver_email' => $customer->email,
+                    'email_type' => 'new_package_notification',
+                    'status' => 'success'
+                ]);
+
                 $sentCount++;
             } catch (\Throwable $e) {
+                PlatformEmailLog::create([
+                    'assigned_from_employee_id' => $adminId,
+                    'driver_id' => $customer->id,
+                    'driver_email' => $customer->email,
+                    'email_type' => 'new_package_notification',
+                    'status' => 'failed',
+                    'error_message' => $e->getMessage()
+                ]);
                 $failedCount++;
-                $failedRecipients[] = $customer->email;
             }
         }
-
-        DB::table('platform_email_log')->where('id', $emailLogId)->update([
-            'sent_count' => $sentCount,
-            'failed_count' => $failedCount,
-            'failed_recipients' => $failedRecipients ? json_encode($failedRecipients) : null,
-            'details' => $failedCount > 0
-                ? __('Some emails failed to send to customers.')
-                : __('All notification emails were sent successfully.'),
-            'updated_at' => now(),
-        ]);
 
         $message = __('Package created successfully.');
         if ($failedCount > 0) {
@@ -169,16 +161,79 @@ class PackageController extends Controller
             'features.*' => 'exists:features,id'
         ]);
 
-        $package->update($request->only(['name_ar', 'name_en', 'price_monthly', 'price_annual', 'status']));
+        $adminId = auth()->guard('admin')->id();
+        $oldPackageData = $package->only(['name_ar', 'name_en', 'price_monthly', 'price_annual', 'status']);
 
-        // Sync features if provided
-        if ($request->has('features')) {
-            $package->features()->sync($request->features);
-        } else {
-            $package->features()->detach();
+        DB::beginTransaction();
+        try {
+            $package->update($request->only(['name_ar', 'name_en', 'price_monthly', 'price_annual', 'status']));
+
+            if ($request->has('features')) {
+                $package->features()->sync($request->features);
+            } else {
+                $package->features()->detach();
+            }
+
+            DB::table('subscription_employee_log')->insert([
+                'employee_id' => $adminId,
+                'package_id' => $package->id,
+                'action_type' => 'updated',
+                'description' => __('Package updated by employee.'),
+                'payload' => json_encode([
+                    'old' => $oldPackageData,
+                    'new' => $package->only(['name_ar', 'name_en', 'price_monthly', 'price_annual', 'status']),
+                ]),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            DB::commit();
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return redirect()->route('packages.index')->with('error', __('Unable to update package.'));
         }
 
-        return redirect()->route('packages.index')->with('success', __('Package updated successfully.'));
+        $customers = User::where('user-type', 'passenger')
+            ->whereNotNull('email')
+            ->get();
+
+        $sentCount = 0;
+        $failedCount = 0;
+
+        foreach ($customers as $customer) {
+            try {
+                Mail::to($customer->email)->send(new NewPackageNotificationMail($package, $customer));
+
+                PlatformEmailLog::create([
+                    'assigned_from_employee_id' => $adminId,
+                    'driver_id' => $customer->id,
+                    'driver_email' => $customer->email,
+                    'email_type' => 'package_update_notification',
+                    'status' => 'sent',
+                    'error_message' => null,
+                ]);
+
+                $sentCount++;
+            } catch (\Throwable $e) {
+                PlatformEmailLog::create([
+                    'assigned_from_employee_id' => $adminId,
+                    'driver_id' => $customer->id,
+                    'driver_email' => $customer->email,
+                    'email_type' => 'package_update_notification',
+                    'status' => 'failed',
+                    'error_message' => $e->getMessage(),
+                ]);
+
+                $failedCount++;
+            }
+        }
+
+        $message = __('Package updated successfully.');
+        if ($failedCount > 0) {
+            $message .= ' ' . __(':count emails failed to send.', ['count' => $failedCount]);
+        }
+
+        return redirect()->route('packages.index')->with('success', $message);
     }
 
     public function destroy(Package $package)

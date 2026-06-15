@@ -80,63 +80,50 @@
             <!-- Filters -->
             <div class="card mb-3">
                 <div class="card-body">
-                    <form method="GET" action="{{ route('packages.index') }}" class="row">
-                        <div class="col-md-3">
-                            <div class="form-group">
-                                <label for="name">{{ __('Package Name') }}</label>
-                                <input type="text" class="form-control" id="name" name="name" value="{{ request('name') }}" placeholder="{{ __('Search by name...') }}">
-                            </div>
-                        </div>
-                        <div class="col-md-2">
-                            <div class="form-group">
-                                <label for="status">{{ __('Status') }}</label>
-                                <select class="form-control" id="status" name="status">
-                                    <option value="">{{ __('All Status') }}</option>
-                                    <option value="0" {{ request('status') == '0' ? 'selected' : '' }}>{{ __('Free') }}</option>
-                                    <option value="1" {{ request('status') == '1' ? 'selected' : '' }}>{{ __('Coming Soon') }}</option>
-                                    <option value="2" {{ request('status') == '2' ? 'selected' : '' }}>{{ __('New') }}</option>
-                                    <option value="3" {{ request('status') == '3' ? 'selected' : '' }}>{{ __('Discount') }}</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-2">
-                            <div class="form-group">
-                                <label for="min_price">{{ __('Min Price') }}</label>
-                                <input type="number" step="0.01" class="form-control" id="min_price" name="min_price" value="{{ request('min_price') }}" placeholder="0.00">
-                            </div>
-                        </div>
-                        <div class="col-md-2">
-                            <div class="form-group">
-                                <label for="has_features">{{ __('Has Features') }}</label>
-                                <select class="form-control" id="has_features" name="has_features">
-                                    <option value="">{{ __('All') }}</option>
-                                    <option value="1" {{ request('has_features') == '1' ? 'selected' : '' }}>{{ __('With Features') }}</option>
-                                    <option value="0" {{ request('has_features') == '0' ? 'selected' : '' }}>{{ __('Without Features') }}</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-2">
-                            <div class="form-group">
-                                <label for="sort_by">{{ __('Sort By') }}</label>
-                                <select class="form-control" id="sort_by" name="sort_by">
-                                    <option value="created_at" {{ request('sort_by', 'created_at') == 'created_at' ? 'selected' : '' }}>{{ __('Created Date') }}</option>
-                                    <option value="name_en" {{ request('sort_by') == 'name_en' ? 'selected' : '' }}>{{ __('Name (EN)') }}</option>
-                                    <option value="price_monthly" {{ request('sort_by') == 'price_monthly' ? 'selected' : '' }}>{{ __('Monthly Price') }}</option>
-                                    <option value="price_annual" {{ request('sort_by') == 'price_annual' ? 'selected' : '' }}>{{ __('Annual Price') }}</option>
-                                    <option value="status" {{ request('sort_by') == 'status' ? 'selected' : '' }}>{{ __('Status') }}</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-1">
-                            <div class="form-group">
-                                <label>&nbsp;</label>
-                                <div>
-                                    <button type="submit" class="btn btn-primary btn-block">{{ __('Filter') }}</button>
+                    <form method="GET" action="{{ route('packages.index') }}">
+                        <div class="row">
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label for="name">{{ __('Package Name') }}</label>
+                                    <input type="text" class="form-control" id="name" name="name" value="{{ request('name') }}" placeholder="{{ __('Search by name...') }}">
                                 </div>
                             </div>
-                        </div>
-                        <div class="col-md-12">
-                            <a href="{{ route('packages.index') }}" class="btn btn-secondary">{{ __('Clear Filters') }}</a>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label for="status">{{ __('Status') }}</label>
+                                    <select class="form-control" id="status" name="status">
+                                        <option value="">{{ __('All Status') }}</option>
+                                        <option value="0" {{ request('status') == '0' ? 'selected' : '' }}>{{ __('Free') }}</option>
+                                        <option value="1" {{ request('status') == '1' ? 'selected' : '' }}>{{ __('Coming Soon') }}</option>
+                                        <option value="2" {{ request('status') == '2' ? 'selected' : '' }}>{{ __('New') }}</option>
+                                        <option value="3" {{ request('status') == '3' ? 'selected' : '' }}>{{ __('Discount') }}</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label for="monthly_price">{{ __('Monthly Price') }}</label>
+                                    <input type="number" step="0.01" class="form-control" id="monthly_price" name="monthly_price" value="{{ request('monthly_price') }}" placeholder="0.00">
+                                </div>
+                            </div>
+
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label for="annual_price">{{ __('Annual Price') }}</label>
+                                    <input type="number" step="0.01" class="form-control" id="annual_price" name="annual_price" value="{{ request('annual_price') }}" placeholder="0.00">
+                                </div>
+                            </div>
+
+                            <div class="col-md-2 d-flex align-items-end">
+                                <div class="form-group w-100">
+                                    <label>&nbsp;</label>
+                                    <div class="d-flex">
+                                        <button type="submit" class="btn btn-primary mr-2">{{ __('Filter') }}</button>
+                                        <a href="{{ route('packages.index') }}" class="btn btn-secondary">{{ __('Clear Filters') }}</a>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </form>
                 </div>
