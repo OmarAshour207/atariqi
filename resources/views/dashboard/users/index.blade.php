@@ -3,8 +3,9 @@
 @section('title', 'إدارة المستخدمين')
 
 @section('content')
-<div class="container-fluid">
-    <div class="row">
+<div class="mdk-drawer-layout__content page">
+    <div class="container-fluid">
+        <div class="row">
         <div class="col-12">
             <div class="card">
                 <div class="card-header">
@@ -17,19 +18,20 @@
                 </div>
                 <div class="card-body">
                     <!-- Search Filters -->
-                    <div class="row mb-3">
-                        <div class="col-md-12">
-                            <form method="GET" action="{{ route('users.index') }}" class="form-inline">
-                                <div class="row">
-                                    <div class="col-md-3">
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <form method="GET" action="{{ route('users.index') }}" >
+                                <div class="row align-items-end">
+
+                                    <div class="col-md-2">
                                         <div class="form-group">
-                                            <label for="name">البحث بالاسم أو البريد الإلكتروني</label>
-                                            <input type="text" name="name" id="name" class="form-control" value="{{ request('name') }}" placeholder="الاسم أو البريد الإلكتروني">
+                                            <label for="name">البحث</label>
+                                            <input type="text" name="name" id="name" class="form-control" value="{{ request('name') }}" placeholder="الاسم...">
                                         </div>
                                     </div>
                                     <div class="col-md-2">
                                         <div class="form-group">
-                                            <label for="phone">رقم الهاتف</label>
+                                            <label for="phone">الهاتف</label>
                                             <input type="text" name="phone" id="phone" class="form-control" value="{{ request('phone') }}" placeholder="رقم الهاتف">
                                         </div>
                                     </div>
@@ -69,34 +71,31 @@
                                             </select>
                                         </div>
                                     </div>
-                                    <div class="col-md-1">
-                                        <div class="form-group">
-                                            <label>&nbsp;</label>
-                                            <button type="submit" class="btn btn-primary form-control">
-                                                <i class="fas fa-search"></i> بحث
-                                            </button>
-                                        </div>
-                                    </div>
+
                                 </div>
-                                <div class="row mt-2">
-                                    <div class="col-md-3">
+
+
+                                <div class="row align-items-end">
+
+                                    <div class="col-md-2">
                                         <div class="form-group">
-                                            <label for="date_from">تاريخ التسجيل من</label>
+                                            <label for="date_from">من التاريخ</label>
                                             <input type="date" name="date_from" id="date_from" class="form-control" value="{{ request('date_from') }}">
                                         </div>
                                     </div>
-                                    <div class="col-md-3">
+                                    <div class="col-md-2">
                                         <div class="form-group">
-                                            <label for="date_to">تاريخ التسجيل إلى</label>
+                                            <label for="date_to">إلى التاريخ</label>
                                             <input type="date" name="date_to" id="date_to" class="form-control" value="{{ request('date_to') }}">
                                         </div>
                                     </div>
-                                    <div class="col-md-3">
+
+                                    <div class="col-md-2">
                                         <div class="form-group">
-                                            <label>&nbsp;</label>
-                                            <a href="{{ route('users.index') }}" class="btn btn-secondary form-control">
-                                                <i class="fas fa-times"></i> مسح الفلاتر
-                                            </a>
+                                            <button type="submit" class="btn btn-primary btn-sm">
+                                                <i class="fas fa-search 2x"></i>
+                                                {{ __('Search') }}
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
@@ -142,5 +141,6 @@
             </div>
         </div>
     </div>
+</div>
 </div>
 @endsection

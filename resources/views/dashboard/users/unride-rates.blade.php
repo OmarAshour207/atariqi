@@ -3,8 +3,9 @@
 @section('title', 'تقييمات الرحلات غير المستخدمة')
 
 @section('content')
-<div class="container-fluid">
-    <div class="row">
+<div class="mdk-drawer-layout__content page">
+    <div class="container-fluid">
+        <div class="row">
         <div class="col-12">
             <div class="card">
                 <div class="card-header">
@@ -24,7 +25,7 @@
                             <div class="card bg-success text-white">
                                 <div class="card-body text-center">
                                     <h4>{{ $stats['immediate_count'] }}</h4>
-                                    <p>رحلات فورية</p>
+                                    <p>رحلات لحظيه</p>
                                 </div>
                             </div>
                         </div>
@@ -99,6 +100,7 @@
             </div>
         </div>
     </div>
+</div>
 </div>
 
 <style>

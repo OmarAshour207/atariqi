@@ -218,4 +218,68 @@ class UserController extends Controller
 
         return view('dashboard.users.unride-rates', compact('allUnrideRates', 'stats'));
     }
+
+    public function complaints(User $passenger)
+    {
+        // Get immediate unride rates
+        $immediateUnride = ImmediateUnrideRate::with(['ride.driver', 'ride.passenger'])
+            ->whereHas('ride', function($query) use ($passenger) {
+                $query->where('passenger-id', $passenger->id);
+            })
+            ->get();
+
+        $immediateUnrideRates = $immediateUnride
+            ->map(function($rate) {
+                $rate->trip_type = 'immediate';
+                $rate->sort_date = $rate->ride->{'date-of-add'} ?? now();
+                return $rate;
+            });
+
+        // Get daily unride rates
+        $dailyUnride = DayUnrideRate::with(['ride.driver', 'ride.passenger'])
+            ->whereHas('ride', function($query) use ($passenger) {
+                $query->where('passenger-id', $passenger->id);
+            })
+            ->get();
+
+            // dd($dailyUnride);
+
+        $dailyUnrideRates = $dailyUnride->map(function($rate) {
+                $rate->trip_type = 'daily';
+                $rate->sort_date = $rate->ride->{'date-of-add'} ?? now();
+                return $rate;
+            });
+
+        // Get weekly unride rates
+        $weeklyUnride = WeekUnrideRate::with(['ride.driver', 'ride.passenger'])
+            ->whereHas('ride', function($query) use ($passenger) {
+                $query->where('passenger-id', $passenger->id);
+            })
+            ->get();
+
+        $weeklyUnrideRates = $weeklyUnride->map(function($rate) {
+                $rate->trip_type = 'weekly';
+                $rate->sort_date = $rate->ride->{'date-of-add'} ?? now();
+                return $rate;
+            });
+
+        // Combine all unride rates
+        $allUnrideRates = $immediateUnrideRates->concat($dailyUnrideRates)->concat($weeklyUnrideRates)
+            ->sortByDesc('sort_date');
+
+        // Calculate statistics
+        $stats = [
+            'total_complaints_rates' => $allUnrideRates->count(),
+            'immediate_count' => $immediateUnrideRates->count(),
+            'daily_count' => $dailyUnrideRates->count(),
+            'weekly_count' => $weeklyUnrideRates->count(),
+            'average_rating' => $allUnrideRates->where('rate', '>', 0)->avg('rate') ?? 0,
+
+            'dailyTrips' => $dailyUnride,
+            'weeklyTrips' => $weeklyUnride,
+            'immediateTrips' => $immediateUnride,
+        ];
+
+        return view('dashboard.users.complaints', compact('allUnrideRates', 'stats'));
+    }
 }

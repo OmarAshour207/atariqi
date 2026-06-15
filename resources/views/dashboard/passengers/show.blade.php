@@ -160,7 +160,7 @@
                             <div class="alert alert-info">
                                 <h6>{{ __('Total Trips') }}</h6>
                                 <h3>{{ $passenger->total_trips }}</h3>
-                                <small>Immediate: {{ $passenger->immediate_trips_count }}, Daily: {{ $passenger->daily_trips_count }}, Weekly: {{ $passenger->weekly_trips_count }}</small>
+                                <small>{{ __('Immediate') }}: {{ $passenger->immediate_trips_count }}, {{ __('Daily') }}: {{ $passenger->daily_trips_count }}, {{ __('Weekly') }}: {{ $passenger->weekly_trips_count }}</small>
                             </div>
 
                             <form action="{{ route('passengers.updateApproval', $passenger->id) }}" method="post">
@@ -168,13 +168,13 @@
                                 @method('post')
                                 <div class="form-group">
                                     <label for="approval">{{ __('Update Status') }}</label>
-                                    <select name="approval" id="approval" class="form-control">
+                                    <select name="approval" id="approval" class="form-control" disabled>
                                         <option value="1" {{ $passenger->approval == 1 ? 'selected' : '' }}>{{ __('Approve') }}</option>
                                         <option value="2" {{ $passenger->approval == 2 ? 'selected' : '' }}>{{ __('Pending Review') }}</option>
                                         <option value="3" {{ $passenger->approval == 3 ? 'selected' : '' }}>{{ __('Ban') }}</option>
                                     </select>
                                 </div>
-                                <button type="submit" class="btn btn-primary btn-block">{{ __('Update Status') }}</button>
+                                <!-- <button type="submit" class="btn btn-primary btn-block">{{ __('Update Status') }}</button> -->
                             </form>
                         </div>
                     </div>
@@ -214,15 +214,11 @@
                             <a href="{{ route('passengers.trips', $passenger->id) }}" class="btn btn-primary">
                                 <i class="fas fa-route"></i> {{ __('View Trips') }}
                             </a>
-                            <a href="{{ route('passengers.all-trips') }}" class="btn btn-info">
-                                <i class="fas fa-list"></i> {{ __('All Passenger Trips') }}
-                            </a>
-                            <a href="{{ route('passengers.profile-update-requests') }}" class="btn btn-secondary">
-                                <i class="fas fa-user-edit"></i> {{ __('Profile Update Requests') }}
-                            </a>
-                            <button type="button" class="btn btn-warning" onclick="alert('{{ __('Complaints feature to be implemented') }}')">
+
+                            <a href="{{ route('passengers.complaints', $passenger->id) }}" class="btn btn-warning">
                                 <i class="fas fa-exclamation-circle"></i> {{ __('View Complaints') }}
-                            </button>
+                            </a>
+
                             @if($passenger->passengerRate && $passenger->passengerRate->rate < 2)
                                 <form action="{{ route('passengers.ban', $passenger->id) }}" method="post" class="d-inline-block" onsubmit="return confirm('{{ __('Are you sure you want to ban this passenger?') }}');">
                                     @csrf

@@ -28,21 +28,23 @@
             <!-- Filters -->
             <div class="card mb-3">
                 <div class="card-body">
-                    <form method="GET" action="{{ route('passengers.index') }}" class="row">
-                        <div class="col-md-3">
-                            <div class="form-group">
+                    <form method="GET" action="{{ route('passengers.index') }}" class="row align-items-end">
+                        <div class="col-md-2">
+                            <div class="form-group mb-0">
                                 <label for="name">{{ __('Name/Email') }}</label>
                                 <input type="text" class="form-control" id="name" name="name" value="{{ request('name') }}" placeholder="{{ __('Search...') }}">
                             </div>
                         </div>
+
                         <div class="col-md-2">
-                            <div class="form-group">
+                            <div class="form-group mb-0">
                                 <label for="phone">{{ __('Phone') }}</label>
                                 <input type="text" class="form-control" id="phone" name="phone" value="{{ request('phone') }}" placeholder="{{ __('Phone number...') }}">
                             </div>
                         </div>
+
                         <div class="col-md-2">
-                            <div class="form-group">
+                            <div class="form-group mb-0">
                                 <label for="university_id">{{ __('University') }}</label>
                                 <select class="form-control" id="university_id" name="university_id">
                                     <option value="">{{ __('All') }}</option>
@@ -54,8 +56,9 @@
                                 </select>
                             </div>
                         </div>
+
                         <div class="col-md-2">
-                            <div class="form-group">
+                            <div class="form-group mb-0">
                                 <label for="stage_id">{{ __('Stage') }}</label>
                                 <select class="form-control" id="stage_id" name="stage_id">
                                     <option value="">{{ __('All') }}</option>
@@ -67,8 +70,9 @@
                                 </select>
                             </div>
                         </div>
+
                         <div class="col-md-2">
-                            <div class="form-group">
+                            <div class="form-group mb-0">
                                 <label for="rating_filter">{{ __('Rating') }}</label>
                                 <select class="form-control" id="rating_filter" name="rating_filter">
                                     <option value="">{{ __('All') }}</option>
@@ -77,14 +81,12 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="col-md-1">
-                            <div class="form-group">
-                                <label>&nbsp;</label>
-                                <button type="submit" class="btn btn-primary btn-block">{{ __('Filter') }}</button>
+
+                        <div class="col-md-2">
+                            <div class="form-group mb-0 d-flex flex-wrap gap-2">
+                                <button type="submit" class="btn btn-primary">{{ __('Filter') }}</button>
+                                <a href="{{ route('passengers.index') }}" class="btn btn-secondary">{{ __('Clear') }}</a>
                             </div>
-                        </div>
-                        <div class="col-md-12 mt-2">
-                            <a href="{{ route('passengers.index') }}" class="btn btn-secondary">{{ __('Clear') }}</a>
                         </div>
                     </form>
                 </div>

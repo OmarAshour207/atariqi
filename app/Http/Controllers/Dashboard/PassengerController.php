@@ -18,8 +18,7 @@ class PassengerController extends Controller
     public function index(Request $request)
     {
         $query = User::with(['callingKey', 'university', 'stage', 'passengerRate'])
-            ->where('user-type', 'passenger')
-            ->where('approval', 1); // Only approved passengers
+            ->where('user-type', 'passenger');
 
         // Filter by name
         if ($request->filled('name')) {

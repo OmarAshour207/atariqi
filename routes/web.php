@@ -70,6 +70,8 @@ Route::middleware(['is_admin'])->prefix('dashboard')->group(function () {
     Route::get('user/rates', [UserController::class, 'rates'])->name('users.rates');
     Route::get('user/unride-rates', [UserController::class, 'unrideRates'])->name('users.unride-rates');
 
+    Route::get('passengers/{passenger}/complaints', [UserController::class, 'complaints'])->name('passengers.complaints');
+
     Route::Resource('users', UserController::class);
 
     Route::get('passengers', [PassengerController::class, 'index'])->name('passengers.index');
