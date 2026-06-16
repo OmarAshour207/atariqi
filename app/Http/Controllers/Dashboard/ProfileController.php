@@ -4,14 +4,10 @@ namespace App\Http\Controllers\Dashboard;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Dashboard\Profile\UpdateProfileRequest;
-use App\Http\Requests\Dashboard\ChangePasswordRequest;
-use App\Traits\FileTrait;
 use Illuminate\Support\Facades\Hash;
 
 class ProfileController extends Controller
 {
-    use FileTrait;
-
     public function edit()
     {
         return view('dashboard.profile.edit');
@@ -19,24 +15,18 @@ class ProfileController extends Controller
 
     public function update(UpdateProfileRequest $request)
     {
-        $data = $request->validated();
-        $user = auth()->user();
+        $admin = auth()->guard('admin')->user();
 
-        if($request->hasFile('image')) {
-            if ($user->image) {
-                $this->removeImage($user->image);
+        if($request->has('old_password') && $request->has('new_password') && $request->has('confirm_new_password')) {
+            if(Hash::check($request->old_password, $admin->password)) {
+                $admin->update(['password' => Hash::make($request->new_password)]);
+                session()->flash('success', __('Password updated successfully!'));
+                return redirect()->back();
+            } else {
+                session()->flash('error', __('Old password is incorrect!'));
+                return redirect()->back();
             }
-            $data['image'] = $this->uploadImage($request->file('image'), 'uploads/user/images/');
         }
-
-        $user->update($data);
-        session()->flash('success', __('Data updated successfully!'));
-        return redirect()->back();
-    }
-
-    public function showChangePasswordForm()
-    {
-        return view('dashboard.profile.change_password');
     }
 
 }

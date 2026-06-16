@@ -535,5 +535,11 @@
     "Passenger Profile Update Assignment": "إسناد طلب تحديث ملف راكب",
     "A passenger profile update request has been assigned to you.": "تم إسناد طلب تحديث ملف راكب إليك.",
     "Assigned By": "تم الإسناد بواسطة",
-    "Please review the request in the dashboard.": "يرجى مراجعة الطلب في لوحة التحكم."
+    "Please review the request in the dashboard.": "يرجى مراجعة الطلب في لوحة التحكم.",
+    "Update Password": "تحديث كلمة المرور",
+    "Change Password": "تغيير كلمة المرور",
+    "Old Password": "كلمة المرور القديمة",
+    "Password updated successfully!": "تم تحديث كلمة المرور بنجاح!",
+    "Old password is incorrect!": "كلمة المرور القديمة غير صحيحة!",
+    "Profile": "الملف الشخصي"
 }

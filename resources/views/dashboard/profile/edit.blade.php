@@ -19,7 +19,7 @@
         <div class="container-fluid page__container">
 
             <div class="card card-form__body card-body">
-                <form method="post" action="{{ route('update.profile') }}" enctype="multipart/form-data">
+                <form method="post" action="{{ route('profile.update') }}" >
 
                     @method('post')
                     @csrf
@@ -30,13 +30,7 @@
                             <p><strong class="headings-color">{{ __('Profile Info') }}</strong></p>
                             <p class="text-muted">{{ __('Edit Profile') }}</p>
                         </div>
-                        <div class="col-lg-8 card-form__body card-body">
-                            <div class="form-group">
-                                <label for="name">{{ __('Full Name') }}</label>
-                                <input id="name" type="text" name="name" class="form-control" placeholder="{{ __('Full Name') }}" value="{{ old('name', $user->name) }}">
-                            </div>
-
-                        </div>
+                        
                     </div>
 
                     <div class="row no-gutters">
