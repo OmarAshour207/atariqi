@@ -488,5 +488,11 @@
     "Daily Complaints": "شكاوى الرحلات اليومية",
     "Weekly Complaints": "شكاوى الرحلات الأسبوعية",
     "Total Complaints": "إجمالي الشكاوى",
-    "Comment": "التعليق"
+    "Comment": "التعليق",
+    "Immediate Trips": "رحلات لحظية",
+    "Daily Trips": "رحلات يومية",
+    "Weekly Trips": "رحلات أسبوعية",
+    "All Passengers": "جميع الركاب",
+    "From Date": "من تاريخ",
+    "To Date": "إلى تاريخ"
 }

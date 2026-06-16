@@ -140,7 +140,7 @@
                                             {{ optional($trip->driver)->{'user-first-name'} }} {{ optional($trip->driver)->{'user-last-name'} }}
                                         </a>
                                     </td>
-                                    <td>{{ optional($trip->{'date-of-add'})->format('Y-m-d H:i') ?? '-' }}</td>
+                                    <td>{{ optional(\Carbon\Carbon::parse($trip->{'date-of-add'}))->format('Y-m-d H:i') ?? '-' }}</td>
                                     <td><span class="badge badge-info">{{ __('Immediate') }}</span></td>
                                     <td>
                                         <a href="{{ route('passengers.show', $trip->passenger->id) }}" class="btn btn-sm btn-info">{{ __('View Passenger') }}</a>
@@ -188,7 +188,7 @@
                                             {{ optional($trip->driver)->{'user-first-name'} }} {{ optional($trip->driver)->{'user-last-name'} }}
                                         </a>
                                     </td>
-                                    <td>{{ optional($trip->{'date-of-add'})->format('Y-m-d H:i') ?? '-' }}</td>
+                                    <td>{{ optional(\Carbon\Carbon::parse($trip->{'date-of-add'}))->format('Y-m-d H:i') ?? '-' }}</td>
                                     <td><span class="badge badge-success">{{ __('Daily') }}</span></td>
                                     <td>
                                         <a href="{{ route('passengers.show', $trip->passenger->id) }}" class="btn btn-sm btn-info">{{ __('View Passenger') }}</a>
@@ -236,7 +236,7 @@
                                             {{ optional($trip->driver)->{'user-first-name'} }} {{ optional($trip->driver)->{'user-last-name'} }}
                                         </a>
                                     </td>
-                                    <td>{{ optional($trip->{'date-of-add'})->format('Y-m-d H:i') ?? '-' }}</td>
+                                    <td>{{ optional(\Carbon\Carbon::parse($trip->{'date-of-add'}))->format('Y-m-d H:i') ?? '-' }}</td>
                                     <td><span class="badge badge-primary">{{ __('Weekly') }}</span></td>
                                     <td>
                                         <a href="{{ route('passengers.show', $trip->passenger->id) }}" class="btn btn-sm btn-info">{{ __('View Passenger') }}</a>
