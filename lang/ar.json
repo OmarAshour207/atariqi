@@ -496,5 +496,7 @@
     "From Date": "من تاريخ",
     "To Date": "إلى تاريخ",
     "Ban Passenger": "حظر الراكب",
-    "Are you sure you want to ban this passenger?": "هل أنت متأكد أنك تريد حظر هذا الراكب؟"
+    "Are you sure you want to ban this passenger?": "هل أنت متأكد أنك تريد حظر هذا الراكب؟",
+    "Passenger cannot be banned. Rating is not below 2.": "لا يمكن حظر الراكب. التقييم ليس أقل من 2.",
+    "Unable to ban passenger.": "غير قادر على حظر الراكب."
 }

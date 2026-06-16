@@ -18,6 +18,12 @@
         </div>
 
         <div class="container-fluid page__container">
+            @if(session('success'))
+                <div class="alert alert-success">{{ session('success') }}</div>
+            @endif
+            @if(session('error'))
+                <div class="alert alert-danger">{{ session('error') }}</div>
+            @endif
             <div class="row mb-3">
                 <div class="col-md-3">
                     <div class="card text-center">
@@ -143,13 +149,11 @@
                 </div>
             @endif
 
-            @if($stats['total_complaints_rates'] >= 5)
                 <button type="button"
                         class="btn btn-danger"
                         onclick="showBanModal()">
                     <i class="fa fa-ban"></i> {{ __('Ban Passenger') }}
                 </button>
-            @endif
 
         </div>
     </div>

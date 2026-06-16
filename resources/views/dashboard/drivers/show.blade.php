@@ -284,7 +284,7 @@
                                 <div class="col-6">
                                     <div class="form-group">
                                         <label for="driver-type"> {{ __("Driver Type") }}</label>
-                                        <select id="driver-type" name="driver-type-id" class="form-control select2">
+                                        <select id="driver-type" name="driver-type-id" class="form-control select2" disabled>
                                             <option value=""> {{ __('Driver Type') }} </option>
                                             @foreach ($driverTypes as $driverType)
                                                 <option value="{{ $driverType->id }}" {{ old('driver-type-id', $driver->driverCar ? $driver->driverCar->{"driver-type-id"} : '') == $driverType->id ? 'selected' : '' }}> {{ $driverType->{"name-ar"} }} </option>

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Resources\UserResource;
 use App\Models\Neighbour;
 use App\Models\NewUserInfo;
+use App\Models\PassengerBanned;
 use App\Models\University;
 use App\Models\User;
 use App\Models\UserLogin;
@@ -38,6 +39,12 @@ class UserController extends BaseController
             return $this->sendError(__('Validation Error.'), $validator->errors()->getMessages(), 422);
         }
 
+        $passengerBanned = PassengerBanned::where('passenger_no', $request->input('phone-no'))->first();
+
+        if($passengerBanned) {
+            return $this->sendError(__('s_userBanned'), [__('This user is banned')], 403);
+        }
+
         $data = $validator->validated();
         $data['date-of-add'] = now();
 
@@ -68,6 +75,12 @@ class UserController extends BaseController
 
         if($validator->fails()) {
             return $this->sendError(__('Validation Error.'), $validator->errors()->getMessages(), 422);
+        }
+
+        $passengerBanned = PassengerBanned::where('passenger_no', $request->input('phone-no'))->first();
+
+        if($passengerBanned) {
+            return $this->sendError(__('s_userBanned'), [__('This user is banned')], 403);
         }
 
         $phoneNumber = $validator->validated()['phone-no'];

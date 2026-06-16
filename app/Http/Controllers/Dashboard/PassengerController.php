@@ -3,15 +3,21 @@
 namespace App\Http\Controllers\Dashboard;
 
 use App\Http\Controllers\Controller;
+use App\Mail\PassengerBannedMail;
+use App\Models\PassengerBanned;
 use App\Models\User;
 use App\Models\PassengerRate;
 use App\Models\University;
 use App\Models\Stage;
 use App\Models\NewUserInfo;
+use App\Models\PassengerRequestDecision;
+use App\Models\PlatformEmailLog;
 use App\Models\SugDayDriver;
 use App\Models\SuggestionDriver;
 use App\Models\SugWeekDriver;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 
 class PassengerController extends Controller
 {
@@ -96,7 +102,7 @@ class PassengerController extends Controller
         return view('dashboard.passengers.show', compact('passenger'));
     }
 
-    public function ban(User $passenger)
+    public function ban(User $passenger, Request $request)
     {
         // Only ban if rating is less than 2
         $rating = PassengerRate::where('user-id', $passenger->id)->first();
@@ -109,11 +115,45 @@ class PassengerController extends Controller
         try {
             $rating = $passenger->passengerRate ?? PassengerRate::where('user-id', $passenger->id)->first();
 
+            DB::beginTransaction();
+            $oldApproval = $passenger->approval;
+
             $passenger->update(['approval' => 3]);
+
+            PassengerBanned::create([
+                'assigned_from_employee_id' => auth()->guard('admin')->id(),
+                'passenger_identity' => $passenger->id,
+                'passenger_no' => $passenger->{"phone-no"},
+                'note' => $request->input('ban_reason'),
+            ]);
+
+            Mail::to($passenger->email)->send(new PassengerBannedMail($passenger, $request->input('ban_reason')));
+
+            PlatformEmailLog::create([
+                'assigned_from_employee_id' => auth()->guard('admin')->id(),
+                'driver_id' => $passenger->id,
+                'driver_email' => $passenger->email,
+                'email_type' => 'ban_notification',
+                'status' => 'sent',
+                'error_message' => null
+            ]);
+
+            PassengerRequestDecision::create([
+                'user_id' => $passenger->id,
+                'action_type' => 'ban_user',
+                'old_approval' => $oldApproval,
+                'new_approval' => 3,
+                'reason' => $request->input('ban_reason'),
+                'decided_by_employee_id' => auth()->guard('admin')->id()
+            ]);
+
+            DB::commit();
 
             return redirect()->route('passengers.index')->with('success', __('Passenger has been banned successfully.'));
         } catch (\Exception $e) {
-            return redirect()->route('passengers.show', $passenger->id)
+            DB::rollBack();
+            dd($e->getMessage());
+            return redirect()->back()
                 ->with('error', __('Unable to ban passenger.'));
         }
     }
