@@ -79,6 +79,7 @@ Route::middleware(['is_admin'])->prefix('dashboard')->group(function () {
     Route::get('passengers/profile-update-requests', [PassengerController::class, 'profileUpdateRequests'])->name('passengers.profile-update-requests');
     Route::post('passengers/{passenger}/approve-profile-update', [PassengerController::class, 'approveProfileUpdate'])->name('passengers.approve-profile-update');
     Route::post('passengers/{passenger}/reject-profile-update', [PassengerController::class, 'rejectProfileUpdate'])->name('passengers.reject-profile-update');
+    Route::post('passengers/{passenger}/assign-to-admin', [PassengerController::class, 'assignProfileUpdateToAdmin'])->name('passengers.assign-to-admin');
     Route::post('passengers/{passenger}/ban', [PassengerController::class, 'ban'])->name('passengers.ban');
     Route::post('passengers/{passenger}/update-approval', [PassengerController::class, 'updateApproval'])->name('passengers.updateApproval');
 

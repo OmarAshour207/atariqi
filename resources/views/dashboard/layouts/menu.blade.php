@@ -146,12 +146,6 @@
                     </a>
                     <ul class="sidebar-submenu collapse" id="users">
                         <li class="sidebar-menu-item">
-                            <a class="sidebar-menu-button" href="{{ route('users.index') }}">
-                                <i class="fa fa-user"></i>
-                                <span class="sidebar-menu-text"> {{ __('Users Management') }}</span>
-                            </a>
-                        </li>
-                        <li class="sidebar-menu-item">
                             <a class="sidebar-menu-button" href="{{ route('passengers.index') }}">
                                 <i class="fa fa-users"></i>
                                 <span class="sidebar-menu-text"> {{ __('Passengers') }}</span>

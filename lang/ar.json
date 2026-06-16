@@ -518,5 +518,22 @@
     "Your profile update has been rejected.": "تم رفض تحديث ملفك الشخصي.",
     "Reject Profile Update": "رفض تحديث الملف الشخصي",
     "Enter the reason for rejecting this profile update": "أدخل سبب رفض تحديث الملف الشخصي",
-    "Profile update rejected successfully.": "تم رفض تحديث الملف الشخصي بنجاح."
+    "Profile update rejected successfully.": "تم رفض تحديث الملف الشخصي بنجاح.",
+    "Escalate to Management": "رفع الطلب للإدارة",
+    "Escalate": "رفع",
+    "Assign Request": "إسناد الطلب",
+    "Assign To Admin": "إسناد إلى مدير",
+    "Assignment Note": "ملاحظة الإسناد",
+    "Enter a note for this assignment": "أدخل ملاحظة لهذا الإسناد",
+    "Example: Phone number review required": "مثال: مطلوب مراجعة رقم الجوال",
+    "Select an admin": "اختر مديرًا",
+    "Please select an admin": "يرجى اختيار مدير",
+    "Please enter an assignment note": "يرجى إدخال ملاحظة الإسناد",
+    "Passenger request assigned successfully.": "تم إسناد الطلب بنجاح.",
+    "Unable to assign passenger request.": "تعذر إسناد الطلب.",
+    "Please select another admin to assign this request.": "يرجى اختيار مدير آخر لإسناد هذا الطلب.",
+    "Passenger Profile Update Assignment": "إسناد طلب تحديث ملف راكب",
+    "A passenger profile update request has been assigned to you.": "تم إسناد طلب تحديث ملف راكب إليك.",
+    "Assigned By": "تم الإسناد بواسطة",
+    "Please review the request in the dashboard.": "يرجى مراجعة الطلب في لوحة التحكم."
 }

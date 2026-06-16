@@ -109,6 +109,15 @@
                                                 <i class="fas fa-times"></i> {{ __('Reject') }}
                                             </button>
                                         </form>
+                                        <form id="assign-form-{{ $passenger->user->id }}" action="{{ route('passengers.assign-to-admin', $passenger->user->id) }}" method="post" class="d-inline-block ml-1 profile-assign-form">
+                                            @csrf
+                                            @method('post')
+                                            <input type="hidden" name="assign_note" value="">
+                                            <input type="hidden" name="assigned_admin" value="">
+                                            <button type="button" class="btn btn-sm btn-primary profile-assign-btn" data-form-id="assign-form-{{ $passenger->user->id }}">
+                                                <i class="fas fa-level-up-alt"></i> {{ __('Escalate') }}
+                                            </button>
+                                        </form>
                                     </div>
                                 </td>
                             </tr>
@@ -158,6 +167,39 @@
         </div>
     </div>
 
+    <div class="modal fade" id="profileAssignModal" tabindex="-1" role="dialog" aria-labelledby="profileAssignModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="profileAssignModalLabel">{{ __('Assign Request') }}</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="profile-assigned-admin">{{ __('Assign To Admin') }} <span class="text-danger">*</span></label>
+                        <select id="profile-assigned-admin" class="form-control">
+                            <option value="">{{ __('Select an admin') }}</option>
+                            @foreach($admins as $admin)
+                                <option value="{{ $admin->id }}">{{ $admin->name }} @if($admin->email) ({{ $admin->email }}) @endif</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="profile-assign-note">{{ __('Assignment Note') }} <span class="text-danger">*</span></label>
+                        <textarea id="profile-assign-note" class="form-control" rows="4" placeholder="{{ __('Enter a note for this assignment') }}"></textarea>
+                        <small class="form-text text-muted">{{ __('Example: Phone number review required') }}</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ __('Cancel') }}</button>
+                    <button type="button" class="btn btn-primary" id="confirm-profile-assign">{{ __('Assign Request') }}</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <style>
         .modal-backdrop {
             z-index: 9998 !important;
@@ -183,12 +225,22 @@
     <script>
         (function () {
             let activeRejectForm = null;
+            let activeAssignForm = null;
 
             document.querySelectorAll('.profile-reject-btn').forEach(function (button) {
                 button.addEventListener('click', function () {
                     activeRejectForm = document.getElementById(button.getAttribute('data-form-id'));
                     document.getElementById('profile-reject-reason').value = '';
                     $('#profileRejectModal').modal('show');
+                });
+            });
+
+            document.querySelectorAll('.profile-assign-btn').forEach(function (button) {
+                button.addEventListener('click', function () {
+                    activeAssignForm = document.getElementById(button.getAttribute('data-form-id'));
+                    document.getElementById('profile-assign-note').value = '';
+                    document.getElementById('profile-assigned-admin').value = '';
+                    $('#profileAssignModal').modal('show');
                 });
             });
 
@@ -206,6 +258,29 @@
 
                 activeRejectForm.querySelector('input[name="rejection_reason"]').value = reason;
                 activeRejectForm.submit();
+            });
+
+            document.getElementById('confirm-profile-assign').addEventListener('click', function () {
+                const note = document.getElementById('profile-assign-note').value.trim();
+                const assignedAdmin = document.getElementById('profile-assigned-admin').value;
+
+                if (!assignedAdmin) {
+                    alert('{{ __('Please select an admin') }}');
+                    return;
+                }
+
+                if (!note) {
+                    alert('{{ __('Please enter an assignment note') }}');
+                    return;
+                }
+
+                if (!activeAssignForm) {
+                    return;
+                }
+
+                activeAssignForm.querySelector('input[name="assign_note"]').value = note;
+                activeAssignForm.querySelector('input[name="assigned_admin"]').value = assignedAdmin;
+                activeAssignForm.submit();
             });
         })();
     </script>

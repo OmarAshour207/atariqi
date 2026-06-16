@@ -208,6 +208,9 @@
                                                 <i class="fas fa-times"></i> {{ __('Reject Update') }}
                                             </button>
                                         </form>
+                                        <button type="button" class="btn btn-sm btn-primary ml-1" id="open-profile-assign-modal">
+                                            <i class="fas fa-level-up-alt"></i> {{ __('Escalate to Management') }}
+                                        </button>
                                     </div>
                                 </div>
                             @endif
@@ -262,6 +265,43 @@
         </div>
     </div>
 
+    <div class="modal fade" id="profileAssignModal" tabindex="-1" role="dialog" aria-labelledby="profileAssignModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <form id="assign-profile-form" action="{{ route('passengers.assign-to-admin', $passenger->id) }}" method="post">
+                    @csrf
+                    @method('post')
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="profileAssignModalLabel">{{ __('Assign Request') }}</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="assigned-admin">{{ __('Assign To Admin') }} <span class="text-danger">*</span></label>
+                            <select id="assigned-admin" name="assigned_admin" class="form-control" required>
+                                <option value="">{{ __('Select an admin') }}</option>
+                                @foreach($admins as $admin)
+                                    <option value="{{ $admin->id }}">{{ $admin->name }} @if($admin->email) ({{ $admin->email }}) @endif</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="assign-note">{{ __('Assignment Note') }} <span class="text-danger">*</span></label>
+                            <textarea id="assign-note" name="assign_note" class="form-control" rows="4" placeholder="{{ __('Enter a note for this assignment') }}" required></textarea>
+                            <small class="form-text text-muted">{{ __('Example: Phone number review required') }}</small>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ __('Cancel') }}</button>
+                        <button type="button" class="btn btn-primary" id="confirm-profile-assign">{{ __('Assign Request') }}</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <style>
         .modal-backdrop {
             z-index: 9998 !important;
@@ -309,6 +349,34 @@
                 rejectForm.querySelector('input[name="rejection_reason"]').value = reason;
                 rejectForm.submit();
             });
+
+            const assignButton = document.getElementById('open-profile-assign-modal');
+            const assignForm = document.getElementById('assign-profile-form');
+
+            if (assignButton && assignForm) {
+                assignButton.addEventListener('click', function () {
+                    document.getElementById('assign-note').value = '';
+                    document.getElementById('assigned-admin').value = '';
+                    $('#profileAssignModal').modal('show');
+                });
+
+                document.getElementById('confirm-profile-assign').addEventListener('click', function () {
+                    const note = document.getElementById('assign-note').value.trim();
+                    const assignedAdmin = document.getElementById('assigned-admin').value;
+
+                    if (!assignedAdmin) {
+                        alert('{{ __('Please select an admin') }}');
+                        return;
+                    }
+
+                    if (!note) {
+                        alert('{{ __('Please enter an assignment note') }}');
+                        return;
+                    }
+
+                    assignForm.submit();
+                });
+            }
         })();
     </script>
 @endpush

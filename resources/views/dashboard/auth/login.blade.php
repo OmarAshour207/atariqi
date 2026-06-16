@@ -28,11 +28,11 @@
       <div class="mb-3">
         <label class="form-label">البريد الوظيفي</label>
         <div class="input-group">
-          <input type="email" class="form-control" name="email" required placeholder="username@altariqi.com">
+          <input type="email" class="form-control" name="email" required placeholder="username@atariqi.com">
           <span class="input-group-text">@company</span>
             <div class="invalid-feedback">أدخل بريدًا صحيحًا ضمن نطاق الدومين.</div>
         </div>
-        <div class="form-text">لن يُقبل سوى البريد المنتهي بدومين الشركة (مثلًا: @altariqi.com).</div>
+        <div class="form-text">لن يُقبل سوى البريد المنتهي بدومين الشركة (مثلًا: @ata.com).</div>
       </div>
 
       <div class="mb-2">

@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Mail\PassengerBannedMail;
 use App\Mail\PassengerProfileUpdateAcceptedMail;
 use App\Mail\PassengerProfileUpdateRejectedMail;
+use App\Mail\PassengerRequestAssignmentMail;
+use App\Models\Admin;
 use App\Models\PassengerBanned;
 use App\Models\User;
 use App\Models\PassengerRate;
@@ -13,6 +15,7 @@ use App\Models\University;
 use App\Models\Stage;
 use App\Models\NewUserInfo;
 use App\Models\PassengerRequestDecision;
+use App\Models\PassengerRequestAssignment;
 use App\Models\PlatformEmailLog;
 use App\Models\SugDayDriver;
 use App\Models\SuggestionDriver;
@@ -101,7 +104,9 @@ class PassengerController extends Controller
         }
 
         $passenger->load(['callingKey', 'university', 'stage', 'passengerRate', 'newUserInfo']);
-        return view('dashboard.passengers.show', compact('passenger'));
+        $admins = Admin::where('id', '!=', auth()->guard('admin')->id())->get();
+
+        return view('dashboard.passengers.show', compact('passenger', 'admins'));
     }
 
     public function ban(User $passenger, Request $request)
@@ -294,7 +299,9 @@ class PassengerController extends Controller
             })
             ->paginate(20);
 
-        return view('dashboard.passengers.profile-update-requests', compact('passengers'));
+        $admins = Admin::where('id', '!=', auth()->guard('admin')->id())->get();
+
+        return view('dashboard.passengers.profile-update-requests', compact('passengers', 'admins'));
     }
 
     public function approveProfileUpdate(User $passenger)
@@ -411,6 +418,53 @@ class PassengerController extends Controller
 
             return redirect()->back()
                 ->with('error', __('Unable to reject profile update.'));
+        }
+    }
+
+    public function assignProfileUpdateToAdmin(Request $request, User $passenger)
+    {
+        $request->validate([
+            'assign_note' => ['required', 'string', 'max:1000'],
+            'assigned_admin' => ['required', 'exists:admins,id'],
+        ]);
+
+        if ($passenger->{'user-type'} !== 'passenger' || $passenger->approval !== 2 || !$passenger->newUserInfo) {
+            return redirect()->back()
+                ->with('error', __('No pending profile update found for this passenger.'));
+        }
+
+        $assignedAdmin = Admin::findOrFail($request->input('assigned_admin'));
+        $assignedBy = auth()->guard('admin')->user();
+
+        if ($assignedAdmin->id === $assignedBy->id) {
+            return redirect()->back()
+                ->with('error', __('Please select another admin to assign this request.'));
+        }
+
+        try {
+            DB::beginTransaction();
+
+            PassengerRequestAssignment::create([
+                'user_id' => $passenger->id,
+                'assigned_from_employee_id' => $assignedBy->id,
+                'assigned_to_employee_id' => $assignedAdmin->id,
+                'note' => $request->input('assign_note'),
+                'status' => 'assigned',
+            ]);
+
+            Mail::to($assignedAdmin->email)->send(
+                new PassengerRequestAssignmentMail($assignedAdmin, $passenger, $request->input('assign_note'), $assignedBy)
+            );
+
+            DB::commit();
+
+            return redirect()->back()
+                ->with('success', __('Passenger request assigned successfully.'));
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return redirect()->back()
+                ->with('error', __('Unable to assign passenger request.'));
         }
     }
 }

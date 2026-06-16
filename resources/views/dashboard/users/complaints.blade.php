@@ -149,11 +149,13 @@
                 </div>
             @endif
 
+            @if ($stats['total_complaints_rates'] >= 5)
                 <button type="button"
                         class="btn btn-danger"
                         onclick="showBanModal()">
                     <i class="fa fa-ban"></i> {{ __('Ban Passenger') }}
                 </button>
+            @endif
 
         </div>
     </div>
