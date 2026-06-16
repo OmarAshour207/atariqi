@@ -278,6 +278,7 @@ class UserController extends Controller
             'dailyTrips' => $dailyUnride,
             'weeklyTrips' => $weeklyUnride,
             'immediateTrips' => $immediateUnride,
+            'passenger' => $passenger,
         ];
 
         return view('dashboard.users.complaints', compact('allUnrideRates', 'stats'));

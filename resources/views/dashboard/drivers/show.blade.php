@@ -19,11 +19,13 @@
         <div class="container-fluid page__container">
 
 
+            @if ($banned)
                 <div class="alert alert-warning">
                     <strong>
                         {{ __('Warning: This driver is banned before!') }}:
                     </strong><br> {{ __('Reason') }}: {{ $banned?->note }} <br>
                 </div>
+            @endif
 
             <div class="card card-form__body card-body">
                 <form method="post" action="{{ route('drivers.updateStatus', $driver->id) }}" class="submit-form">

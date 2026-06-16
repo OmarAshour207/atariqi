@@ -494,5 +494,7 @@
     "Weekly Trips": "رحلات أسبوعية",
     "All Passengers": "جميع الركاب",
     "From Date": "من تاريخ",
-    "To Date": "إلى تاريخ"
+    "To Date": "إلى تاريخ",
+    "Ban Passenger": "حظر الراكب",
+    "Are you sure you want to ban this passenger?": "هل أنت متأكد أنك تريد حظر هذا الراكب؟"
 }
