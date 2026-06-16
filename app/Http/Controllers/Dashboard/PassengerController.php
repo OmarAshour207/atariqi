@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Dashboard;
 
 use App\Http\Controllers\Controller;
 use App\Mail\PassengerBannedMail;
+use App\Mail\PassengerProfileUpdateAcceptedMail;
+use App\Mail\PassengerProfileUpdateRejectedMail;
 use App\Models\PassengerBanned;
 use App\Models\User;
 use App\Models\PassengerRate;
@@ -281,11 +283,15 @@ class PassengerController extends Controller
 
     public function profileUpdateRequests()
     {
-        // Get all passengers with approval = 2 (pending review)
-        $passengers = User::with(['callingKey', 'university', 'stage', 'newUserInfo'])
-            ->where('user-type', 'passenger')
-            ->where('approval', 2)
-            ->whereHas('newUserInfo') // Only passengers who have new profile data
+        // Get all newUserInfo entries for passengers pending review
+        $passengers = \App\Models\NewUserInfo::with([
+                'user.callingKey',
+                'user.university',
+                'user.stage'
+            ])
+            ->whereHas('user', function($q) {
+                $q->where('user-type', 'passenger')->where('approval', 2);
+            })
             ->paginate(20);
 
         return view('dashboard.passengers.profile-update-requests', compact('passengers'));
@@ -300,7 +306,9 @@ class PassengerController extends Controller
         }
 
         try {
-            // Update passenger with new information
+            DB::beginTransaction();
+
+            $oldApproval = $passenger->approval;
             $newInfo = $passenger->newUserInfo;
 
             $passenger->update([
@@ -311,23 +319,50 @@ class PassengerController extends Controller
                 'call-key-id' => $newInfo->{'call-key-id'},
                 'university-id' => $newInfo->{'university-id'},
                 'user-stage-id' => $newInfo->{'user-stage-id'},
-                'approval' => 1, // Set back to approved
+                'approval' => 1,
                 'date-of-edit' => now()
             ]);
 
-            // Delete the new user info record
             $newInfo->delete();
+
+            Mail::to($passenger->email)->send(new PassengerProfileUpdateAcceptedMail($passenger));
+
+            PlatformEmailLog::create([
+                'assigned_from_employee_id' => auth()->guard('admin')->id(),
+                'driver_id' => $passenger->id,
+                'driver_email' => $passenger->email,
+                'email_type' => 'profile_update_approved',
+                'status' => 'sent',
+                'error_message' => null,
+            ]);
+
+            PassengerRequestDecision::create([
+                'user_id' => $passenger->id,
+                'action_type' => 'approve_profile_update',
+                'old_approval' => $oldApproval,
+                'new_approval' => 1,
+                'reason' => __('Profile update approved'),
+                'decided_by_employee_id' => auth()->guard('admin')->id(),
+            ]);
+
+            DB::commit();
 
             return redirect()->route('passengers.profile-update-requests')
                 ->with('success', __('Profile update approved successfully.'));
         } catch (\Exception $e) {
+            DB::rollBack();
+
             return redirect()->route('passengers.show', $passenger->id)
                 ->with('error', __('Unable to approve profile update.'));
         }
     }
 
-    public function rejectProfileUpdate(User $passenger)
+    public function rejectProfileUpdate(Request $request, User $passenger)
     {
+        $request->validate([
+            'rejection_reason' => 'required|string|max:1000',
+        ]);
+
         // Check if passenger has pending profile update
         if ($passenger->approval !== 2 || !$passenger->newUserInfo) {
             return redirect()->route('passengers.show', $passenger->id)
@@ -335,18 +370,46 @@ class PassengerController extends Controller
         }
 
         try {
-            // Delete the new user info record and set approval back to 1
+            DB::beginTransaction();
+
+            $oldApproval = $passenger->approval;
+            $rejectionReason = $request->input('rejection_reason');
+
             $passenger->newUserInfo->delete();
 
             $passenger->update([
-                'approval' => 1, // Set back to approved
+                'approval' => 1,
                 'date-of-edit' => now()
             ]);
+
+            Mail::to($passenger->email)->send(new PassengerProfileUpdateRejectedMail($passenger, $rejectionReason));
+
+            PlatformEmailLog::create([
+                'assigned_from_employee_id' => auth()->guard('admin')->id(),
+                'driver_id' => $passenger->id,
+                'driver_email' => $passenger->email,
+                'email_type' => 'profile_update_rejected',
+                'status' => 'sent',
+                'error_message' => null,
+            ]);
+
+            PassengerRequestDecision::create([
+                'user_id' => $passenger->id,
+                'action_type' => 'reject_profile_update',
+                'old_approval' => $oldApproval,
+                'new_approval' => 1,
+                'reason' => $rejectionReason,
+                'decided_by_employee_id' => auth()->guard('admin')->id(),
+            ]);
+
+            DB::commit();
 
             return redirect()->route('passengers.profile-update-requests')
                 ->with('success', __('Profile update rejected successfully.'));
         } catch (\Exception $e) {
-            return redirect()->route('passengers.show', $passenger->id)
+            DB::rollBack();
+
+            return redirect()->back()
                 ->with('error', __('Unable to reject profile update.'));
         }
     }

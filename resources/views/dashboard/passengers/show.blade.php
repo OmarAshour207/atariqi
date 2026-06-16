@@ -200,10 +200,11 @@
                                                 <i class="fas fa-check"></i> {{ __('Approve Update') }}
                                             </button>
                                         </form>
-                                        <form action="{{ route('passengers.reject-profile-update', $passenger->id) }}" method="post" class="d-inline-block ml-1">
+                                        <form id="reject-profile-form" action="{{ route('passengers.reject-profile-update', $passenger->id) }}" method="post" class="d-inline-block ml-1">
                                             @csrf
                                             @method('post')
-                                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('{{ __('Are you sure you want to reject this profile update?') }}');">
+                                            <input type="hidden" name="rejection_reason" value="">
+                                            <button type="button" class="btn btn-sm btn-danger" id="open-profile-reject-modal">
                                                 <i class="fas fa-times"></i> {{ __('Reject Update') }}
                                             </button>
                                         </form>
@@ -237,4 +238,77 @@
             </div>
         </div>
     </div>
+
+    <div class="modal fade" id="profileRejectModal" tabindex="-1" role="dialog" aria-labelledby="profileRejectModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="profileRejectModalLabel">{{ __('Reject Profile Update') }}</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="profile-reject-reason">{{ __('Rejection Reason') }} <span class="text-danger">*</span></label>
+                        <textarea id="profile-reject-reason" class="form-control" rows="4" placeholder="{{ __('Enter the reason for rejecting this profile update') }}"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ __('Cancel') }}</button>
+                    <button type="button" class="btn btn-danger" id="confirm-profile-reject">{{ __('Confirm Rejection') }}</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .modal-backdrop {
+            z-index: 9998 !important;
+            pointer-events: none !important;
+            background-color: transparent !important;
+        }
+        .modal-backdrop.show {
+            opacity: 0 !important;
+            z-index: 9998 !important;
+            pointer-events: none !important;
+        }
+        .modal.show {
+            z-index: 9999 !important;
+            pointer-events: auto !important;
+        }
+        .modal.show .modal-dialog {
+            pointer-events: auto !important;
+        }
+    </style>
 @endsection
+
+@push('admin_scripts')
+    <script>
+        (function () {
+            const rejectButton = document.getElementById('open-profile-reject-modal');
+            const rejectForm = document.getElementById('reject-profile-form');
+
+            if (!rejectButton || !rejectForm) {
+                return;
+            }
+
+            rejectButton.addEventListener('click', function () {
+                document.getElementById('profile-reject-reason').value = '';
+                $('#profileRejectModal').modal('show');
+            });
+
+            document.getElementById('confirm-profile-reject').addEventListener('click', function () {
+                const reason = document.getElementById('profile-reject-reason').value.trim();
+
+                if (!reason) {
+                    alert('{{ __('Please enter a rejection reason') }}');
+                    return;
+                }
+
+                rejectForm.querySelector('input[name="rejection_reason"]').value = reason;
+                rejectForm.submit();
+            });
+        })();
+    </script>
+@endpush

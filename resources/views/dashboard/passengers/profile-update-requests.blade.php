@@ -49,15 +49,11 @@
                             <tr>
                                 <td>{{ $passengers->firstItem() + $index }}</td>
                                 <td>
-                                    {{ $passenger->{'user-first-name'} }} {{ $passenger->{'user-last-name'} }}
+                                    {{ $passenger->user->{'user-first-name'} }} {{ $passenger->user->{'user-last-name'} }}
                                 </td>
                                 <td>
-                                    @if($passenger->newUserInfo)
-                                        <strong>{{ $passenger->newUserInfo->{'user-first-name'} }} {{ $passenger->newUserInfo->{'user-last-name'} }}</strong>
-                                        <i class="fas fa-edit text-info" title="{{ __('Updated') }}"></i>
-                                    @else
-                                        <span class="text-muted">{{ __('No changes') }}</span>
-                                    @endif
+                                    <strong>{{ $passenger->{'user-first-name'} }} {{ $passenger->{'user-last-name'} }}</strong>
+                                    <i class="fas fa-edit text-info" title="{{ __('Updated') }}"></i>
                                 </td>
                                 <td>
                                     +{{ optional($passenger->callingKey)->{'call-key'} }}{{ $passenger->{'phone-no'} }}
@@ -95,20 +91,21 @@
                                 </td>
                                 <td>
                                     <div class="btn-group" role="group">
-                                        <a href="{{ route('passengers.show', $passenger->id) }}" class="btn btn-sm btn-info">
+                                        <a href="{{ route('passengers.show', $passenger->user->id) }}" class="btn btn-sm btn-info">
                                             <i class="fas fa-eye"></i> {{ __('Review Details') }}
                                         </a>
-                                        <form action="{{ route('passengers.approve-profile-update', $passenger->id) }}" method="post" class="d-inline-block ml-1">
+                                        <form action="{{ route('passengers.approve-profile-update', $passenger->user->id) }}" method="post" class="d-inline-block ml-1">
                                             @csrf
                                             @method('post')
                                             <button type="submit" class="btn btn-sm btn-success" onclick="return confirm('{{ __('Are you sure you want to approve this profile update?') }}');">
                                                 <i class="fas fa-check"></i> {{ __('Approve') }}
                                             </button>
                                         </form>
-                                        <form action="{{ route('passengers.reject-profile-update', $passenger->id) }}" method="post" class="d-inline-block ml-1">
+                                        <form id="reject-form-{{ $passenger->user->id }}" action="{{ route('passengers.reject-profile-update', $passenger->user->id) }}" method="post" class="d-inline-block ml-1 profile-reject-form">
                                             @csrf
                                             @method('post')
-                                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('{{ __('Are you sure you want to reject this profile update?') }}');">
+                                            <input type="hidden" name="rejection_reason" value="">
+                                            <button type="button" class="btn btn-sm btn-danger profile-reject-btn" data-form-id="reject-form-{{ $passenger->user->id }}">
                                                 <i class="fas fa-times"></i> {{ __('Reject') }}
                                             </button>
                                         </form>
@@ -137,4 +134,79 @@
             </div>
         </div>
     </div>
+
+    <div class="modal fade" id="profileRejectModal" tabindex="-1" role="dialog" aria-labelledby="profileRejectModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="profileRejectModalLabel">{{ __('Reject Profile Update') }}</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="profile-reject-reason">{{ __('Rejection Reason') }} <span class="text-danger">*</span></label>
+                        <textarea id="profile-reject-reason" class="form-control" rows="4" placeholder="{{ __('Enter the reason for rejecting this profile update') }}"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ __('Cancel') }}</button>
+                    <button type="button" class="btn btn-danger" id="confirm-profile-reject">{{ __('Confirm Rejection') }}</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .modal-backdrop {
+            z-index: 9998 !important;
+            pointer-events: none !important;
+            background-color: transparent !important;
+        }
+        .modal-backdrop.show {
+            opacity: 0 !important;
+            z-index: 9998 !important;
+            pointer-events: none !important;
+        }
+        .modal.show {
+            z-index: 9999 !important;
+            pointer-events: auto !important;
+        }
+        .modal.show .modal-dialog {
+            pointer-events: auto !important;
+        }
+    </style>
 @endsection
+
+@push('admin_scripts')
+    <script>
+        (function () {
+            let activeRejectForm = null;
+
+            document.querySelectorAll('.profile-reject-btn').forEach(function (button) {
+                button.addEventListener('click', function () {
+                    activeRejectForm = document.getElementById(button.getAttribute('data-form-id'));
+                    document.getElementById('profile-reject-reason').value = '';
+                    $('#profileRejectModal').modal('show');
+                });
+            });
+
+            document.getElementById('confirm-profile-reject').addEventListener('click', function () {
+                const reason = document.getElementById('profile-reject-reason').value.trim();
+
+                if (!reason) {
+                    alert('{{ __('Please enter a rejection reason') }}');
+                    return;
+                }
+
+                if (!activeRejectForm) {
+                    return;
+                }
+
+                activeRejectForm.querySelector('input[name="rejection_reason"]').value = reason;
+                activeRejectForm.submit();
+            });
+        })();
+    </script>
+@endpush
