@@ -18,10 +18,36 @@
         </div>
 
         <div class="container-fluid page__container">
+            @if(session('success'))
+                <div class="alert alert-success">{{ session('success') }}</div>
+            @endif
+            @if(session('error'))
+                <div class="alert alert-danger">{{ session('error') }}</div>
+            @endif
+
+            @php
+                $currentUserPackage = $driver->packages
+                    ->where('status', \App\Models\UserPackage::STATUS_ACTIVE)
+                    ->filter(fn ($pkg) => \Carbon\Carbon::parse($pkg->end_date)->endOfDay()->gte(now()))
+                    ->sortByDesc('id')
+                    ->first();
+                $canCancelSubscription = $currentUserPackage
+                    && optional($currentUserPackage->package)->status !== \App\Models\Package::FREE;
+            @endphp
+
             <div class="card p-3">
                 <h4>{{ __('Current Package') }}: {{ optional($driver->activePackage)->name_en ?? __('None') }}</h4>
                 <p>{{ __('Current status') }}: {{ optional($driver->packages()->active()->first())->statusText ?? __('No active subscription') }}</p>
                 <p>{{ __('Ends at') }}: {{ optional($driver->packages()->active()->first())->end_date?->format('Y-m-d') ?? __('-') }}</p>
+
+                @if($canCancelSubscription)
+                    <form action="{{ route('drivers.cancelPackage', $driver->id) }}" method="post" class="mt-3" onsubmit="return confirm('{{ __('Are you sure you want to cancel this driver subscription and move them to the free plan?') }}');">
+                        @csrf
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-times-circle"></i> {{ __('Cancel Subscription') }}
+                        </button>
+                    </form>
+                @endif
             </div>
 
             <div class="row mt-3">
@@ -40,7 +66,7 @@
                                         <option value="monthly">{{ __('Monthly') }}</option>
                                         <option value="yearly">{{ __('Yearly') }}</option>
                                     </select>
-                                    <button class="btn btn-sm btn-success" type="submit">{{ __('Switch to this plan') }}</button>
+                                    <button class="btn btn-sm btn-success" type="submit">{{ __('Upgrade Subscription') }}</button>
                                 </form>
                             </div>
                         </div>

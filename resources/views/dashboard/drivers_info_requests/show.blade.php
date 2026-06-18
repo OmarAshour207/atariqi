@@ -159,7 +159,7 @@
                                         <div class="col-12">
                                             <div class="form-group">
                                                 <label class="old-label">{{ __('User Image') }}</label>
-                                                <img src="{{ $oldDriver->image ? url($oldDriver->image) : 'https://ami-sni.com/wp-content/themes/consultix/images/no-image-found-360x250.png' }}" alt="{{ $oldDriver->{"user-first-name"} }}" class="img-fluid d-block mb-2" style="max-width: 150px; border-radius: 5px;">
+                                                <img src="{{ $oldDriver->image ? url('uploads/' . $oldDriver->id . '/' . $oldDriver->image) : 'https://ami-sni.com/wp-content/themes/consultix/images/no-image-found-360x250.png' }}" alt="{{ $oldDriver->{"user-first-name"} }}" class="img-fluid d-block mb-2" style="max-width: 150px; border-radius: 5px;">
                                             </div>
                                         </div>
                                     </div>
@@ -236,7 +236,7 @@
                                         <div class="col-12">
                                             <div class="form-group">
                                                 <label class="new-label">{{ __('User Image') }}</label>
-                                                <img src="{{ $newDriverInfo->image ? url($newDriverInfo->image) : 'https://ami-sni.com/wp-content/themes/consultix/images/no-image-found-360x250.png' }}" alt="{{ $newDriverInfo->{"user-first-name"} }}" class="img-fluid d-block mb-2" style="max-width: 150px; border: 2px solid #ffc107; border-radius: 5px;">
+                                                <img src="{{ $newDriverInfo->image ? url('uploads/' . $newDriverInfo->{"user-id"} . '/' . $newDriverInfo->image) : 'https://ami-sni.com/wp-content/themes/consultix/images/no-image-found-360x250.png' }}" alt="{{ $newDriverInfo->{"user-first-name"} }}" class="img-fluid d-block mb-2" style="max-width: 150px; border: 2px solid #ffc107; border-radius: 5px;">
                                             </div>
                                         </div>
                                     </div>
@@ -314,7 +314,7 @@
                                         <div class="col-12">
                                             <div class="form-group highlight-new">
                                                 <label class="new-label">{{ __("Car Brand") }}</label>
-                                                <input type="text" class="form-control" value="{{ $newDriverInfo->driverInfo ? $newDriverInfo->driverInfo->{"car-brand"} : '' }}" disabled style="background-color: transparent; border: none;">
+                                                <input type="text" class="form-control" value="{{ $newDriverInfoRecord?->{'car-brand'} ?? '' }}" disabled style="background-color: transparent; border: none;">
                                             </div>
                                         </div>
                                     </div>
@@ -323,7 +323,7 @@
                                         <div class="col-12">
                                             <div class="form-group highlight-new">
                                                 <label class="new-label">{{ __("Car Model") }}</label>
-                                                <input type="text" class="form-control" value="{{ $newDriverInfo->driverInfo ? $newDriverInfo->driverInfo->{"car-model"} : '' }}" disabled style="background-color: transparent; border: none;">
+                                                <input type="text" class="form-control" value="{{ $newDriverInfoRecord?->{'car-model'} ?? '' }}" disabled style="background-color: transparent; border: none;">
                                             </div>
                                         </div>
                                     </div>
@@ -332,7 +332,7 @@
                                         <div class="col-12">
                                             <div class="form-group highlight-new">
                                                 <label class="new-label">{{ __("Car Number") }}</label>
-                                                <input type="text" class="form-control" value="{{ $newDriverInfo->driverInfo ? $newDriverInfo->driverInfo->{"car-number"} : '' }}" disabled style="background-color: transparent; border: none;">
+                                                <input type="text" class="form-control" value="{{ $newDriverInfoRecord?->{'car-number'} ?? '' }}" disabled style="background-color: transparent; border: none;">
                                             </div>
                                         </div>
                                     </div>
@@ -341,7 +341,7 @@
                                         <div class="col-12">
                                             <div class="form-group highlight-new">
                                                 <label class="new-label">{{ __("Car Letters") }}</label>
-                                                <input type="text" class="form-control" value="{{ $newDriverInfo->driverInfo ? $newDriverInfo->driverInfo->{"car-letters"} : '' }}" disabled style="background-color: transparent; border: none;">
+                                                <input type="text" class="form-control" value="{{ $newDriverInfoRecord?->{'car-letters'} ?? '' }}" disabled style="background-color: transparent; border: none;">
                                             </div>
                                         </div>
                                     </div>
@@ -350,7 +350,7 @@
                                         <div class="col-12">
                                             <div class="form-group highlight-new">
                                                 <label class="new-label">{{ __("Car Color") }}</label>
-                                                <input type="text" class="form-control" value="{{ $newDriverInfo->driverInfo ? $newDriverInfo->driverInfo->{"car-color"} : '' }}" disabled style="background-color: transparent; border: none;">
+                                                <input type="text" class="form-control" value="{{ $newDriverInfoRecord?->{'car-color'} ?? '' }}" disabled style="background-color: transparent; border: none;">
                                             </div>
                                         </div>
                                     </div>
@@ -359,7 +359,7 @@
                                         <div class="col-12">
                                             <div class="form-group highlight-new">
                                                 <label class="new-label">{{ __("Driver Rate") }}</label>
-                                                <input type="text" class="form-control" value="{{ $newDriverInfo->driverInfo ? $newDriverInfo->driverInfo->{"driver-rate"} : '' }}" disabled style="background-color: transparent; border: none;">
+                                                <input type="text" class="form-control" value="{{ $newDriverInfoRecord?->{'driver-rate'} ?? '' }}" disabled style="background-color: transparent; border: none;">
                                             </div>
                                         </div>
                                     </div>
@@ -385,42 +385,42 @@
 
                                     <div class="form-group">
                                         <label class="old-label">{{ __('Car Form Image') }}</label>
-                                        <img src="{{ $oldDriver->driverCar && $oldDriver->driverCar->{"car_form_img"} ? url($oldDriver->driverCar->{"car_form_img"}) : 'https://ami-sni.com/wp-content/themes/consultix/images/no-image-found-360x250.png' }}" alt="Car Form" class="img-fluid d-block mb-2" style="max-width: 150px; border-radius: 5px;">
+                                        <img src="{{ $oldDriver->driverCar && $oldDriver->driverCar->{"car_form_img"} ? url('uploads/' . $oldDriver->id . '/' . $oldDriver->driverCar->{"car_form_img"}) : 'https://ami-sni.com/wp-content/themes/consultix/images/no-image-found-360x250.png' }}" alt="Car Form" class="img-fluid d-block mb-2" style="max-width: 150px; border-radius: 5px;">
                                     </div>
 
                                     <div class="form-group">
                                         <label class="old-label">{{ __('License Image') }}</label>
-                                        <img src="{{ $oldDriver->driverCar && $oldDriver->driverCar->{"license_img"} ? url($oldDriver->driverCar->{"license_img"}) : 'https://ami-sni.com/wp-content/themes/consultix/images/no-image-found-360x250.png' }}" alt="License" class="img-fluid d-block mb-2" style="max-width: 150px; border-radius: 5px;">
+                                        <img src="{{ $oldDriver->driverCar && $oldDriver->driverCar->{"license_img"} ? url('uploads/' . $oldDriver->id . '/' . $oldDriver->driverCar->{"license_img"}) : 'https://ami-sni.com/wp-content/themes/consultix/images/no-image-found-360x250.png' }}" alt="License" class="img-fluid d-block mb-2" style="max-width: 150px; border-radius: 5px;">
                                     </div>
 
                                     <div class="form-group">
                                         <label class="old-label">{{ __('Car Front Image') }}</label>
-                                        <img src="{{ $oldDriver->driverCar && $oldDriver->driverCar->{"car_front_img"} ? url($oldDriver->driverCar->{"car_front_img"}) : 'https://ami-sni.com/wp-content/themes/consultix/images/no-image-found-360x250.png' }}" alt="Car Front" class="img-fluid d-block mb-2" style="max-width: 150px; border-radius: 5px;">
+                                        <img src="{{ $oldDriver->driverCar && $oldDriver->driverCar->{"car_front_img"} ? url('uploads/' . $oldDriver->id . '/' . $oldDriver->driverCar->{"car_front_img"}) : 'https://ami-sni.com/wp-content/themes/consultix/images/no-image-found-360x250.png' }}" alt="Car Front" class="img-fluid d-block mb-2" style="max-width: 150px; border-radius: 5px;">
                                     </div>
 
                                     <div class="form-group">
                                         <label class="old-label">{{ __('Car Back Image') }}</label>
-                                        <img src="{{ $oldDriver->driverCar && $oldDriver->driverCar->{"car_back_img"} ? url($oldDriver->driverCar->{"car_back_img"}) : 'https://ami-sni.com/wp-content/themes/consultix/images/no-image-found-360x250.png' }}" alt="Car Back" class="img-fluid d-block mb-2" style="max-width: 150px; border-radius: 5px;">
+                                        <img src="{{ $oldDriver->driverCar && $oldDriver->driverCar->{"car_back_img"} ? url('uploads/' . $oldDriver->id . '/' . $oldDriver->driverCar->{"car_back_img"}) : 'https://ami-sni.com/wp-content/themes/consultix/images/no-image-found-360x250.png' }}" alt="Car Back" class="img-fluid d-block mb-2" style="max-width: 150px; border-radius: 5px;">
                                     </div>
 
                                     <div class="form-group">
                                         <label class="old-label">{{ __('Car Right Side Image') }}</label>
-                                        <img src="{{ $oldDriver->driverCar && $oldDriver->driverCar->{"car_rside_img"} ? url($oldDriver->driverCar->{"car_rside_img"}) : 'https://ami-sni.com/wp-content/themes/consultix/images/no-image-found-360x250.png' }}" alt="Car Right" class="img-fluid d-block mb-2" style="max-width: 150px; border-radius: 5px;">
+                                        <img src="{{ $oldDriver->driverCar && $oldDriver->driverCar->{"car_rside_img"} ? url('uploads/' . $oldDriver->id . '/' . $oldDriver->driverCar->{"car_rside_img"}) : 'https://ami-sni.com/wp-content/themes/consultix/images/no-image-found-360x250.png' }}" alt="Car Right" class="img-fluid d-block mb-2" style="max-width: 150px; border-radius: 5px;">
                                     </div>
 
                                     <div class="form-group">
                                         <label class="old-label">{{ __('Car Left Side Image') }}</label>
-                                        <img src="{{ $oldDriver->driverCar && $oldDriver->driverCar->{"car_lside_img"} ? url($oldDriver->driverCar->{"car_lside_img"}) : 'https://ami-sni.com/wp-content/themes/consultix/images/no-image-found-360x250.png' }}" alt="Car Left" class="img-fluid d-block mb-2" style="max-width: 150px; border-radius: 5px;">
+                                        <img src="{{ $oldDriver->driverCar && $oldDriver->driverCar->{"car_lside_img"} ? url('uploads/' . $oldDriver->id . '/' . $oldDriver->driverCar->{"car_lside_img"}) : 'https://ami-sni.com/wp-content/themes/consultix/images/no-image-found-360x250.png' }}" alt="Car Left" class="img-fluid d-block mb-2" style="max-width: 150px; border-radius: 5px;">
                                     </div>
 
                                     <div class="form-group">
                                         <label class="old-label">{{ __('Car Inside Front Image') }}</label>
-                                        <img src="{{ $oldDriver->driverCar && $oldDriver->driverCar->{"car_insideFront_img"} ? url($oldDriver->driverCar->{"car_insideFront_img"}) : 'https://ami-sni.com/wp-content/themes/consultix/images/no-image-found-360x250.png' }}" alt="Inside Front" class="img-fluid d-block mb-2" style="max-width: 150px; border-radius: 5px;">
+                                        <img src="{{ $oldDriver->driverCar && $oldDriver->driverCar->{"car_insideFront_img"} ? url('uploads/' . $oldDriver->id . '/' . $oldDriver->driverCar->{"car_insideFront_img"}) : 'https://ami-sni.com/wp-content/themes/consultix/images/no-image-found-360x250.png' }}" alt="Inside Front" class="img-fluid d-block mb-2" style="max-width: 150px; border-radius: 5px;">
                                     </div>
 
                                     <div class="form-group">
                                         <label class="old-label">{{ __('Car Inside Back Image') }}</label>
-                                        <img src="{{ $oldDriver->driverCar && $oldDriver->driverCar->{"car_insideBack_img"} ? url($oldDriver->driverCar->{"car_insideBack_img"}) : 'https://ami-sni.com/wp-content/themes/consultix/images/no-image-found-360x250.png' }}" alt="Inside Back" class="img-fluid d-block mb-2" style="max-width: 150px; border-radius: 5px;">
+                                        <img src="{{ $oldDriver->driverCar && $oldDriver->driverCar->{"car_insideBack_img"} ? url('uploads/' . $oldDriver->id . '/' . $oldDriver->driverCar->{"car_insideBack_img"}) : 'https://ami-sni.com/wp-content/themes/consultix/images/no-image-found-360x250.png' }}" alt="Inside Back" class="img-fluid d-block mb-2" style="max-width: 150px; border-radius: 5px;">
                                     </div>
                                 </div>
 
@@ -432,49 +432,49 @@
                                         <div class="col-12">
                                             <div class="form-group highlight-new">
                                                 <label class="new-label">{{ __("Driver Type") }}</label>
-                                                <input type="text" class="form-control" value="{{ $newDriverInfo->driverCar ? optional($newDriverInfo->driverCar->driverType)->{"name-ar"} : '' }}" disabled style="background-color: transparent; border: none;">
+                                                <input type="text" class="form-control" value="{{ optional($newDriverCarRecord?->driverType)->{"name-ar"} ?? '' }}" disabled style="background-color: transparent; border: none;">
                                             </div>
                                         </div>
                                     </div>
 
                                     <div class="form-group">
                                         <label class="new-label">{{ __('Car Form Image') }}</label>
-                                        <img src="{{ $newDriverInfo->driverCar && $newDriverInfo->driverCar->{"car_form_img"} ? url($newDriverInfo->driverCar->{"car_form_img"}) : 'https://ami-sni.com/wp-content/themes/consultix/images/no-image-found-360x250.png' }}" alt="Car Form" class="img-fluid d-block mb-2" style="max-width: 150px; border: 2px solid #ffc107; border-radius: 5px;">
+                                        <img src="{{ $newDriverCarRecord && $newDriverCarRecord->{"car_form_img"} ? url('uploads/' . $newDriverInfo->{"user-id"} . '/' . $newDriverCarRecord->{"car_form_img"}) : 'https://ami-sni.com/wp-content/themes/consultix/images/no-image-found-360x250.png' }}" alt="Car Form" class="img-fluid d-block mb-2" style="max-width: 150px; border: 2px solid #ffc107; border-radius: 5px;">
                                     </div>
 
                                     <div class="form-group">
                                         <label class="new-label">{{ __('License Image') }}</label>
-                                        <img src="{{ $newDriverInfo->driverCar && $newDriverInfo->driverCar->{"license_img"} ? url($newDriverInfo->driverCar->{"license_img"}) : 'https://ami-sni.com/wp-content/themes/consultix/images/no-image-found-360x250.png' }}" alt="License" class="img-fluid d-block mb-2" style="max-width: 150px; border: 2px solid #ffc107; border-radius: 5px;">
+                                        <img src="{{ $newDriverCarRecord && $newDriverCarRecord->{"license_img"} ? url('uploads/' . $newDriverInfo->{"user-id"} . '/' . $newDriverCarRecord->{"license_img"}) : 'https://ami-sni.com/wp-content/themes/consultix/images/no-image-found-360x250.png' }}" alt="License" class="img-fluid d-block mb-2" style="max-width: 150px; border: 2px solid #ffc107; border-radius: 5px;">
                                     </div>
 
                                     <div class="form-group">
                                         <label class="new-label">{{ __('Car Front Image') }}</label>
-                                        <img src="{{ $newDriverInfo->driverCar && $newDriverInfo->driverCar->{"car_front_img"} ? url($newDriverInfo->driverCar->{"car_front_img"}) : 'https://ami-sni.com/wp-content/themes/consultix/images/no-image-found-360x250.png' }}" alt="Car Front" class="img-fluid d-block mb-2" style="max-width: 150px; border: 2px solid #ffc107; border-radius: 5px;">
+                                        <img src="{{ $newDriverCarRecord && $newDriverCarRecord->{"car_front_img"} ? url('uploads/' . $newDriverInfo->{"user-id"} . '/' . $newDriverCarRecord->{"car_front_img"}) : 'https://ami-sni.com/wp-content/themes/consultix/images/no-image-found-360x250.png' }}" alt="Car Front" class="img-fluid d-block mb-2" style="max-width: 150px; border: 2px solid #ffc107; border-radius: 5px;">
                                     </div>
 
                                     <div class="form-group">
                                         <label class="new-label">{{ __('Car Back Image') }}</label>
-                                        <img src="{{ $newDriverInfo->driverCar && $newDriverInfo->driverCar->{"car_back_img"} ? url($newDriverInfo->driverCar->{"car_back_img"}) : 'https://ami-sni.com/wp-content/themes/consultix/images/no-image-found-360x250.png' }}" alt="Car Back" class="img-fluid d-block mb-2" style="max-width: 150px; border: 2px solid #ffc107; border-radius: 5px;">
+                                        <img src="{{ $newDriverCarRecord && $newDriverCarRecord->{"car_back_img"} ? url('uploads/' . $newDriverInfo->{"user-id"} . '/' . $newDriverCarRecord->{"car_back_img"}) : 'https://ami-sni.com/wp-content/themes/consultix/images/no-image-found-360x250.png' }}" alt="Car Back" class="img-fluid d-block mb-2" style="max-width: 150px; border: 2px solid #ffc107; border-radius: 5px;">
                                     </div>
 
                                     <div class="form-group">
                                         <label class="new-label">{{ __('Car Right Side Image') }}</label>
-                                        <img src="{{ $newDriverInfo->driverCar && $newDriverInfo->driverCar->{"car_rside_img"} ? url($newDriverInfo->driverCar->{"car_rside_img"}) : 'https://ami-sni.com/wp-content/themes/consultix/images/no-image-found-360x250.png' }}" alt="Car Right" class="img-fluid d-block mb-2" style="max-width: 150px; border: 2px solid #ffc107; border-radius: 5px;">
+                                        <img src="{{ $newDriverCarRecord && $newDriverCarRecord->{"car_rside_img"} ? url('uploads/' . $newDriverInfo->{"user-id"} . '/' . $newDriverCarRecord->{"car_rside_img"}) : 'https://ami-sni.com/wp-content/themes/consultix/images/no-image-found-360x250.png' }}" alt="Car Right" class="img-fluid d-block mb-2" style="max-width: 150px; border: 2px solid #ffc107; border-radius: 5px;">
                                     </div>
 
                                     <div class="form-group">
                                         <label class="new-label">{{ __('Car Left Side Image') }}</label>
-                                        <img src="{{ $newDriverInfo->driverCar && $newDriverInfo->driverCar->{"car_lside_img"} ? url($newDriverInfo->driverCar->{"car_lside_img"}) : 'https://ami-sni.com/wp-content/themes/consultix/images/no-image-found-360x250.png' }}" alt="Car Left" class="img-fluid d-block mb-2" style="max-width: 150px; border: 2px solid #ffc107; border-radius: 5px;">
+                                        <img src="{{ $newDriverCarRecord && $newDriverCarRecord->{"car_lside_img"} ? url('uploads/' . $newDriverInfo->{"user-id"} . '/' . $newDriverCarRecord->{"car_lside_img"}) : 'https://ami-sni.com/wp-content/themes/consultix/images/no-image-found-360x250.png' }}" alt="Car Left" class="img-fluid d-block mb-2" style="max-width: 150px; border: 2px solid #ffc107; border-radius: 5px;">
                                     </div>
 
                                     <div class="form-group">
                                         <label class="new-label">{{ __('Car Inside Front Image') }}</label>
-                                        <img src="{{ $newDriverInfo->driverCar && $newDriverInfo->driverCar->{"car_insideFront_img"} ? url($newDriverInfo->driverCar->{"car_insideFront_img"}) : 'https://ami-sni.com/wp-content/themes/consultix/images/no-image-found-360x250.png' }}" alt="Inside Front" class="img-fluid d-block mb-2" style="max-width: 150px; border: 2px solid #ffc107; border-radius: 5px;">
+                                        <img src="{{ $newDriverCarRecord && $newDriverCarRecord->{"car_insideFront_img"} ? url('uploads/' . $newDriverInfo->{"user-id"} . '/' . $newDriverCarRecord->{"car_insideFront_img"}) : 'https://ami-sni.com/wp-content/themes/consultix/images/no-image-found-360x250.png' }}" alt="Inside Front" class="img-fluid d-block mb-2" style="max-width: 150px; border: 2px solid #ffc107; border-radius: 5px;">
                                     </div>
 
                                     <div class="form-group">
                                         <label class="new-label">{{ __('Car Inside Back Image') }}</label>
-                                        <img src="{{ $newDriverInfo->driverCar && $newDriverInfo->driverCar->{"car_insideBack_img"} ? url($newDriverInfo->driverCar->{"car_insideBack_img"}) : 'https://ami-sni.com/wp-content/themes/consultix/images/no-image-found-360x250.png' }}" alt="Inside Back" class="img-fluid d-block mb-2" style="max-width: 150px; border: 2px solid #ffc107; border-radius: 5px;">
+                                        <img src="{{ $newDriverCarRecord && $newDriverCarRecord->{"car_insideBack_img"} ? url('uploads/' . $newDriverInfo->{"user-id"} . '/' . $newDriverCarRecord->{"car_insideBack_img"}) : 'https://ami-sni.com/wp-content/themes/consultix/images/no-image-found-360x250.png' }}" alt="Inside Back" class="img-fluid d-block mb-2" style="max-width: 150px; border: 2px solid #ffc107; border-radius: 5px;">
                                     </div>
                                 </div>
                             </div>

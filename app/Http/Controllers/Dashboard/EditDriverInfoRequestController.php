@@ -25,7 +25,7 @@ class EditDriverInfoRequestController extends Controller
 {
     public function index(Request $request)
     {
-        $drivers = NewUserInfo::with('callingKey')
+        $drivers = NewUserInfo::with(['user', 'user.callingKey'])
             ->where('user-type', 'driver')
             ->paginate(20);
 
@@ -42,10 +42,22 @@ class EditDriverInfoRequestController extends Controller
         $neighborhoods = Neighbour::all();
         $driverTypes = DriverType::all();
 
-        $newDriverInfo->load('callingKey', 'driverInfo', 'driverCar');
-        $oldDriver->load('driverInfo', 'driverCar');
+        $newDriverInfo->load('callingKey', 'university', 'stage');
+        $oldDriver->load('callingKey', 'university', 'stage', 'driverInfo', 'driverCar.driverType');
 
-        return view('dashboard.drivers_info_requests.show', compact('newDriverInfo', 'oldDriver', 'universities', 'stages', 'neighborhoods', 'driverTypes'));
+        $newDriverInfoRecord = NewDriverInfo::where('driver-id', $driver)->first();
+        $newDriverCarRecord = NewDriverCar::with('driverType')->where('driver-id', $driver)->first();
+
+        return view('dashboard.drivers_info_requests.show', compact(
+            'newDriverInfo',
+            'oldDriver',
+            'newDriverInfoRecord',
+            'newDriverCarRecord',
+            'universities',
+            'stages',
+            'neighborhoods',
+            'driverTypes'
+        ));
     }
 
     public function update($driver, UpdateDriverInfoRequest $request)

@@ -30,6 +30,76 @@
                 </div>
             @endif
 
+            @if(session('success'))
+                <div class="alert alert-success">{{ session('success') }}</div>
+            @endif
+            @if(session('error'))
+                <div class="alert alert-danger">{{ session('error') }}</div>
+            @endif
+
+            @if($hasPendingUpdate)
+                <div class="alert alert-warning">
+                    <i class="fas fa-user-edit"></i> {{ __('This driver has a pending profile update request.') }}
+                </div>
+            @endif
+
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <div class="card card-body text-center">
+                        <h6 class="text-muted mb-2">{{ __('Dues') }}</h6>
+                        <h3 class="mb-0 text-{{ $currentDues > 50 ? 'danger' : 'success' }}">
+                            {{ number_format($currentDues, 2) }} {{ __('SAR') }}
+                        </h3>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card card-body text-center">
+                        <h6 class="text-muted mb-2">{{ __('Driver Rate') }}</h6>
+                        <h3 class="mb-0">
+                            {{ $driver->driverInfo?->{'driver-rate'} ?? __('Not Specified') }}
+                        </h3>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card card-body text-center">
+                        <h6 class="text-muted mb-2">{{ __('Update Alert') }}</h6>
+                        <h3 class="mb-0">
+                            @if($hasPendingUpdate)
+                                <span class="badge badge-warning badge-lg">{{ __('Update Requested') }}</span>
+                            @else
+                                <span class="badge badge-success badge-lg">{{ __('No Updates') }}</span>
+                            @endif
+                        </h3>
+                    </div>
+                </div>
+            </div>
+
+            @if($driver->email)
+                <div class="mb-3 text-right">
+                    <form action="{{ route('drivers.sendPaymentReminder', $driver->id) }}" method="post" class="d-inline-block" onsubmit="return confirm('{{ __('Send dues reminder to this driver?') }}');">
+                        @csrf
+                        <button type="submit" class="btn btn-warning">
+                            <i class="fa fa-bell"></i> {{ __('Remind') }}
+                        </button>
+                    </form>
+                    <a href="{{ route('drivers.driverTrips', $driver->id) }}" class="btn btn-primary">
+                        <i class="fas fa-route"></i> {{ __('View Trips') }}
+                    </a>
+                    <a href="{{ route('drivers.earnings', $driver->id) }}" class="btn btn-success">
+                        <i class="fas fa-coins"></i> {{ __('Driver Earnings') }}
+                    </a>
+                </div>
+            @else
+                <div class="mb-3 text-right">
+                    <a href="{{ route('drivers.driverTrips', $driver->id) }}" class="btn btn-primary">
+                        <i class="fas fa-route"></i> {{ __('View Trips') }}
+                    </a>
+                    <a href="{{ route('drivers.earnings', $driver->id) }}" class="btn btn-success">
+                        <i class="fas fa-coins"></i> {{ __('Driver Earnings') }}
+                    </a>
+                </div>
+            @endif
+
             <div class="card card-form__body card-body">
                 <form method="post" action="{{ route('drivers.updateStatus', $driver->id) }}" class="submit-form">
 
@@ -190,10 +260,16 @@
                             </div>
 
                             <div class="row">
-                                <div class="col-12">
+                                <div class="col-6">
                                     <div class="form-group">
                                         <label for="car-color"> {{ __("Car Color") }}</label>
                                         <input id="car-color" name="car-color" dir="auto" type="text" class="form-control" placeholder="{{ __("Car Color") }}" value="{{ old("car-color", $driver->driverInfo ? $driver->driverInfo->{"car-color"} : '') }}" disabled>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="form-group">
+                                        <label for="driver-rate"> {{ __("Driver Rate") }}</label>
+                                        <input id="driver-rate" name="driver-rate" dir="auto" type="text" class="form-control" placeholder="{{ __("Driver Rate") }}" value="{{ old("driver-rate", $driver->driverInfo ? $driver->driverInfo->{"driver-rate"} : '') }}" disabled>
                                     </div>
                                 </div>
                             </div>
@@ -204,8 +280,59 @@
                             </div>
 
                             <div class="form-group">
-                                <label for="current-subscription"> {{ __('Current Subscription') }}</label>
-                                <input id="current-subscription" type="text" class="form-control" value="{{ $driver->activePackage ? ($driver->activePackage->name_ar ?? $driver->activePackage->name_en) : __('None') }}" disabled>
+                                <label for="driver-neighborhood"> {{ __('Driver Neighborhood') }}</label>
+                                <input id="driver-neighborhood" type="text" class="form-control" value="{{ $driverNeighborhoodName }}" disabled>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="neighborhoods-from"> {{ __('Neighborhoods From') }}</label>
+                                <input id="neighborhoods-from" type="text" class="form-control" value="{{ $neighborhoodFromNames }}" disabled>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="neighborhoods-to"> {{ __('Neighborhoods To') }}</label>
+                                <input id="neighborhoods-to" type="text" class="form-control" value="{{ $neighborhoodToNames }}" disabled>
+                            </div>
+
+                            <div class="card mb-3">
+                                <div class="card-header">
+                                    <strong>{{ __('Current Subscription') }}</strong>
+                                </div>
+                                <div class="card-body">
+                                    @if($currentUserPackage)
+                                        <div class="row">
+                                            <div class="col-md-6 form-group">
+                                                <label>{{ __('Package') }}</label>
+                                                <input type="text" class="form-control" value="{{ $currentUserPackage->package?->name_ar ?? $currentUserPackage->package?->name_en ?? __('Not Specified') }}" disabled>
+                                            </div>
+                                            <div class="col-md-6 form-group">
+                                                <label>{{ __('Interval') }}</label>
+                                                <input type="text" class="form-control" value="{{ $currentUserPackage->interval ?? '-' }}" disabled>
+                                            </div>
+                                            <div class="col-md-4 form-group">
+                                                <label>{{ __('Start Date') }}</label>
+                                                <input type="text" class="form-control" value="{{ $currentUserPackage->start_date ? \Carbon\Carbon::parse($currentUserPackage->start_date)->format('Y-m-d') : '-' }}" disabled>
+                                            </div>
+                                            <div class="col-md-4 form-group">
+                                                <label>{{ __('End Date') }}</label>
+                                                <input type="text" class="form-control" value="{{ $currentUserPackage->end_date ? \Carbon\Carbon::parse($currentUserPackage->end_date)->format('Y-m-d') : '-' }}" disabled>
+                                            </div>
+                                            <div class="col-md-4 form-group">
+                                                <label>{{ __('Status') }}</label>
+                                                <input type="text" class="form-control" value="{{
+                                                    match($currentUserPackage->status) {
+                                                        \App\Models\UserPackage::STATUS_ACTIVE => __('Active'),
+                                                        \App\Models\UserPackage::STATUS_EXPIRED => __('Expired'),
+                                                        \App\Models\UserPackage::STATUS_CANCELLED => __('Cancelled'),
+                                                        default => __('Unknown'),
+                                                    }
+                                                }}" disabled>
+                                            </div>
+                                        </div>
+                                    @else
+                                        <p class="text-muted mb-0">{{ __('None') }}</p>
+                                    @endif
+                                </div>
                             </div>
 
                             <div class="row">
@@ -364,7 +491,7 @@
                         </div>
                     </div>
 
-                    @if ($driver->approval == 2)
+                    @if (in_array($driver->approval, [0, 2], true))
                         <div class="text-right mb-5">
                             <button type="submit" name="approval" value="1" class="btn btn-success">{{ __('Accept') }}</button>
                             <button type="button" class="btn btn-primary" onclick="showAssignModal()">{{ __('Assign') }}</button>

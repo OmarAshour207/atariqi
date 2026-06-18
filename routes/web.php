@@ -55,8 +55,11 @@ Route::middleware(['is_admin'])->prefix('dashboard')->group(function () {
     Route::get('driver/packages', [DriverController::class, 'packages'])->name('drivers.packages');
     Route::get('drivers/{driver}/packages', [DriverController::class, 'packagePlans'])->name('drivers.packagePlans');
     Route::post('drivers/{driver}/packages/assign', [DriverController::class, 'assignPackage'])->name('drivers.assignPackage');
+    Route::post('drivers/{driver}/packages/cancel', [DriverController::class, 'cancelPackage'])->name('drivers.cancelPackage');
     Route::get('driver/rates', [DriverController::class, 'driverRates'])->name('drivers.rates');
     Route::get('driver/trips', [DriverController::class, 'trips'])->name('drivers.trips');
+    Route::get('drivers/{driver}/trips', [DriverController::class, 'driverTrips'])->name('drivers.driverTrips');
+    Route::get('drivers/{driver}/earnings', [DriverController::class, 'driverEarnings'])->name('drivers.earnings');
     Route::post('drivers/{driver}/send-payment-reminder', [DriverController::class, 'sendPaymentReminder'])->name('drivers.sendPaymentReminder');
     Route::post('drivers/{driver}/update-status', [DriverController::class, 'updateStatus'])->name('drivers.updateStatus');
     Route::post('drivers/{driver}/assign-to-admins', [DriverController::class, 'assignToAdmin'])->name('drivers.assignToAdmin');

@@ -40,6 +40,15 @@
                         </thead>
                         <tbody>
                         @foreach($drivers as $index => $driver)
+                            @php
+                                $currentUserPackage = $driver->packages
+                                    ->where('status', \App\Models\UserPackage::STATUS_ACTIVE)
+                                    ->filter(fn ($pkg) => \Carbon\Carbon::parse($pkg->end_date)->endOfDay()->gte(now()))
+                                    ->sortByDesc('id')
+                                    ->first();
+                                $canCancelSubscription = $currentUserPackage
+                                    && optional($currentUserPackage->package)->status !== \App\Models\Package::FREE;
+                            @endphp
                             <tr>
                                 <td>{{ $drivers->firstItem() + $index }}</td>
                                 <td>{{ $driver->fullName }}</td>
@@ -51,7 +60,13 @@
                                     <button class="btn btn-sm btn-primary" type="button" data-toggle="collapse" data-target="#plan-list-{{ $driver->id }}" aria-expanded="false" aria-controls="plan-list-{{ $driver->id }}">
                                         {{ __('Show Plans') }}
                                     </button>
-                                    <button class="btn btn-sm btn-success" type="button" onclick="document.getElementById('assign-{{ $driver->id }}').style.display='block'">{{ __('Assign Package') }}</button>
+                                    <button class="btn btn-sm btn-success" type="button" onclick="document.getElementById('assign-{{ $driver->id }}').style.display='block'">{{ __('Upgrade Subscription') }}</button>
+                                    @if($canCancelSubscription)
+                                        <form action="{{ route('drivers.cancelPackage', $driver->id) }}" method="post" class="d-inline-block" onsubmit="return confirm('{{ __('Are you sure you want to cancel this driver subscription and move them to the free plan?') }}');">
+                                            @csrf
+                                            <button type="submit" class="btn btn-sm btn-danger">{{ __('Cancel Subscription') }}</button>
+                                        </form>
+                                    @endif
                                 </td>
                             </tr>
                             <tr class="collapse" id="plan-list-{{ $driver->id }}">
@@ -94,7 +109,7 @@
                                                     </select>
                                                 </div>
                                                 <div class="col-md-3">
-                                                    <button type="submit" class="btn btn-sm btn-primary">{{ __('Apply') }}</button>
+                                                    <button type="submit" class="btn btn-sm btn-primary">{{ __('Upgrade Subscription') }}</button>
                                                     <button type="button" class="btn btn-sm btn-secondary" onclick="document.getElementById('assign-{{ $driver->id }}').style.display='none'">{{ __('Cancel') }}</button>
                                                 </div>
                                             </div>

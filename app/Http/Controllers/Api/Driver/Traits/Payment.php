@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers\Api\Driver\Traits;
 
-use App\Models\DayRideBooking;
 use App\Models\Service;
+use App\Models\SugDayDriver;
+use App\Models\SugWeekDriver;
 use App\Models\SuggestionDriver;
-use App\Models\WeekRideBooking;
 
 trait Payment
 {
@@ -21,22 +21,81 @@ trait Payment
 
     public function getRevenue($userId, $dates)
     {
-        $immediateRides = SuggestionDriver::finishedTrips($userId, $dates)->count();
+        $detailed = $this->getDetailedRevenue($userId, $dates);
 
-        $dailyRides = DayRideBooking::finishedTrips($userId, $dates)->count();
-
-        $weeklyRides = WeekRideBooking::finishedTrips($userId, $dates)->count();
-
-        $servicesCost = $this->getServicesCost();
-
-        $data = [
-            'immediate' => $immediateRides * $servicesCost[1],
-            'daily' => $dailyRides * $servicesCost[6],
-            'weekly' => $weeklyRides * $servicesCost[8]
+        return [
+            'immediate' => $detailed['immediate']['revenue'],
+            'daily' => $detailed['daily']['revenue'],
+            'weekly' => $detailed['weekly']['revenue'],
+            'total' => $detailed['total'],
         ];
+    }
 
-        $data['total'] = array_sum(array_values($data));
+    public function getDetailedRevenue($userId, $dates): array
+    {
+        $endDate = isset($dates['end_date'])
+            ? date('Y-m-d H:i:s', strtotime($dates['end_date'] . ' 23:59:59'))
+            : null;
 
-        return $data;
+        $immediateTrips = SuggestionDriver::where('driver-id', $userId)
+            ->where('action', 5)
+            ->when($dates['start_date'] ?? null, function ($query, $startDate) {
+                $query->where('date-of-add', '>=', $startDate);
+            })
+            ->when($endDate, function ($query) use ($endDate) {
+                $query->where('date-of-add', '<=', $endDate);
+            })
+            ->with('booking.service')
+            ->get();
+
+        $dailyTrips = SugDayDriver::where('driver-id', $userId)
+            ->where('action', 6)
+            ->when($dates['start_date'] ?? null, function ($query, $startDate) {
+                $query->whereHas('booking', function ($bookingQuery) use ($startDate) {
+                    $bookingQuery->whereDate('date-of-ser', '>=', $startDate);
+                });
+            })
+            ->when($dates['end_date'] ?? null, function ($query, $endDate) {
+                $query->whereHas('booking', function ($bookingQuery) use ($endDate) {
+                    $bookingQuery->whereDate('date-of-ser', '<=', $endDate);
+                });
+            })
+            ->with('booking.service')
+            ->get();
+
+        $weeklyTrips = SugWeekDriver::where('driver-id', $userId)
+            ->where('action', 6)
+            ->when($dates['start_date'] ?? null, function ($query, $startDate) {
+                $query->whereHas('booking', function ($bookingQuery) use ($startDate) {
+                    $bookingQuery->whereDate('date-of-ser', '>=', $startDate);
+                });
+            })
+            ->when($dates['end_date'] ?? null, function ($query, $endDate) {
+                $query->whereHas('booking', function ($bookingQuery) use ($endDate) {
+                    $bookingQuery->whereDate('date-of-ser', '<=', $endDate);
+                });
+            })
+            ->with('booking.service')
+            ->get();
+
+        $immediateRevenue = $immediateTrips->sum(fn ($trip) => (float) ($trip->booking?->service?->cost ?? 0));
+        $dailyRevenue = $dailyTrips->sum(fn ($trip) => (float) ($trip->booking?->service?->cost ?? 0));
+        $weeklyRevenue = $weeklyTrips->sum(fn ($trip) => (float) ($trip->booking?->service?->cost ?? 0));
+
+        return [
+            'immediate' => [
+                'count' => $immediateTrips->count(),
+                'revenue' => $immediateRevenue,
+            ],
+            'daily' => [
+                'count' => $dailyTrips->count(),
+                'revenue' => $dailyRevenue,
+            ],
+            'weekly' => [
+                'count' => $weeklyTrips->count(),
+                'revenue' => $weeklyRevenue,
+            ],
+            'total' => $immediateRevenue + $dailyRevenue + $weeklyRevenue,
+        ];
     }
 }

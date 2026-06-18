@@ -35,6 +35,9 @@
                         </thead>
                         <tbody class="list" id="companies">
                         @forelse ($drivers as $index => $driver)
+                        @php
+                            $originalUser = $driver->user;
+                        @endphp
                         <tr>
 
                             <td>
@@ -44,7 +47,11 @@
                             <td>
                                 <div class="d-flex align-items-center">
                                     <div class="d-flex align-items-center">
-                                        {{ mb_substr($driver->fullName, 0, 20) }}
+                                        @if($originalUser)
+                                            {{ mb_substr($originalUser->{'user-first-name'} . ' ' . $originalUser->{'user-last-name'}, 0, 20) }}
+                                        @else
+                                            {{ __('N/A') }}
+                                        @endif
                                     </div>
                                 </div>
                             </td>
@@ -52,7 +59,7 @@
                             <td>
                                 <div class="d-flex align-items-center">
                                     <div class="d-flex align-items-center">
-                                        {{ $driver->email }}
+                                        {{ $originalUser?->email ?? __('N/A') }}
                                     </div>
                                 </div>
                             </td>
@@ -60,7 +67,11 @@
                             <td>
                                 <div class="d-flex align-items-center  btn btn-info">
                                     <div class="d-flex align-items-center">
-                                        {{ $driver->fullPhoneNumber }}
+                                        @if($originalUser)
+                                            +{{ optional($originalUser->callingKey)->{'call-key'} }}{{ $originalUser->{'phone-no'} }}
+                                        @else
+                                            {{ __('N/A') }}
+                                        @endif
                                     </div>
                                 </div>
                              </td>

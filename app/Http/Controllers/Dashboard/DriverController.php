@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Dashboard;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Api\Driver\Traits\Payment;
 use App\Models\DriverNeighborhood;
 use App\Models\DriverType;
 use App\Models\Neighbour;
@@ -20,12 +21,14 @@ use App\Models\CaptainRequestDecision;
 use App\Models\CaptianRequestAssignment;
 use App\Models\EmployeePackageLog;
 use App\Mail\PackageAssignmentMail;
+use App\Mail\PackageCancellationMail;
 use Illuminate\Support\Facades\Mail;
 use Carbon\Carbon;
 use App\Models\SugDayDriver;
 use App\Models\SugWeekDriver;
 use App\Models\SuggestionDriver;
 use App\Models\FinancialDue;
+use App\Models\Subscription;
 use App\Services\WaslService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -33,9 +36,12 @@ use App\Mail\DriverRejectedMail;
 use App\Mail\PaymentReminderMail;
 use App\Models\DriverBanned;
 use App\Models\Admin;
+use App\Models\NewUserInfo;
 
 class DriverController extends Controller
 {
+    use Payment;
+
     private $waslService;
 
     public function __construct(WaslService $waslService)
@@ -45,7 +51,7 @@ class DriverController extends Controller
 
     public function index(Request $request)
     {
-        $query = User::with(['callingKey', 'university', 'stage', 'driverInfo', 'latestDue'])
+        $query = User::with(['callingKey', 'university', 'stage', 'driverInfo'])
             ->where('user-type', 'driver');
 
         // Filter by name
@@ -73,6 +79,8 @@ class DriverController extends Controller
         }
 
         $drivers = $query->paginate(20)->appends($request->query());
+
+        $this->attachCurrentDuesToDrivers($drivers->getCollection());
 
         return view('dashboard.drivers.index', compact('drivers'));
     }
@@ -127,6 +135,10 @@ class DriverController extends Controller
 
     public function show(User $driver)
     {
+        if ($driver->{'user-type'} !== 'driver') {
+            return redirect()->route('drivers.index')->with('error', __('Invalid driver.'));
+        }
+
         $waslResponse = null;
         $banned = null;
         $admins = collect();
@@ -135,7 +147,35 @@ class DriverController extends Controller
         $neighborhoods = Neighbour::all();
         $driverTypes = DriverType::all();
 
-        $driver->load('callingKey', 'driverInfo', 'driverCar', 'driverNeighborhood', 'activePackage');
+        $driver->load('callingKey', 'university', 'stage', 'driverInfo', 'driverCar', 'driverNeighborhood', 'newUserInfo');
+
+        $currentDues = round($this->calculateCurrentDues($driver), 2);
+
+        $currentUserPackage = UserPackage::with('package')
+            ->where('user_id', $driver->id)
+            ->where('status', UserPackage::STATUS_ACTIVE)
+            ->where('end_date', '>=', now())
+            ->latest()
+            ->first()
+            ?? UserPackage::with('package')->where('user_id', $driver->id)->latest()->first();
+
+        $neighborhoodFromNames = $this->resolveNeighborhoodNames(
+            $driver->driverNeighborhood?->{'neighborhoods-from'},
+            $neighborhoods
+        );
+
+        $neighborhoodToNames = $this->resolveNeighborhoodNames(
+            $driver->driverNeighborhood?->{'neighborhoods-to'},
+            $neighborhoods
+        );
+
+        $driverNeighborhoodName = $this->resolveDriverNeighborhoodName(
+            $driver->driverInfo?->{'driver-neighborhood'},
+            $neighborhoods
+        );
+
+        $hasPendingUpdate = NewUserInfo::where('user-id', $driver->id)->exists()
+            || ($driver->newUserInfo && $driver->approval == 2);
 
         if ($driver->driverInfo) {
             $banned = DriverBanned::where('driver_identity', $driver->driverInfo->identity_number)
@@ -156,7 +196,118 @@ class DriverController extends Controller
             \Log::error('Error fetching admins: ' . $e->getMessage());
         }
 
-        return view('dashboard.drivers.show', compact('driver', 'universities', 'stages', 'neighborhoods', 'driverTypes', 'waslResponse', 'banned', 'admins'));
+        return view('dashboard.drivers.show', compact(
+            'driver',
+            'universities',
+            'stages',
+            'neighborhoods',
+            'driverTypes',
+            'waslResponse',
+            'banned',
+            'admins',
+            'currentDues',
+            'currentUserPackage',
+            'neighborhoodFromNames',
+            'neighborhoodToNames',
+            'driverNeighborhoodName',
+            'hasPendingUpdate'
+        ));
+    }
+
+    public function driverTrips(User $driver)
+    {
+        if ($driver->{'user-type'} !== 'driver') {
+            return redirect()->route('drivers.index')->with('error', __('Invalid driver.'));
+        }
+
+        $tripRelations = ['passenger', 'booking', 'booking.university', 'booking.neighborhood', 'booking.service'];
+
+        $immediateTrips = SuggestionDriver::where('driver-id', $driver->id)
+            ->with($tripRelations)
+            ->orderBy('date-of-add', 'desc')
+            ->get();
+
+        $dailyTrips = SugDayDriver::where('driver-id', $driver->id)
+            ->with($tripRelations)
+            ->orderBy('date-of-add', 'desc')
+            ->get();
+
+        $weeklyTrips = SugWeekDriver::where('driver-id', $driver->id)
+            ->with($tripRelations)
+            ->orderBy('date-of-add', 'desc')
+            ->get();
+
+        return view('dashboard.drivers.driver_trips', compact(
+            'driver',
+            'immediateTrips',
+            'dailyTrips',
+            'weeklyTrips'
+        ));
+    }
+
+    public function driverEarnings(User $driver)
+    {
+        if ($driver->{'user-type'} !== 'driver') {
+            return redirect()->route('drivers.index')->with('error', __('Invalid driver.'));
+        }
+
+        $lifetimeDates = [
+            'start_date' => $driver->{'date-of-add'},
+            'end_date' => Carbon::now()->format('Y-m-d'),
+        ];
+
+        $revenueBreakdown = $this->getDetailedRevenue($driver->id, $lifetimeDates);
+        $duesPercentage = (float) (Subscription::select('cost')->where('id', 4)->first()?->cost ?? 0);
+
+        $totalDues = round(($duesPercentage * $revenueBreakdown['total']) / 100, 2);
+        $totalPaid = round((float) FinancialDue::where('driver-id', $driver->id)->sum('amount'), 2);
+        $remainingDues = round(max(0, $totalDues - $totalPaid), 2);
+        $currentUnpaidDues = round($this->calculateCurrentDues($driver), 2);
+
+        $payments = FinancialDue::where('driver-id', $driver->id)
+            ->orderByDesc('id')
+            ->get();
+
+        return view('dashboard.drivers.driver_earnings', compact(
+            'driver',
+            'revenueBreakdown',
+            'duesPercentage',
+            'totalDues',
+            'totalPaid',
+            'remainingDues',
+            'currentUnpaidDues',
+            'payments'
+        ));
+    }
+
+    private function resolveNeighborhoodNames(?string $idsString, $neighborhoods): string
+    {
+        if (empty($idsString)) {
+            return '-';
+        }
+
+        $ids = array_filter(array_map('trim', explode('|', $idsString)));
+        $nameKey = app()->getLocale() === 'en' ? 'neighborhood-en' : 'neighborhood-ar';
+
+        $names = $neighborhoods->whereIn('id', $ids)->pluck($nameKey)->filter();
+
+        return $names->isNotEmpty() ? $names->implode(' | ') : '-';
+    }
+
+    private function resolveDriverNeighborhoodName($value, $neighborhoods): string
+    {
+        if (empty($value)) {
+            return '-';
+        }
+
+        if (is_numeric($value)) {
+            $neighborhood = $neighborhoods->firstWhere('id', (int) $value);
+            $nameKey = app()->getLocale() === 'en' ? 'neighborhood-en' : 'neighborhood-ar';
+
+            return $neighborhood?->{$nameKey} ?? (string) $value;
+        }
+
+        return (string) $value;
     }
 
     public function packages(Request $request)
@@ -258,6 +409,98 @@ class DriverController extends Controller
         }
 
         return redirect()->route('drivers.packages')->with('success', __('Package assignment updated successfully.'));
+    }
+
+    public function cancelPackage(User $driver)
+    {
+        if ($driver->{'user-type'} !== 'driver') {
+            return redirect()->back()->with('error', __('Invalid driver.'));
+        }
+
+        if (!$driver->email) {
+            return redirect()->back()->with('error', __('Driver email is not available.'));
+        }
+
+        $activeUserPackage = UserPackage::where('user_id', $driver->id)
+            ->where('status', UserPackage::STATUS_ACTIVE)
+            ->where('end_date', '>=', now())
+            ->latest('id')
+            ->first();
+
+        if (!$activeUserPackage) {
+            return redirect()->back()->with('error', __('No active subscription found for this driver.'));
+        }
+
+        $freePackage = Package::where('status', Package::FREE)->first();
+
+        if (!$freePackage) {
+            return redirect()->back()->with('error', __('Free package is not configured.'));
+        }
+
+        if ($activeUserPackage->package_id == $freePackage->id) {
+            return redirect()->back()->with('error', __('Driver is already on the free subscription.'));
+        }
+
+        $oldPackageId = $activeUserPackage->package_id;
+        $oldPackage = Package::find($oldPackageId);
+
+        DB::transaction(function () use ($driver, $activeUserPackage, $freePackage) {
+            UserPackageHistory::create([
+                'user_id' => $driver->id,
+                'package_id' => $activeUserPackage->package_id,
+                'status' => UserPackage::STATUS_CANCELLED,
+                'start_date' => $activeUserPackage->start_date,
+                'end_date' => $activeUserPackage->end_date,
+                'canceled_date' => now(),
+                'interval' => $activeUserPackage->interval ?? 'monthly',
+            ]);
+
+            $activeUserPackage->delete();
+
+            UserPackage::create([
+                'package_id' => $freePackage->id,
+                'user_id' => $driver->id,
+                'start_date' => now(),
+                'end_date' => now()->addYear(),
+                'status' => UserPackage::STATUS_ACTIVE,
+                'interval' => 'yearly',
+            ]);
+        });
+
+        EmployeePackageLog::create([
+            'assigned_from_employee_id' => auth()->guard('admin')->id(),
+            'driver_id' => $driver->id,
+            'id_package_old' => $oldPackageId,
+            'id_package_new' => $freePackage->id,
+            'status' => 'cancelled',
+        ]);
+
+        try {
+            Mail::to($driver->email)->send(new PackageCancellationMail($driver, $oldPackage, $freePackage));
+
+            PlatformEmailLog::create([
+                'assigned_from_employee_id' => auth()->guard('admin')->id(),
+                'driver_id' => $driver->id,
+                'driver_email' => $driver->email,
+                'email_type' => 'package_cancellation',
+                'status' => 'sent',
+                'error_message' => null,
+            ]);
+        } catch (\Throwable $e) {
+            PlatformEmailLog::create([
+                'assigned_from_employee_id' => auth()->guard('admin')->id(),
+                'driver_id' => $driver->id,
+                'driver_email' => $driver->email,
+                'email_type' => 'package_cancellation',
+                'status' => 'failed',
+                'error_message' => $e->getMessage(),
+            ]);
+
+            return redirect()->back()
+                ->with('error', __('Subscription was cancelled but the notification email could not be sent.'));
+        }
+
+        return redirect()->back()->with('success', __('Subscription cancelled and driver moved to free plan successfully.'));
     }
 
     public function driverRates(Request $request)
@@ -389,28 +632,85 @@ class DriverController extends Controller
 
     public function sendPaymentReminder(Request $request, User $driver)
     {
-        $request->validate([
-            'amount' => 'required|numeric|min:0',
-        ]);
+        if ($driver->{'user-type'} !== 'driver') {
+            return redirect()->back()->with('error', __('Invalid driver.'));
+        }
 
-        // Create or update financial due record
-        FinancialDue::updateOrCreate(
-            ['driver-id' => $driver->id],
-            [
-                'amount' => $request->amount,
-                'date-of-add' => now()
-            ]
-        );
+        if (empty($driver->email)) {
+            return redirect()->back()->with('error', __('Driver email is not available.'));
+        }
 
-        // Send reminder email
-        $details = [
-            'name' => $driver->{'user-first-name'} . ' ' . $driver->{'user-last-name'},
-            'amount' => $request->amount
+        try {
+            $amount = $this->calculateCurrentDues($driver);
+
+            if ($amount <= 50) {
+                return redirect()->back()
+                    ->with('error', __('A reminder cannot be sent because dues do not exceed 50 SAR.'));
+            }
+
+            $details = [
+                'name' => $driver->{'user-first-name'} . ' ' . $driver->{'user-last-name'},
+                'amount' => round($amount, 2),
+            ];
+
+            Mail::to($driver->email)->send(new PaymentReminderMail($details));
+
+            PlatformEmailLog::create([
+                'assigned_from_employee_id' => auth()->guard('admin')->id(),
+                'driver_id' => $driver->id,
+                'driver_email' => $driver->email,
+                'email_type' => 'dues_reminder',
+                'status' => 'sent',
+                'error_message' => null,
+            ]);
+
+            return redirect()->back()
+                ->with('success', __('Payment reminder sent successfully to driver.'));
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', __('Unable to send payment reminder.'));
+        }
+    }
+
+    private function attachCurrentDuesToDrivers($drivers): void
+    {
+        if ($drivers->isEmpty()) {
+            return;
+        }
+
+        $lastPayDates = FinancialDue::whereIn('driver-id', $drivers->pluck('id'))
+            ->orderByDesc('id')
+            ->get()
+            ->unique('driver-id')
+            ->keyBy('driver-id');
+
+        $drivers->transform(function ($driver) use ($lastPayDates) {
+            $driver->current_dues = round(
+                $this->calculateCurrentDues($driver, $lastPayDates->get($driver->id)),
+                2
+            );
+
+            return $driver;
+        });
+    }
+
+    private function calculateCurrentDues(User $driver, ?FinancialDue $lastPayDate = null): float
+    {
+        if ($lastPayDate === null) {
+            $lastPayDate = FinancialDue::where('driver-id', $driver->id)
+                ->orderByDesc('id')
+                ->first();
+        }
+
+        $dates = [
+            'start_date' => $lastPayDate?->{'date-of-add'} ?? $driver->{'date-of-add'},
+            'end_date' => Carbon::now()->format('Y-m-d'),
         ];
 
-        Mail::to($driver->email)->send(new PaymentReminderMail($details));
+        $subscription = Subscription::select('cost')->where('id', 4)->first();
+        $revenue = $this->getRevenue($driver->id, $dates);
 
-        return redirect()->back()->with('success', __('Payment reminder sent successfully to driver.'));
+        return (($subscription?->cost ?? 0) * $revenue['total']) / 100;
     }
 
     public function edit(User $driver)
