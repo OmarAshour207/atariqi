@@ -17,7 +17,6 @@ return new class extends Migration
             $table->tinyInteger('old_approval');
             $table->tinyInteger('new_approval');
 
-            $table->bigInteger('decided_by_employee_id');
             $table->unsignedBigInteger('decided_by_employee_id');
 
             $table->text('reject_reason')->nullable();
