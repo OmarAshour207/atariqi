@@ -105,9 +105,9 @@
                                 <label for="approval"> {{ __('Approval') }}</label> <br>
                                 <select id="approval" name="approval" data-toggle="select" class="form-control select2">
                                     <option value="" selected> {{ __('approval') }} </option>
-                                    <option value="0" {{ old('approval', $driver->approval) == 0 ? 'selected' : '' }}> {{ __('Pending') }} </option>
+                                    <option value="2" {{ old('approval', $driver->approval) == 2 ? 'selected' : '' }}> {{ __('Pending') }} </option>
                                     <option value="1" {{ old('approval', $driver->approval) == 1 ? 'selected' : '' }}> {{ __('Approved') }} </option>
-                                    <option value="2" {{ old('approval', $driver->approval) == 2 ? 'selected' : '' }}> {{ __('Rejected') }} </option>
+                                    <option value="3" {{ old('approval', $driver->approval) == 3 ? 'selected' : '' }}> {{ __('Rejected') }} </option>
                                 </select>
                             </div>
 

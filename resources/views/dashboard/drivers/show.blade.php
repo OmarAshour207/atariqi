@@ -20,10 +20,13 @@
 
 
             @if ($banned)
-                <div class="alert alert-warning">
+                <div class="alert alert-danger">
                     <strong>
-                        {{ __('Warning: This driver is banned before!') }}:
-                    </strong><br> {{ __('Reason') }}: {{ $banned?->note }} <br>
+                        <i class="fas fa-ban"></i> {{ __('Warning: This driver is banned before!') }}
+                    </strong>
+                    @if($banned->note)
+                        <br>{{ __('Reason') }}: {{ $banned->note }}
+                    @endif
                 </div>
             @endif
 
@@ -187,17 +190,10 @@
                             </div>
 
                             <div class="row">
-                                <div class="col-6">
+                                <div class="col-12">
                                     <div class="form-group">
                                         <label for="car-color"> {{ __("Car Color") }}</label>
                                         <input id="car-color" name="car-color" dir="auto" type="text" class="form-control" placeholder="{{ __("Car Color") }}" value="{{ old("car-color", $driver->driverInfo ? $driver->driverInfo->{"car-color"} : '') }}" disabled>
-                                    </div>
-                                </div>
-
-                                <div class="col-6">
-                                    <div class="form-group">
-                                        <label for="driver-rate"> {{ __("Driver Rate") }}</label>
-                                        <input id="driver-rate" name="driver-rate" dir="auto" type="text" class="form-control" placeholder="{{ __("Driver Rate") }}" value="{{ old("driver-rate", $driver->driverInfo ? $driver->driverInfo->{"driver-rate"} : '') }}" disabled>
                                     </div>
                                 </div>
                             </div>
@@ -205,40 +201,6 @@
                             <div class="form-group">
                                 <label for="sequence-number"> {{ __("Sequence Number") }}</label>
                                 <input id="sequence-number" name="sequence-number" dir="auto" type="text" class="form-control" placeholder="{{ __("Sequence Number") }}" value="{{ old("sequence-number", $driver->driverInfo ? $driver->driverInfo->{"sequence-number"} : '') }}" disabled>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="driver-neighborhood"> {{ __('Driver Neighborhood') }}</label>
-                                <select id="driver-neighborhood" name="driver-neighborhood" class="form-control select2" disabled>
-                                    <option value="" selected> {{ $driver->driverInfo ? $driver->driverInfo->{"driver-neighborhood"} : '' }} </option>
-                                    <!-- @foreach ($neighborhoods as $neighborhood)
-                                        <option value="{{ $neighborhood->id }}" {{ old('driver-neighborhood', $driver->driverInfo ? $driver->driverInfo->{"driver-neighborhood"} : '') == $neighborhood->id ? 'selected' : '' }}> {{ $neighborhood->{"neighborhood-ar"} }} </option>
-                                    @endforeach -->
-                                </select>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="neighborhoods-from"> {{ __('Neighborhoods From') }}</label>
-                                @php
-                                    $fromNames = '';
-                                    if($driver->driverNeighborhood && $driver->driverNeighborhood->{"neighborhoods-from"}) {
-                                        $fromIds = array_filter(array_map('trim', explode('|', $driver->driverNeighborhood->{"neighborhoods-from"})));
-                                        $fromNames = $neighborhoods->whereIn('id', $fromIds)->pluck(app()->getLocale() === 'en' ? 'neighborhood-en' : 'neighborhood-ar')->implode(' | ');
-                                    }
-                                @endphp
-                                <input id="neighborhoods-from" type="text" class="form-control" value="{{ $fromNames }}" disabled>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="neighborhoods-to"> {{ __('Neighborhoods To') }}</label>
-                                @php
-                                    $toNames = '';
-                                    if($driver->driverNeighborhood && $driver->driverNeighborhood->{"neighborhoods-to"}) {
-                                        $toIds = array_filter(array_map('trim', explode('|', $driver->driverNeighborhood->{"neighborhoods-to"})));
-                                        $toNames = $neighborhoods->whereIn('id', $toIds)->pluck(app()->getLocale() === 'en' ? 'neighborhood-en' : 'neighborhood-ar')->implode(' | ');
-                                    }
-                                @endphp
-                                <input id="neighborhoods-to" type="text" class="form-control" value="{{ $toNames }}" disabled>
                             </div>
 
                             <div class="form-group">

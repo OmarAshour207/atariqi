@@ -81,7 +81,7 @@ class DriverController extends Controller
     {
         $query = User::with(['callingKey', 'university', 'stage'])
             ->where('user-type', 'driver')
-            ->where('approval', 0);
+            ->whereIn('approval', [0, 2]);
 
         // Filter by name
         if ($request->filled('name')) {
@@ -127,25 +127,33 @@ class DriverController extends Controller
 
     public function show(User $driver)
     {
-        $waslResponse = '';
+        $waslResponse = null;
         $banned = null;
+        $admins = collect();
+        $universities = University::all();
+        $stages = Stage::all();
+        $neighborhoods = Neighbour::all();
+        $driverTypes = DriverType::all();
+
+        $driver->load('callingKey', 'driverInfo', 'driverCar', 'driverNeighborhood', 'activePackage');
+
+        if ($driver->driverInfo) {
+            $banned = DriverBanned::where('driver_identity', $driver->driverInfo->identity_number)
+                ->latest()
+                ->first();
+
+            try {
+                $waslResponse = $this->waslService->checkDriverEligibility($driver->driverInfo->identity_number);
+                $waslResponse = $waslResponse ? json_decode($waslResponse, true) : null;
+            } catch (\Exception $e) {
+                \Log::error('Error fetching Wasl driver details: ' . $e->getMessage());
+            }
+        }
 
         try {
-            $driver->load('callingKey', 'driverInfo', 'driverCar', 'driverNeighborhood', 'activePackage');
-            $universities = University::all();
-            $stages = Stage::all();
-            $neighborhoods = Neighbour::all();
-            $driverTypes = DriverType::all();
-            $waslResponse = $this->waslService->checkDriverEligibility($driver->driverInfo->identity_number);
-            $waslResponse = $waslResponse ? json_decode($waslResponse, true) : null;
-            $banned = DriverBanned::where('driver_identity', $driver->driverInfo->identity_number)
-                ->where('driver_no', $driver->{"phone-no"})
-                ->first();
             $admins = Admin::all();
-        }
-        catch (\Exception $e) {
-            \Log::error('Error fetching driver details: ' . $e->getMessage());
-            $admins = collect();
+        } catch (\Exception $e) {
+            \Log::error('Error fetching admins: ' . $e->getMessage());
         }
 
         return view('dashboard.drivers.show', compact('driver', 'universities', 'stages', 'neighborhoods', 'driverTypes', 'waslResponse', 'banned', 'admins'));
@@ -456,7 +464,7 @@ class DriverController extends Controller
 
         $driver->update($updateData);
 
-        if (in_array($newApproval, [1, 2], true) && $newApproval !== $oldApproval) {
+        if (in_array($newApproval, [1, 3], true) && $newApproval !== $oldApproval) {
             $employeeId = auth()->guard('admin')->id();
 
             CaptainRequestDecision::create([

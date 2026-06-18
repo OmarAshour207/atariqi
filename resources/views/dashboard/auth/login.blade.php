@@ -32,7 +32,7 @@
           <span class="input-group-text">@company</span>
             <div class="invalid-feedback">أدخل بريدًا صحيحًا ضمن نطاق الدومين.</div>
         </div>
-        <div class="form-text">لن يُقبل سوى البريد المنتهي بدومين الشركة (مثلًا: @ata.com).</div>
+        <div class="form-text">لن يُقبل سوى البريد المنتهي بدومين الشركة (مثلًا: @atariqi.com).</div>
       </div>
 
       <div class="mb-2">

@@ -156,11 +156,11 @@
                             <td>
                                 <div class="d-flex align-items-center">
                                     <div class="d-flex align-items-center">
-                                        @if($driver->approval == 0)
+                                        @if(in_array($driver->approval, [0, 2], true))
                                             <span class="badge badge-warning">{{ __('Pending') }}</span>
                                         @elseif($driver->approval == 1)
                                             <span class="badge badge-success">{{ __('Approved') }}</span>
-                                        @elseif($driver->approval == 2)
+                                        @elseif($driver->approval == 3)
                                             <span class="badge badge-danger">{{ __('Rejected') }}</span>
                                         @else
                                             <span class="badge badge-secondary">{{ __('Unknown') }}</span>
@@ -175,7 +175,18 @@
                             </td>
                         </tr>
                         @empty
-                            <h1> {{ __('No Registration Requests') }} </h1>
+                            <tr>
+                                <td colspan="8" class="text-center py-4">
+                                    @php
+                                        $hasActiveFilters = count(array_filter(request()->only(['name', 'email', 'phone', 'gender', 'university-id', 'user-stage-id']))) > 0;
+                                    @endphp
+                                    @if($hasActiveFilters)
+                                        <p class="text-muted mb-0">{{ __('No requests match the search criteria.') }}</p>
+                                    @else
+                                        <h5 class="mb-0">{{ __('No Registration Requests') }}</h5>
+                                    @endif
+                                </td>
+                            </tr>
                         @endforelse
                         </tbody>
                     </table>

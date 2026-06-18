@@ -541,5 +541,6 @@
     "Old Password": "كلمة المرور القديمة",
     "Password updated successfully!": "تم تحديث كلمة المرور بنجاح!",
     "Old password is incorrect!": "كلمة المرور القديمة غير صحيحة!",
-    "Profile": "الملف الشخصي"
+    "Profile": "الملف الشخصي",
+    "No requests match the search criteria.": "لا توجد طلبات مطابقة لمعايير البحث."
 }
