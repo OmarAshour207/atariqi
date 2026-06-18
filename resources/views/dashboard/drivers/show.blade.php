@@ -43,61 +43,65 @@
                 </div>
             @endif
 
-            <div class="row mb-4">
-                <div class="col-md-4">
-                    <div class="card card-body text-center">
-                        <h6 class="text-muted mb-2">{{ __('Dues') }}</h6>
-                        <h3 class="mb-0 text-{{ $currentDues > 50 ? 'danger' : 'success' }}">
-                            {{ number_format($currentDues, 2) }} {{ __('SAR') }}
-                        </h3>
+            @if($driver->approval != 0)
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        <div class="card card-body text-center">
+                            <h6 class="text-muted mb-2">{{ __('Dues') }}</h6>
+                            <h3 class="mb-0 text-{{ $currentDues > 50 ? 'danger' : 'success' }}">
+                                {{ number_format($currentDues, 2) }} {{ __('SAR') }}
+                            </h3>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card card-body text-center">
+                            <h6 class="text-muted mb-2">{{ __('Driver Rate') }}</h6>
+                            <h3 class="mb-0">
+                                {{ $driver->driverInfo?->{'driver-rate'} ?? __('Not Specified') }}
+                            </h3>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card card-body text-center">
+                            <h6 class="text-muted mb-2">{{ __('Update Alert') }}</h6>
+                            <h3 class="mb-0">
+                                @if($hasPendingUpdate)
+                                    <span class="badge badge-warning badge-lg">{{ __('Update Requested') }}</span>
+                                @else
+                                    <span class="badge badge-success badge-lg">{{ __('No Updates') }}</span>
+                                @endif
+                            </h3>
+                        </div>
                     </div>
                 </div>
-                <div class="col-md-4">
-                    <div class="card card-body text-center">
-                        <h6 class="text-muted mb-2">{{ __('Driver Rate') }}</h6>
-                        <h3 class="mb-0">
-                            {{ $driver->driverInfo?->{'driver-rate'} ?? __('Not Specified') }}
-                        </h3>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card card-body text-center">
-                        <h6 class="text-muted mb-2">{{ __('Update Alert') }}</h6>
-                        <h3 class="mb-0">
-                            @if($hasPendingUpdate)
-                                <span class="badge badge-warning badge-lg">{{ __('Update Requested') }}</span>
-                            @else
-                                <span class="badge badge-success badge-lg">{{ __('No Updates') }}</span>
-                            @endif
-                        </h3>
-                    </div>
-                </div>
-            </div>
+            @endif
 
-            @if($driver->email)
-                <div class="mb-3 text-right">
-                    <form action="{{ route('drivers.sendPaymentReminder', $driver->id) }}" method="post" class="d-inline-block" onsubmit="return confirm('{{ __('Send dues reminder to this driver?') }}');">
-                        @csrf
-                        <button type="submit" class="btn btn-warning">
-                            <i class="fa fa-bell"></i> {{ __('Remind') }}
-                        </button>
-                    </form>
-                    <a href="{{ route('drivers.driverTrips', $driver->id) }}" class="btn btn-primary">
-                        <i class="fas fa-route"></i> {{ __('View Trips') }}
-                    </a>
-                    <a href="{{ route('drivers.earnings', $driver->id) }}" class="btn btn-success">
-                        <i class="fas fa-coins"></i> {{ __('Driver Earnings') }}
-                    </a>
-                </div>
-            @else
-                <div class="mb-3 text-right">
-                    <a href="{{ route('drivers.driverTrips', $driver->id) }}" class="btn btn-primary">
-                        <i class="fas fa-route"></i> {{ __('View Trips') }}
-                    </a>
-                    <a href="{{ route('drivers.earnings', $driver->id) }}" class="btn btn-success">
-                        <i class="fas fa-coins"></i> {{ __('Driver Earnings') }}
-                    </a>
-                </div>
+            @if($driver->approval != 0)
+                @if($driver->email)
+                    <div class="mb-3 text-right">
+                        <form action="{{ route('drivers.sendPaymentReminder', $driver->id) }}" method="post" class="d-inline-block" onsubmit="return confirm('{{ __('Send dues reminder to this driver?') }}');">
+                            @csrf
+                            <button type="submit" class="btn btn-warning">
+                                <i class="fa fa-bell"></i> {{ __('Remind') }}
+                            </button>
+                        </form>
+                        <a href="{{ route('drivers.driverTrips', $driver->id) }}" class="btn btn-primary">
+                            <i class="fas fa-route"></i> {{ __('View Trips') }}
+                        </a>
+                        <a href="{{ route('drivers.earnings', $driver->id) }}" class="btn btn-success">
+                            <i class="fas fa-coins"></i> {{ __('Driver Earnings') }}
+                        </a>
+                    </div>
+                @else
+                    <div class="mb-3 text-right">
+                        <a href="{{ route('drivers.driverTrips', $driver->id) }}" class="btn btn-primary">
+                            <i class="fas fa-route"></i> {{ __('View Trips') }}
+                        </a>
+                        <a href="{{ route('drivers.earnings', $driver->id) }}" class="btn btn-success">
+                            <i class="fas fa-coins"></i> {{ __('Driver Earnings') }}
+                        </a>
+                    </div>
+                @endif
             @endif
 
             <div class="card card-form__body card-body">
@@ -208,8 +212,9 @@
                                 <label for="approval"> {{ __('Approval') }}</label> <br>
                                 <select id="approval" name="approval" class="form-control select2" disabled>
                                     <option value="" selected> {{ __('Approval') }} </option>
-                                    <option value="2" {{ old('approval', $driver->approval) == 2 ? 'selected' : '' }}> {{ __('Pending') }} </option>
+                                    <option value="0" {{ old('approval', $driver->approval) == 0 ? 'selected' : '' }}> {{ __('Pending') }} </option>
                                     <option value="1" {{ old('approval', $driver->approval) == 1 ? 'selected' : '' }}> {{ __('Approved') }} </option>
+                                    <option value="2" {{ old('approval', $driver->approval) == 2 ? 'selected' : '' }}> {{ __('Under Review') }} </option>
                                     <option value="3" {{ old('approval', $driver->approval) == 3 ? 'selected' : '' }}> {{ __('Rejected') }} </option>
                                 </select>
                             </div>
@@ -279,20 +284,17 @@
                                 <input id="sequence-number" name="sequence-number" dir="auto" type="text" class="form-control" placeholder="{{ __("Sequence Number") }}" value="{{ old("sequence-number", $driver->driverInfo ? $driver->driverInfo->{"sequence-number"} : '') }}" disabled>
                             </div>
 
-                            <div class="form-group">
-                                <label for="driver-neighborhood"> {{ __('Driver Neighborhood') }}</label>
-                                <input id="driver-neighborhood" type="text" class="form-control" value="{{ $driverNeighborhoodName }}" disabled>
-                            </div>
+                            @if($driver->approval != 0)
+                                <div class="form-group">
+                                    <label for="neighborhoods-from"> {{ __('Neighborhoods From') }}</label>
+                                    <input id="neighborhoods-from" type="text" class="form-control" value="{{ $neighborhoodFromNames }}" disabled>
+                                </div>
 
-                            <div class="form-group">
-                                <label for="neighborhoods-from"> {{ __('Neighborhoods From') }}</label>
-                                <input id="neighborhoods-from" type="text" class="form-control" value="{{ $neighborhoodFromNames }}" disabled>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="neighborhoods-to"> {{ __('Neighborhoods To') }}</label>
-                                <input id="neighborhoods-to" type="text" class="form-control" value="{{ $neighborhoodToNames }}" disabled>
-                            </div>
+                                <div class="form-group">
+                                    <label for="neighborhoods-to"> {{ __('Neighborhoods To') }}</label>
+                                    <input id="neighborhoods-to" type="text" class="form-control" value="{{ $neighborhoodToNames }}" disabled>
+                                </div>
+                            @endif
 
                             <div class="card mb-3">
                                 <div class="card-header">
@@ -491,14 +493,17 @@
                         </div>
                     </div>
 
-                    @if (in_array($driver->approval, [0, 2], true))
+                    @if ($driver->approval == 0)
                         <div class="text-right mb-5">
                             <button type="submit" name="approval" value="1" class="btn btn-success">{{ __('Accept') }}</button>
                             <button type="button" class="btn btn-primary" onclick="showAssignModal()">{{ __('Assign') }}</button>
                             <button type="button" class="btn btn-danger" onclick="showRejectModal()">{{ __('Reject') }}</button>
-                            @if($driver->driverInfo && floatval($driver->driverInfo->{"driver-rate"}) < 1)
-                                <button type="button" class="btn btn-danger" onclick="showBanModal()">{{ __('Ban Driver') }}</button>
-                            @endif
+                        </div>
+                    @endif
+
+                    @if($driver->driverInfo && is_numeric($driver->driverInfo->{"driver-rate"}) && floatval($driver->driverInfo->{"driver-rate"}) < 1)
+                        <div class="text-right mb-5">
+                            <button type="button" class="btn btn-danger" onclick="showBanModal()">{{ __('Ban Driver') }}</button>
                         </div>
                     @endif
 

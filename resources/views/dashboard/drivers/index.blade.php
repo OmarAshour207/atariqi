@@ -56,8 +56,9 @@
                                 <label for="approval">{{ __('Approval Status') }}</label>
                                 <select class="form-control w-100" id="approval" name="approval">
                                     <option value="">{{ __('All') }}</option>
-                                    <option value="2" {{ request('approval') === '2' ? 'selected' : '' }}>{{ __('Pending') }}</option>
+                                    <option value="0" {{ request('approval') === '0' ? 'selected' : '' }}>{{ __('Pending') }}</option>
                                     <option value="1" {{ request('approval') === '1' ? 'selected' : '' }}>{{ __('Approved') }}</option>
+                                    <option value="2" {{ request('approval') === '2' ? 'selected' : '' }}>{{ __('Under Review') }}</option>
                                     <option value="3" {{ request('approval') === '3' ? 'selected' : '' }}>{{ __('Rejected') }}</option>
                                 </select>
                             </div>
@@ -121,10 +122,12 @@
                             </td>
 
                             <td>
-                                @if(in_array($driver->approval, [0, 2], true))
+                                @if($driver->approval == 0)
                                     <span class="badge badge-warning">{{ __('Pending') }}</span>
                                 @elseif($driver->approval == 1)
                                     <span class="badge badge-success">{{ __('Approved') }}</span>
+                                @elseif($driver->approval == 2)
+                                    <span class="badge badge-info">{{ __('Under Review') }}</span>
                                 @elseif($driver->approval == 3)
                                     <span class="badge badge-danger">{{ __('Rejected') }}</span>
                                 @else
@@ -144,12 +147,6 @@
                                 <a href="{{ route('drivers.earnings', $driver->id) }}" class="btn btn-link px-2" title="{{ __('Driver Earnings') }}">
                                     <i class="fa fa-coins fa-2x text-success"></i>
                                 </a>
-
-                                @if (in_array($driver->approval, [0, 2], true))
-                                    <a href="{{ route('drivers.edit', $driver->id) }}" class="btn btn-link px-2" title="{{ __('Edit') }}">
-                                        <i class="fa fa-edit fa-2x"></i>
-                                    </a>
-                                @endif
 
                                 @if($driver->email)
                                     <form action="{{ route('drivers.sendPaymentReminder', $driver->id) }}" method="post" class="d-inline-block" onsubmit="return confirm('{{ __('Send dues reminder to this driver?') }}');">

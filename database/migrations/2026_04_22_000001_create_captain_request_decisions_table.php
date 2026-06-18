@@ -18,7 +18,7 @@ return new class extends Migration
             $table->tinyInteger('new_approval');
 
             $table->bigInteger('decided_by_employee_id');
-            $table->foreign('decided_by_employee_id')->references('id')->on('users')->onDelete('cascade');
+            $table->unsignedBigInteger('decided_by_employee_id');
 
             $table->text('reject_reason')->nullable();
             $table->timestamps();

@@ -154,19 +154,7 @@
                             </td>
 
                             <td>
-                                <div class="d-flex align-items-center">
-                                    <div class="d-flex align-items-center">
-                                        @if(in_array($driver->approval, [0, 2], true))
-                                            <span class="badge badge-warning">{{ __('Pending') }}</span>
-                                        @elseif($driver->approval == 1)
-                                            <span class="badge badge-success">{{ __('Approved') }}</span>
-                                        @elseif($driver->approval == 3)
-                                            <span class="badge badge-danger">{{ __('Rejected') }}</span>
-                                        @else
-                                            <span class="badge badge-secondary">{{ __('Unknown') }}</span>
-                                        @endif
-                                    </div>
-                                </div>
+                                <span class="badge badge-warning">{{ __('Pending') }}</span>
                             </td>
                             <td>
                                 <a href="{{ route('drivers.show', $driver->id) }}" class="btn btn-sm btn-link">

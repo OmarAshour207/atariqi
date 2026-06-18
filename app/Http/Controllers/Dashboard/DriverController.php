@@ -89,7 +89,7 @@ class DriverController extends Controller
     {
         $query = User::with(['callingKey', 'university', 'stage'])
             ->where('user-type', 'driver')
-            ->whereIn('approval', [0, 2]);
+            ->where('approval', 0);
 
         // Filter by name
         if ($request->filled('name')) {
@@ -174,8 +174,8 @@ class DriverController extends Controller
             $neighborhoods
         );
 
-        $hasPendingUpdate = NewUserInfo::where('user-id', $driver->id)->exists()
-            || ($driver->newUserInfo && $driver->approval == 2);
+        $hasPendingUpdate = $driver->approval == 2
+            || NewUserInfo::where('user-id', $driver->id)->exists();
 
         if ($driver->driverInfo) {
             $banned = DriverBanned::where('driver_identity', $driver->driverInfo->identity_number)

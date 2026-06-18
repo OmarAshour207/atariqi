@@ -589,5 +589,7 @@
     "Your paid subscription has been cancelled and your account has been moved to the free subscription.": "تم إلغاء اشتراكك المدفوع وتحويل حسابك إلى الاشتراك المجاني.",
     "Previous Package": "الباقة السابقة",
     "Current Package": "الباقة الحالية",
-    "Cancellation Date": "تاريخ الإلغاء"
+    "Cancellation Date": "تاريخ الإلغاء",
+    "Under Review": "قيد المراجعة",
+    "Driver info update request rejected successfully.": "تم رفض طلب تحديث بيانات الكابتن بنجاح."
 }
