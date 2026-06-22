@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use App\Http\Resources\Driver\Wasl\EligibilityCheckResource;
 use App\Http\Resources\Driver\Wasl\RegisterResource;
 use App\Http\Resources\Driver\Wasl\UpdateCurrentLocationResource;
 use App\Http\Resources\Driver\Wasl\UpdateTripDataResource;
@@ -143,9 +142,15 @@ class WaslService
         return $this->translateWaslCode($code);
     }
 
-    public function buildEligibilityRequestBody(User $driver): array
+    public function buildEligibilityRequestBody(User $driver): ?array
     {
-        return (new EligibilityCheckResource($driver))->resolve();
+        $identityNumber = trim((string) ($driver->driverInfo?->identity_number ?? ''));
+
+        if ($identityNumber === '') {
+            return null;
+        }
+
+        return $this->formatEligibilityPayload($identityNumber);
     }
 
     public function formatEligibilityPayload(string $driverId): array
@@ -157,8 +162,15 @@ class WaslService
         ];
     }
 
-    public function checkDriverEligibility(string $identityNumber, ?array $body = null): ?array
+    public function checkDriverEligibility(?string $identityNumber, ?array $body = null): ?array
     {
+        $identityNumber = trim((string) ($identityNumber ?? ''));
+
+        if ($identityNumber === '') {
+            Log::channel('wasl')->warning('Skipping WASL eligibility check: identity number is missing');
+
+            return null;
+        }
         Log::channel('wasl')->info('Checking driver eligibility with Wasl', [
             'identity_number' => $identityNumber,
             'body' => $body,
@@ -288,12 +300,17 @@ class WaslService
 
     public function applyDailyEligibilityToDriver(User $driver): void
     {
-        if (!$driver->driverInfo?->identity_number) {
+        if (!filled($driver->driverInfo?->identity_number)) {
             return;
         }
 
         $driver->loadMissing(['driverInfo', 'callingKey']);
         $body = $this->buildEligibilityRequestBody($driver);
+
+        if ($body === null) {
+            return;
+        }
+
         $response = $this->checkDriverEligibility($driver->driverInfo->identity_number, $body);
         $parsed = $this->parseEligibilityResponse($response, $driver->driverInfo->identity_number);
 

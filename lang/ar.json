@@ -600,5 +600,6 @@
     "Cannot approve this driver because ministry eligibility is not valid.": "لا يمكن قبول هذا الكابتن لأن أهلية الوزارة غير صالحة.",
     "Unable to verify ministry eligibility. Please try again.": "تعذر التحقق من أهلية الوزارة. يرجى المحاولة مرة أخرى.",
     "Your ministry eligibility data requires an update on Absher.": "تتطلب بيانات أهليتك لدى الوزارة تحديثاً في منصة أبشر.",
-    "Please update your data on the Absher platform as requested by the ministry.": "يرجى تحديث بياناتك في منصة أبشر حسب طلب الوزارة."
+    "Please update your data on the Absher platform as requested by the ministry.": "يرجى تحديث بياناتك في منصة أبشر حسب طلب الوزارة.",
+    "Unable to verify ministry eligibility because the driver identity number is missing.": "تعذر التحقق من أهلية الوزارة لأن رقم هوية الكابتن غير متوفر."
 }

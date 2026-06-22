@@ -185,21 +185,24 @@ class DriverController extends Controller
         $hasPendingUpdate = $driver->approval == 2
             || NewUserInfo::where('user-id', $driver->id)->exists();
 
-        if ($driver->driverInfo) {
+        if ($driver->driverInfo && filled($driver->driverInfo->identity_number)) {
             $banned = DriverBanned::where('driver_identity', $driver->driverInfo->identity_number)
                 ->latest()
                 ->first();
 
             try {
                 $eligibilityBody = $this->waslService->buildEligibilityRequestBody($driver);
-                $waslResponse = $this->waslService->checkDriverEligibility(
-                    $driver->driverInfo->identity_number,
-                    $eligibilityBody
-                );
-                $waslEligibility = $this->waslService->parseEligibilityResponse(
-                    $waslResponse,
-                    $driver->driverInfo->identity_number
-                );
+
+                if ($eligibilityBody !== null) {
+                    $waslResponse = $this->waslService->checkDriverEligibility(
+                        $driver->driverInfo->identity_number,
+                        $eligibilityBody
+                    );
+                    $waslEligibility = $this->waslService->parseEligibilityResponse(
+                        $waslResponse,
+                        $driver->driverInfo->identity_number
+                    );
+                }
             } catch (\Exception $e) {
                 \Log::error('Error fetching Wasl driver details: ' . $e->getMessage());
             }
@@ -763,10 +766,19 @@ class DriverController extends Controller
         $oldApproval = $driver->approval;
         $newApproval = (int) $request->approval;
 
-        if ($newApproval === 1 && (int) $oldApproval === 0 && $driver->driverInfo?->identity_number) {
+        if ($newApproval === 1 && (int) $oldApproval === 0) {
+            if (!filled($driver->driverInfo?->identity_number)) {
+                return redirect()->back()->with('error', __('Unable to verify ministry eligibility because the driver identity number is missing.'));
+            }
+
             try {
                 $driver->loadMissing(['driverInfo', 'callingKey']);
                 $body = $this->waslService->buildEligibilityRequestBody($driver);
+
+                if ($body === null) {
+                    return redirect()->back()->with('error', __('Unable to verify ministry eligibility because the driver identity number is missing.'));
+                }
+
                 $response = $this->waslService->checkDriverEligibility($driver->driverInfo->identity_number, $body);
                 $parsed = $this->waslService->parseEligibilityResponse($response, $driver->driverInfo->identity_number);
 

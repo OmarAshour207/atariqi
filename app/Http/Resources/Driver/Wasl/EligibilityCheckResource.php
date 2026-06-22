@@ -8,9 +8,11 @@ class EligibilityCheckResource extends JsonResource
 {
     public function toArray($request): array
     {
+        $identityNumber = trim((string) ($this->driverInfo?->identity_number ?? ''));
+
         return [
             'driverIds' => [
-                ['id' => (string) $this->driverInfo->identity_number],
+                ['id' => $identityNumber],
             ],
         ];
     }
