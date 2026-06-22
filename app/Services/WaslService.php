@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Http\Resources\Driver\Wasl\EligibilityCheckResource;
 use App\Http\Resources\Driver\Wasl\RegisterResource;
 use App\Http\Resources\Driver\Wasl\UpdateCurrentLocationResource;
 use App\Http\Resources\Driver\Wasl\UpdateTripDataResource;
@@ -73,8 +74,12 @@ class WaslService
 
     }
 
-    private function getWaslCode($code)
+    public function translateWaslCode(?string $code): string
     {
+        if (!$code) {
+            return __('Unknown ministry reason');
+        }
+
         $mapping = [
             'DRIVER_VEHICLE_DUPLICATE' => __('Driver or vehicle already registered'),
             'DRIVER_NOT_ALLOWED' => __('Foreign nationalities are not allowed per TGA rules'),
@@ -127,7 +132,190 @@ class WaslService
 
         ];
 
-        return $mapping[$code] ?? 'Failed to register driver to Wasl';
+        return $mapping[$code] ?? $code;
+    }
+
+    /**
+     * @deprecated Use translateWaslCode()
+     */
+    private function getWaslCode($code)
+    {
+        return $this->translateWaslCode($code);
+    }
+
+    public function buildEligibilityRequestBody(User $driver): array
+    {
+        return (new EligibilityCheckResource($driver))->resolve();
+    }
+
+    public function formatEligibilityPayload(string $driverId): array
+    {
+        return [
+            'driverIds' => [
+                ['id' => (string) $driverId],
+            ],
+        ];
+    }
+
+    public function checkDriverEligibility(string $identityNumber, ?array $body = null): ?array
+    {
+        Log::channel('wasl')->info('Checking driver eligibility with Wasl', [
+            'identity_number' => $identityNumber,
+            'body' => $body,
+        ]);
+
+        if (!$this->config['enabled']) {
+            return null;
+        }
+
+        $payload = $body ?? $this->formatEligibilityPayload($identityNumber);
+
+        try {
+            $response = Http::withHeaders([
+                'client-id' => $this->config['client_key'],
+                'app-id' => $this->config['app_id'],
+                'app-key' => $this->config['app_key'],
+            ])
+                ->contentType('application/json')
+                ->post($this->config['api_url'] . '/api/dispatching/v2/drivers/eligibility', $payload);
+
+            Log::channel('wasl')->info('Received response from Wasl for driver eligibility check', [
+                'identity_number' => $identityNumber,
+                'status' => $response->status(),
+                'body' => $response->body(),
+            ]);
+
+            if (!$response->successful()) {
+                $responseBody = $response->json();
+                throw new \Exception($responseBody['resultMsg'] ?? $response->body());
+            }
+
+            return $response->json();
+        } catch (\Exception $e) {
+            Log::channel('wasl')->error('Error checking driver eligibility with Wasl', [
+                'identity_number' => $identityNumber,
+                'error' => $e->getMessage(),
+            ]);
+            throw new \Exception('Wasl API Error: ' . $e->getMessage());
+        }
+    }
+
+    public function parseEligibilityResponse(?array $response, ?string $identityNumber = null): array
+    {
+        if (!$response) {
+            return [
+                'is_valid' => null,
+                'reasons' => [],
+                'message' => __('Unknown'),
+                'display_status' => __('Unknown'),
+                'driver_eligibility' => null,
+                'vehicle_eligibility' => null,
+            ];
+        }
+
+        if (isset($response['responses']) && is_array($response['responses'])) {
+            $item = collect($response['responses'])->first(function ($row) use ($identityNumber) {
+                if (!$identityNumber) {
+                    return false;
+                }
+
+                return ($row['identityNumber'] ?? null) == $identityNumber
+                    || ($row['id'] ?? null) == $identityNumber;
+            }) ?? ($response['responses'][0] ?? null);
+
+            return $this->parseEligibilityItem(is_array($item) ? $item : []);
+        }
+
+        if (isset($response['result']) && is_array($response['result'])) {
+            return $this->parseEligibilityItem($response['result']);
+        }
+
+        return $this->parseEligibilityItem($response);
+    }
+
+    public function parseEligibilityItem(array $item): array
+    {
+        $driverEligibility = strtoupper((string) ($item['driverEligibility'] ?? $item['eligibility'] ?? ''));
+        $vehicleEligibility = null;
+        $vehicleInvalid = false;
+
+        if (!empty($item['vehicles']) && is_array($item['vehicles'])) {
+            $firstVehicle = $item['vehicles'][0] ?? [];
+            $vehicleEligibility = strtoupper((string) ($firstVehicle['vehicleEligibility'] ?? ''));
+            $vehicleInvalid = $vehicleEligibility === 'INVALID';
+
+            foreach ($item['vehicles'] as $vehicle) {
+                if (strtoupper((string) ($vehicle['vehicleEligibility'] ?? '')) === 'INVALID') {
+                    $vehicleInvalid = true;
+                    break;
+                }
+            }
+        }
+
+        $reasonCodes = $item['rejectionReasons'] ?? [];
+        if (is_string($reasonCodes)) {
+            $reasonCodes = [$reasonCodes];
+        }
+
+        $reasons = collect($reasonCodes)
+            ->filter()
+            ->map(fn ($code) => $this->translateWaslCode((string) $code))
+            ->unique()
+            ->values()
+            ->all();
+
+        $isValid = !in_array($driverEligibility, ['INVALID', 'INELIGIBLE'], true)
+            && !$vehicleInvalid
+            && empty($reasons);
+
+        if (in_array($driverEligibility, ['VALID', 'ELIGIBLE'], true) && !$vehicleInvalid) {
+            $isValid = true;
+        }
+
+        if ($driverEligibility === 'INVALID' || $vehicleInvalid || !empty($reasons)) {
+            $isValid = false;
+        }
+
+        return [
+            'is_valid' => $isValid,
+            'reasons' => $reasons,
+            'message' => !empty($reasons) ? implode(' | ', $reasons) : ($isValid ? __('Valid') : __('Not Valid')),
+            'display_status' => $isValid ? __('Valid') : __('Not Valid'),
+            'driver_eligibility' => $driverEligibility ?: null,
+            'vehicle_eligibility' => $vehicleEligibility,
+        ];
+    }
+
+    public function applyDailyEligibilityToDriver(User $driver): void
+    {
+        if (!$driver->driverInfo?->identity_number) {
+            return;
+        }
+
+        $driver->loadMissing(['driverInfo', 'callingKey']);
+        $body = $this->buildEligibilityRequestBody($driver);
+        $response = $this->checkDriverEligibility($driver->driverInfo->identity_number, $body);
+        $parsed = $this->parseEligibilityResponse($response, $driver->driverInfo->identity_number);
+
+        if ($parsed['is_valid'] === null) {
+            return;
+        }
+
+        if ($parsed['is_valid'] === false) {
+            $driver->update([
+                'approval' => 4,
+                'reject-reason' => $parsed['message'],
+            ]);
+
+            return;
+        }
+
+        if ((int) $driver->approval === 4) {
+            $driver->update([
+                'approval' => 0,
+                'reject-reason' => null,
+            ]);
+        }
     }
 
     // Store the trip once finished
@@ -194,40 +382,6 @@ class WaslService
 
         } catch (\Exception $e) {
             Log::channel('wasl')->error('Error updating trip location to Wasl', ['trip_id' => $trip->id, 'error' => $e->getMessage()]);
-            throw new \Exception('Wasl API Error: ' . $e->getMessage());
-        }
-    }
-
-    // Check driver eligibility
-    public function checkDriverEligibility($identityNumber)
-    {
-        Log::channel('wasl')->info('Checking driver eligibility with Wasl', ['identity_number' => $identityNumber]);
-
-        if (!$this->config['enabled']) {
-            return null;
-        }
-
-        try {
-            $response = Http::withHeaders([
-                'client-id' => $this->config['client_key'],
-                'app-id'     => $this->config['app_id'],
-                'app-key'    => $this->config['app_key'],
-                'Content-Type' => 'application/json'
-            ])
-            ->get($this->config['api_url'] . '/api/dispatching/v2/drivers/eligibility/' . $identityNumber);
-
-            Log::channel('wasl')->info('Received response from Wasl for driver eligibility check', ['identity_number' => $identityNumber, 'status' => $response->status(), 'body' => $response->body()]);
-
-            // if ($response->successful()) {
-                return $response->json();
-            // }
-
-            $responseBody = $response->json();
-
-            throw new \Exception($responseBody['resultMsg'] ?? $response->body());
-
-        } catch (\Exception $e) {
-            Log::channel('wasl')->error('Error checking driver eligibility with Wasl', ['identity_number' => $identityNumber, 'error' => $e->getMessage()]);
             throw new \Exception('Wasl API Error: ' . $e->getMessage());
         }
     }

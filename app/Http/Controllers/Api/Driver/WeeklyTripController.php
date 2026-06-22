@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Driver;
 
 use App\Http\Controllers\Api\BaseController;
+use App\Http\Controllers\Api\Driver\Traits\ChecksDriverWaslStatus;
 use App\Http\Resources\Driver\WeekRideBookingGroupDetails;
 use App\Models\SugWeekDriver;
 use App\Models\User;
@@ -14,6 +15,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 
 class WeeklyTripController extends BaseController
 {
+    use ChecksDriverWaslStatus;
     public function get($groupId): JsonResponse
     {
         $tripsGroup = WeekRideBooking::with(['rate', 'sugDriver', 'sugDriver.deliveryInfo'])
@@ -36,6 +38,10 @@ class WeeklyTripController extends BaseController
 
         if($validator->fails()) {
             return $this->sendError(__('Validation Error.'), $validator->errors()->getMessages(), 422);
+        }
+
+        if ($blocked = $this->blockIfDriverCannotOperateTrips()) {
+            return $blocked;
         }
 
         $dues = new DuesController();

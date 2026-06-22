@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Driver;
 
 use App\Http\Controllers\Api\BaseController;
+use App\Http\Controllers\Api\Driver\Traits\ChecksDriverWaslStatus;
 use App\Http\Resources\Driver\SugDayDriverResource;
 use App\Http\Resources\Driver\SugWeeklyDriverResource;
 use App\Http\Resources\SuggestionDriver;
@@ -24,6 +25,7 @@ use Illuminate\Support\Facades\Validator;
 
 class TripController extends BaseController
 {
+    use ChecksDriverWaslStatus;
     public function updateAction(Request $request): JsonResponse
     {
         Log::info("Update action with type {$request->input('type')} with Action: {$request->input('action')}");
@@ -37,6 +39,10 @@ class TripController extends BaseController
 
         if($validator->fails()) {
             return $this->sendError(__('Validation Error.'), $validator->errors()->getMessages(), 422);
+        }
+
+        if ($blocked = $this->blockIfDriverCannotOperateTrips()) {
+            return $blocked;
         }
 
         $sugModel = $this->getSugModel($request->input('type'));
@@ -133,6 +139,10 @@ class TripController extends BaseController
 
         if($validator->fails()) {
             return $this->sendError(__('Validation Error.'), $validator->errors()->getMessages(), 422);
+        }
+
+        if ($blocked = $this->blockIfDriverCannotOperateTrips()) {
+            return $blocked;
         }
 
         $model = $this->getModel($request->input('type'));

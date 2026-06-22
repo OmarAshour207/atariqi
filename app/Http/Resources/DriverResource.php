@@ -17,6 +17,8 @@ class DriverResource extends JsonResource
             'gender'            => $this->gender,
             'email'             => $this->email,
             'approval'          => $this->approval,
+            'reject-reason'     => $this->{'reject-reason'},
+            'requires_abshir_update' => (int) $this->approval === 4,
             'user-type'         => $this->{"user-type"},
             'user-stage'        => new StageResource($this->stage),
             'call-key'          => new CallingKeyResource($this->callingKey),

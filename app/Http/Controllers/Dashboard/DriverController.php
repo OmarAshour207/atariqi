@@ -140,6 +140,14 @@ class DriverController extends Controller
         }
 
         $waslResponse = null;
+        $waslEligibility = [
+            'is_valid' => null,
+            'reasons' => [],
+            'message' => __('Unknown'),
+            'display_status' => __('Unknown'),
+            'driver_eligibility' => null,
+            'vehicle_eligibility' => null,
+        ];
         $banned = null;
         $admins = collect();
         $universities = University::all();
@@ -183,8 +191,15 @@ class DriverController extends Controller
                 ->first();
 
             try {
-                $waslResponse = $this->waslService->checkDriverEligibility($driver->driverInfo->identity_number);
-                $waslResponse = $waslResponse ? json_decode($waslResponse, true) : null;
+                $eligibilityBody = $this->waslService->buildEligibilityRequestBody($driver);
+                $waslResponse = $this->waslService->checkDriverEligibility(
+                    $driver->driverInfo->identity_number,
+                    $eligibilityBody
+                );
+                $waslEligibility = $this->waslService->parseEligibilityResponse(
+                    $waslResponse,
+                    $driver->driverInfo->identity_number
+                );
             } catch (\Exception $e) {
                 \Log::error('Error fetching Wasl driver details: ' . $e->getMessage());
             }
@@ -203,6 +218,7 @@ class DriverController extends Controller
             'neighborhoods',
             'driverTypes',
             'waslResponse',
+            'waslEligibility',
             'banned',
             'admins',
             'currentDues',
@@ -746,6 +762,21 @@ class DriverController extends Controller
 
         $oldApproval = $driver->approval;
         $newApproval = (int) $request->approval;
+
+        if ($newApproval === 1 && (int) $oldApproval === 0 && $driver->driverInfo?->identity_number) {
+            try {
+                $driver->loadMissing(['driverInfo', 'callingKey']);
+                $body = $this->waslService->buildEligibilityRequestBody($driver);
+                $response = $this->waslService->checkDriverEligibility($driver->driverInfo->identity_number, $body);
+                $parsed = $this->waslService->parseEligibilityResponse($response, $driver->driverInfo->identity_number);
+
+                if ($parsed['is_valid'] === false) {
+                    return redirect()->back()->with('error', __('Cannot approve this driver because ministry eligibility is not valid.') . ' ' . $parsed['message']);
+                }
+            } catch (\Exception $e) {
+                return redirect()->back()->with('error', __('Unable to verify ministry eligibility. Please try again.'));
+            }
+        }
 
         $updateData = [
             'approval' => $newApproval,

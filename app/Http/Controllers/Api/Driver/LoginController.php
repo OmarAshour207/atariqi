@@ -32,7 +32,9 @@ class LoginController extends BaseController
             return $this->sendError("s_userNotExist", [__("User not registered on Atariqi family, you have to register first")], 401);
         }
 
-        if ($user->approval != 1) {
+        if ($user->approval == 4) {
+            // Allowed to continue login; trip operations are blocked in the app APIs.
+        } elseif ($user->approval != 1) {
             return $this->sendError("s_userNotApproved",
                 [__("We are checking your registration order, please bear with us and will send on academic email or phone")], 401);
         }
@@ -74,8 +76,18 @@ class LoginController extends BaseController
             return $this->sendError(__("s_userNotExist"), [__("User doesn't exist")], 401);
         }
 
+        if (!in_array((int) $user->approval, [1, 4], true)) {
+            return $this->sendError('s_userNotApproved', [
+                __('We are checking your registration order, please bear with us and will send on academic email or phone'),
+            ], 403);
+        }
+
         $success = array();
         $success['welcome_message'] = $this->checkWelcomeMessage($user);
+        $success['requires_abshir_update'] = (int) $user->approval === 4;
+        $success['abshir_message'] = (int) $user->approval === 4
+            ? ($user->{'reject-reason'} ?: __('Please update your data on the Absher platform as requested by the ministry.'))
+            : null;
 
         $success['token'] = $user->createToken('atariqi')->plainTextToken;
         $success['driver'] = new DriverResource($user);

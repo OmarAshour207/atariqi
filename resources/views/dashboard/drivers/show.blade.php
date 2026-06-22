@@ -37,6 +37,26 @@
                 <div class="alert alert-danger">{{ session('error') }}</div>
             @endif
 
+            @if($driver->approval == 0 && $waslEligibility['is_valid'] !== null)
+                <div class="alert alert-{{ $waslEligibility['is_valid'] ? 'success' : 'danger' }}">
+                    <strong>{{ __('Ministry Request Status') }}:</strong>
+                    {{ $waslEligibility['display_status'] }}
+                    @if(!$waslEligibility['is_valid'] && !empty($waslEligibility['message']))
+                        <br><span>{{ $waslEligibility['message'] }}</span>
+                    @endif
+                </div>
+            @endif
+
+            @if($driver->approval == 4)
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    {{ __('This driver must update their data on Absher.') }}
+                    @if($driver->{'reject-reason'})
+                        <br>{{ $driver->{'reject-reason'} }}
+                    @endif
+                </div>
+            @endif
+
             @if($hasPendingUpdate)
                 <div class="alert alert-warning">
                     <i class="fas fa-user-edit"></i> {{ __('This driver has a pending profile update request.') }}
@@ -216,6 +236,7 @@
                                     <option value="1" {{ old('approval', $driver->approval) == 1 ? 'selected' : '' }}> {{ __('Approved') }} </option>
                                     <option value="2" {{ old('approval', $driver->approval) == 2 ? 'selected' : '' }}> {{ __('Under Review') }} </option>
                                     <option value="3" {{ old('approval', $driver->approval) == 3 ? 'selected' : '' }}> {{ __('Rejected') }} </option>
+                                    <option value="4" {{ old('approval', $driver->approval) == 4 ? 'selected' : '' }}> {{ __('Absher Update Required') }} </option>
                                 </select>
                             </div>
 
@@ -341,14 +362,14 @@
                                 <div class="col-6">
                                     <div class="form-group">
                                         <label for="driver-wasl-status"> {{ __("Driver Wasl Status") }}</label>
-                                        <input id="driver-wasl-status" name="driver-wasl-status" dir="auto" type="text" class="form-control" placeholder="{{ __("Driver Wasl Status") }}" value="{{ isset($waslResponse['driverEligibility']) ? $waslResponse['driverEligibility'] : __('Unknown') }}" disabled>
+                                        <input id="driver-wasl-status" name="driver-wasl-status" dir="auto" type="text" class="form-control" placeholder="{{ __("Driver Wasl Status") }}" value="{{ $waslEligibility['driver_eligibility'] ?? $waslEligibility['display_status'] ?? __('Unknown') }}" disabled>
                                     </div>
                                 </div>
 
                                 <div class="col-6">
                                     <div class="form-group">
                                         <label for="driver-wasl-reason"> {{ __("Driver Wasl Reason") }}</label>
-                                        <input id="driver-wasl-reason" name="driver-wasl-reason" dir="auto" type="text" class="form-control" value="{{ isset($waslResponse['criminalRecordStatus']) ? $waslResponse['criminalRecordStatus'] : __('Unknown') }}" disabled>
+                                        <input id="driver-wasl-reason" name="driver-wasl-reason" dir="auto" type="text" class="form-control" value="{{ $waslEligibility['message'] ?? __('Unknown') }}" disabled>
                                     </div>
                                 </div>
                             </div>
@@ -357,14 +378,14 @@
                                 <div class="col-6">
                                     <div class="form-group">
                                         <label for="vehicle-wasl-status"> {{ __("Vehicle Wasl Status") }}</label>
-                                        <input id="vehicle-wasl-status" name="vehicle-wasl-status" dir="auto" type="text" class="form-control" placeholder="{{ __("Vehicle Wasl Status") }}" value="{{ isset($waslResponse['vehicles'][0]['vehicleEligibility']) ? $waslResponse['vehicles'][0]['vehicleEligibility'] : __('Unknown') }}" disabled>
+                                        <input id="vehicle-wasl-status" name="vehicle-wasl-status" dir="auto" type="text" class="form-control" placeholder="{{ __("Vehicle Wasl Status") }}" value="{{ $waslEligibility['vehicle_eligibility'] ?? (isset($waslResponse['vehicles'][0]['vehicleEligibility']) ? $waslResponse['vehicles'][0]['vehicleEligibility'] : __('Unknown')) }}" disabled>
                                     </div>
                                 </div>
 
                                 <div class="col-6">
                                     <div class="form-group">
                                         <label for="vehicle-reason"> {{ __("Vehicle Wasl Reason") }}</label>
-                                        <input id="vehicle-reason" name="vehicle-reason" dir="auto" type="text" class="form-control" placeholder="{{ __("Vehicle Wasl Reason") }}" value="{{ isset($waslResponse['vehicles'][0]['rejectionReasons']) ? $waslResponse['vehicles'][0]['rejectionReasons'] : __('Unknown') }}" disabled>
+                                        <input id="vehicle-reason" name="vehicle-reason" dir="auto" type="text" class="form-control" placeholder="{{ __("Vehicle Wasl Reason") }}" value="{{ isset($waslResponse['vehicles'][0]['rejectionReasons']) ? (is_array($waslResponse['vehicles'][0]['rejectionReasons']) ? implode(' | ', $waslResponse['vehicles'][0]['rejectionReasons']) : $waslResponse['vehicles'][0]['rejectionReasons']) : ($waslEligibility['message'] ?? __('Unknown')) }}" disabled>
                                     </div>
                                 </div>
                             </div>
@@ -495,7 +516,9 @@
 
                     @if ($driver->approval == 0)
                         <div class="text-right mb-5">
-                            <button type="submit" name="approval" value="1" class="btn btn-success">{{ __('Accept') }}</button>
+                            @if($waslEligibility['is_valid'] !== false)
+                                <button type="submit" name="approval" value="1" class="btn btn-success">{{ __('Accept') }}</button>
+                            @endif
                             <button type="button" class="btn btn-primary" onclick="showAssignModal()">{{ __('Assign') }}</button>
                             <button type="button" class="btn btn-danger" onclick="showRejectModal()">{{ __('Reject') }}</button>
                         </div>

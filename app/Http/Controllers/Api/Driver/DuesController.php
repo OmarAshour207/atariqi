@@ -44,7 +44,9 @@ class DuesController extends BaseController
             'last_pay_cost' => $lastPayDate->amount ?? 0,
             'new_revenues' => $newRevenues['total'],
             'current_dues' => $currentDues,
-            'can_accept_trips' => auth()->user()->scopeCheckacceptTrips($currentDues)
+            'can_accept_trips' => auth()->user()->approval == 1 && auth()->user()->scopeCheckacceptTrips($currentDues),
+            'requires_abshir_update' => auth()->user()->approval == 4,
+            'abshir_message' => auth()->user()->{'reject-reason'},
         ], __('Data'));
     }
 

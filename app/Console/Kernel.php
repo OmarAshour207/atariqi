@@ -19,6 +19,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('payment-reminder')->dailyAt(12);
         $schedule->command('delete-late-trips')->dailyAt(1);
         $schedule->command('check-finished-subscriptions')->dailyAt('00:05');
+        $schedule->command('drivers:check-wasl-eligibility')->dailyAt('02:00');
     }
 
     /**

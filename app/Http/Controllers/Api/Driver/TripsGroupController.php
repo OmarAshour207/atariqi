@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Driver;
 
 use App\Http\Controllers\Api\BaseController;
+use App\Http\Controllers\Api\Driver\Traits\ChecksDriverWaslStatus;
 use App\Http\Resources\Driver\SugDayDriverDetailsResource;
 use App\Models\DelDailyInfo;
 use App\Models\DeliveryInfo;
@@ -17,6 +18,8 @@ use Illuminate\Support\Facades\Validator;
 
 class TripsGroupController extends BaseController
 {
+    use ChecksDriverWaslStatus;
+
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -29,6 +32,10 @@ class TripsGroupController extends BaseController
 
         if($validator->fails()) {
             return $this->sendError(__('Validation Error.'), $validator->errors()->getMessages(), 422);
+        }
+
+        if ($blocked = $this->blockIfDriverCannotOperateTrips()) {
+            return $blocked;
         }
 
         $sugModel = SugDayDriver::class;

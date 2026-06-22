@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Driver;
 
 use App\Http\Controllers\Api\BaseController;
+use App\Http\Controllers\Api\Driver\Traits\ChecksDriverWaslStatus;
 use App\Http\Resources\DayRideBookingResource;
 use App\Http\Resources\Driver\SugDayDriverDetailsResource;
 use App\Http\Resources\Driver\SugDayDriverResource;
@@ -18,6 +19,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 
 class DailyTripsController extends BaseController
 {
+    use ChecksDriverWaslStatus;
     public function get(): JsonResponse
     {
         $driverServices = DriversServices::select('service-id')
@@ -51,6 +53,10 @@ class DailyTripsController extends BaseController
 
         if($validator->fails()) {
             return $this->sendError(__('Validation Error.'), $validator->errors()->getMessages(), 422);
+        }
+
+        if ($blocked = $this->blockIfDriverCannotOperateTrips()) {
+            return $blocked;
         }
 
         $dues = new DuesController();

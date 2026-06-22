@@ -60,6 +60,7 @@
                                     <option value="1" {{ request('approval') === '1' ? 'selected' : '' }}>{{ __('Approved') }}</option>
                                     <option value="2" {{ request('approval') === '2' ? 'selected' : '' }}>{{ __('Under Review') }}</option>
                                     <option value="3" {{ request('approval') === '3' ? 'selected' : '' }}>{{ __('Rejected') }}</option>
+                                    <option value="4" {{ request('approval') === '4' ? 'selected' : '' }}>{{ __('Absher Update Required') }}</option>
                                 </select>
                             </div>
                         </div>
@@ -130,6 +131,8 @@
                                     <span class="badge badge-info">{{ __('Under Review') }}</span>
                                 @elseif($driver->approval == 3)
                                     <span class="badge badge-danger">{{ __('Rejected') }}</span>
+                                @elseif($driver->approval == 4)
+                                    <span class="badge badge-warning">{{ __('Absher Update Required') }}</span>
                                 @else
                                     <span class="badge badge-secondary">{{ __('Unknown') }}</span>
                                 @endif
