@@ -41,7 +41,21 @@
                 <div class="alert alert-{{ $waslEligibility['is_valid'] ? 'success' : 'danger' }}">
                     <strong>{{ __('Ministry Request Status') }}:</strong>
                     {{ $waslEligibility['display_status'] }}
-                    @if(!$waslEligibility['is_valid'] && !empty($waslEligibility['message']))
+                    @if($waslEligibility['is_valid'])
+                        @if(!empty($waslEligibility['driver_expiry_date']))
+                            <br><span>{{ __('Driver eligibility expires on') }}: {{ $waslEligibility['driver_expiry_date'] }}</span>
+                        @endif
+                        @if(!empty($waslEligibility['vehicle_plate']))
+                            <br><span>{{ __('Vehicle') }}: {{ $waslEligibility['vehicle_plate'] }}
+                                @if(!empty($waslEligibility['vehicle_eligibility']))
+                                    ({{ $waslEligibility['vehicle_eligibility'] }})
+                                @endif
+                            </span>
+                            @if(!empty($waslEligibility['vehicle_expiry_date']))
+                                <br><span>{{ __('Vehicle eligibility expires on') }}: {{ $waslEligibility['vehicle_expiry_date'] }}</span>
+                            @endif
+                        @endif
+                    @elseif(!empty($waslEligibility['message']))
                         <br><span>{{ $waslEligibility['message'] }}</span>
                     @endif
                 </div>
@@ -369,7 +383,7 @@
                                 <div class="col-6">
                                     <div class="form-group">
                                         <label for="driver-wasl-reason"> {{ __("Driver Wasl Reason") }}</label>
-                                        <input id="driver-wasl-reason" name="driver-wasl-reason" dir="auto" type="text" class="form-control" value="{{ $waslEligibility['message'] ?? __('Unknown') }}" disabled>
+                                        <input id="driver-wasl-reason" name="driver-wasl-reason" dir="auto" type="text" class="form-control" value="{{ $waslEligibility['is_valid'] && !empty($waslEligibility['driver_expiry_date']) ? $waslEligibility['driver_expiry_date'] : ($waslEligibility['message'] ?? __('Unknown')) }}" disabled>
                                     </div>
                                 </div>
                             </div>
@@ -378,14 +392,14 @@
                                 <div class="col-6">
                                     <div class="form-group">
                                         <label for="vehicle-wasl-status"> {{ __("Vehicle Wasl Status") }}</label>
-                                        <input id="vehicle-wasl-status" name="vehicle-wasl-status" dir="auto" type="text" class="form-control" placeholder="{{ __("Vehicle Wasl Status") }}" value="{{ $waslEligibility['vehicle_eligibility'] ?? (isset($waslResponse['vehicles'][0]['vehicleEligibility']) ? $waslResponse['vehicles'][0]['vehicleEligibility'] : __('Unknown')) }}" disabled>
+                                        <input id="vehicle-wasl-status" name="vehicle-wasl-status" dir="auto" type="text" class="form-control" placeholder="{{ __("Vehicle Wasl Status") }}" value="{{ $waslEligibility['vehicle_eligibility'] ?? __('Unknown') }}" disabled>
                                     </div>
                                 </div>
 
                                 <div class="col-6">
                                     <div class="form-group">
                                         <label for="vehicle-reason"> {{ __("Vehicle Wasl Reason") }}</label>
-                                        <input id="vehicle-reason" name="vehicle-reason" dir="auto" type="text" class="form-control" placeholder="{{ __("Vehicle Wasl Reason") }}" value="{{ isset($waslResponse['vehicles'][0]['rejectionReasons']) ? (is_array($waslResponse['vehicles'][0]['rejectionReasons']) ? implode(' | ', $waslResponse['vehicles'][0]['rejectionReasons']) : $waslResponse['vehicles'][0]['rejectionReasons']) : ($waslEligibility['message'] ?? __('Unknown')) }}" disabled>
+                                        <input id="vehicle-reason" name="vehicle-reason" dir="auto" type="text" class="form-control" placeholder="{{ __("Vehicle Wasl Reason") }}" value="{{ $waslEligibility['is_valid'] && !empty($waslEligibility['vehicle_expiry_date']) ? $waslEligibility['vehicle_expiry_date'] : ($waslEligibility['message'] ?? __('Unknown')) }}" disabled>
                                     </div>
                                 </div>
                             </div>

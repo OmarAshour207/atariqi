@@ -142,11 +142,16 @@ class DriverController extends Controller
         $waslResponse = null;
         $waslEligibility = [
             'is_valid' => null,
+            'api_error' => false,
             'reasons' => [],
             'message' => __('Unknown'),
             'display_status' => __('Unknown'),
             'driver_eligibility' => null,
             'vehicle_eligibility' => null,
+            'driver_expiry_date' => null,
+            'vehicle_plate' => null,
+            'vehicle_expiry_date' => null,
+            'vehicles' => [],
         ];
         $banned = null;
         $admins = collect();
@@ -194,17 +199,27 @@ class DriverController extends Controller
                 $eligibilityBody = $this->waslService->buildEligibilityRequestBody($driver);
 
                 if ($eligibilityBody !== null) {
-                    $waslResponse = $this->waslService->checkDriverEligibility(
+                    $rawWaslResponse = $this->waslService->checkDriverEligibility(
                         $driver->driverInfo->identity_number,
                         $eligibilityBody
                     );
                     $waslEligibility = $this->waslService->parseEligibilityResponse(
-                        $waslResponse,
+                        $rawWaslResponse,
+                        $driver->driverInfo->identity_number
+                    );
+                    $waslResponse = $this->waslService->extractEligibilityItem(
+                        $rawWaslResponse,
                         $driver->driverInfo->identity_number
                     );
                 }
             } catch (\Exception $e) {
                 \Log::error('Error fetching Wasl driver details: ' . $e->getMessage());
+                $waslEligibility = array_merge($waslEligibility, [
+                    'is_valid' => false,
+                    'api_error' => true,
+                    'message' => $e->getMessage(),
+                    'display_status' => __('Verification Failed'),
+                ]);
             }
         }
 
@@ -781,6 +796,10 @@ class DriverController extends Controller
 
                 $response = $this->waslService->checkDriverEligibility($driver->driverInfo->identity_number, $body);
                 $parsed = $this->waslService->parseEligibilityResponse($response, $driver->driverInfo->identity_number);
+
+                if ($parsed['api_error'] ?? false) {
+                    return redirect()->back()->with('error', __('Unable to verify ministry eligibility. Please try again.') . ' ' . $parsed['message']);
+                }
 
                 if ($parsed['is_valid'] === false) {
                     return redirect()->back()->with('error', __('Cannot approve this driver because ministry eligibility is not valid.') . ' ' . $parsed['message']);

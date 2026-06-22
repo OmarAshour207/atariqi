@@ -199,43 +199,66 @@ class WaslService
 
             if (!$response->successful()) {
                 $responseBody = $response->json();
-                throw new \Exception($responseBody['resultMsg'] ?? $response->body());
+                $errorMessage = is_array($responseBody)
+                    ? ($responseBody['resultMsg'] ?? $responseBody['error'] ?? $response->body())
+                    : $response->body();
+
+                return [
+                    'success' => false,
+                    'resultMsg' => is_string($errorMessage) ? $errorMessage : json_encode($errorMessage),
+                ];
             }
 
-            return $response->json();
+            $decoded = $response->json();
+
+            return is_array($decoded) ? $decoded : null;
         } catch (\Exception $e) {
             Log::channel('wasl')->error('Error checking driver eligibility with Wasl', [
                 'identity_number' => $identityNumber,
                 'error' => $e->getMessage(),
             ]);
-            throw new \Exception('Wasl API Error: ' . $e->getMessage());
+
+            return [
+                'success' => false,
+                'resultMsg' => $e->getMessage(),
+            ];
         }
     }
 
     public function parseEligibilityResponse(?array $response, ?string $identityNumber = null): array
     {
+        $empty = [
+            'is_valid' => null,
+            'api_error' => false,
+            'reasons' => [],
+            'message' => __('Unknown'),
+            'display_status' => __('Unknown'),
+            'driver_eligibility' => null,
+            'vehicle_eligibility' => null,
+            'driver_expiry_date' => null,
+            'vehicle_plate' => null,
+            'vehicle_expiry_date' => null,
+            'vehicles' => [],
+        ];
+
         if (!$response) {
-            return [
-                'is_valid' => null,
-                'reasons' => [],
-                'message' => __('Unknown'),
-                'display_status' => __('Unknown'),
-                'driver_eligibility' => null,
-                'vehicle_eligibility' => null,
-            ];
+            return $empty;
+        }
+
+        if ($this->isEligibilityErrorResponse($response)) {
+            return $this->parseEligibilityError($response);
+        }
+
+        if (array_is_list($response)) {
+            $item = $this->findEligibilityItem($response, $identityNumber);
+
+            return $this->parseEligibilityItem($item);
         }
 
         if (isset($response['responses']) && is_array($response['responses'])) {
-            $item = collect($response['responses'])->first(function ($row) use ($identityNumber) {
-                if (!$identityNumber) {
-                    return false;
-                }
+            $item = $this->findEligibilityItem($response['responses'], $identityNumber);
 
-                return ($row['identityNumber'] ?? null) == $identityNumber
-                    || ($row['id'] ?? null) == $identityNumber;
-            }) ?? ($response['responses'][0] ?? null);
-
-            return $this->parseEligibilityItem(is_array($item) ? $item : []);
+            return $this->parseEligibilityItem($item);
         }
 
         if (isset($response['result']) && is_array($response['result'])) {
@@ -245,19 +268,119 @@ class WaslService
         return $this->parseEligibilityItem($response);
     }
 
+    private function isEligibilityErrorResponse(array $response): bool
+    {
+        if (isset($response['error']) && is_string($response['error'])) {
+            return true;
+        }
+
+        if (($response['success'] ?? null) === false) {
+            return true;
+        }
+
+        return isset($response['resultMsg'])
+            && !isset($response['driverEligibility'])
+            && !isset($response['responses'])
+            && !array_is_list($response);
+    }
+
+    private function parseEligibilityError(array $response): array
+    {
+        $message = $response['resultMsg'] ?? $response['error'] ?? __('Unknown error');
+
+        return [
+            'is_valid' => false,
+            'api_error' => true,
+            'reasons' => [],
+            'message' => is_string($message) ? $message : json_encode($message),
+            'display_status' => __('Verification Failed'),
+            'driver_eligibility' => null,
+            'vehicle_eligibility' => null,
+            'driver_expiry_date' => null,
+            'vehicle_plate' => null,
+            'vehicle_expiry_date' => null,
+            'vehicles' => [],
+        ];
+    }
+
+    private function findEligibilityItem(array $items, ?string $identityNumber): array
+    {
+        $item = collect($items)->first(function ($row) use ($identityNumber) {
+            if (!is_array($row)) {
+                return false;
+            }
+
+            if (!$identityNumber) {
+                return true;
+            }
+
+            return ($row['identityNumber'] ?? null) == $identityNumber
+                || ($row['id'] ?? null) == $identityNumber;
+        });
+
+        return is_array($item) ? $item : [];
+    }
+
+    public function extractEligibilityItem(?array $response, ?string $identityNumber = null): ?array
+    {
+        if (!$response || $this->isEligibilityErrorResponse($response)) {
+            return null;
+        }
+
+        if (array_is_list($response)) {
+            $item = $this->findEligibilityItem($response, $identityNumber);
+
+            return $item ?: null;
+        }
+
+        if (isset($response['responses']) && is_array($response['responses'])) {
+            $item = $this->findEligibilityItem($response['responses'], $identityNumber);
+
+            return $item ?: null;
+        }
+
+        if (isset($response['driverEligibility']) || isset($response['vehicles'])) {
+            return $response;
+        }
+
+        return null;
+    }
+
     public function parseEligibilityItem(array $item): array
     {
+        if (empty($item)) {
+            return [
+                'is_valid' => null,
+                'api_error' => false,
+                'reasons' => [],
+                'message' => __('Unknown'),
+                'display_status' => __('Unknown'),
+                'driver_eligibility' => null,
+                'vehicle_eligibility' => null,
+                'driver_expiry_date' => null,
+                'vehicle_plate' => null,
+                'vehicle_expiry_date' => null,
+                'vehicles' => [],
+            ];
+        }
+
         $driverEligibility = strtoupper((string) ($item['driverEligibility'] ?? $item['eligibility'] ?? ''));
         $vehicleEligibility = null;
         $vehicleInvalid = false;
+        $vehiclePlate = null;
+        $vehicleExpiryDate = null;
+        $vehicles = [];
 
         if (!empty($item['vehicles']) && is_array($item['vehicles'])) {
             $firstVehicle = $item['vehicles'][0] ?? [];
             $vehicleEligibility = strtoupper((string) ($firstVehicle['vehicleEligibility'] ?? ''));
-            $vehicleInvalid = $vehicleEligibility === 'INVALID';
+            $vehiclePlate = $firstVehicle['vehiclePlate'] ?? null;
+            $vehicleExpiryDate = $firstVehicle['eligibilityExpiryDate'] ?? null;
+            $vehicleInvalid = in_array($vehicleEligibility, ['INVALID', 'INELIGIBLE'], true);
+            $vehicles = $item['vehicles'];
 
             foreach ($item['vehicles'] as $vehicle) {
-                if (strtoupper((string) ($vehicle['vehicleEligibility'] ?? '')) === 'INVALID') {
+                if (in_array(strtoupper((string) ($vehicle['vehicleEligibility'] ?? '')), ['INVALID', 'INELIGIBLE'], true)) {
                     $vehicleInvalid = true;
                     break;
                 }
@@ -276,25 +399,36 @@ class WaslService
             ->values()
             ->all();
 
-        $isValid = !in_array($driverEligibility, ['INVALID', 'INELIGIBLE'], true)
-            && !$vehicleInvalid
-            && empty($reasons);
+        $driverInvalid = in_array($driverEligibility, ['INVALID', 'INELIGIBLE'], true);
+        $driverValid = in_array($driverEligibility, ['VALID', 'ELIGIBLE'], true);
+        $vehicleValid = $vehicleEligibility === null || in_array($vehicleEligibility, ['VALID', 'ELIGIBLE'], true);
 
-        if (in_array($driverEligibility, ['VALID', 'ELIGIBLE'], true) && !$vehicleInvalid) {
-            $isValid = true;
-        }
+        $isValid = $driverValid && $vehicleValid && empty($reasons);
 
-        if ($driverEligibility === 'INVALID' || $vehicleInvalid || !empty($reasons)) {
+        if ($driverInvalid || $vehicleInvalid || !empty($reasons)) {
             $isValid = false;
         }
 
+        if ($driverEligibility === '' && !$vehicleInvalid && empty($reasons)) {
+            $isValid = null;
+        }
+
+        $driverExpiryDate = $item['eligibilityExpiryDate'] ?? null;
+
         return [
             'is_valid' => $isValid,
+            'api_error' => false,
             'reasons' => $reasons,
-            'message' => !empty($reasons) ? implode(' | ', $reasons) : ($isValid ? __('Valid') : __('Not Valid')),
-            'display_status' => $isValid ? __('Valid') : __('Not Valid'),
+            'message' => !empty($reasons)
+                ? implode(' | ', $reasons)
+                : ($isValid ? __('Valid') : ($isValid === false ? __('Not Valid') : __('Unknown'))),
+            'display_status' => $isValid ? __('Valid') : ($isValid === false ? __('Not Valid') : __('Unknown')),
             'driver_eligibility' => $driverEligibility ?: null,
             'vehicle_eligibility' => $vehicleEligibility,
+            'driver_expiry_date' => $driverExpiryDate,
+            'vehicle_plate' => $vehiclePlate,
+            'vehicle_expiry_date' => $vehicleExpiryDate,
+            'vehicles' => $vehicles,
         ];
     }
 
@@ -314,7 +448,7 @@ class WaslService
         $response = $this->checkDriverEligibility($driver->driverInfo->identity_number, $body);
         $parsed = $this->parseEligibilityResponse($response, $driver->driverInfo->identity_number);
 
-        if ($parsed['is_valid'] === null) {
+        if ($parsed['is_valid'] === null || ($parsed['api_error'] ?? false)) {
             return;
         }
 
