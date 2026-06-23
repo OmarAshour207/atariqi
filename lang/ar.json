@@ -636,5 +636,14 @@
     "Trip Route": "مسار الرحلة",
     "Pickup/Dropoff Point": "نقطة الإيصال / الوصول",
     "Coordinates": "الإحداثيات",
-    "View on map": "عرض على الخريطة"
+    "View on map": "عرض على الخريطة",
+    "Package Assignment Notification": "إشعار ترقية الاشتراك",
+    "Your subscription has been upgraded successfully.": "تم ترقية اشتراكك بنجاح.",
+    "Package Details:": "تفاصيل الباقة:",
+    "Interval": "مدة الاشتراك",
+    "Assigned Date": "تاريخ التفعيل",
+    "Yearly": "سنوي",
+    "Monthly": "شهري",
+    "Please log in to your account to view more details about your package and its benefits.": "يرجى تسجيل الدخول إلى حسابك للاطلاع على تفاصيل الباقة ومزاياها.",
+    "Best Regards": "مع التحية"
 }

@@ -512,29 +512,50 @@ class DriverController extends Controller
         ]);
 
         // Send email notification to driver
-        try {
-            Mail::to($driver->email)->send(new PackageAssignmentMail($driver, $package, $request->interval));
-
-            PlatformEmailLog::create([
-                'assigned_from_employee_id' => auth()->guard('admin')->id(),
-                'driver_id' => $driver->id,
-                'driver_email' => $driver->email,
-                'email_type' => 'package_assignment',
-                'status' => 'sent',
-                'error_message' => null,
-            ]);
-        } catch (\Throwable $e) {
-            PlatformEmailLog::create([
-                'assigned_from_employee_id' => auth()->guard('admin')->id(),
-                'driver_id' => $driver->id,
-                'driver_email' => $driver->email,
-                'email_type' => 'package_assignment',
-                'status' => 'failed',
-                'error_message' => $e->getMessage(),
-            ]);
-        }
+        $this->sendPackageAssignmentEmail($driver, $package, $request->interval);
 
         return redirect()->route('drivers.packages')->with('success', __('Package assignment updated successfully.'));
+    }
+
+    private function sendPackageAssignmentEmail(User $driver, Package $package, string $interval): void
+    {
+        if (!$driver->email) {
+            $this->logPlatformEmail($driver, 'package_assignment', 'failed', __('Driver email is not available.'));
+
+            return;
+        }
+
+        try {
+            Mail::to($driver->email)->send(new PackageAssignmentMail($driver, $package, $interval));
+            $this->logPlatformEmail($driver, 'package_assignment', 'sent');
+        } catch (\Throwable $e) {
+            \Log::error('Package assignment email failed', [
+                'driver_id' => $driver->id,
+                'error' => $e->getMessage(),
+            ]);
+            $this->logPlatformEmail($driver, 'package_assignment', 'failed', $e->getMessage());
+        }
+    }
+
+    private function logPlatformEmail(User $driver, string $emailType, string $status, ?string $errorMessage = null): void
+    {
+        try {
+            PlatformEmailLog::create([
+                'assigned_from_employee_id' => auth()->guard('admin')->id(),
+                'driver_id' => $driver->id,
+                'driver_email' => $driver->email,
+                'email_type' => $emailType,
+                'status' => $status,
+                'error_message' => $errorMessage,
+            ]);
+        } catch (\Throwable $e) {
+            \Log::error('Failed to write platform email log', [
+                'driver_id' => $driver->id,
+                'email_type' => $emailType,
+                'status' => $status,
+                'error' => $e->getMessage(),
+            ]);
+        }
     }
 
     public function cancelPackage(User $driver)
@@ -603,24 +624,13 @@ class DriverController extends Controller
 
         try {
             Mail::to($driver->email)->send(new PackageCancellationMail($driver, $oldPackage, $freePackage));
-
-            PlatformEmailLog::create([
-                'assigned_from_employee_id' => auth()->guard('admin')->id(),
-                'driver_id' => $driver->id,
-                'driver_email' => $driver->email,
-                'email_type' => 'package_cancellation',
-                'status' => 'sent',
-                'error_message' => null,
-            ]);
+            $this->logPlatformEmail($driver, 'package_cancellation', 'sent');
         } catch (\Throwable $e) {
-            PlatformEmailLog::create([
-                'assigned_from_employee_id' => auth()->guard('admin')->id(),
+            \Log::error('Package cancellation email failed', [
                 'driver_id' => $driver->id,
-                'driver_email' => $driver->email,
-                'email_type' => 'package_cancellation',
-                'status' => 'failed',
-                'error_message' => $e->getMessage(),
+                'error' => $e->getMessage(),
             ]);
+            $this->logPlatformEmail($driver, 'package_cancellation', 'failed', $e->getMessage());
 
             return redirect()->back()
                 ->with('error', __('Subscription was cancelled but the notification email could not be sent.'));
