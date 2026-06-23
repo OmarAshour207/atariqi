@@ -33,6 +33,7 @@ use App\Models\Subscription;
 use App\Services\WaslService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Pagination\LengthAwarePaginator;
 use App\Mail\DriverRejectedMail;
 use App\Mail\DriverApprovedMail;
 use App\Mail\PaymentReminderMail;
@@ -56,35 +57,124 @@ class DriverController extends Controller
         $query = User::with(['callingKey', 'university', 'stage', 'driverInfo'])
             ->where('user-type', 'driver');
 
-        // Filter by name
+        $this->applyDriverIndexFilters($query, $request);
+
+        $sort = $request->get('sort', 'newest');
+        $requiresDuesCalculation = $request->filled('min_dues')
+            || in_array($sort, ['highest_dues', 'lowest_dues'], true);
+
+        if (!$requiresDuesCalculation) {
+            $this->applyDriverIndexSort($query, $sort);
+            $drivers = $query->paginate(20)->appends($request->query());
+            $this->attachCurrentDuesToDrivers($drivers->getCollection());
+        } else {
+            $driversCollection = $query->get();
+            $this->attachCurrentDuesToDrivers($driversCollection);
+
+            if ($request->filled('min_dues')) {
+                $minDues = (float) $request->min_dues;
+                $driversCollection = $driversCollection->filter(
+                    fn ($driver) => ($driver->current_dues ?? 0) >= $minDues
+                );
+            }
+
+            $driversCollection = $this->sortDriversCollection($driversCollection, $sort);
+
+            $page = LengthAwarePaginator::resolveCurrentPage();
+            $perPage = 20;
+            $drivers = new LengthAwarePaginator(
+                $driversCollection->forPage($page, $perPage)->values(),
+                $driversCollection->count(),
+                $perPage,
+                $page,
+                [
+                    'path' => LengthAwarePaginator::resolveCurrentPath(),
+                    'query' => $request->query(),
+                ]
+            );
+        }
+
+        $universities = University::all();
+        $stages = Stage::all();
+
+        return view('dashboard.drivers.index', compact('drivers', 'universities', 'stages'));
+    }
+
+    private function applyDriverIndexFilters($query, Request $request): void
+    {
         if ($request->filled('name')) {
             $query->where(function ($q) use ($request) {
                 $q->where('user-first-name', 'like', '%' . $request->name . '%')
-                  ->orWhere('user-last-name', 'like', '%' . $request->name . '%')
-                  ->orWhere('email', 'like', '%' . $request->name . '%');
+                    ->orWhere('user-last-name', 'like', '%' . $request->name . '%')
+                    ->orWhere('email', 'like', '%' . $request->name . '%');
             });
         }
 
-        // Filter by email
         if ($request->filled('email')) {
             $query->where('email', 'like', '%' . $request->email . '%');
         }
 
-        // Filter by phone
         if ($request->filled('phone')) {
             $query->where('phone-no', 'like', '%' . $request->phone . '%');
         }
 
-        // Filter by approval
         if ($request->filled('approval') && $request->approval !== '') {
             $query->where('approval', $request->approval);
         }
 
-        $drivers = $query->paginate(20)->appends($request->query());
+        if ($request->filled('university-id')) {
+            $query->where('university-id', $request->get('university-id'));
+        }
 
-        $this->attachCurrentDuesToDrivers($drivers->getCollection());
+        if ($request->filled('user-stage-id')) {
+            $query->where('user-stage-id', $request->get('user-stage-id'));
+        }
 
-        return view('dashboard.drivers.index', compact('drivers'));
+        if ($request->filled('min_rate') || $request->filled('max_rate')) {
+            $query->whereHas('driverInfo', function ($q) use ($request) {
+                if ($request->filled('min_rate')) {
+                    $q->where('driver-rate', '>=', (float) $request->min_rate);
+                }
+                if ($request->filled('max_rate')) {
+                    $q->where('driver-rate', '<=', (float) $request->max_rate);
+                }
+            });
+        }
+    }
+
+    private function applyDriverIndexSort($query, string $sort): void
+    {
+        switch ($sort) {
+            case 'oldest':
+                $query->orderBy('date-of-add')->orderBy('id');
+                break;
+            case 'highest_rate':
+                $query->leftJoin('driver-info', 'driver-info.driver-id', '=', 'users.id')
+                    ->orderByDesc('driver-info.driver-rate')
+                    ->select('users.*');
+                break;
+            case 'lowest_rate':
+                $query->leftJoin('driver-info', 'driver-info.driver-id', '=', 'users.id')
+                    ->orderByRaw('`driver-info`.`driver-rate` IS NULL, `driver-info`.`driver-rate` ASC')
+                    ->select('users.*');
+                break;
+            case 'newest':
+            default:
+                $query->orderByDesc('id');
+                break;
+        }
+    }
+
+    private function sortDriversCollection($drivers, string $sort)
+    {
+        return match ($sort) {
+            'highest_dues' => $drivers->sortByDesc(fn ($driver) => $driver->current_dues ?? 0)->values(),
+            'lowest_dues' => $drivers->sortBy(fn ($driver) => $driver->current_dues ?? 0)->values(),
+            'highest_rate' => $drivers->sortByDesc(fn ($driver) => $driver->driverInfo?->{'driver-rate'} ?? -1)->values(),
+            'lowest_rate' => $drivers->sortBy(fn ($driver) => $driver->driverInfo?->{'driver-rate'} ?? PHP_FLOAT_MAX)->values(),
+            'oldest' => $drivers->sortBy(fn ($driver) => $driver->{'date-of-add'} ?? $driver->id)->values(),
+            default => $drivers->sortByDesc('id')->values(),
+        };
     }
 
     public function newDrivers(Request $request)

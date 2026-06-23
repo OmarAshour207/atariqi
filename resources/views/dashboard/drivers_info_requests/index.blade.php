@@ -83,7 +83,11 @@
                             </td>
                         </tr>
                         @empty
-                            <h1> {{ __('No records') }} </h1>
+                            <tr>
+                                <td colspan="5" class="text-center py-4">
+                                    <h5 class="mb-0">{{ __('No Edit Info Requests') }}</h5>
+                                </td>
+                            </tr>
                         @endforelse
                         </tbody>
                     </table>

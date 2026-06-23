@@ -64,8 +64,65 @@
                                 </select>
                             </div>
                         </div>
+                        <div class="col-lg-3 col-md-6 mb-3 mb-lg-0">
+                            <div class="form-group mb-0">
+                                <label for="university-id">{{ __('University') }}</label>
+                                <select class="form-control w-100" id="university-id" name="university-id">
+                                    <option value="">{{ __('All') }}</option>
+                                    @foreach($universities as $university)
+                                        <option value="{{ $university->id }}" @selected(request('university-id') == $university->id)>
+                                            {{ $university->{"name-ar"} ?? $university->{"name-en"} }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-6 mb-3 mb-lg-0">
+                            <div class="form-group mb-0">
+                                <label for="user-stage-id">{{ __('Stage') }}</label>
+                                <select class="form-control w-100" id="user-stage-id" name="user-stage-id">
+                                    <option value="">{{ __('All') }}</option>
+                                    @foreach($stages as $stage)
+                                        <option value="{{ $stage->id }}" @selected(request('user-stage-id') == $stage->id)>
+                                            {{ $stage->{"name-ar"} ?? $stage->{"name-en"} }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-6 mb-3 mb-lg-0">
+                            <div class="form-group mb-0">
+                                <label for="min_rate">{{ __('Minimum Rate') }}</label>
+                                <input type="number" step="0.01" min="0" max="5" class="form-control w-100" id="min_rate" name="min_rate" value="{{ request('min_rate') }}" placeholder="{{ __('Minimum Rate') }}">
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-6 mb-3 mb-lg-0">
+                            <div class="form-group mb-0">
+                                <label for="max_rate">{{ __('Maximum Rate') }}</label>
+                                <input type="number" step="0.01" min="0" max="5" class="form-control w-100" id="max_rate" name="max_rate" value="{{ request('max_rate') }}" placeholder="{{ __('Maximum Rate') }}">
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-6 mb-3 mb-lg-0">
+                            <div class="form-group mb-0">
+                                <label for="min_dues">{{ __('Minimum Dues (SAR)') }}</label>
+                                <input type="number" step="0.01" min="0" class="form-control w-100" id="min_dues" name="min_dues" value="{{ request('min_dues') }}" placeholder="{{ __('Minimum Dues (SAR)') }}">
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-6 mb-3 mb-lg-0">
+                            <div class="form-group mb-0">
+                                <label for="sort">{{ __('Sort By') }}</label>
+                                <select class="form-control w-100" id="sort" name="sort">
+                                    <option value="newest" @selected(request('sort', 'newest') === 'newest')>{{ __('Newest First') }}</option>
+                                    <option value="oldest" @selected(request('sort') === 'oldest')>{{ __('Oldest First') }}</option>
+                                    <option value="highest_dues" @selected(request('sort') === 'highest_dues')>{{ __('Highest Dues') }}</option>
+                                    <option value="lowest_dues" @selected(request('sort') === 'lowest_dues')>{{ __('Lowest Dues') }}</option>
+                                    <option value="highest_rate" @selected(request('sort') === 'highest_rate')>{{ __('Highest Rate') }}</option>
+                                    <option value="lowest_rate" @selected(request('sort') === 'lowest_rate')>{{ __('Lowest Rate') }}</option>
+                                </select>
+                            </div>
+                        </div>
                         <div class="col-12">
-                            <button type="submit" class="btn btn-primary">{{ __('Filter') }}</button>
+                            <button type="submit" class="btn btn-primary">{{ __('Apply') }}</button>
                             <a href="{{ route('drivers.index') }}" class="btn btn-secondary">{{ __('Clear Filters') }}</a>
                         </div>
                     </form>
@@ -75,54 +132,53 @@
             <div class="card">
                 <div class="table-responsive" data-toggle="lists" data-lists-values='["js-lists-values-employee-name"]'>
 
-                    <table class="table mb-0 thead-border-top-0 table-striped drivers-index-table" style="table-layout: fixed; width: 100%;">
+                    <table class="table mb-0 thead-border-top-0 table-striped drivers-index-table">
                         <thead class="drivers-index-table__head">
                             <tr>
-
-                            <th style="width: 4%;"> {{ __('#') }} </th>
-                            <th style="width: 12%;"> {{ __('Full Name') }} </th>
-                            <th style="width: 14%;"> {{ __('Email') }} </th>
-                            <th style="width: 12%;"> {{ __('Phone Number') }} </th>
-                            <th style="width: 12%;"> {{ __('University') }} </th>
-                            <th style="width: 8%;"> {{ __('Rate') }} </th>
-                            <th style="width: 8%;"> {{ __('Dues') }} </th>
-                            <th style="width: 10%;"> {{ __('Approval') }} </th>
-                            <th style="width: 20%;"> {{ __('Action') }} </th>
+                            <th class="drivers-col-index"> {{ __('#') }} </th>
+                            <th class="drivers-col-name"> {{ __('Full Name') }} </th>
+                            <th class="drivers-col-email"> {{ __('Email') }} </th>
+                            <th class="drivers-col-phone"> {{ __('Phone Number') }} </th>
+                            <th class="drivers-col-university"> {{ __('University') }} </th>
+                            <th class="drivers-col-rate"> {{ __('Rate') }} </th>
+                            <th class="drivers-col-dues"> {{ __('Dues') }} </th>
+                            <th class="drivers-col-approval"> {{ __('Approval') }} </th>
+                            <th class="drivers-col-action"> {{ __('Action') }} </th>
                             </tr>
                         </thead>
                         <tbody class="list" id="companies">
                         @forelse ($drivers as $index => $driver)
                         <tr>
 
-                            <td>
-                                <div class="badge badge-soft-dark"> {{ $index+1 }} </div>
+                            <td class="drivers-col-index">
+                                <div class="badge badge-soft-dark"> {{ $drivers->firstItem() + $index }} </div>
                             </td>
 
-                            <td class="text-truncate" title="{{ $driver->fullName }}">
+                            <td class="drivers-col-name">
                                 {{ $driver->fullName }}
                             </td>
 
-                            <td class="text-truncate" title="{{ $driver->email }}">
-                                {{ $driver->email }}
+                            <td class="drivers-col-email">
+                                <a href="mailto:{{ $driver->email }}" class="drivers-email-link">{{ $driver->email }}</a>
                             </td>
 
-                            <td>
-                                <span class="badge badge-info">{{ $driver->fullPhoneNumber }}</span>
+                            <td class="drivers-col-phone">
+                                <span class="drivers-phone">{{ $driver->fullPhoneNumber }}</span>
                             </td>
 
-                            <td class="text-truncate" title="{{ $driver->university->{"name-ar"} ?? __('Not Specified') }}">
+                            <td class="drivers-col-university">
                                 {{ $driver->university->{"name-ar"} ?? __('Not Specified') }}
                             </td>
 
-                            <td>
+                            <td class="drivers-col-rate">
                                 {{ $driver->driverInfo->{"driver-rate"} ?? __('Not Specified') }}
                             </td>
 
-                            <td>
+                            <td class="drivers-col-dues">
                                 {{ number_format($driver->current_dues ?? 0, 2) }} {{ __('SAR') }}
                             </td>
 
-                            <td>
+                            <td class="drivers-col-approval">
                                 @if($driver->approval == 0)
                                     <span class="badge badge-warning">{{ __('Pending') }}</span>
                                 @elseif($driver->approval == 1)
@@ -137,25 +193,25 @@
                                     <span class="badge badge-secondary">{{ __('Unknown') }}</span>
                                 @endif
                             </td>
-                            <td class="text-nowrap">
-                                <div class="btn-group" role="group">
-                                <a href="{{ route('drivers.show', $driver->id) }}" class="btn btn-link px-2" title="{{ __('View') }}">
-                                    <i class="fa fa-eye fa-2x"></i>
+                            <td class="drivers-col-action text-nowrap">
+                                <div class="drivers-actions" role="group">
+                                <a href="{{ route('drivers.show', $driver->id) }}" class="btn btn-link px-1" title="{{ __('View') }}">
+                                    <i class="fa fa-eye fa-lg"></i>
                                 </a>
 
-                                <a href="{{ route('drivers.driverTrips', $driver->id) }}" class="btn btn-link px-2" title="{{ __('Trips') }}">
-                                    <i class="fa fa-route fa-2x"></i>
+                                <a href="{{ route('drivers.driverTrips', $driver->id) }}" class="btn btn-link px-1" title="{{ __('Trips') }}">
+                                    <i class="fa fa-route fa-lg"></i>
                                 </a>
 
-                                <a href="{{ route('drivers.earnings', $driver->id) }}" class="btn btn-link px-2" title="{{ __('Driver Earnings') }}">
-                                    <i class="fa fa-coins fa-2x text-success"></i>
+                                <a href="{{ route('drivers.earnings', $driver->id) }}" class="btn btn-link px-1" title="{{ __('Driver Earnings') }}">
+                                    <i class="fa fa-coins fa-lg text-success"></i>
                                 </a>
 
                                 @if($driver->email)
                                     <form action="{{ route('drivers.sendPaymentReminder', $driver->id) }}" method="post" class="d-inline-block" onsubmit="return confirm('{{ __('Send dues reminder to this driver?') }}');">
                                         @csrf
-                                        <button type="submit" class="btn btn-link px-2" title="{{ __('Remind') }}">
-                                            <i class="fa fa-bell fa-2x text-warning"></i>
+                                        <button type="submit" class="btn btn-link px-1" title="{{ __('Remind') }}">
+                                            <i class="fa fa-bell fa-lg text-warning"></i>
                                         </button>
                                     </form>
                                 @endif
@@ -163,7 +219,21 @@
                             </td>
                         </tr>
                         @empty
-                            <h1> {{ __('No Results matched') }} </h1>
+                            <tr>
+                                <td colspan="9" class="text-center py-4">
+                                    @php
+                                        $hasActiveFilters = count(array_filter(request()->only([
+                                            'name', 'email', 'phone', 'approval', 'university-id', 'user-stage-id',
+                                            'min_rate', 'max_rate', 'min_dues',
+                                        ]))) > 0 || (request('sort') && request('sort') !== 'newest');
+                                    @endphp
+                                    @if($hasActiveFilters)
+                                        <p class="text-muted mb-0">{{ __('No Results matched') }}</p>
+                                    @else
+                                        <h5 class="mb-0">{{ __('No records') }}</h5>
+                                    @endif
+                                </td>
+                            </tr>
                         @endforelse
                         </tbody>
                     </table>
@@ -177,22 +247,68 @@
     </div>
 
     <style>
+        .drivers-index-table {
+            width: 100%;
+            min-width: 1100px;
+        }
+
         .drivers-index-table__head th {
-            font-size: 1.1rem;
+            font-size: 0.95rem;
             font-weight: 700;
-            padding: 1rem 0.75rem;
+            padding: 0.85rem 0.65rem;
             vertical-align: middle;
+            white-space: nowrap;
         }
 
         .drivers-index-table tbody td {
-            font-size: 1rem;
-            padding: 0.9rem 0.75rem;
+            font-size: 0.95rem;
+            padding: 0.75rem 0.65rem;
             vertical-align: middle;
+            white-space: normal;
+            word-break: break-word;
+            overflow-wrap: anywhere;
+            line-height: 1.45;
         }
 
         .drivers-index-table .badge {
-            font-size: 0.95rem;
-            padding: 0.45em 0.65em;
+            font-size: 0.85rem;
+            padding: 0.35em 0.55em;
+            white-space: normal;
+            word-break: break-word;
+        }
+
+        .drivers-col-index { width: 48px; min-width: 48px; }
+        .drivers-col-name { min-width: 150px; }
+        .drivers-col-email { min-width: 180px; }
+        .drivers-col-phone { min-width: 130px; white-space: nowrap !important; }
+        .drivers-col-university { min-width: 140px; }
+        .drivers-col-rate { min-width: 70px; white-space: nowrap !important; }
+        .drivers-col-dues { min-width: 100px; white-space: nowrap !important; }
+        .drivers-col-approval { min-width: 120px; }
+        .drivers-col-action { min-width: 150px; white-space: nowrap !important; }
+
+        .drivers-email-link {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .drivers-email-link:hover {
+            color: #007bff;
+            text-decoration: underline;
+        }
+
+        .drivers-phone {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            background-color: #e3f2fd;
+            color: #1565c0;
+            font-size: 0.875rem;
+            white-space: nowrap;
+        }
+
+        .drivers-actions .btn-link {
+            line-height: 1;
         }
     </style>
 @endsection

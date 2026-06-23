@@ -802,7 +802,7 @@
             const approvalInput = document.createElement('input');
             approvalInput.type = 'hidden';
             approvalInput.name = 'approval';
-            approvalInput.value = '4';
+            approvalInput.value = '3';
 
             // Get the form and submit it
             const form = document.querySelector('.submit-form');
