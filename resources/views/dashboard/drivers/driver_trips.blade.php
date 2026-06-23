@@ -67,7 +67,7 @@
                                 <th>{{ __('Passenger') }}</th>
                                 <th>{{ __('Date') }}</th>
                                 <th>{{ __('Cost') }}</th>
-                                <th>{{ __('Location') }}</th>
+                                <th style="min-width: 260px;">{{ __('Trip Route') }}</th>
                                 <th>{{ __('Status') }}</th>
                             </tr>
                             </thead>
@@ -84,13 +84,7 @@
                                     </td>
                                     <td>{{ $trip->{'date-of-add'} ? \Carbon\Carbon::parse($trip->{'date-of-add'})->format('Y-m-d H:i') : '-' }}</td>
                                     <td>{{ $trip->booking?->service?->cost ?? 0 }} {{ __('SAR') }}</td>
-                                    <td>
-                                        @if($trip->booking)
-                                            {{ $trip->booking->{'road-way'} == 'from' ? ($trip->booking->university?->{'name-ar'} ?? '-') : ($trip->booking->neighborhood?->{'neighborhood-ar'} ?? '-') }}
-                                        @else
-                                            -
-                                        @endif
-                                    </td>
+                                    <td>@include('dashboard.drivers.partials.trip_endpoints', ['trip' => $trip])</td>
                                     <td><span class="badge badge-info">{{ __('Immediate') }}</span></td>
                                 </tr>
                             @endforeach
@@ -113,7 +107,7 @@
                                 <th>{{ __('Passenger') }}</th>
                                 <th>{{ __('Date') }}</th>
                                 <th>{{ __('Cost') }}</th>
-                                <th>{{ __('Location') }}</th>
+                                <th style="min-width: 260px;">{{ __('Trip Route') }}</th>
                                 <th>{{ __('Status') }}</th>
                             </tr>
                             </thead>
@@ -130,13 +124,7 @@
                                     </td>
                                     <td>{{ $trip->{'date-of-add'} ? \Carbon\Carbon::parse($trip->{'date-of-add'})->format('Y-m-d H:i') : '-' }}</td>
                                     <td>{{ $trip->booking?->service?->cost ?? 0 }} {{ __('SAR') }}</td>
-                                    <td>
-                                        @if($trip->booking)
-                                            {{ $trip->booking->{'road-way'} == 'from' ? ($trip->booking->university?->{'name-ar'} ?? '-') : ($trip->booking->neighborhood?->{'neighborhood-ar'} ?? '-') }}
-                                        @else
-                                            -
-                                        @endif
-                                    </td>
+                                    <td>@include('dashboard.drivers.partials.trip_endpoints', ['trip' => $trip])</td>
                                     <td><span class="badge badge-success">{{ __('Daily') }}</span></td>
                                 </tr>
                             @endforeach
@@ -159,7 +147,7 @@
                                 <th>{{ __('Passenger') }}</th>
                                 <th>{{ __('Date') }}</th>
                                 <th>{{ __('Cost') }}</th>
-                                <th>{{ __('Location') }}</th>
+                                <th style="min-width: 260px;">{{ __('Trip Route') }}</th>
                                 <th>{{ __('Status') }}</th>
                             </tr>
                             </thead>
@@ -176,13 +164,7 @@
                                     </td>
                                     <td>{{ $trip->{'date-of-add'} ? \Carbon\Carbon::parse($trip->{'date-of-add'})->format('Y-m-d H:i') : '-' }}</td>
                                     <td>{{ $trip->booking?->service?->cost ?? 0 }} {{ __('SAR') }}</td>
-                                    <td>
-                                        @if($trip->booking)
-                                            {{ $trip->booking->{'road-way'} == 'from' ? ($trip->booking->university?->{'name-ar'} ?? '-') : ($trip->booking->neighborhood?->{'neighborhood-ar'} ?? '-') }}
-                                        @else
-                                            -
-                                        @endif
-                                    </td>
+                                    <td>@include('dashboard.drivers.partials.trip_endpoints', ['trip' => $trip])</td>
                                     <td><span class="badge badge-primary">{{ __('Weekly') }}</span></td>
                                 </tr>
                             @endforeach
@@ -203,4 +185,18 @@
             </a>
         </div>
     </div>
+
+    <style>
+        .trip-endpoints {
+            min-width: 240px;
+        }
+
+        .trip-endpoint-details {
+            line-height: 1.4;
+        }
+
+        .trip-endpoint-name {
+            font-size: 0.95rem;
+        }
+    </style>
 @endsection

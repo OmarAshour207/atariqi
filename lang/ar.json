@@ -632,5 +632,9 @@
     "Lowest Rate": "الأقل تقييماً",
     "Provide a reason for this ban.": "أدخل سبب الحظر",
     "Enter the reason for banning this driver": "أدخل سبب الحظر لهذا الكابتن",
-    "No Edit Info Requests": "لا يوجد طلبات تحديث بيانات الكابتن"
+    "No Edit Info Requests": "لا يوجد طلبات تحديث بيانات الكابتن",
+    "Trip Route": "مسار الرحلة",
+    "Pickup/Dropoff Point": "نقطة الإيصال / الوصول",
+    "Coordinates": "الإحداثيات",
+    "View on map": "عرض على الخريطة"
 }
