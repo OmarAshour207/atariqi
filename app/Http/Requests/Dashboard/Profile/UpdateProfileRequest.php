@@ -6,30 +6,26 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateProfileRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     *
-     * @return bool
-     */
     public function authorize()
     {
-        return true;
+        return auth()->guard('admin')->check();
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, mixed>
-     */
     public function rules()
     {
         return [
-            'name' => 'nullable|string',
-            'email' => 'nullable|email|unique:users,email,' . $this->user()->id . ',id',
-            'phone' => 'nullable|unique:users,phone,' . $this->user()->id . ',id',
-            'password' => 'nullable|string|min:8|confirmed',
+            'old_password' => ['required', 'string'],
+            'new_password' => ['required', 'string', 'min:8', 'same:confirm_new_password'],
+            'confirm_new_password' => ['required', 'string', 'min:8'],
+        ];
+    }
 
-            'image' => 'nullable|file|mimes:pdf,jpg,png,jpeg,webp',
+    public function attributes()
+    {
+        return [
+            'old_password' => __('Old Password'),
+            'new_password' => __('New Password'),
+            'confirm_new_password' => __('Confirm New Password'),
         ];
     }
 }

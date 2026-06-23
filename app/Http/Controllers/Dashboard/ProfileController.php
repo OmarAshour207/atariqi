@@ -17,16 +17,14 @@ class ProfileController extends Controller
     {
         $admin = auth()->guard('admin')->user();
 
-        if($request->has('old_password') && $request->has('new_password') && $request->has('confirm_new_password')) {
-            if(Hash::check($request->old_password, $admin->password)) {
-                $admin->update(['password' => Hash::make($request->new_password)]);
-                session()->flash('success', __('Password updated successfully!'));
-                return redirect()->back();
-            } else {
-                session()->flash('error', __('Old password is incorrect!'));
-                return redirect()->back();
-            }
+        if (!Hash::check($request->old_password, $admin->password)) {
+            return redirect()->back()->with('error', __('Old password is incorrect!'));
         }
-    }
 
+        $admin->update([
+            'password' => Hash::make($request->new_password),
+        ]);
+
+        return redirect()->back()->with('success', __('Password updated successfully!'));
+    }
 }
