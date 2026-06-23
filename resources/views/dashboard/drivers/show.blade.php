@@ -33,6 +33,9 @@
             @if(session('success'))
                 <div class="alert alert-success">{{ session('success') }}</div>
             @endif
+            @if(session('warning'))
+                <div class="alert alert-warning">{{ session('warning') }}</div>
+            @endif
             @if(session('error'))
                 <div class="alert alert-danger">{{ session('error') }}</div>
             @endif
@@ -531,7 +534,7 @@
                     @if ($driver->approval == 0)
                         <div class="text-right mb-5">
                             @if($waslEligibility['is_valid'] !== false)
-                                <button type="submit" name="approval" value="1" class="btn btn-success">{{ __('Accept') }}</button>
+                                <button type="button" class="btn btn-success" onclick="showAcceptModal()">{{ __('Accept') }}</button>
                             @endif
                             <button type="button" class="btn btn-primary" onclick="showAssignModal()">{{ __('Assign') }}</button>
                             <button type="button" class="btn btn-danger" onclick="showRejectModal()">{{ __('Reject') }}</button>
@@ -548,6 +551,27 @@
             </div>
         </div>
         <!-- // END drawer-layout__content -->
+    </div>
+
+    <!-- Accept Captain Modal -->
+    <div class="modal fade" id="acceptModal" tabindex="-1" role="dialog" aria-labelledby="acceptModalLabel" aria-hidden="true" style="z-index: 9999;">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="acceptModalLabel">{{ __('Accept Captain') }}</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p class="mb-0">{{ __('Are you sure you want to accept this user as a captain?') }}</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ __('Cancel') }}</button>
+                    <button type="button" class="btn btn-success" onclick="confirmAcceptDriver()">{{ __('Confirm Acceptance') }}</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Reject Reason Modal -->
@@ -660,6 +684,27 @@
     </style>
 
     <script>
+        function showAcceptModal() {
+            $('#acceptModal').modal('show');
+        }
+
+        function confirmAcceptDriver() {
+            const form = document.querySelector('.submit-form');
+
+            if (!form.querySelector('input[name="approval"]')) {
+                const approvalInput = document.createElement('input');
+                approvalInput.type = 'hidden';
+                approvalInput.name = 'approval';
+                approvalInput.value = '1';
+                form.appendChild(approvalInput);
+            } else {
+                form.querySelector('input[name="approval"]').value = '1';
+            }
+
+            $('#acceptModal').modal('hide');
+            form.submit();
+        }
+
         function showRejectModal() {
             const modal = document.getElementById('rejectModal');
             if (modal) {

@@ -21,6 +21,7 @@ use App\Models\CaptainRequestDecision;
 use App\Models\CaptianRequestAssignment;
 use App\Models\EmployeePackageLog;
 use App\Mail\PackageAssignmentMail;
+use App\Mail\DriverRequestAssignmentMail;
 use App\Mail\PackageCancellationMail;
 use Illuminate\Support\Facades\Mail;
 use Carbon\Carbon;
@@ -33,6 +34,7 @@ use App\Services\WaslService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Mail\DriverRejectedMail;
+use App\Mail\DriverApprovedMail;
 use App\Mail\PaymentReminderMail;
 use App\Models\DriverBanned;
 use App\Models\Admin;
@@ -224,7 +226,7 @@ class DriverController extends Controller
         }
 
         try {
-            $admins = Admin::all();
+            $admins = Admin::where('type', 'admin')->get();
         } catch (\Exception $e) {
             \Log::error('Error fetching admins: ' . $e->getMessage());
         }
@@ -851,7 +853,40 @@ class DriverController extends Controller
             ]);
         }
 
-        return redirect()->route('drivers.index')->with('success', 'Driver status updated successfully.');
+        if ($newApproval === 1 && (int) $oldApproval === 0) {
+            $this->sendCaptainApprovalEmail($driver);
+        }
+
+        return redirect()->route('new-drivers.index')->with('success', __('Driver status updated successfully.'));
+    }
+
+    private function sendCaptainApprovalEmail(User $driver): void
+    {
+        if (!$driver->email) {
+            return;
+        }
+
+        try {
+            Mail::to($driver->email)->send(new DriverApprovedMail($driver));
+
+            PlatformEmailLog::create([
+                'assigned_from_employee_id' => auth()->guard('admin')->id(),
+                'driver_id' => $driver->id,
+                'driver_email' => $driver->email,
+                'email_type' => 'captain_approved',
+                'status' => 'sent',
+                'error_message' => null,
+            ]);
+        } catch (\Throwable $e) {
+            PlatformEmailLog::create([
+                'assigned_from_employee_id' => auth()->guard('admin')->id(),
+                'driver_id' => $driver->id,
+                'driver_email' => $driver->email,
+                'email_type' => 'captain_approved',
+                'status' => 'failed',
+                'error_message' => $e->getMessage(),
+            ]);
+        }
     }
 
     public function assignToAdmin(User $driver, Request $request)
@@ -861,15 +896,40 @@ class DriverController extends Controller
             'assigned_admin' => ['required', 'exists:admins,id'],
         ]);
 
+        $assignedAdmin = Admin::findOrFail($request->input('assigned_admin'));
+        $assignedBy = auth()->guard('admin')->user();
+
         CaptianRequestAssignment::create([
             'user_id' => $driver->id,
-            'assigned_from_employee_id' => auth()->guard('admin')->id(),
-            'assigned_to_employee_id' => $request->input('assigned_admin'),
+            'assigned_from_employee_id' => $assignedBy->id,
+            'assigned_to_employee_id' => $assignedAdmin->id,
             'note' => $request->input('assign_note'),
             'status' => 'assigned',
         ]);
 
-        return redirect()->back()->with('success', __('Driver assignment submitted successfully.'));
+        try {
+            if (!$assignedAdmin->email) {
+                throw new \RuntimeException(__('The selected admin does not have an email address.'));
+            }
+
+            Mail::to($assignedAdmin->email)->send(
+                new DriverRequestAssignmentMail($assignedAdmin, $driver, $request->input('assign_note'), $assignedBy)
+            );
+
+            return redirect()->back()->with('success', __('Driver assignment submitted successfully.'));
+        } catch (\Throwable $e) {
+            \Log::error('Driver assignment email failed', [
+                'driver_id' => $driver->id,
+                'assigned_admin_id' => $assignedAdmin->id,
+                'error' => $e->getMessage(),
+            ]);
+
+            return redirect()->back()->with('warning', __('Driver assignment was saved successfully, but the assignment email could not be sent. Please send the assignment email manually to :admin.', [
+                'admin' => $assignedAdmin->email
+                    ? $assignedAdmin->name . ' (' . $assignedAdmin->email . ')'
+                    : $assignedAdmin->name,
+            ]));
+        }
     }
 
     public function ban(User $driver, Request $request)
