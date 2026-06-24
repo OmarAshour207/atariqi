@@ -45,76 +45,72 @@
                         </tr>
                         </thead>
                         <tbody>
-                        @forelse($passengers as $index => $passenger)
+                        @forelse($passengers as $index => $profileUpdate)
                             <tr>
                                 <td>{{ $passengers->firstItem() + $index }}</td>
                                 <td>
-                                    {{ $passenger->user->{'user-first-name'} }} {{ $passenger->user->{'user-last-name'} }}
+                                    {{ $profileUpdate->user->{'user-first-name'} }} {{ $profileUpdate->user->{'user-last-name'} }}
                                 </td>
                                 <td>
-                                    <strong>{{ $passenger->{'user-first-name'} }} {{ $passenger->{'user-last-name'} }}</strong>
+                                    <strong>{{ $profileUpdate->{'user-first-name'} }} {{ $profileUpdate->{'user-last-name'} }}</strong>
                                     <i class="fas fa-edit text-info" title="{{ __('Updated') }}"></i>
                                 </td>
                                 <td>
-                                    +{{ optional($passenger->callingKey)->{'call-key'} }}{{ $passenger->{'phone-no'} }}
-                                    @if($passenger->newUserInfo && $passenger->newUserInfo->{'phone-no'} !== $passenger->{'phone-no'})
+                                    +{{ optional($profileUpdate->user->callingKey)->{'call-key'} }}{{ $profileUpdate->user->{'phone-no'} }}
+                                    @if($profileUpdate->{'phone-no'} !== $profileUpdate->user->{'phone-no'})
                                         <br><small class="text-info">
                                             <i class="fas fa-arrow-right"></i>
-                                            +{{ optional($passenger->newUserInfo->callingKey)->{'call-key'} }}{{ $passenger->newUserInfo->{'phone-no'} }}
+                                            +{{ optional($profileUpdate->callingKey)->{'call-key'} }}{{ $profileUpdate->{'phone-no'} }}
                                         </small>
                                     @endif
                                 </td>
                                 <td>
-                                    {{ $passenger->email }}
-                                    @if($passenger->newUserInfo && $passenger->newUserInfo->email !== $passenger->email)
+                                    {{ $profileUpdate->user->email }}
+                                    @if($profileUpdate->email !== $profileUpdate->user->email)
                                         <br><small class="text-info">
                                             <i class="fas fa-arrow-right"></i>
-                                            {{ $passenger->newUserInfo->email }}
+                                            {{ $profileUpdate->email }}
                                         </small>
                                     @endif
                                 </td>
                                 <td>
-                                    {{ optional($passenger->university)->{'name-ar'} ?? optional($passenger->university)->{'name-en'} ?? '-' }}
-                                    @if($passenger->newUserInfo && $passenger->newUserInfo->{'university-id'} !== $passenger->{'university-id'})
+                                    {{ optional($profileUpdate->user->university)->{'name-ar'} ?? optional($profileUpdate->user->university)->{'name-en'} ?? '-' }}
+                                    @if($profileUpdate->{'university-id'} !== $profileUpdate->user->{'university-id'})
                                         <br><small class="text-info">
                                             <i class="fas fa-arrow-right"></i>
-                                            {{ optional($passenger->newUserInfo->university)->{'name-ar'} ?? optional($passenger->newUserInfo->university)->{'name-en'} ?? '-' }}
+                                            {{ optional($profileUpdate->university)->{'name-ar'} ?? optional($profileUpdate->university)->{'name-en'} ?? '-' }}
                                         </small>
                                     @endif
                                 </td>
                                 <td>
-                                    @if($passenger->newUserInfo)
-                                        {{ optional($passenger->newUserInfo->{'date-of-add'})->format('Y-m-d H:i') ?? '-' }}
-                                    @else
-                                        -
-                                    @endif
+                                    {{ optional($profileUpdate->{'date-of-add'})->format('Y-m-d H:i') ?? '-' }}
                                 </td>
                                 <td>
                                     <div class="btn-group" role="group">
-                                        <a href="{{ route('passengers.show', $passenger->user->id) }}" class="btn btn-sm btn-info">
+                                        <a href="{{ route('passengers.show', $profileUpdate->user->id) }}" class="btn btn-sm btn-info">
                                             <i class="fas fa-eye"></i> {{ __('Review Details') }}
                                         </a>
-                                        <form action="{{ route('passengers.approve-profile-update', $passenger->user->id) }}" method="post" class="d-inline-block ml-1">
+                                        <form action="{{ route('passengers.approve-profile-update', $profileUpdate->id) }}" method="post" class="d-inline-block ml-1">
                                             @csrf
                                             @method('post')
                                             <button type="submit" class="btn btn-sm btn-success" onclick="return confirm('{{ __('Are you sure you want to approve this profile update?') }}');">
                                                 <i class="fas fa-check"></i> {{ __('Approve') }}
                                             </button>
                                         </form>
-                                        <form id="reject-form-{{ $passenger->user->id }}" action="{{ route('passengers.reject-profile-update', $passenger->user->id) }}" method="post" class="d-inline-block ml-1 profile-reject-form">
+                                        <form id="reject-form-{{ $profileUpdate->id }}" action="{{ route('passengers.reject-profile-update', $profileUpdate->id) }}" method="post" class="d-inline-block ml-1 profile-reject-form">
                                             @csrf
                                             @method('post')
                                             <input type="hidden" name="rejection_reason" value="">
-                                            <button type="button" class="btn btn-sm btn-danger profile-reject-btn" data-form-id="reject-form-{{ $passenger->user->id }}">
+                                            <button type="button" class="btn btn-sm btn-danger profile-reject-btn" data-form-id="reject-form-{{ $profileUpdate->id }}">
                                                 <i class="fas fa-times"></i> {{ __('Reject') }}
                                             </button>
                                         </form>
-                                        <form id="assign-form-{{ $passenger->user->id }}" action="{{ route('passengers.assign-to-admin', $passenger->user->id) }}" method="post" class="d-inline-block ml-1 profile-assign-form">
+                                        <form id="assign-form-{{ $profileUpdate->user->id }}" action="{{ route('passengers.assign-to-admin', $profileUpdate->user->id) }}" method="post" class="d-inline-block ml-1 profile-assign-form">
                                             @csrf
                                             @method('post')
                                             <input type="hidden" name="assign_note" value="">
                                             <input type="hidden" name="assigned_admin" value="">
-                                            <button type="button" class="btn btn-sm btn-primary profile-assign-btn" data-form-id="assign-form-{{ $passenger->user->id }}">
+                                            <button type="button" class="btn btn-sm btn-primary profile-assign-btn" data-form-id="assign-form-{{ $profileUpdate->user->id }}">
                                                 <i class="fas fa-level-up-alt"></i> {{ __('Escalate') }}
                                             </button>
                                         </form>

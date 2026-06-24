@@ -30,7 +30,7 @@
                     <div class="card">
                         <div class="card-header d-flex justify-content-between align-items-center">
                             <h3 class="card-title">{{ __('Personal Information') }}</h3>
-                            @if($passenger->newUserInfo)
+                            @if($passenger->newUserInfos->isNotEmpty())
                                 <span class="badge badge-warning">{{ __('Update Requested') }}</span>
                             @endif
                         </div>
@@ -188,30 +188,35 @@
                             <h3 class="card-title">{{ __('Actions') }}</h3>
                         </div>
                         <div class="card-body">
-                            @if($passenger->newUserInfo && $passenger->approval == 2)
-                                <div class="alert alert-info mb-3">
-                                    <h6><i class="fas fa-user-edit"></i> {{ __('Profile Update Request') }}</h6>
-                                    <p>{{ __('This passenger has requested profile changes that need approval.') }}</p>
-                                    <div class="btn-group">
-                                        <form action="{{ route('passengers.approve-profile-update', $passenger->id) }}" method="post" class="d-inline-block">
-                                            @csrf
-                                            @method('post')
-                                            <button type="submit" class="btn btn-sm btn-success" onclick="return confirm('{{ __('Are you sure you want to approve this profile update?') }}');">
-                                                <i class="fas fa-check"></i> {{ __('Approve Update') }}
-                                            </button>
-                                        </form>
-                                        <form id="reject-profile-form" action="{{ route('passengers.reject-profile-update', $passenger->id) }}" method="post" class="d-inline-block ml-1">
-                                            @csrf
-                                            @method('post')
-                                            <input type="hidden" name="rejection_reason" value="">
-                                            <button type="button" class="btn btn-sm btn-danger" id="open-profile-reject-modal">
-                                                <i class="fas fa-times"></i> {{ __('Reject Update') }}
-                                            </button>
-                                        </form>
-                                        <button type="button" class="btn btn-sm btn-primary ml-1" id="open-profile-assign-modal">
-                                            <i class="fas fa-level-up-alt"></i> {{ __('Escalate to Management') }}
-                                        </button>
+                            @if($passenger->newUserInfos->isNotEmpty() && $passenger->approval == 2)
+                                @foreach($passenger->newUserInfos as $profileUpdate)
+                                    <div class="alert alert-info mb-3">
+                                        <h6><i class="fas fa-user-edit"></i> {{ __('Profile Update Request') }} #{{ $profileUpdate->id }}</h6>
+                                        <p class="mb-2">{{ __('This passenger has requested profile changes that need approval.') }}</p>
+                                        <p class="mb-2 text-muted">{{ __('Request Date') }}: {{ optional($profileUpdate->{'date-of-add'})->format('Y-m-d H:i') ?? '-' }}</p>
+                                        <div class="btn-group">
+                                            <form action="{{ route('passengers.approve-profile-update', $profileUpdate->id) }}" method="post" class="d-inline-block">
+                                                @csrf
+                                                @method('post')
+                                                <button type="submit" class="btn btn-sm btn-success" onclick="return confirm('{{ __('Are you sure you want to approve this profile update?') }}');">
+                                                    <i class="fas fa-check"></i> {{ __('Approve Update') }}
+                                                </button>
+                                            </form>
+                                            <form id="reject-profile-form-{{ $profileUpdate->id }}" action="{{ route('passengers.reject-profile-update', $profileUpdate->id) }}" method="post" class="d-inline-block ml-1 profile-reject-form">
+                                                @csrf
+                                                @method('post')
+                                                <input type="hidden" name="rejection_reason" value="">
+                                                <button type="button" class="btn btn-sm btn-danger profile-reject-btn" data-form-id="reject-profile-form-{{ $profileUpdate->id }}">
+                                                    <i class="fas fa-times"></i> {{ __('Reject Update') }}
+                                                </button>
+                                            </form>
+                                        </div>
                                     </div>
+                                @endforeach
+                                <div class="mb-3">
+                                    <button type="button" class="btn btn-sm btn-primary" id="open-profile-assign-modal">
+                                        <i class="fas fa-level-up-alt"></i> {{ __('Escalate to Management') }}
+                                    </button>
                                 </div>
                             @endif
 
@@ -367,16 +372,14 @@
         }
 
         (function () {
-            const rejectButton = document.getElementById('open-profile-reject-modal');
-            const rejectForm = document.getElementById('reject-profile-form');
+            let activeRejectForm = null;
 
-            if (!rejectButton || !rejectForm) {
-                return;
-            }
-
-            rejectButton.addEventListener('click', function () {
-                document.getElementById('profile-reject-reason').value = '';
-                $('#profileRejectModal').modal('show');
+            document.querySelectorAll('.profile-reject-btn').forEach(function (button) {
+                button.addEventListener('click', function () {
+                    activeRejectForm = document.getElementById(button.getAttribute('data-form-id'));
+                    document.getElementById('profile-reject-reason').value = '';
+                    $('#profileRejectModal').modal('show');
+                });
             });
 
             document.getElementById('confirm-profile-reject').addEventListener('click', function () {
@@ -387,8 +390,12 @@
                     return;
                 }
 
-                rejectForm.querySelector('input[name="rejection_reason"]').value = reason;
-                rejectForm.submit();
+                if (!activeRejectForm) {
+                    return;
+                }
+
+                activeRejectForm.querySelector('input[name="rejection_reason"]').value = reason;
+                activeRejectForm.submit();
             });
 
             const assignButton = document.getElementById('open-profile-assign-modal');

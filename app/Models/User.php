@@ -140,9 +140,14 @@ class User extends Authenticatable
         return $this->hasOne(PassengerRate::class, 'user-id', 'id');
     }
 
+    public function newUserInfos()
+    {
+        return $this->hasMany(NewUserInfo::class, 'user-id', 'id')->orderByDesc('date-of-add');
+    }
+
     public function newUserInfo()
     {
-        return $this->hasOne(NewUserInfo::class, 'user-id', 'id');
+        return $this->hasOne(NewUserInfo::class, 'user-id', 'id')->latestOfMany('date-of-add');
     }
 
     public function getFullNameAttribute()

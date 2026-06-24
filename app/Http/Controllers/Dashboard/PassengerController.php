@@ -103,7 +103,16 @@ class PassengerController extends Controller
             return redirect()->route('passengers.index')->with('error', __('Invalid passenger.'));
         }
 
-        $passenger->load(['callingKey', 'university', 'stage', 'passengerRate', 'newUserInfo']);
+        $passenger->load([
+            'callingKey',
+            'university',
+            'stage',
+            'passengerRate',
+            'newUserInfo',
+            'newUserInfos.callingKey',
+            'newUserInfos.university',
+            'newUserInfos.stage',
+        ]);
         $admins = Admin::where('id', '!=', auth()->guard('admin')->id())->get();
 
         return view('dashboard.passengers.show', compact('passenger', 'admins'));
@@ -283,14 +292,19 @@ class PassengerController extends Controller
     public function profileUpdateRequests()
     {
         // Get all newUserInfo entries for passengers pending review
-        $passengers = \App\Models\NewUserInfo::with([
+        $passengers = NewUserInfo::with([
+                'callingKey',
+                'university',
+                'stage',
                 'user.callingKey',
                 'user.university',
-                'user.stage'
+                'user.stage',
             ])
-            ->whereHas('user', function($q) {
+            ->where('user-type', 'passenger')
+            ->whereHas('user', function ($q) {
                 $q->where('user-type', 'passenger')->where('approval', 2);
             })
+            ->orderByDesc('date-of-add')
             ->paginate(20);
 
         $admins = Admin::where('id', '!=', auth()->guard('admin')->id())->get();
@@ -298,11 +312,12 @@ class PassengerController extends Controller
         return view('dashboard.passengers.profile-update-requests', compact('passengers', 'admins'));
     }
 
-    public function approveProfileUpdate(User $passenger)
+    public function approveProfileUpdate(NewUserInfo $newUserInfo)
     {
-        // Check if passenger has pending profile update
-        if ($passenger->approval !== 2 || !$passenger->newUserInfo) {
-            return redirect()->route('passengers.show', $passenger->id)
+        $passenger = $this->resolvePassengerForProfileUpdate($newUserInfo);
+
+        if (!$passenger) {
+            return redirect()->back()
                 ->with('error', __('No pending profile update found for this passenger.'));
         }
 
@@ -310,21 +325,21 @@ class PassengerController extends Controller
             DB::beginTransaction();
 
             $oldApproval = $passenger->approval;
-            $newInfo = $passenger->newUserInfo;
+            $newApproval = $this->passengerApprovalAfterProcessingRequest($passenger, $newUserInfo->id);
 
             $passenger->update([
-                'user-first-name' => $newInfo->{'user-first-name'},
-                'user-last-name' => $newInfo->{'user-last-name'},
-                'phone-no' => $newInfo->{'phone-no'},
-                'email' => $newInfo->email,
-                'call-key-id' => $newInfo->{'call-key-id'},
-                'university-id' => $newInfo->{'university-id'},
-                'user-stage-id' => $newInfo->{'user-stage-id'},
-                'approval' => 1,
-                'date-of-edit' => now()
+                'user-first-name' => $newUserInfo->{'user-first-name'},
+                'user-last-name' => $newUserInfo->{'user-last-name'},
+                'phone-no' => $newUserInfo->{'phone-no'},
+                'email' => $newUserInfo->email,
+                'call-key-id' => $newUserInfo->{'call-key-id'},
+                'university-id' => $newUserInfo->{'university-id'},
+                'user-stage-id' => $newUserInfo->{'user-stage-id'},
+                'approval' => $newApproval,
+                'date-of-edit' => now(),
             ]);
 
-            $newInfo->delete();
+            $newUserInfo->delete();
 
             Mail::to($passenger->email)->send(new PassengerProfileUpdateAcceptedMail($passenger));
 
@@ -341,32 +356,36 @@ class PassengerController extends Controller
                 'user_id' => $passenger->id,
                 'action_type' => 'approve_profile_update',
                 'old_approval' => $oldApproval,
-                'new_approval' => 1,
+                'new_approval' => $newApproval,
                 'reason' => __('Profile update approved'),
                 'decided_by_employee_id' => auth()->guard('admin')->id(),
             ]);
 
             DB::commit();
 
-            return redirect()->route('passengers.profile-update-requests')
-                ->with('success', __('Profile update approved successfully.'));
+            $message = $newApproval === 2
+                ? __('Profile update approved successfully. Other pending requests remain for this passenger.')
+                : __('Profile update approved successfully.');
+
+            return redirect()->back()->with('success', $message);
         } catch (\Exception $e) {
             DB::rollBack();
 
-            return redirect()->route('passengers.show', $passenger->id)
+            return redirect()->back()
                 ->with('error', __('Unable to approve profile update.'));
         }
     }
 
-    public function rejectProfileUpdate(Request $request, User $passenger)
+    public function rejectProfileUpdate(Request $request, NewUserInfo $newUserInfo)
     {
         $request->validate([
             'rejection_reason' => 'required|string|max:1000',
         ]);
 
-        // Check if passenger has pending profile update
-        if ($passenger->approval !== 2 || !$passenger->newUserInfo) {
-            return redirect()->route('passengers.show', $passenger->id)
+        $passenger = $this->resolvePassengerForProfileUpdate($newUserInfo);
+
+        if (!$passenger) {
+            return redirect()->back()
                 ->with('error', __('No pending profile update found for this passenger.'));
         }
 
@@ -376,11 +395,13 @@ class PassengerController extends Controller
             $oldApproval = $passenger->approval;
             $rejectionReason = $request->input('rejection_reason');
 
-            $passenger->newUserInfo->delete();
+            $newUserInfo->delete();
+
+            $newApproval = $this->passengerApprovalAfterProcessingRequest($passenger);
 
             $passenger->update([
-                'approval' => 1,
-                'date-of-edit' => now()
+                'approval' => $newApproval,
+                'date-of-edit' => now(),
             ]);
 
             Mail::to($passenger->email)->send(new PassengerProfileUpdateRejectedMail($passenger, $rejectionReason));
@@ -398,21 +419,51 @@ class PassengerController extends Controller
                 'user_id' => $passenger->id,
                 'action_type' => 'reject_profile_update',
                 'old_approval' => $oldApproval,
-                'new_approval' => 1,
+                'new_approval' => $newApproval,
                 'reason' => $rejectionReason,
                 'decided_by_employee_id' => auth()->guard('admin')->id(),
             ]);
 
             DB::commit();
 
-            return redirect()->route('passengers.profile-update-requests')
-                ->with('success', __('Profile update rejected successfully.'));
+            $message = $newApproval === 2
+                ? __('Profile update rejected successfully. Other pending requests remain for this passenger.')
+                : __('Profile update rejected successfully.');
+
+            return redirect()->back()->with('success', $message);
         } catch (\Exception $e) {
             DB::rollBack();
 
             return redirect()->back()
                 ->with('error', __('Unable to reject profile update.'));
         }
+    }
+
+    private function resolvePassengerForProfileUpdate(NewUserInfo $newUserInfo): ?User
+    {
+        if ($newUserInfo->{'user-type'} !== 'passenger') {
+            return null;
+        }
+
+        $passenger = $newUserInfo->user;
+
+        if (!$passenger || $passenger->{'user-type'} !== 'passenger' || $passenger->approval !== 2) {
+            return null;
+        }
+
+        return $passenger;
+    }
+
+    private function passengerApprovalAfterProcessingRequest(User $passenger, ?int $excludeRequestId = null): int
+    {
+        $query = NewUserInfo::where('user-id', $passenger->id)
+            ->where('user-type', 'passenger');
+
+        if ($excludeRequestId) {
+            $query->where('id', '!=', $excludeRequestId);
+        }
+
+        return $query->exists() ? 2 : 1;
     }
 
     public function assignProfileUpdateToAdmin(Request $request, User $passenger)
@@ -422,7 +473,7 @@ class PassengerController extends Controller
             'assigned_admin' => ['required', 'exists:admins,id'],
         ]);
 
-        if ($passenger->{'user-type'} !== 'passenger' || $passenger->approval !== 2 || !$passenger->newUserInfo) {
+        if ($passenger->{'user-type'} !== 'passenger' || $passenger->approval !== 2 || !NewUserInfo::where('user-id', $passenger->id)->where('user-type', 'passenger')->exists()) {
             return redirect()->back()
                 ->with('error', __('No pending profile update found for this passenger.'));
         }
