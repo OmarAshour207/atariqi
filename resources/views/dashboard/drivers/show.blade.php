@@ -795,22 +795,7 @@
                 return false;
             }
 
-            // Fill the hidden field with the reason
-            document.getElementById('ban-reason').value = reason;
-
-            // Set approval to 4 (banned)
-            const approvalInput = document.createElement('input');
-            approvalInput.type = 'hidden';
-            approvalInput.name = 'approval';
-            approvalInput.value = '3';
-
-            // Get the form and submit it
-            const form = document.querySelector('.submit-form');
-            form.appendChild(approvalInput);
-
-            // Close modal and submit
-            $('#banModal').modal('hide');
-            form.submit();
+            document.getElementById('ban-form').submit();
         }
 
         function confirmAssignDriver() {

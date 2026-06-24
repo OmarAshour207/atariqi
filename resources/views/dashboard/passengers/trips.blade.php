@@ -19,6 +19,26 @@
         </div>
 
         <div class="container-fluid page__container">
+            @php
+                $formatTripDate = function ($trip, ?string $type = null) {
+                    $dateValue = $trip->{'date-of-add'};
+
+                    if (in_array($type, ['daily', 'weekly'], true) && !empty($trip->booking?->{'date-of-ser'})) {
+                        $dateValue = $trip->booking->{'date-of-ser'};
+                    }
+
+                    if (blank($dateValue)) {
+                        return '-';
+                    }
+
+                    try {
+                        return \Carbon\Carbon::parse($dateValue)->format('Y-m-d H:i');
+                    } catch (\Exception $e) {
+                        return '-';
+                    }
+                };
+            @endphp
+
             <div class="row mb-3">
                 <div class="col-md-3">
                     <div class="card text-center">
@@ -74,7 +94,7 @@
                                 <tr>
                                     <td>{{ $trip->id }}</td>
                                     <td>{{ optional($trip->driver)->{'user-first-name'} }} {{ optional($trip->driver)->{'user-last-name'} }}</td>
-                                    <td>{{ optional($trip->{'date-of-add'})->format('Y-m-d H:i') ?? '-' }}</td>
+                                    <td>{{ $formatTripDate($trip, 'immediate') }}</td>
                                     <td><span class="badge badge-info">{{ __('Immediate') }}</span></td>
                                 </tr>
                             @endforeach
@@ -104,7 +124,7 @@
                                 <tr>
                                     <td>{{ $trip->id }}</td>
                                     <td>{{ optional($trip->driver)->{'user-first-name'} }} {{ optional($trip->driver)->{'user-last-name'} }}</td>
-                                    <td>{{ optional($trip->{'date-of-add'})->format('Y-m-d H:i') ?? '-' }}</td>
+                                    <td>{{ $formatTripDate($trip, 'daily') }}</td>
                                     <td><span class="badge badge-success">{{ __('Daily') }}</span></td>
                                 </tr>
                             @endforeach
@@ -134,7 +154,7 @@
                                 <tr>
                                     <td>{{ $trip->id }}</td>
                                     <td>{{ optional($trip->driver)->{'user-first-name'} }} {{ optional($trip->driver)->{'user-last-name'} }}</td>
-                                    <td>{{ optional($trip->{'date-of-add'})->format('Y-m-d H:i') ?? '-' }}</td>
+                                    <td>{{ $formatTripDate($trip, 'weekly') }}</td>
                                     <td><span class="badge badge-primary">{{ __('Weekly') }}</span></td>
                                 </tr>
                             @endforeach

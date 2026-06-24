@@ -111,17 +111,11 @@ class PassengerController extends Controller
 
     public function ban(User $passenger, Request $request)
     {
-        // Only ban if rating is less than 2
-        $rating = PassengerRate::where('user-id', $passenger->id)->first();
-
-        if (!$rating || $rating->rate >= 2) {
-            return redirect()->route('passengers.show', $passenger->id)
-                ->with('error', __('Passenger cannot be banned. Rating is not below 2.'));
-        }
+        $request->validate([
+            'ban_reason' => ['required', 'string', 'max:1000'],
+        ]);
 
         try {
-            $rating = $passenger->passengerRate ?? PassengerRate::where('user-id', $passenger->id)->first();
-
             DB::beginTransaction();
             $oldApproval = $passenger->approval;
 
@@ -159,7 +153,7 @@ class PassengerController extends Controller
             return redirect()->route('passengers.index')->with('success', __('Passenger has been banned successfully.'));
         } catch (\Exception $e) {
             DB::rollBack();
-            dd($e->getMessage());
+
             return redirect()->back()
                 ->with('error', __('Unable to ban passenger.'));
         }
@@ -181,12 +175,12 @@ class PassengerController extends Controller
             ->get();
 
         $dailyTrips = SugDayDriver::where('passenger-id', $passenger->id)
-            ->with('driver')
+            ->with(['driver', 'booking'])
             ->orderBy('date-of-add', 'desc')
             ->get();
 
         $weeklyTrips = SugWeekDriver::where('passenger-id', $passenger->id)
-            ->with('driver')
+            ->with(['driver', 'booking'])
             ->orderBy('date-of-add', 'desc')
             ->get();
 

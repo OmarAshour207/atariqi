@@ -159,7 +159,7 @@
                                 </td>
                                 <td>
                                     @if($package->features->count() > 0)
-                                        <button type="button" class="btn btn-sm btn-info" onclick="showFeatures({{ $package->id }})">
+                                        <button type="button" class="btn btn-sm btn-info" data-toggle="modal" data-target="#featuresModal{{ $package->id }}">
                                             {{ __('View Features') }} ({{ $package->features->count() }})
                                         </button>
                                     @else
@@ -195,151 +195,145 @@
                 </div>
             </div>
 
-            <!-- Features Overlays -->
-            @foreach($packages as $package)
-                @if($package->features->count() > 0)
-                <div id="featuresOverlay{{ $package->id }}" class="features-overlay" style="display: none;">
-                    <div class="features-modal">
-                        <div class="features-header">
-                            <h5>{{ __('Features for') }} {{ $package->name_en }}</h5>
-                            <button type="button" class="close-btn" onclick="hideFeatures({{ $package->id }})">&times;</button>
-                        </div>
-                        <div class="features-body">
-                            <div class="row">
-                                @foreach($package->features as $feature)
-                                    <div class="col-md-6 mb-3">
-                                        <div class="card h-100">
-                                            <div class="card-body">
-                                                <h6 class="card-title">{{ $feature->name_en }}</h6>
-                                                @if($feature->name_ar)
-                                                    <h6 class="card-subtitle mb-2 text-muted">{{ $feature->name_ar }}</h6>
-                                                @endif
-                                                @if($feature->description_en)
-                                                    <p class="card-text small">{{ $feature->description_en }}</p>
-                                                @endif
-                                                @if($feature->description_ar)
-                                                    <p class="card-text small text-right">{{ $feature->description_ar }}</p>
-                                                @endif
-                                            </div>
-                                        </div>
-                                    </div>
-                                @endforeach
-                            </div>
-                        </div>
-                        <div class="features-footer">
-                            <button type="button" class="btn btn-secondary" onclick="hideFeatures({{ $package->id }})">{{ __('Close') }}</button>
-                        </div>
-                    </div>
-                </div>
-                @endif
-            @endforeach
-
             <div class="mt-4">{{ $packages->links('dashboard.pagination.custom') }}</div>
         </div>
     </div>
+
+    @foreach($packages as $package)
+        @if($package->features->count() > 0)
+            <div class="modal fade package-features-modal" id="featuresModal{{ $package->id }}" tabindex="-1" role="dialog" aria-labelledby="featuresModalLabel{{ $package->id }}" aria-hidden="true" data-backdrop="true" data-keyboard="true">
+                <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="featuresModalLabel{{ $package->id }}">
+                                {{ __('Features for') }}:
+                                {{ app()->getLocale() === 'ar' ? ($package->name_ar ?: $package->name_en) : ($package->name_en ?: $package->name_ar) }}
+                                <span class="badge badge-info ml-2">{{ $package->features->count() }}</span>
+                            </h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="{{ __('Close') }}">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            @php
+                                $featuresByService = $package->features->groupBy(function ($feature) {
+                                    return $feature->service?->{'service-ar'}
+                                        ?? $feature->service?->{'service-eng'}
+                                        ?? $feature->service?->service
+                                        ?? __('General');
+                                });
+                            @endphp
+
+                            @foreach($featuresByService as $serviceName => $serviceFeatures)
+                                <div class="package-features-group mb-4">
+                                    <h6 class="package-features-service-title">
+                                        <i class="material-icons icon-16pt align-middle">local_offer</i>
+                                        {{ $serviceName }}
+                                    </h6>
+                                    <div class="list-group">
+                                        @foreach($serviceFeatures as $feature)
+                                            <div class="list-group-item package-feature-item">
+                                                <div class="d-flex justify-content-between align-items-start">
+                                                    <div class="flex-grow-1">
+                                                        <div class="font-weight-bold mb-1">
+                                                            {{ app()->getLocale() === 'ar' ? ($feature->name_ar ?: $feature->name_en) : ($feature->name_en ?: $feature->name_ar) }}
+                                                        </div>
+                                                        @if($feature->name_ar && $feature->name_en && $feature->name_ar !== $feature->name_en)
+                                                            <div class="text-muted small mb-1">
+                                                                {{ app()->getLocale() === 'ar' ? $feature->name_en : $feature->name_ar }}
+                                                            </div>
+                                                        @endif
+                                                        @if($feature->description_ar || $feature->description_en)
+                                                            <p class="mb-0 text-muted small">
+                                                                {{ app()->getLocale() === 'ar' ? ($feature->description_ar ?: $feature->description_en) : ($feature->description_en ?: $feature->description_ar) }}
+                                                            </p>
+                                                        @endif
+                                                    </div>
+                                                    <span class="badge badge-light border ml-2">{{ __('Feature') }}</span>
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ __('Close') }}</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endif
+    @endforeach
 @endsection
 
 @push('admin_styles')
 <style>
-.features-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    z-index: 9999;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
+    .package-features-modal.modal {
+        z-index: 10050 !important;
+    }
 
-.features-modal {
-    background: white;
-    border-radius: 8px;
-    max-width: 90%;
-    max-height: 90%;
-    width: 800px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-    display: flex;
-    flex-direction: column;
-}
+    .package-features-modal .modal-dialog {
+        max-width: min(1140px, 96vw);
+        width: 100%;
+        margin: 1.5rem auto;
+    }
 
-.features-header {
-    padding: 20px;
-    border-bottom: 1px solid #dee2e6;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
+    .package-features-modal .modal-content {
+        max-height: 92vh;
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+    }
 
-.features-header h5 {
-    margin: 0;
-    font-size: 1.25rem;
-    font-weight: 500;
-}
+    .package-features-modal .modal-body {
+        max-height: calc(92vh - 130px);
+        overflow-y: auto;
+        background-color: #f8f9fa;
+    }
 
-.close-btn {
-    background: none;
-    border: none;
-    font-size: 24px;
-    cursor: pointer;
-    color: #6c757d;
-    padding: 0;
-    width: 30px;
-    height: 30px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
+    body.package-features-modal-open .modal-backdrop {
+        z-index: 10040 !important;
+        opacity: 0.45 !important;
+        pointer-events: auto !important;
+        background-color: #000 !important;
+    }
 
-.close-btn:hover {
-    color: #000;
-}
+    body.package-features-modal-open .modal-backdrop.show {
+        opacity: 0.45 !important;
+    }
 
-.features-body {
-    padding: 20px;
-    overflow-y: auto;
-    max-height: 400px;
-}
+    .package-features-service-title {
+        color: #1e88e5;
+        font-weight: 600;
+        margin-bottom: 0.75rem;
+        padding-bottom: 0.35rem;
+        border-bottom: 1px solid #dee2e6;
+    }
 
-.features-footer {
-    padding: 20px;
-    border-top: 1px solid #dee2e6;
-    text-align: right;
-}
+    .package-feature-item {
+        border-left: 3px solid #1e88e5;
+        margin-bottom: 0.5rem;
+        background: #fff;
+    }
+
+    .package-feature-item:last-child {
+        margin-bottom: 0;
+    }
 </style>
 @endpush
 
 @push('admin_scripts')
 <script>
-function showFeatures(packageId) {
-    document.getElementById('featuresOverlay' + packageId).style.display = 'flex';
-    document.body.style.overflow = 'hidden'; // Prevent background scrolling
-}
-
-function hideFeatures(packageId) {
-    document.getElementById('featuresOverlay' + packageId).style.display = 'none';
-    document.body.style.overflow = 'auto'; // Restore background scrolling
-}
-
-// Close modal when clicking on overlay background
-document.addEventListener('click', function(event) {
-    if (event.target.classList.contains('features-overlay')) {
-        event.target.style.display = 'none';
-        document.body.style.overflow = 'auto';
-    }
-});
-
-// Close modal on escape key
-document.addEventListener('keydown', function(event) {
-    if (event.key === 'Escape') {
-        var overlays = document.querySelectorAll('.features-overlay[style*="display: flex"]');
-        overlays.forEach(function(overlay) {
-            overlay.style.display = 'none';
-            document.body.style.overflow = 'auto';
+    $(function () {
+        $('.package-features-modal').on('show.bs.modal', function () {
+            $(this).appendTo('body');
+            $('body').addClass('package-features-modal-open');
         });
-    }
-});
+
+        $('.package-features-modal').on('hidden.bs.modal', function () {
+            if (!$('.package-features-modal.show').length) {
+                $('body').removeClass('package-features-modal-open');
+            }
+        });
+    });
 </script>
 @endpush

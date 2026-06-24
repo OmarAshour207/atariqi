@@ -15,7 +15,7 @@ class PackageController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Package::with('features');
+        $query = Package::with(['features.service']);
 
         // Filter by status
         if ($request->filled('status')) {

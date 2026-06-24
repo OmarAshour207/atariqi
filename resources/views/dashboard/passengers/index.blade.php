@@ -156,13 +156,9 @@
                                             <i class="fas fa-route"></i>
                                         </a>
                                         @if($passenger->passengerRate && $passenger->passengerRate->rate < 2)
-                                            <form action="{{ route('passengers.ban', $passenger->id) }}" method="post" class="d-inline-block" onsubmit="return confirm('{{ __('Are you sure?') }}');">
-                                                @csrf
-                                                @method('post')
-                                                <button type="submit" class="btn btn-sm btn-danger delete" title="{{ __('Ban') }}">
-                                                    <i class="fas fa-ban"></i>
-                                                </button>
-                                            </form>
+                                            <button type="button" class="btn btn-sm btn-danger delete" title="{{ __('Ban') }}" onclick="showBanModal('{{ route('passengers.ban', $passenger->id) }}')">
+                                                <i class="fas fa-ban"></i>
+                                            </button>
                                         @endif
                                     </div>
                                 </td>
@@ -180,4 +176,54 @@
             <div class="mt-4">{{ $passengers->links('dashboard.pagination.custom') }}</div>
         </div>
     </div>
+
+    <div class="modal fade" id="banModal" tabindex="-1" role="dialog" aria-labelledby="banModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <form id="ban-form" action="#" method="post">
+                    @csrf
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="banModalLabel">{{ __('Ban Passenger') }}</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="{{ __('Close') }}">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="alert alert-warning mb-3">{{ __('Are you sure you want to ban this passenger?') }}</div>
+                        <div class="form-group mb-0">
+                            <label for="ban-reason">{{ __('Ban Reason') }} <span class="text-danger">*</span></label>
+                            <textarea id="ban-reason" name="ban_reason" class="form-control" rows="4" placeholder="{{ __('Enter the reason for banning this passenger') }}" required></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ __('Cancel') }}</button>
+                        <button type="button" class="btn btn-danger" onclick="confirmBanPassenger()">{{ __('Confirm Ban') }}</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 @endsection
+
+@push('admin_scripts')
+    <script>
+        function showBanModal(banUrl) {
+            document.getElementById('ban-form').action = banUrl;
+            document.getElementById('ban-reason').value = '';
+            $('#banModal').modal('show');
+            document.getElementById('ban-reason').focus();
+        }
+
+        function confirmBanPassenger() {
+            const reason = document.getElementById('ban-reason').value.trim();
+
+            if (!reason) {
+                alert('{{ __('Please enter a ban reason') }}');
+                document.getElementById('ban-reason').focus();
+                return;
+            }
+
+            document.getElementById('ban-form').submit();
+        }
+    </script>
+@endpush
