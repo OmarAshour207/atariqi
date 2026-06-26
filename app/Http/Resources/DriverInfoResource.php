@@ -19,7 +19,7 @@ class DriverInfoResource extends JsonResource
             'car-letters'       => $this->{"car-letters"},
             'car-color'         => $this->{"car-color"},
             'driver-neighborhood'   => $this->{"driver-neighborhood"},
-            'driver-rate'           => $this->{"driver-rate"},
+            'driver-rate'           => $this->{"driver-rate"} ?? 0,
             'driver-license-link'   => url("uploads/$driverId") . "/" . $this->{"driver-license-link"},
             'identity_number'   => $this->identity_number,
             'date_of_birth'       => $this->date_of_birth,

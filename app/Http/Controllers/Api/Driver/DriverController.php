@@ -19,7 +19,7 @@ class DriverController extends BaseController
             ->where('status', UserPackage::STATUS_ACTIVE)
             ->first();
 
-        $success['rate'] = auth()->user()->driverInfo->{"driver-rate"};
+        $success['rate'] = auth()->user()->driverInfo?->{"driver-rate"} ?? 0;
         $success['finished_rides'] = $this->getFinishedRides();
         $success['cancelled_rides'] = $this->getCancelledRides();
         $success['service_started'] = $this->checkStartService();

@@ -17,7 +17,11 @@ class UserSampleResource extends JsonResource
             'email'             => $this->email,
             'approval'          => $this->approval,
             'user-type'         => $this->{"user-type"},
-            'image'             => url($this->image),
+            'image'             => $this->image
+                ? ($this->{"user-type"} === 'driver'
+                    ? url("uploads/{$this->id}/{$this->image}")
+                    : url($this->image))
+                : null,
             'date-of-add'       => $this->{"date-of-add"},
             'date-of-edit'      => $this->{"date-of-edit"}
         ];

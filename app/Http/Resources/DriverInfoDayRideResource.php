@@ -17,7 +17,7 @@ class DriverInfoDayRideResource extends JsonResource
             'car-letters'           => $this->{"car-letters"},
             'car-color'             => $this->{"car-color"},
             'driver-neighborhood'   => $this->{"driver-neighborhood"},
-            'driver-rate'           => $this->{"driver-rate"},
+            'driver-rate'           => $this->{"driver-rate"} ?? 0,
             'driver-license-link'   => url($this->{"driver-license-link"}),
             'allow-disabilities'    => $this->{"allow-disabilities"},
             'date-of-add'           => $this->{"date-of-add"},

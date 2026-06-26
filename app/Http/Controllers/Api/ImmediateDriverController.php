@@ -364,7 +364,7 @@ class ImmediateDriverController extends BaseController
             return $this->sendError(__('Driver not found'), [__('Driver not found')]);
         }
 
-        $newRate = number_format((($driverInfo->{"driver-rate"} + $rate ) / 2),1);
+        $newRate = number_format(((($driverInfo->{"driver-rate"} ?? 0) + $rate) / 2), 1);
 
         $driverInfo->update([
             'driver-rate' => $newRate
