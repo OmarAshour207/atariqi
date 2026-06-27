@@ -439,6 +439,7 @@ class DriverController extends Controller
     public function packages(Request $request)
     {
         $drivers = User::with(['activePackage', 'packages.package'])
+            ->whereIn('approval', [1, 2])
             ->where('user-type', 'driver')
             ->paginate(20);
 
