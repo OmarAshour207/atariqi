@@ -148,14 +148,21 @@
                         </thead>
                         <tbody class="list" id="companies">
                         @forelse ($drivers as $index => $driver)
+                        @php
+                            $driverRate = $driver->driverInfo?->{'driver-rate'};
+                            $driverRateValue = is_numeric($driverRate) ? (float) $driverRate : null;
+                        @endphp
                         <tr>
 
                             <td class="drivers-col-index">
-                                <div class="badge badge-soft-dark"> {{ $drivers->firstItem() + $index }} </div>
+                                <span class="badge badge-soft-dark">{{ $drivers->firstItem() + $index }}</span>
                             </td>
 
                             <td class="drivers-col-name">
                                 {{ $driver->fullName }}
+                                @if($driverRateValue !== null && $driverRateValue < 1)
+                                    <i class="fas fa-exclamation-triangle text-danger" title="{{ __('Warning: Possibility of banning') }}"></i>
+                                @endif
                             </td>
 
                             <td class="drivers-col-email">
@@ -171,7 +178,16 @@
                             </td>
 
                             <td class="drivers-col-rate">
-                                {{ $driver->driverInfo->{"driver-rate"} ?? __('Not Specified') }}
+                                @if($driverRateValue !== null)
+                                    <span class="badge badge-{{ $driverRateValue < 1 ? 'danger' : ($driverRateValue < 2 ? 'warning' : 'success') }}">
+                                        {{ number_format($driverRateValue, 2) }}
+                                    </span>
+                                    @if($driverRateValue < 1)
+                                        <i class="fas fa-exclamation-circle text-danger drivers-ban-warning" title="{{ __('Ban warning') }}"></i>
+                                    @endif
+                                @else
+                                    {{ __('Not Specified') }}
+                                @endif
                             </td>
 
                             <td class="drivers-col-dues">
@@ -277,12 +293,28 @@
             word-break: break-word;
         }
 
-        .drivers-col-index { width: 48px; min-width: 48px; }
+        .drivers-col-index {
+            width: 1%;
+            min-width: 3.5rem;
+            white-space: nowrap !important;
+            text-align: center;
+        }
+
+        .drivers-col-index .badge {
+            display: inline-block;
+            min-width: 1.75rem;
+            white-space: nowrap;
+            word-break: normal;
+        }
         .drivers-col-name { min-width: 150px; }
         .drivers-col-email { min-width: 180px; }
         .drivers-col-phone { min-width: 130px; white-space: nowrap !important; }
         .drivers-col-university { min-width: 140px; }
-        .drivers-col-rate { min-width: 70px; white-space: nowrap !important; }
+        .drivers-col-rate { min-width: 90px; white-space: nowrap !important; }
+
+        .drivers-ban-warning {
+            margin-inline-start: 0.25rem;
+        }
         .drivers-col-dues { min-width: 100px; white-space: nowrap !important; }
         .drivers-col-approval { min-width: 120px; }
         .drivers-col-action { min-width: 150px; white-space: nowrap !important; }
