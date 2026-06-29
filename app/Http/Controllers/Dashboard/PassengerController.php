@@ -113,7 +113,9 @@ class PassengerController extends Controller
             'newUserInfos.university',
             'newUserInfos.stage',
         ]);
-        $admins = Admin::where('id', '!=', auth()->guard('admin')->id())->get();
+        $admins = Admin::where('type', 'admin')
+            ->where('id', '!=', auth()->guard('admin')->id())
+            ->get();
 
         return view('dashboard.passengers.show', compact('passenger', 'admins'));
     }

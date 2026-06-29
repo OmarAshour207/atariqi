@@ -246,7 +246,9 @@ class DriverController extends Controller
             'vehicles' => [],
         ];
         $banned = null;
-        $admins = collect();
+        $admins = Admin::where('type', 'admin')
+            ->where('id', '!=', auth()->guard('admin')->id())
+            ->get();
         $universities = University::all();
         $stages = Stage::all();
         $neighborhoods = Neighbour::all();
@@ -313,12 +315,6 @@ class DriverController extends Controller
                     'display_status' => __('Verification Failed'),
                 ]);
             }
-        }
-
-        try {
-            $admins = Admin::where('type', 'admin')->get();
-        } catch (\Exception $e) {
-            \Log::error('Error fetching admins: ' . $e->getMessage());
         }
 
         return view('dashboard.drivers.show', compact(
