@@ -384,7 +384,17 @@ class ImmediateDriverController extends BaseController
                 ->first();
         }
 
-        $this->waslService->storeTrip($ride);
+        if ($ride) {
+            try {
+                $this->waslService->storeTrip($ride, (float) $rate);
+            } catch (\Exception $e) {
+                Log::error('Failed to register trip with Wasl after rating', [
+                    'trip_id' => $data['trip_id'],
+                    'driver_id' => $driverId,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+        }
 
         return $this->sendResponse(new DriverInfoResource($driverInfo), __('Updated successfully'));
     }

@@ -20,6 +20,8 @@ class Kernel extends ConsoleKernel
         $schedule->command('delete-late-trips')->dailyAt(1);
         $schedule->command('check-finished-subscriptions')->dailyAt('00:05');
         $schedule->command('drivers:check-wasl-eligibility')->dailyAt('02:00');
+        // $schedule->command('wasl:sync-provinces')->weeklyOn(0, '03:00');
+        // $schedule->command('wasl:sync-driver-locations')->everyThirtySeconds();
     }
 
     /**

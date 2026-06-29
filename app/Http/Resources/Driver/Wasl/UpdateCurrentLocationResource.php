@@ -10,17 +10,18 @@ class UpdateCurrentLocationResource extends JsonResource
     public function toArray($request)
     {
         return [
-            "locations" => [
-                [
-                    "driverIdentityNumber" => $this->driverInfo->identity_number,
-                    "vehicleSequenceNumber" => $this->driverInfo->date_of_birth_hijri,
-                    "latitude" => $this->{"current-lat"},
-                    "longitude" => $this->{"current-lng"},
-                    "hasCustomer" => true,
-                    "updatedWhen" => Carbon::now()
-                ]
-            ]
+            'locations' => [
+                app(\App\Services\WaslService::class)->buildLocationEntry(
+                    (string) ($this->resource['driverIdentityNumber'] ?? ''),
+                    (string) ($this->resource['vehicleSequenceNumber'] ?? ''),
+                    (float) ($this->resource['latitude'] ?? 0),
+                    (float) ($this->resource['longitude'] ?? 0),
+                    (bool) ($this->resource['hasCustomer'] ?? false),
+                    isset($this->resource['updatedWhen'])
+                        ? Carbon::parse($this->resource['updatedWhen'])
+                        : null
+                ),
+            ],
         ];
     }
-
 }

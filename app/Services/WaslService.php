@@ -6,6 +6,7 @@ use App\Http\Resources\Driver\Wasl\RegisterResource;
 use App\Http\Resources\Driver\Wasl\UpdateCurrentLocationResource;
 use App\Http\Resources\Driver\Wasl\UpdateTripDataResource;
 use App\Models\User;
+use App\Models\WaslProvince;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -469,72 +470,590 @@ class WaslService
         }
     }
 
-    // Store the trip once finished
-    public function storeTrip($trip)
+    /**
+     * WASL 5.7 Province Inquiry Service.
+     */
+    public function inquireProvinces(): array
     {
-        Log::channel('wasl')->info('Storing trip to Wasl', ['trip_id' => $trip->id]);
+        if (!$this->config['enabled']) {
+            return [];
+        }
 
-        $tripData = new UpdateTripDataResource($trip);
-        $tripData = $tripData->resolve();
+        Log::channel('wasl')->info('Fetching WASL provinces (province-inquiry)', [
+            'api_url' => $this->config['api_url'] . '/api/dispatching/v2/trips/province-inquiry',
+            'headers' => $this->waslHeaders()
+        ]);
 
-        Log::channel('wasl')->info('Prepared trip data for Wasl', ['trip_id' => $trip->id, 'data' => $tripData]);
+        $response = Http::withHeaders($this->waslHeaders())
+            ->acceptJson()
+            ->get($this->config['api_url'] . '/api/dispatching/v2/trips/province-inquiry');
 
-        try {
-            $response = Http::withHeaders([
-                'client-id' => $this->config['client_key'],
-                'app-id'     => $this->config['app_id'],
-                'app-key'    => $this->config['app_key']
-            ])
+        Log::channel('wasl')->info('Received WASL province inquiry response', [
+            'status' => $response->status(),
+            'body' => $response->body(),
+        ]);
+
+        $responseBody = $response->json();
+
+        if (!$response->successful() || !($responseBody['success'] ?? false)) {
+            throw new \Exception($responseBody['resultMsg'] ?? $responseBody['resultCode'] ?? $response->body());
+        }
+
+        return is_array($responseBody['result'] ?? null) ? $responseBody['result'] : [];
+    }
+
+    /**
+     * Persist provinces from WASL 5.7 into the local wasl_provinces table.
+     */
+    public function syncProvinces(): int
+    {
+        $regions = $this->inquireProvinces();
+        $syncedAt = now();
+        $count = 0;
+
+        foreach ($regions as $region) {
+            $regionName = trim((string) ($region['regionName'] ?? ''));
+
+            foreach ($region['provinces'] ?? [] as $province) {
+                $provinceId = (int) ($province['provinceId'] ?? 0);
+                $provinceName = trim((string) ($province['provinceName'] ?? ''));
+
+                if ($provinceId <= 0 || $provinceName === '') {
+                    continue;
+                }
+
+                WaslProvince::updateOrCreate(
+                    ['province_id' => $provinceId],
+                    [
+                        'province_name' => $provinceName,
+                        'region_name' => $regionName,
+                        'province_name_normalized' => $this->normalizeArabicName($provinceName),
+                        'synced_at' => $syncedAt,
+                    ]
+                );
+
+                $count++;
+            }
+        }
+
+        Log::channel('wasl')->info('WASL provinces synced to database', ['count' => $count]);
+
+        return $count;
+    }
+
+    /**
+     * Resolve provinceId for trip registration (WASL 5.4) from local DB only.
+     */
+    public function resolveProvinceIdForTrip(string $originCity, string $destinationCity): int
+    {
+        if (!WaslProvince::query()->exists()) {
+            throw new \Exception(__('WASL provinces are not synced. Run: php artisan wasl:sync-provinces'));
+        }
+
+        foreach ([$originCity, $destinationCity] as $cityName) {
+            $provinceId = $this->findProvinceIdByName($cityName);
+
+            if ($provinceId !== null) {
+                return $provinceId;
+            }
+        }
+
+        throw new \Exception(__('Unable to resolve WASL provinceId for cities: :origin / :destination', [
+            'origin' => $originCity ?: '-',
+            'destination' => $destinationCity ?: '-',
+        ]));
+    }
+
+    public function findProvinceIdByName(?string $name): ?int
+    {
+        $normalized = $this->normalizeArabicName($name);
+
+        if ($normalized === '') {
+            return null;
+        }
+
+        $exact = WaslProvince::where('province_name_normalized', $normalized)->first();
+
+        if ($exact) {
+            return (int) $exact->province_id;
+        }
+
+        $provinces = WaslProvince::query()->get(['province_id', 'province_name_normalized']);
+
+        foreach ($provinces as $province) {
+            if (str_contains($normalized, $province->province_name_normalized)
+                || str_contains($province->province_name_normalized, $normalized)) {
+                return (int) $province->province_id;
+            }
+        }
+
+        return null;
+    }
+
+    private function normalizeArabicName(?string $name): string
+    {
+        $name = trim((string) ($name ?? ''));
+
+        if ($name === '') {
+            return '';
+        }
+
+        $name = preg_replace('/[\x{064B}-\x{065F}\x{0670}\x{0640}]/u', '', $name);
+        $name = preg_replace('/\s+/u', '', $name);
+
+        return mb_strtolower($name, 'UTF-8');
+    }
+
+    private function waslHeaders(): array
+    {
+        return [
+            'client-id' => $this->config['client_key'],
+            'app-id' => $this->config['app_id'],
+            'app-key' => $this->config['app_key'],
+        ];
+    }
+
+    // WASL 5.6 Update Current Location
+    public function buildLocationEntry(
+        string $driverIdentityNumber,
+        string $vehicleSequenceNumber,
+        float $latitude,
+        float $longitude,
+        bool $hasCustomer,
+        ?\Carbon\Carbon $updatedWhen = null
+    ): array {
+        return [
+            'driverIdentityNumber' => $driverIdentityNumber,
+            'vehicleSequenceNumber' => $vehicleSequenceNumber,
+            'latitude' => $latitude,
+            'longitude' => $longitude,
+            'hasCustomer' => $hasCustomer,
+            'updatedWhen' => ($updatedWhen ?? now())->format('Y-m-d\TH:i:s.000'),
+        ];
+    }
+
+    public function updateCurrentLocations(array $locations): ?array
+    {
+        if (!$this->config['enabled'] || empty($locations)) {
+            return null;
+        }
+
+        $payload = ['locations' => array_values($locations)];
+
+        Log::channel('wasl')->info('Updating driver locations on Wasl', [
+            'count' => count($payload['locations']),
+            'data' => $payload,
+        ]);
+
+        $response = Http::withHeaders($this->waslHeaders())
             ->contentType('application/json')
-            ->post($this->config['api_url'] . '/api/dispatching/v2/trips', $tripData);
+            ->post($this->config['api_url'] . '/api/dispatching/v2/locations', $payload);
 
-            Log::channel('wasl')->info('Received response from Wasl', ['trip_id' => $trip->id, 'status' => $response->status(), 'body' => $response->body()]);
+        Log::channel('wasl')->info('Received WASL location update response', [
+            'status' => $response->status(),
+            'body' => $response->body(),
+        ]);
 
-            if ($response->successful()) {
-                return $response->json();
+        $responseBody = $response->json();
+
+        if (!$response->successful() || !($responseBody['success'] ?? false)) {
+            throw new \Exception($responseBody['resultMsg'] ?? $responseBody['resultCode'] ?? $response->body());
+        }
+
+        return $responseBody;
+    }
+
+    /**
+     * Collect and send locations for drivers on ongoing trips or ready on service.
+     */
+    public function syncActiveDriverLocations(): int
+    {
+        $locations = $this->collectActiveDriverLocations();
+
+        if (empty($locations)) {
+            return 0;
+        }
+
+        $this->updateCurrentLocations($locations);
+
+        return count($locations);
+    }
+
+    public function collectActiveDriverLocations(): array
+    {
+        $locations = [];
+        $driversWithCustomer = [];
+
+        foreach ($this->collectOngoingTripLocations() as $entry) {
+            $locations[$entry['driverIdentityNumber']] = $entry;
+            $driversWithCustomer[$entry['driverIdentityNumber']] = true;
+        }
+
+        foreach ($this->collectOnServiceDriverLocations($driversWithCustomer) as $entry) {
+            if (!isset($locations[$entry['driverIdentityNumber']])) {
+                $locations[$entry['driverIdentityNumber']] = $entry;
+            }
+        }
+
+        return array_values($locations);
+    }
+
+    private function collectOngoingTripLocations(): array
+    {
+        $entries = [];
+
+        $immediateTrips = \App\Models\SuggestionDriver::with(['driverinfo', 'booking'])
+            ->whereIn('action', [1, 2])
+            ->whereHas('booking', function ($query) {
+                $query->whereNotNull('current-lat')
+                    ->whereNotNull('current-lng')
+                    ->where('current-lat', '!=', '')
+                    ->where('current-lng', '!=', '');
+            })
+            ->get();
+
+        foreach ($immediateTrips as $trip) {
+            $entry = $this->buildLocationFromDriverInfo(
+                $trip->driverinfo,
+                $trip->booking->{'current-lat'},
+                $trip->booking->{'current-lng'},
+                true
+            );
+
+            if ($entry) {
+                $entries[] = $entry;
+            }
+        }
+
+        $dailyTrips = \App\Models\SugDayDriver::with(['driverinfo', 'booking'])
+            ->where('action', 4)
+            ->whereHas('booking', function ($query) {
+                $query->whereNotNull('current-lat')
+                    ->whereNotNull('current-lng')
+                    ->where('current-lat', '!=', '')
+                    ->where('current-lng', '!=', '');
+            })
+            ->get();
+
+        foreach ($dailyTrips as $trip) {
+            $entry = $this->buildLocationFromDriverInfo(
+                $trip->driverinfo,
+                $trip->booking->{'current-lat'},
+                $trip->booking->{'current-lng'},
+                true
+            );
+
+            if ($entry) {
+                $entries[] = $entry;
+            }
+        }
+
+        $weeklyTrips = \App\Models\SugWeekDriver::with(['driverinfo', 'booking'])
+            ->where('action', 4)
+            ->whereHas('booking', function ($query) {
+                $query->whereNotNull('current-lat')
+                    ->whereNotNull('current-lng')
+                    ->where('current-lat', '!=', '')
+                    ->where('current-lng', '!=', '');
+            })
+            ->get();
+
+        foreach ($weeklyTrips as $trip) {
+            $entry = $this->buildLocationFromDriverInfo(
+                $trip->driverinfo,
+                $trip->booking->{'current-lat'},
+                $trip->booking->{'current-lng'},
+                true
+            );
+
+            if ($entry) {
+                $entries[] = $entry;
+            }
+        }
+
+        return $entries;
+    }
+
+    private function collectOnServiceDriverLocations(array $excludeDriverIdentities): array
+    {
+        $entries = [];
+
+        $drivers = User::query()
+            ->with('driverInfo')
+            ->where('user-type', 'driver')
+            ->where('approval', 1)
+            ->whereHas('driverService')
+            ->whereHas('driverInfo', function ($query) {
+                $query->whereNotNull('identity_number')
+                    ->whereNotNull('sequence-number');
+            })
+            ->get();
+
+        foreach ($drivers as $driver) {
+            $identity = (string) $driver->driverInfo->identity_number;
+
+            if (isset($excludeDriverIdentities[$identity])) {
+                continue;
             }
 
-            $responseBody = $response->json();
+            $coords = $this->findLatestDriverCoordinates($driver->id);
 
-            throw new \Exception($responseBody['resultMsg'] ?? $response->body());
+            if (!$coords) {
+                continue;
+            }
 
+            $entry = $this->buildLocationFromDriverInfo(
+                $driver->driverInfo,
+                $coords['lat'],
+                $coords['lng'],
+                false,
+                $coords['updated_at'] ?? null
+            );
+
+            if ($entry) {
+                $entries[] = $entry;
+            }
+        }
+
+        return $entries;
+    }
+
+    private function findLatestDriverCoordinates(int $driverId): ?array
+    {
+        $candidates = [];
+
+        $immediateBooking = \App\Models\SuggestionDriver::query()
+            ->where('driver-id', $driverId)
+            ->whereHas('booking', function ($query) {
+                $query->whereNotNull('current-lat')
+                    ->whereNotNull('current-lng')
+                    ->where('current-lat', '!=', '')
+                    ->where('current-lng', '!=', '');
+            })
+            ->with('booking')
+            ->latest('date-of-add')
+            ->first();
+
+        if ($immediateBooking?->booking) {
+            $candidates[] = [
+                'lat' => $immediateBooking->booking->{'current-lat'},
+                'lng' => $immediateBooking->booking->{'current-lng'},
+                'updated_at' => $immediateBooking->booking->{'date-of-add'},
+            ];
+        }
+
+        $dailyBooking = \App\Models\SugDayDriver::query()
+            ->where('driver-id', $driverId)
+            ->whereHas('booking', function ($query) {
+                $query->whereNotNull('current-lat')
+                    ->whereNotNull('current-lng')
+                    ->where('current-lat', '!=', '')
+                    ->where('current-lng', '!=', '');
+            })
+            ->with('booking')
+            ->latest('date-of-add')
+            ->first();
+
+        if ($dailyBooking?->booking) {
+            $candidates[] = [
+                'lat' => $dailyBooking->booking->{'current-lat'},
+                'lng' => $dailyBooking->booking->{'current-lng'},
+                'updated_at' => $dailyBooking->booking->{'date-of-ser'} ?? $dailyBooking->booking->{'date-of-add'},
+            ];
+        }
+
+        $weeklyBooking = \App\Models\SugWeekDriver::query()
+            ->where('driver-id', $driverId)
+            ->whereHas('booking', function ($query) {
+                $query->whereNotNull('current-lat')
+                    ->whereNotNull('current-lng')
+                    ->where('current-lat', '!=', '')
+                    ->where('current-lng', '!=', '');
+            })
+            ->with('booking')
+            ->latest('date-of-add')
+            ->first();
+
+        if ($weeklyBooking?->booking) {
+            $candidates[] = [
+                'lat' => $weeklyBooking->booking->{'current-lat'},
+                'lng' => $weeklyBooking->booking->{'current-lng'},
+                'updated_at' => $weeklyBooking->booking->{'date-of-ser'} ?? $weeklyBooking->booking->{'date-of-add'},
+            ];
+        }
+
+        if (empty($candidates)) {
+            return null;
+        }
+
+        usort($candidates, function ($a, $b) {
+            return strtotime((string) ($b['updated_at'] ?? '')) <=> strtotime((string) ($a['updated_at'] ?? ''));
+        });
+
+        return $candidates[0];
+    }
+
+    private function buildLocationFromDriverInfo(
+        $driverInfo,
+        $latitude,
+        $longitude,
+        bool $hasCustomer,
+        $updatedWhen = null
+    ): ?array {
+        if (!$driverInfo?->identity_number || !$driverInfo?->{'sequence-number'}) {
+            return null;
+        }
+
+        if (!$latitude || !$longitude) {
+            return null;
+        }
+
+        return $this->buildLocationEntry(
+            (string) $driverInfo->identity_number,
+            (string) $driverInfo->{'sequence-number'},
+            (float) $latitude,
+            (float) $longitude,
+            $hasCustomer,
+            $updatedWhen ? \Carbon\Carbon::parse($updatedWhen) : now()
+        );
+    }
+
+    public function updateTripLocation($booking): ?array
+    {
+        try {
+            $location = $this->resolveLocationFromBooking($booking);
+
+            if (!$location) {
+                return null;
+            }
+
+            return $this->updateCurrentLocations([$location]);
         } catch (\Exception $e) {
-            Log::channel('wasl')->error('Error storing trip to Wasl', ['trip_id' => $trip->id, 'error' => $e->getMessage()]);
+            Log::channel('wasl')->error('Error updating trip location to Wasl', [
+                'booking_id' => $booking->id ?? null,
+                'error' => $e->getMessage(),
+            ]);
+
             throw new \Exception('Wasl API Error: ' . $e->getMessage());
         }
     }
 
-    // Update Trip location and once the driver ready to start on the app
-    public function updateTripLocation($trip)
+    private function resolveLocationFromBooking($booking): ?array
     {
-        Log::channel('wasl')->info('Updating trip location to Wasl', ['trip_id' => $trip->id]);
+        $lat = $booking->{'current-lat'} ?? null;
+        $lng = $booking->{'current-lng'} ?? null;
 
-        $tripData = new UpdateCurrentLocationResource($trip);
-        $tripData = $tripData->resolve();
+        if (!$lat || !$lng) {
+            return null;
+        }
 
-        Log::channel('wasl')->info('Prepared location data for Wasl', ['trip_id' => $trip->id, 'data' => $tripData]);
+        $driverInfo = $this->findDriverInfoForBooking($booking);
+
+        if (!$driverInfo) {
+            return null;
+        }
+
+        return $this->buildLocationFromDriverInfo($driverInfo, $lat, $lng, true);
+    }
+
+    private function findDriverInfoForBooking($booking): ?\App\Models\DriverInfo
+    {
+        $bookingId = $booking->id;
+
+        if ($booking instanceof \App\Models\RideBooking) {
+            $trip = \App\Models\SuggestionDriver::with('driverinfo')
+                ->where('booking-id', $bookingId)
+                ->whereIn('action', [1, 2])
+                ->first();
+
+            return $trip?->driverinfo;
+        }
+
+        if ($booking instanceof \App\Models\DayRideBooking) {
+            $trip = \App\Models\SugDayDriver::with('driverinfo')
+                ->where('booking-id', $bookingId)
+                ->where('action', 4)
+                ->first();
+
+            return $trip?->driverinfo;
+        }
+
+        if ($booking instanceof \App\Models\WeekRideBooking) {
+            $trip = \App\Models\SugWeekDriver::with('driverinfo')
+                ->where('booking-id', $bookingId)
+                ->where('action', 4)
+                ->first();
+
+            return $trip?->driverinfo;
+        }
+
+        return null;
+    }
+
+    // Store the trip once finished (WASL 5.4 Trip Registration Service)
+    public function storeTrip($trip, ?float $customerRating = null)
+    {
+        if (!$this->config['enabled']) {
+            return null;
+        }
+
+        $trip = $this->prepareTripForRegistration($trip);
+
+        Log::channel('wasl')->info('Storing trip to Wasl', [
+            'trip_id' => $trip->id,
+            'trip_type' => class_basename($trip),
+        ]);
+
+        $tripData = (new UpdateTripDataResource($trip, $customerRating))->resolve();
+
+        Log::channel('wasl')->info('Prepared trip data for Wasl', [
+            'trip_id' => $trip->id,
+            'data' => $tripData,
+        ]);
 
         try {
             $response = Http::withHeaders([
                 'client-id' => $this->config['client_key'],
-                'app-id'     => $this->config['app_id'],
-                'app-key'    => $this->config['app_key']
+                'app-id' => $this->config['app_id'],
+                'app-key' => $this->config['app_key'],
             ])
-            ->contentType('application/json')
-            ->post($this->config['api_url'] . '/api/dispatching/v2/locations', $tripData);
+                ->contentType('application/json')
+                ->post($this->config['api_url'] . '/api/dispatching/v2/trips', $tripData);
 
-            Log::channel('wasl')->info('Received response from Wasl for location update', ['trip_id' => $trip->id, 'status' => $response->status(), 'body' => $response->body()]);
+            Log::channel('wasl')->info('Received response from Wasl for trip registration', [
+                'trip_id' => $trip->id,
+                'status' => $response->status(),
+                'body' => $response->body(),
+            ]);
 
-            if ($response->successful()) {
-                return $response->json();
+            $responseBody = $response->json();
+
+            if ($response->successful() && ($responseBody['success'] ?? false)) {
+                return $responseBody;
             }
 
-            throw new \Exception($response->body());
-
+            throw new \Exception($responseBody['resultMsg'] ?? $responseBody['resultCode'] ?? $response->body());
         } catch (\Exception $e) {
-            Log::channel('wasl')->error('Error updating trip location to Wasl', ['trip_id' => $trip->id, 'error' => $e->getMessage()]);
+            Log::channel('wasl')->error('Error storing trip to Wasl', [
+                'trip_id' => $trip->id,
+                'error' => $e->getMessage(),
+            ]);
+
             throw new \Exception('Wasl API Error: ' . $e->getMessage());
         }
+    }
+
+    private function prepareTripForRegistration($trip)
+    {
+        $trip->loadMissing([
+            'driverinfo',
+            'deliveryInfo',
+            'passenger.activePackage',
+            'booking.university.cityUni',
+            'booking.neighborhood',
+        ]);
+
+        return $trip;
     }
 
 }
