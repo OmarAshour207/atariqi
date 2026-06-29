@@ -21,7 +21,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('check-finished-subscriptions')->dailyAt('00:05');
         $schedule->command('drivers:check-wasl-eligibility')->dailyAt('02:00');
         // $schedule->command('wasl:sync-provinces')->weeklyOn(0, '03:00');
-        // $schedule->command('wasl:sync-driver-locations')->everyThirtySeconds();
+        $schedule->command('wasl:sync-driver-locations')->everyThirtySeconds();
     }
 
     /**
