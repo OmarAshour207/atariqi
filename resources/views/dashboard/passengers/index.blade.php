@@ -177,7 +177,7 @@
         </div>
     </div>
 
-    <div class="modal fade" id="banModal" tabindex="-1" role="dialog" aria-labelledby="banModalLabel" aria-hidden="true">
+    <div class="modal fade" id="banModal" tabindex="-1" role="dialog" aria-labelledby="banModalLabel" aria-hidden="true" style="z-index: 9999;">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <form id="ban-form" action="#" method="post">
@@ -203,14 +203,38 @@
             </div>
         </div>
     </div>
+
+    <style>
+        .modal-backdrop {
+            z-index: 9998 !important;
+            pointer-events: none !important;
+            background-color: transparent !important;
+        }
+        .modal-backdrop.show {
+            opacity: 0 !important;
+            z-index: 9998 !important;
+            pointer-events: none !important;
+        }
+        .modal.show {
+            z-index: 9999 !important;
+            pointer-events: auto !important;
+        }
+        .modal.show .modal-dialog {
+            pointer-events: auto !important;
+        }
+    </style>
 @endsection
 
 @push('admin_scripts')
     <script>
         function showBanModal(banUrl) {
+            const modal = $('#banModal');
+            if (modal.parent()[0] !== document.body) {
+                modal.appendTo('body');
+            }
             document.getElementById('ban-form').action = banUrl;
             document.getElementById('ban-reason').value = '';
-            $('#banModal').modal('show');
+            modal.modal('show');
             document.getElementById('ban-reason').focus();
         }
 
