@@ -92,8 +92,7 @@ class PaymentReminder extends Command
         $totalRevenue = $this->getRevenue($driverId, $dates)['total'];
 
         if (!$this->subscriptionCost) {
-            $subscription = Subscription::select('cost')->where('id', 4)->first();
-            $this->subscriptionCost = $subscription->cost;
+            $this->subscriptionCost = Subscription::generalDuesPercentageValue();
         }
 
         return ($this->subscriptionCost * $totalRevenue) / 100;

@@ -655,5 +655,15 @@
     "Yearly": "سنوي",
     "Monthly": "شهري",
     "Please log in to your account to view more details about your package and its benefits.": "يرجى تسجيل الدخول إلى حسابك للاطلاع على تفاصيل الباقة ومزاياها.",
-    "Best Regards": "مع التحية"
+    "Best Regards": "مع التحية",
+    "General Dues Percentage": "نسبة المستحقات العامة",
+    "General Dues Percentage Management": "إدارة نسبة المستحقات العامة",
+    "Current Percentage": "النسبة الحالية",
+    "General dues percentage record not found.": "لم يتم العثور على سجل نسبة المستحقات العامة.",
+    "General dues percentage updated successfully.": "تم تحديث نسبة المستحقات العامة بنجاح.",
+    "General dues percentage updated by employee.": "تم تحديث نسبة المستحقات العامة بواسطة الموظف.",
+    "Unable to update general dues percentage.": "تعذر تحديث نسبة المستحقات العامة.",
+    "The percentage is required.": "النسبة مطلوبة.",
+    "The percentage must be a valid number.": "يجب أن تكون النسبة رقماً صحيحاً.",
+    "The percentage must be between 0 and 100.": "يجب أن تكون النسبة بين 0 و 100."
 }

@@ -35,9 +35,9 @@ class DuesController extends BaseController
 
         $newRevenues = $this->getRevenue(auth()->user()->id, $dates);
 
-        $subscriptionCost = Subscription::select('cost')->where('id', 4)->first();
+        $duesPercentage = Subscription::generalDuesPercentageValue();
 
-        $currentDues = ($subscriptionCost->cost * $newRevenues['total']) / 100;
+        $currentDues = ($duesPercentage * $newRevenues['total']) / 100;
 
         return $this->sendResponse([
             'last_pay_date' => $lastPayDate?->{"date-of-add"} ? Carbon::parse($lastPayDate?->{"date-of-add"})->format('Y/m/d') : null,
@@ -62,9 +62,9 @@ class DuesController extends BaseController
 
         $newRevenues = $this->getRevenue(auth()->user()->id, $dates);
 
-        $subscriptionCost = Subscription::select('cost')->where('id', 4)->first();
+        $duesPercentage = Subscription::generalDuesPercentageValue();
 
-        $currentDues = ($subscriptionCost->cost * $newRevenues['total']) / 100;
+        $currentDues = ($duesPercentage * $newRevenues['total']) / 100;
 
         if($currentDues <= 0) {
             return $this->sendError(__('No dues to pay'));

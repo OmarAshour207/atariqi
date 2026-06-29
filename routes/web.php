@@ -17,6 +17,7 @@ use App\Http\Controllers\Dashboard\FeatureController;
 use App\Http\Controllers\Dashboard\UserController;
 use App\Http\Controllers\Dashboard\DriverController;
 use App\Http\Controllers\Dashboard\PassengerController;
+use App\Http\Controllers\Dashboard\GeneralDuesPercentageController;
 
 /*
 |--------------------------------------------------------------------------
@@ -58,6 +59,8 @@ Route::middleware(['is_admin'])->prefix('dashboard')->group(function () {
     Route::post('drivers/{driver}/packages/cancel', [DriverController::class, 'cancelPackage'])->name('drivers.cancelPackage');
     Route::get('driver/rates', [DriverController::class, 'driverRates'])->name('drivers.rates');
     Route::get('driver/trips', [DriverController::class, 'trips'])->name('drivers.trips');
+    Route::get('general-dues-percentage', [GeneralDuesPercentageController::class, 'show'])->name('general-dues-percentage.show');
+    Route::patch('general-dues-percentage', [GeneralDuesPercentageController::class, 'update'])->name('general-dues-percentage.update');
     Route::get('drivers/{driver}/trips', [DriverController::class, 'driverTrips'])->name('drivers.driverTrips');
     Route::get('drivers/{driver}/earnings', [DriverController::class, 'driverEarnings'])->name('drivers.earnings');
     Route::post('drivers/{driver}/send-payment-reminder', [DriverController::class, 'sendPaymentReminder'])->name('drivers.sendPaymentReminder');

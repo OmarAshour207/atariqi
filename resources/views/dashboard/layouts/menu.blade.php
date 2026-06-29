@@ -134,6 +134,13 @@
                             </a>
                         </li>
 
+                        <li class="sidebar-menu-item">
+                            <a class="sidebar-menu-button" href="{{ route('general-dues-percentage.show') }}">
+                                <i class="fa fa-percent"></i>
+                                <span class="sidebar-menu-text"> {{ __('General Dues Percentage') }}</span>
+                            </a>
+                        </li>
+
                     </ul>
                 </li>
 

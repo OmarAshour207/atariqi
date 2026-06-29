@@ -383,7 +383,7 @@ class DriverController extends Controller
         ];
 
         $revenueBreakdown = $this->getDetailedRevenue($driver->id, $lifetimeDates);
-        $duesPercentage = (float) (Subscription::select('cost')->where('id', 4)->first()?->cost ?? 0);
+        $duesPercentage = Subscription::generalDuesPercentageValue();
 
         $totalDues = round(($duesPercentage * $revenueBreakdown['total']) / 100, 2);
         $totalPaid = round((float) FinancialDue::where('driver-id', $driver->id)->sum('amount'), 2);
@@ -844,10 +844,10 @@ class DriverController extends Controller
             'end_date' => Carbon::now()->format('Y-m-d'),
         ];
 
-        $subscription = Subscription::select('cost')->where('id', 4)->first();
+        $duesPercentage = Subscription::generalDuesPercentageValue();
         $revenue = $this->getRevenue($driver->id, $dates);
 
-        return (($subscription?->cost ?? 0) * $revenue['total']) / 100;
+        return ($duesPercentage * $revenue['total']) / 100;
     }
 
     public function edit(User $driver)

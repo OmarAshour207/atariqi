@@ -9,6 +9,8 @@ class Subscription extends Model
 {
     use HasFactory;
 
+    public const TYPE_GENERAL_DUES_PERCENTAGE = 2;
+
     public $timestamps = false;
 
     protected $fillable = [
@@ -17,4 +19,14 @@ class Subscription extends Model
         'cost',
         'type'
     ];
+
+    public static function generalDuesPercentage(): ?self
+    {
+        return static::where('type', self::TYPE_GENERAL_DUES_PERCENTAGE)->first();
+    }
+
+    public static function generalDuesPercentageValue(): float
+    {
+        return (float) (static::generalDuesPercentage()?->cost ?? 0);
+    }
 }
