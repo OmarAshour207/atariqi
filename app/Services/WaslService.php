@@ -670,6 +670,11 @@ class WaslService
     {
         $locations = $this->collectActiveDriverLocations();
 
+        Log::channel('wasl')->info('Collected driver locations for WASL sync', [
+            'count' => count($locations),
+            'locations' => $locations,
+        ]);
+
         if (empty($locations)) {
             return 0;
         }
@@ -682,15 +687,33 @@ class WaslService
     public function collectActiveDriverLocations(): array
     {
         $locations = [];
-        $driversWithCustomer = [];
+        $ongoingDriverIds = $this->getOngoingTripDriverIds();
 
-        foreach ($this->collectOngoingTripLocations() as $entry) {
-            $locations[$entry['driverIdentityNumber']] = $entry;
-            $driversWithCustomer[$entry['driverIdentityNumber']] = true;
+        foreach ($this->driverInfosWithLocation($ongoingDriverIds) as $driverInfo) {
+            $entry = $this->buildLocationFromDriverInfoRecord($driverInfo, true);
+
+            if ($entry) {
+                $locations[$entry['driverIdentityNumber']] = $entry;
+            }
         }
 
-        foreach ($this->collectOnServiceDriverLocations($driversWithCustomer) as $entry) {
-            if (!isset($locations[$entry['driverIdentityNumber']])) {
+        $drivers = User::query()
+            ->with('driverInfo')
+            ->where('user-type', 'driver')
+            ->where('approval', 1)
+            ->whereHas('driverService')
+            ->when($ongoingDriverIds, fn ($query) => $query->whereNotIn('id', $ongoingDriverIds))
+            ->whereHas('driverInfo', function ($query) {
+                $query->whereNotNull('identity_number')
+                    ->whereNotNull('sequence-number');
+                $this->applyDriverInfoLocationScope($query);
+            })
+            ->get();
+
+        foreach ($drivers as $driver) {
+            $entry = $this->buildLocationFromDriverInfoRecord($driver->driverInfo, false);
+
+            if ($entry && !isset($locations[$entry['driverIdentityNumber']])) {
                 $locations[$entry['driverIdentityNumber']] = $entry;
             }
         }
@@ -698,199 +721,80 @@ class WaslService
         return array_values($locations);
     }
 
-    private function collectOngoingTripLocations(): array
+    public function getLocationSyncDiagnostics(): array
     {
-        $entries = [];
+        $ongoingDriverIds = $this->getOngoingTripDriverIds();
+        $locations = $this->collectActiveDriverLocations();
 
-        $immediateTrips = \App\Models\SuggestionDriver::with(['driverinfo', 'booking'])
+        $storedLocations = \App\Models\DriverInfo::query()
+            ->whereNotNull('current-lat')
+            ->whereNotNull('current-lng')
+            ->where('current-lat', '!=', '')
+            ->where('current-lng', '!=', '')
+            ->get(['driver-id', 'current-lat', 'current-lng', 'identity_number', 'sequence-number']);
+
+        return [
+            'ongoing_driver_ids' => $ongoingDriverIds,
+            'stored_locations' => $storedLocations,
+            'collected_locations' => $locations,
+        ];
+    }
+
+    private function getOngoingTripDriverIds(): array
+    {
+        $immediate = \App\Models\SuggestionDriver::query()
             ->whereIn('action', [1, 2])
-            ->whereHas('booking', function ($query) {
-                $query->whereNotNull('current-lat')
-                    ->whereNotNull('current-lng')
-                    ->where('current-lat', '!=', '')
-                    ->where('current-lng', '!=', '');
-            })
-            ->get();
+            ->pluck('driver-id');
 
-        foreach ($immediateTrips as $trip) {
-            $entry = $this->buildLocationFromDriverInfo(
-                $trip->driverinfo,
-                $trip->booking->{'current-lat'},
-                $trip->booking->{'current-lng'},
-                true
-            );
-
-            if ($entry) {
-                $entries[] = $entry;
-            }
-        }
-
-        $dailyTrips = \App\Models\SugDayDriver::with(['driverinfo', 'booking'])
+        $daily = \App\Models\SugDayDriver::query()
             ->where('action', 4)
-            ->whereHas('booking', function ($query) {
-                $query->whereNotNull('current-lat')
-                    ->whereNotNull('current-lng')
-                    ->where('current-lat', '!=', '')
-                    ->where('current-lng', '!=', '');
-            })
-            ->get();
+            ->pluck('driver-id');
 
-        foreach ($dailyTrips as $trip) {
-            $entry = $this->buildLocationFromDriverInfo(
-                $trip->driverinfo,
-                $trip->booking->{'current-lat'},
-                $trip->booking->{'current-lng'},
-                true
-            );
-
-            if ($entry) {
-                $entries[] = $entry;
-            }
-        }
-
-        $weeklyTrips = \App\Models\SugWeekDriver::with(['driverinfo', 'booking'])
+        $weekly = \App\Models\SugWeekDriver::query()
             ->where('action', 4)
-            ->whereHas('booking', function ($query) {
-                $query->whereNotNull('current-lat')
-                    ->whereNotNull('current-lng')
-                    ->where('current-lat', '!=', '')
-                    ->where('current-lng', '!=', '');
-            })
-            ->get();
+            ->pluck('driver-id');
 
-        foreach ($weeklyTrips as $trip) {
-            $entry = $this->buildLocationFromDriverInfo(
-                $trip->driverinfo,
-                $trip->booking->{'current-lat'},
-                $trip->booking->{'current-lng'},
-                true
-            );
-
-            if ($entry) {
-                $entries[] = $entry;
-            }
-        }
-
-        return $entries;
+        return $immediate->merge($daily)->merge($weekly)->unique()->filter()->values()->all();
     }
 
-    private function collectOnServiceDriverLocations(array $excludeDriverIdentities): array
+    private function driverInfosWithLocation(array $driverIds)
     {
-        $entries = [];
-
-        $drivers = User::query()
-            ->with('driverInfo')
-            ->where('user-type', 'driver')
-            ->where('approval', 1)
-            ->whereHas('driverService')
-            ->whereHas('driverInfo', function ($query) {
-                $query->whereNotNull('identity_number')
-                    ->whereNotNull('sequence-number');
-            })
-            ->get();
-
-        foreach ($drivers as $driver) {
-            $identity = (string) $driver->driverInfo->identity_number;
-
-            if (isset($excludeDriverIdentities[$identity])) {
-                continue;
-            }
-
-            $coords = $this->findLatestDriverCoordinates($driver->id);
-
-            if (!$coords) {
-                continue;
-            }
-
-            $entry = $this->buildLocationFromDriverInfo(
-                $driver->driverInfo,
-                $coords['lat'],
-                $coords['lng'],
-                false,
-                $coords['updated_at'] ?? null
-            );
-
-            if ($entry) {
-                $entries[] = $entry;
-            }
+        if (empty($driverIds)) {
+            return collect();
         }
 
-        return $entries;
+        return \App\Models\DriverInfo::query()
+            ->whereIn('driver-id', $driverIds)
+            ->whereNotNull('identity_number')
+            ->whereNotNull('sequence-number')
+            ->whereNotNull('current-lat')
+            ->whereNotNull('current-lng')
+            ->where('current-lat', '!=', '')
+            ->where('current-lng', '!=', '')
+            ->get();
     }
 
-    private function findLatestDriverCoordinates(int $driverId): ?array
+    private function applyDriverInfoLocationScope($query): void
     {
-        $candidates = [];
+        $query->whereNotNull('current-lat')
+            ->whereNotNull('current-lng')
+            ->where('current-lat', '!=', '')
+            ->where('current-lng', '!=', '');
+    }
 
-        $immediateBooking = \App\Models\SuggestionDriver::query()
-            ->where('driver-id', $driverId)
-            ->whereHas('booking', function ($query) {
-                $query->whereNotNull('current-lat')
-                    ->whereNotNull('current-lng')
-                    ->where('current-lat', '!=', '')
-                    ->where('current-lng', '!=', '');
-            })
-            ->with('booking')
-            ->latest('date-of-add')
-            ->first();
-
-        if ($immediateBooking?->booking) {
-            $candidates[] = [
-                'lat' => $immediateBooking->booking->{'current-lat'},
-                'lng' => $immediateBooking->booking->{'current-lng'},
-                'updated_at' => $immediateBooking->booking->{'date-of-add'},
-            ];
-        }
-
-        $dailyBooking = \App\Models\SugDayDriver::query()
-            ->where('driver-id', $driverId)
-            ->whereHas('booking', function ($query) {
-                $query->whereNotNull('current-lat')
-                    ->whereNotNull('current-lng')
-                    ->where('current-lat', '!=', '')
-                    ->where('current-lng', '!=', '');
-            })
-            ->with('booking')
-            ->latest('date-of-add')
-            ->first();
-
-        if ($dailyBooking?->booking) {
-            $candidates[] = [
-                'lat' => $dailyBooking->booking->{'current-lat'},
-                'lng' => $dailyBooking->booking->{'current-lng'},
-                'updated_at' => $dailyBooking->booking->{'date-of-ser'} ?? $dailyBooking->booking->{'date-of-add'},
-            ];
-        }
-
-        $weeklyBooking = \App\Models\SugWeekDriver::query()
-            ->where('driver-id', $driverId)
-            ->whereHas('booking', function ($query) {
-                $query->whereNotNull('current-lat')
-                    ->whereNotNull('current-lng')
-                    ->where('current-lat', '!=', '')
-                    ->where('current-lng', '!=', '');
-            })
-            ->with('booking')
-            ->latest('date-of-add')
-            ->first();
-
-        if ($weeklyBooking?->booking) {
-            $candidates[] = [
-                'lat' => $weeklyBooking->booking->{'current-lat'},
-                'lng' => $weeklyBooking->booking->{'current-lng'},
-                'updated_at' => $weeklyBooking->booking->{'date-of-ser'} ?? $weeklyBooking->booking->{'date-of-add'},
-            ];
-        }
-
-        if (empty($candidates)) {
+    private function buildLocationFromDriverInfoRecord($driverInfo, bool $hasCustomer): ?array
+    {
+        if (!$driverInfo) {
             return null;
         }
 
-        usort($candidates, function ($a, $b) {
-            return strtotime((string) ($b['updated_at'] ?? '')) <=> strtotime((string) ($a['updated_at'] ?? ''));
-        });
-
-        return $candidates[0];
+        return $this->buildLocationFromDriverInfo(
+            $driverInfo,
+            $driverInfo->{'current-lat'},
+            $driverInfo->{'current-lng'},
+            $hasCustomer,
+            $driverInfo->{'current-location-at'} ?? null
+        );
     }
 
     private function buildLocationFromDriverInfo(
@@ -916,78 +820,6 @@ class WaslService
             $hasCustomer,
             $updatedWhen ? \Carbon\Carbon::parse($updatedWhen) : now()
         );
-    }
-
-    public function updateTripLocation($booking): ?array
-    {
-        try {
-            $location = $this->resolveLocationFromBooking($booking);
-
-            if (!$location) {
-                return null;
-            }
-
-            return $this->updateCurrentLocations([$location]);
-        } catch (\Exception $e) {
-            Log::channel('wasl')->error('Error updating trip location to Wasl', [
-                'booking_id' => $booking->id ?? null,
-                'error' => $e->getMessage(),
-            ]);
-
-            throw new \Exception('Wasl API Error: ' . $e->getMessage());
-        }
-    }
-
-    private function resolveLocationFromBooking($booking): ?array
-    {
-        $lat = $booking->{'current-lat'} ?? null;
-        $lng = $booking->{'current-lng'} ?? null;
-
-        if (!$lat || !$lng) {
-            return null;
-        }
-
-        $driverInfo = $this->findDriverInfoForBooking($booking);
-
-        if (!$driverInfo) {
-            return null;
-        }
-
-        return $this->buildLocationFromDriverInfo($driverInfo, $lat, $lng, true);
-    }
-
-    private function findDriverInfoForBooking($booking): ?\App\Models\DriverInfo
-    {
-        $bookingId = $booking->id;
-
-        if ($booking instanceof \App\Models\RideBooking) {
-            $trip = \App\Models\SuggestionDriver::with('driverinfo')
-                ->where('booking-id', $bookingId)
-                ->whereIn('action', [1, 2])
-                ->first();
-
-            return $trip?->driverinfo;
-        }
-
-        if ($booking instanceof \App\Models\DayRideBooking) {
-            $trip = \App\Models\SugDayDriver::with('driverinfo')
-                ->where('booking-id', $bookingId)
-                ->where('action', 4)
-                ->first();
-
-            return $trip?->driverinfo;
-        }
-
-        if ($booking instanceof \App\Models\WeekRideBooking) {
-            $trip = \App\Models\SugWeekDriver::with('driverinfo')
-                ->where('booking-id', $bookingId)
-                ->where('action', 4)
-                ->first();
-
-            return $trip?->driverinfo;
-        }
-
-        return null;
     }
 
     // Store the trip once finished (WASL 5.4 Trip Registration Service)

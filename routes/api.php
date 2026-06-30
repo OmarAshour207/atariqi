@@ -112,6 +112,8 @@ Route::group([
             Route::post('service/start', [ServiceController::class, 'start']);
             Route::post('service/stop', [ServiceController::class, 'stop']);
 
+            Route::post('location/update', [\App\Http\Controllers\Api\Driver\LocationController::class, 'update']);
+
             Route::post('rate', [DriverController::class, 'driverRate']);
 
             Route::post('summary', [SummaryController::class, 'summaryAll']);

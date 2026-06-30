@@ -665,5 +665,6 @@
     "Unable to update general dues percentage.": "تعذر تحديث نسبة المستحقات العامة.",
     "The percentage is required.": "النسبة مطلوبة.",
     "The percentage must be a valid number.": "يجب أن تكون النسبة رقماً صحيحاً.",
-    "The percentage must be between 0 and 100.": "يجب أن تكون النسبة بين 0 و 100."
+    "The percentage must be between 0 and 100.": "يجب أن تكون النسبة بين 0 و 100.",
+    "Driver info not found.": "لم يتم العثور على بيانات الكابتن."
 }
