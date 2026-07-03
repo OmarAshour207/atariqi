@@ -72,9 +72,13 @@ class ProfileController extends BaseController
             $data, $images
         ));
 
+        $this->ensureNewUserInfoExists();
+
         auth()->user()->driverCar->update([
             'approval'  => 2
         ]);
+
+        auth()->user()->update(['approval' => 2]);
 
         return $this->sendResponse([],
             __('Your request for edit will be reviewed, and we will respond to you as soon as possible'));
@@ -105,20 +109,40 @@ class ProfileController extends BaseController
         NewDriverInfo::create(array_merge(
             $data, $images
         ));
-        // NewDriverCar::create(array_merge(
-        //     $data, $images
-        // ));
+
+        $this->ensureNewUserInfoExists();
 
         auth()->user()->driverInfo->update([
             'approval'  => 2
         ]);
 
-        // auth()->user()->driverCar->update([
-        //     'approval'  => 2
-        // ]);
+        auth()->user()->update(['approval' => 2]);
 
         return $this->sendResponse([],
             __('Your request for edit will be reviewed, and we will respond to you as soon as possible'));
+    }
+
+    private function ensureNewUserInfoExists(): void
+    {
+        $driver = auth()->user();
+
+        if (NewUserInfo::where('user-id', $driver->id)->exists()) {
+            return;
+        }
+
+        NewUserInfo::create([
+            'user-id' => $driver->id,
+            'user-first-name' => $driver->{'user-first-name'},
+            'user-last-name' => $driver->{'user-last-name'},
+            'phone-no' => $driver->{'phone-no'},
+            'gender' => $driver->gender,
+            'email' => $driver->email,
+            'user-type' => $driver->{'user-type'},
+            'image' => $driver->image,
+            'call-key-id' => $driver->{'call-key-id'},
+            'user-stage-id' => $driver->{'user-stage-id'},
+            'university-id' => $driver->{'university-id'},
+        ]);
     }
 
     private function uploadImages(Request $request, $data): array
