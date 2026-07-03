@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Driver;
 
 use App\Http\Controllers\Api\BaseController;
 use App\Http\Resources\DriverResource;
+use App\Models\DriverBanned;
 use App\Models\User;
 use App\Models\UserLogin;
 use Illuminate\Http\Request;
@@ -32,8 +33,12 @@ class LoginController extends BaseController
             return $this->sendError("s_userNotExist", [__("User not registered on Atariqi family, you have to register first")], 401);
         }
 
+        if ($user->approval == 3) {
+            return $this->sendError(__('s_userBanned'), [__('This driver is banned')], 403);
+        }
+
         if ($user->approval == 4) {
-            // Allowed to continue login; trip operations are blocked in the app APIs.
+            return $this->sendError(__('s_userBanned'), [__('This driver is banned')], 403);
         } elseif ($user->approval != 1) {
             return $this->sendError("s_userNotApproved",
                 [__("We are checking your registration order, please bear with us and will send on academic email or phone")], 401);
@@ -74,6 +79,10 @@ class LoginController extends BaseController
 
         if(!$user) {
             return $this->sendError(__("s_userNotExist"), [__("User doesn't exist")], 401);
+        }
+
+        if ($user->approval == 3) {
+            return $this->sendError(__('s_userBanned'), [__('This driver is banned')], 403);
         }
 
         if (!in_array((int) $user->approval, [1, 4], true)) {

@@ -155,7 +155,7 @@
                                         <a href="{{ route('passengers.trips', $passenger->id) }}" class="btn btn-sm btn-primary" title="{{ __('Trips') }}">
                                             <i class="fas fa-route"></i>
                                         </a>
-                                        @if($passenger->passengerRate && $passenger->passengerRate->rate < 2)
+                                        @if($passenger->approval != 3 && $passenger->passengerRate && $passenger->passengerRate->rate < 2)
                                             <button type="button" class="btn btn-sm btn-danger" title="{{ __('Ban') }}" onclick="showBanModal('{{ route('passengers.ban', $passenger->id) }}')">
                                                 <i class="fas fa-ban"></i>
                                             </button>

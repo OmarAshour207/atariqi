@@ -160,7 +160,7 @@
 
                             <td class="drivers-col-name">
                                 {{ $driver->fullName }}
-                                @if($driverRateValue !== null && $driverRateValue < 1)
+                                @if($driver->approval != 3 && $driverRateValue !== null && $driverRateValue < 1)
                                     <i class="fas fa-exclamation-triangle text-danger" title="{{ __('Warning: Possibility of banning') }}"></i>
                                 @endif
                             </td>
@@ -182,7 +182,7 @@
                                     <span class="badge badge-{{ $driverRateValue < 1 ? 'danger' : ($driverRateValue < 2 ? 'warning' : 'success') }}">
                                         {{ number_format($driverRateValue, 2) }}
                                     </span>
-                                    @if($driverRateValue < 1)
+                                    @if($driver->approval != 3 && $driverRateValue < 1)
                                         <i class="fas fa-exclamation-circle text-danger drivers-ban-warning" title="{{ __('Ban warning') }}"></i>
                                     @endif
                                 @else

@@ -541,7 +541,7 @@
                         </div>
                     @endif
 
-                    @if($driver->driverInfo && is_numeric($driver->driverInfo->{"driver-rate"}) && floatval($driver->driverInfo->{"driver-rate"}) < 1)
+                    @if($driver->approval != 3 && !$banned && $driver->driverInfo && is_numeric($driver->driverInfo->{"driver-rate"}) && floatval($driver->driverInfo->{"driver-rate"}) < 1)
                         <div class="text-right mb-5">
                             <button type="button" class="btn btn-danger" onclick="showBanModal()">{{ __('Ban Driver') }}</button>
                         </div>
