@@ -16,6 +16,7 @@ use App\Models\PlatformEmailLog;
 use App\Models\Stage;
 use App\Models\University;
 use App\Models\User;
+use App\Services\WaslService;
 use Illuminate\Support\Facades\Mail;
 
 class EditDriverInfoRequestController extends Controller
@@ -45,6 +46,39 @@ class EditDriverInfoRequestController extends Controller
         $newDriverInfoRecord = NewDriverInfo::where('driver-id', $driver)->first();
         $newDriverCarRecord = NewDriverCar::with('driverType')->where('driver-id', $driver)->first();
 
+        $waslEligibility = [
+            'is_valid' => null,
+            'api_error' => false,
+            'message' => __('Unknown'),
+            'display_status' => __('Unknown'),
+        ];
+
+        if ($oldDriver->driverInfo && filled($oldDriver->driverInfo->identity_number)) {
+            try {
+                $waslService = app(WaslService::class);
+                $eligibilityBody = $waslService->buildEligibilityRequestBody($oldDriver);
+
+                if ($eligibilityBody !== null) {
+                    $rawResponse = $waslService->checkDriverEligibility(
+                        $oldDriver->driverInfo->identity_number,
+                        $eligibilityBody
+                    );
+                    $waslEligibility = $waslService->parseEligibilityResponse(
+                        $rawResponse,
+                        $oldDriver->driverInfo->identity_number
+                    );
+                }
+            } catch (\Exception $e) {
+                \Log::error('Error fetching Wasl eligibility for edit-info-request: ' . $e->getMessage());
+                $waslEligibility = array_merge($waslEligibility, [
+                    'is_valid' => false,
+                    'api_error' => true,
+                    'message' => $e->getMessage(),
+                    'display_status' => __('Verification Failed'),
+                ]);
+            }
+        }
+
         return view('dashboard.drivers_info_requests.show', compact(
             'newDriverInfo',
             'oldDriver',
@@ -53,7 +87,8 @@ class EditDriverInfoRequestController extends Controller
             'universities',
             'stages',
             'neighborhoods',
-            'driverTypes'
+            'driverTypes',
+            'waslEligibility'
         ));
     }
 

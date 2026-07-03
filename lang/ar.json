@@ -667,5 +667,8 @@
     "The percentage must be a valid number.": "يجب أن تكون النسبة رقماً صحيحاً.",
     "The percentage must be between 0 and 100.": "يجب أن تكون النسبة بين 0 و 100.",
     "Driver info not found.": "لم يتم العثور على بيانات الكابتن.",
-    "This driver is banned": "هذا الكابتن محظور"
+    "This driver is banned": "هذا الكابتن محظور",
+    "WASL Eligibility: Invalid": "أهلية وصل: غير صالح",
+    "WASL Eligibility: Valid": "أهلية وصل: صالح",
+    "Verification Failed": "فشل التحقق"
 }

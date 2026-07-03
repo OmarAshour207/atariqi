@@ -484,8 +484,23 @@
                     <!-- Hidden field for rejection reason -->
                     <input type="hidden" id="rejection-reason-input" name="rejection-reason" value="">
 
+                    @if($waslEligibility['is_valid'] === false)
+                        <div class="alert alert-danger">
+                            <strong><i class="fas fa-exclamation-triangle"></i> {{ __('WASL Eligibility: Invalid') }}</strong>
+                            @if(!empty($waslEligibility['message']))
+                                <br><span>{{ $waslEligibility['message'] }}</span>
+                            @endif
+                        </div>
+                    @elseif($waslEligibility['is_valid'] === true)
+                        <div class="alert alert-success">
+                            <strong><i class="fas fa-check-circle"></i> {{ __('WASL Eligibility: Valid') }}</strong>
+                        </div>
+                    @endif
+
                     <div class="text-right mb-5">
-                        <button type="submit" name="approval" value="1" class="btn btn-success">{{ __('Accept') }}</button>
+                        @if($waslEligibility['is_valid'] !== false)
+                            <button type="submit" name="approval" value="1" class="btn btn-success">{{ __('Accept') }}</button>
+                        @endif
                         <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#rejectReasonModal">{{ __('Reject') }}</button>
                     </div>
 
