@@ -17,10 +17,16 @@ use App\Models\Stage;
 use App\Models\University;
 use App\Models\User;
 use App\Services\WaslService;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
 class EditDriverInfoRequestController extends Controller
 {
+    public function __construct(private WaslService $waslService)
+    {
+    }
+
     public function index()
     {
         $drivers = NewUserInfo::with(['user', 'user.callingKey'])
@@ -55,21 +61,15 @@ class EditDriverInfoRequestController extends Controller
 
         if ($oldDriver->driverInfo && filled($oldDriver->driverInfo->identity_number)) {
             try {
-                $waslService = app(WaslService::class);
-                $eligibilityBody = $waslService->buildEligibilityRequestBody($oldDriver);
+                $waslDriver = $this->waslService->buildDriverForWaslRegistration(
+                    $oldDriver,
+                    $newDriverInfo,
+                    $newDriverInfoRecord
+                );
 
-                if ($eligibilityBody !== null) {
-                    $rawResponse = $waslService->checkDriverEligibility(
-                        $oldDriver->driverInfo->identity_number,
-                        $eligibilityBody
-                    );
-                    $waslEligibility = $waslService->parseEligibilityResponse(
-                        $rawResponse,
-                        $oldDriver->driverInfo->identity_number
-                    );
-                }
+                $waslEligibility = $this->waslService->syncDriverWithWasl($waslDriver);
             } catch (\Exception $e) {
-                \Log::error('Error fetching Wasl eligibility for edit-info-request: ' . $e->getMessage());
+                Log::error('Error syncing Wasl driver data for edit-info-request: ' . $e->getMessage());
                 $waslEligibility = array_merge($waslEligibility, [
                     'is_valid' => false,
                     'api_error' => true,
@@ -105,6 +105,14 @@ class EditDriverInfoRequestController extends Controller
         if ($request->input('approval') == 3) {
             $rejectionReason = $request->input('rejection-reason', 'Request rejected by administrator');
 
+            try {
+                if ($driver->driverInfo && filled($driver->driverInfo->identity_number)) {
+                    $this->waslService->registerDriver($driver->loadMissing(['driverInfo', 'callingKey']));
+                }
+            } catch (\Exception $e) {
+                Log::warning('Failed to restore Wasl driver data after rejecting edit request: ' . $e->getMessage());
+            }
+
             CaptainRequestDecision::create([
                 'user_id' => $driver->id,
                 'action_type' => 'edit_driver_info_rejected',
@@ -126,60 +134,76 @@ class EditDriverInfoRequestController extends Controller
                 ->with('success', __('Driver info update request rejected successfully.'));
         }
 
-        $userfields = [
-            'user-first-name' => $newUserInfo?->{'user-first-name'},
-            'user-last-name' => $newUserInfo?->{'user-last-name'},
-            'email' => $newUserInfo?->email,
-            'phone-no' => $newUserInfo?->{'phone-no'},
-            'gender' => $newUserInfo?->gender,
-            'image' => $newUserInfo?->image,
-            'university-id' => $newUserInfo?->{"university-id"},
-            'user-stage-id' => $newUserInfo?->{"user-stage-id"},
-            'approval' => 1,
-        ];
+        try {
+            DB::beginTransaction();
 
-        $driver->update($userfields);
+            $userfields = [
+                'user-first-name' => $newUserInfo?->{'user-first-name'},
+                'user-last-name' => $newUserInfo?->{'user-last-name'},
+                'email' => $newUserInfo?->email,
+                'phone-no' => $newUserInfo?->{'phone-no'},
+                'gender' => $newUserInfo?->gender,
+                'image' => $newUserInfo?->image,
+                'university-id' => $newUserInfo?->{"university-id"},
+                'user-stage-id' => $newUserInfo?->{"user-stage-id"},
+                'approval' => 1,
+            ];
 
-        if ($driver->driverInfo && $newDriverInfo) {
-            $driver->driverInfo->update([
-                'car-brand' => $newDriverInfo->{'car-brand'},
-                'car-model' => $newDriverInfo->{'car-model'},
-                'car-number' => $newDriverInfo->{'car-number'},
-                'car-letters' => $newDriverInfo->{'car-letters'},
-                'car-color' => $newDriverInfo->{'car-color'},
-                'driver-license-link' => $newDriverInfo->{'driver-license-link'}
-                    ?? $newCarInfo?->license_img
-                    ?? $newCarInfo?->licnese_img
-                    ?? $driver->driverInfo->{'driver-license-link'},
-                'allow-disabilities' => $newDriverInfo->{'allow-disabilities'} ?? $driver->driverInfo->{'allow-disabilities'} ?? 'no',
+            $driver->update($userfields);
+
+            if ($driver->driverInfo && $newDriverInfo) {
+                $driver->driverInfo->update([
+                    'car-brand' => $newDriverInfo->{'car-brand'},
+                    'car-model' => $newDriverInfo->{'car-model'},
+                    'car-number' => $newDriverInfo->{'car-number'},
+                    'car-letters' => $newDriverInfo->{'car-letters'},
+                    'car-color' => $newDriverInfo->{'car-color'},
+                    'driver-license-link' => $newDriverInfo->{'driver-license-link'}
+                        ?? $newCarInfo?->license_img
+                        ?? $newCarInfo?->licnese_img
+                        ?? $driver->driverInfo->{'driver-license-link'},
+                    'allow-disabilities' => $newDriverInfo->{'allow-disabilities'} ?? $driver->driverInfo->{'allow-disabilities'} ?? 'no',
+                ]);
+            }
+
+            if ($driver->driverCar && $newCarInfo) {
+                $driver->driverCar->update([
+                    'driver-type-id' => $newCarInfo->{'driver-type-id'},
+                    'car_form_img' => $newCarInfo->car_form_img,
+                    'license_img' => $newCarInfo->license_img ?? $newCarInfo->licnese_img ?? null,
+                    'car_front_img' => $newCarInfo->car_front_img,
+                    'car_back_img' => $newCarInfo->car_back_img,
+                    'car_rside_img' => $newCarInfo->car_rside_img,
+                    'car_lside_img' => $newCarInfo->car_lside_img,
+                    'car_insideFront_img' => $newCarInfo->car_insideFront_img,
+                    'car_insideBack_img' => $newCarInfo->car_insideBack_img,
+                ]);
+            }
+
+            $driver->refresh()->loadMissing(['driverInfo', 'callingKey']);
+
+            if ($driver->driverInfo && filled($driver->driverInfo->identity_number)) {
+                $this->waslService->registerDriver($driver);
+            }
+
+            $newUserInfo?->delete();
+            $newDriverInfo?->delete();
+            $newCarInfo?->delete();
+
+            CaptainRequestDecision::create([
+                'user_id' => $driver->id,
+                'action_type' => 'edit_driver_info_approved',
+                'old_approval' => $oldApproval,
+                'new_approval' => 1,
+                'decided_by_employee_id' => $employeeId,
             ]);
+
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return redirect()->back()->with('error', __('Unable to update driver in ministry system.') . ' ' . $e->getMessage());
         }
-
-        if ($driver->driverCar && $newCarInfo) {
-            $driver->driverCar->update([
-                'driver-type-id' => $newCarInfo->{'driver-type-id'},
-                'car_form_img' => $newCarInfo->car_form_img,
-                'license_img' => $newCarInfo->license_img ?? $newCarInfo->licnese_img ?? null,
-                'car_front_img' => $newCarInfo->car_front_img,
-                'car_back_img' => $newCarInfo->car_back_img,
-                'car_rside_img' => $newCarInfo->car_rside_img,
-                'car_lside_img' => $newCarInfo->car_lside_img,
-                'car_insideFront_img' => $newCarInfo->car_insideFront_img,
-                'car_insideBack_img' => $newCarInfo->car_insideBack_img,
-            ]);
-        }
-
-        $newUserInfo?->delete();
-        $newDriverInfo?->delete();
-        $newCarInfo?->delete();
-
-        CaptainRequestDecision::create([
-            'user_id' => $driver->id,
-            'action_type' => 'edit_driver_info_approved',
-            'old_approval' => $oldApproval,
-            'new_approval' => 1,
-            'decided_by_employee_id' => $employeeId,
-        ]);
 
         $this->sendEditInfoEmail($driver, 'driver_info_update', null, false);
 

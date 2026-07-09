@@ -20,36 +20,106 @@ class WaslService
     }
 
 
-    public function registerDriver(User $driver)
+    public function registerDriver(User $driver): void
     {
-        Log::channel('wasl')->info('Registering driver to Wasl', ['driver_id' => $driver->id]);
+        $driver->loadMissing(['driverInfo', 'callingKey']);
 
-        if (!$this->config['enabled']) {
-            return null;
+        $driverData = (new RegisterResource($driver))->resolve();
+
+        $this->postDriverRegistration($driverData, $driver->id);
+    }
+
+    public function buildDriverForWaslRegistration(
+        User $driver,
+        ?\App\Models\NewUserInfo $newUserInfo = null,
+        ?\App\Models\NewDriverInfo $newDriverInfo = null
+    ): User {
+        $driver->loadMissing(['driverInfo', 'callingKey']);
+
+        if ($newUserInfo) {
+            foreach (['user-first-name', 'user-last-name', 'email', 'phone-no', 'gender'] as $field) {
+                if (filled($newUserInfo->{$field})) {
+                    $driver->{$field} = $newUserInfo->{$field};
+                }
+            }
         }
 
-        $driverData = new RegisterResource($driver);
-        $driverData = $driverData->resolve();
+        if ($newDriverInfo && $driver->driverInfo) {
+            $driverInfo = $driver->driverInfo->replicate();
 
-        Log::channel('wasl')->info('Prepared driver data for Wasl', ['driver_id' => $driver->id, 'data' => $driverData]);
+            foreach ([
+                'car-brand',
+                'car-model',
+                'car-number',
+                'car-letters',
+                'car-color',
+                'sequence-number',
+                'allow-disabilities',
+            ] as $field) {
+                if (filled($newDriverInfo->{$field})) {
+                    $driverInfo->{$field} = $newDriverInfo->{$field};
+                }
+            }
+
+            $driver->setRelation('driverInfo', $driverInfo);
+        }
+
+        return $driver;
+    }
+
+    public function syncDriverWithWasl(User $driver): array
+    {
+        $this->registerDriver($driver);
+
+        $identityNumber = trim((string) ($driver->driverInfo?->identity_number ?? ''));
+
+        if ($identityNumber === '') {
+            return [
+                'is_valid' => false,
+                'api_error' => true,
+                'message' => __('Unable to verify ministry eligibility because the driver identity number is missing.'),
+                'display_status' => __('Verification Failed'),
+            ];
+        }
+
+        $response = $this->checkDriverEligibility(
+            $identityNumber,
+            $this->buildEligibilityRequestBody($driver)
+        );
+
+        return $this->parseEligibilityResponse($response, $identityNumber);
+    }
+
+    private function postDriverRegistration(array $driverData, ?int $driverId = null): void
+    {
+        Log::channel('wasl')->info('Registering driver to Wasl', [
+            'driver_id' => $driverId,
+            'data' => $driverData,
+        ]);
+
+        if (!$this->config['enabled']) {
+            return;
+        }
 
         try {
             $response = Http::withHeaders([
                 'client-id' => $this->config['client_key'],
-                'app-id'     => $this->config['app_id'],
-                'app-key'    => $this->config['app_key']
+                'app-id' => $this->config['app_id'],
+                'app-key' => $this->config['app_key'],
             ])
-            ->contentType('application/json')
-            ->post($this->config['api_url'] . '/api/dispatching/v2/drivers', $driverData);
+                ->contentType('application/json')
+                ->post($this->config['api_url'] . '/api/dispatching/v2/drivers', $driverData);
 
-            Log::channel('wasl')->info('Received response from Wasl for driver registration', ['driver_id' => $driver->id, 'status' => $response->status(), 'body' => $response->body()]);
+            Log::channel('wasl')->info('Received response from Wasl for driver registration', [
+                'driver_id' => $driverId,
+                'status' => $response->status(),
+                'body' => $response->body(),
+            ]);
 
             $responseBody = $response->json();
 
-
-            if($response->status() == 400) {
-
-                if(isset($responseBody['resultCode']) && $responseBody['resultCode'] == 'bad_request') {
+            if ($response->status() == 400) {
+                if (isset($responseBody['resultCode']) && $responseBody['resultCode'] == 'bad_request') {
                     throw new \Exception($responseBody['resultMsg'] ?? __('Failed to register driver to Wasl'));
                 }
 
@@ -57,21 +127,21 @@ class WaslService
                 throw new \Exception($this->getWaslCode($waslCode));
             }
 
-            if ( isset($responseBody['result']['eligibility']) && $responseBody['result']['eligibility'] === 'INVALID' ) {
+            if (isset($responseBody['result']['eligibility']) && $responseBody['result']['eligibility'] === 'INVALID') {
                 $reasons = $responseBody['result']['rejectionReasons'] ?? [];
                 $messages = collect($reasons)->map(function ($code) {
                     return $this->getWaslCode($code);
                 })->values()->toArray();
                 throw new \Exception(implode(' | ', $messages));
             }
-
-            // return $response->json();
-
         } catch (\Exception $e) {
-            Log::channel('wasl')->error('Error registering driver to Wasl', ['driver_id' => $driver->id, 'error' => $e->getMessage()]);
+            Log::channel('wasl')->error('Error registering driver to Wasl', [
+                'driver_id' => $driverId,
+                'error' => $e->getMessage(),
+            ]);
+
             throw new \Exception($e->getMessage());
         }
-
     }
 
     public function translateWaslCode(?string $code): string
