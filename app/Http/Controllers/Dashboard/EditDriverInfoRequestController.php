@@ -147,8 +147,11 @@ class EditDriverInfoRequestController extends Controller
                 'car-number' => $newDriverInfo->{'car-number'},
                 'car-letters' => $newDriverInfo->{'car-letters'},
                 'car-color' => $newDriverInfo->{'car-color'},
-                'driver-license-link' => $newDriverInfo->{'driver-license-link'},
-                'allow-disabilities' => $newDriverInfo->{'allow-disabilities'} ?? 'no',
+                'driver-license-link' => $newDriverInfo->{'driver-license-link'}
+                    ?? $newCarInfo?->license_img
+                    ?? $newCarInfo?->licnese_img
+                    ?? $driver->driverInfo->{'driver-license-link'},
+                'allow-disabilities' => $newDriverInfo->{'allow-disabilities'} ?? $driver->driverInfo->{'allow-disabilities'} ?? 'no',
             ]);
         }
 

@@ -104,6 +104,8 @@ class ProfileController extends BaseController
 
         if(isset($images['license_img'])) {
             $data['driver-license-link'] = $images['license_img'];
+        } elseif (auth()->user()->driverInfo?->{'driver-license-link'}) {
+            $data['driver-license-link'] = auth()->user()->driverInfo->{'driver-license-link'};
         }
 
         NewDriverInfo::create(array_merge(
