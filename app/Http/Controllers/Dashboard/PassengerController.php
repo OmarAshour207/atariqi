@@ -309,7 +309,7 @@ class PassengerController extends Controller
             ->orderByDesc('date-of-add')
             ->paginate(20);
 
-        $admins = Admin::where('id', '!=', auth()->guard('admin')->id())->get();
+        $admins = Admin::where('id', '!=', auth()->guard('admin')->id())->where('type', 'admin')->get();
 
         return view('dashboard.passengers.profile-update-requests', compact('passengers', 'admins'));
     }
