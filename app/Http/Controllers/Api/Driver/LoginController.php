@@ -82,7 +82,7 @@ class LoginController extends BaseController
         }
 
         if ($user->approval == 3) {
-            return $this->sendError(__('s_userBanned'), [__('This driver is banned')], 403);
+            return $this->sendError(__('s_userBanned'), [__('This driver is banned, please contact technical support.')], 403);
         }
 
         if (!in_array((int) $user->approval, [1, 4], true)) {

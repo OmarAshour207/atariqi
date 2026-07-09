@@ -35,6 +35,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Pagination\LengthAwarePaginator;
 use App\Mail\DriverRejectedMail;
+use App\Mail\DriverBannedMail;
 use App\Mail\DriverApprovedMail;
 use App\Mail\PaymentReminderMail;
 use App\Models\DriverBanned;
@@ -1040,24 +1041,63 @@ class DriverController extends Controller
             return redirect()->back()->with('error', __('Driver cannot be banned. Rating is not below 1.'));
         }
 
-        DriverBanned::create([
-            'assigned_from_employee_id' => auth()->guard('admin')->id(),
-            'driver_identity' => $driver->driverInfo->identity_number,
-            'driver_no' => $driver->{"phone-no"},
-            'driver_car_no' => $driver->driverInfo->{"car-number"} ?? null,
-            'note' => $request->input('ban_reason'),
-        ]);
+        $employeeId = auth()->guard('admin')->id();
+        $banReason = $request->input('ban_reason');
 
-        $driver->update(['approval' => 3, 'reject-reason' => $request->input('ban_reason')]);
+        try {
+            DB::beginTransaction();
 
-        CaptainRequestDecision::create([
-            'user_id' => $driver->id,
-            'action_type' => 'banned',
-            'old_approval' => $driver->approval,
-            'new_approval' => 3,
-            'decided_by_employee_id' => auth()->guard('admin')->id(),
-            'reject_reason' => $request->input('ban_reason'),
-        ]);
+            $oldApproval = $driver->approval;
+
+            DriverBanned::create([
+                'assigned_from_employee_id' => $employeeId,
+                'driver_identity' => $driver->driverInfo->identity_number,
+                'driver_no' => $driver->{"phone-no"},
+                'driver_car_no' => $driver->driverInfo->{"car-number"} ?? null,
+                'note' => $banReason,
+            ]);
+
+            $driver->update(['approval' => 3, 'reject-reason' => $banReason]);
+
+            CaptainRequestDecision::create([
+                'user_id' => $driver->id,
+                'action_type' => 'banned',
+                'old_approval' => $oldApproval,
+                'new_approval' => 3,
+                'decided_by_employee_id' => $employeeId,
+                'reject_reason' => $banReason,
+            ]);
+
+            if ($driver->email) {
+                try {
+                    Mail::to($driver->email)->send(new DriverBannedMail($driver, $banReason));
+
+                    PlatformEmailLog::create([
+                        'assigned_from_employee_id' => $employeeId,
+                        'driver_id' => $driver->id,
+                        'driver_email' => $driver->email,
+                        'email_type' => 'driver_banned',
+                        'status' => 'sent',
+                        'error_message' => null,
+                    ]);
+                } catch (\Throwable $e) {
+                    PlatformEmailLog::create([
+                        'assigned_from_employee_id' => $employeeId,
+                        'driver_id' => $driver->id,
+                        'driver_email' => $driver->email,
+                        'email_type' => 'driver_banned',
+                        'status' => 'failed',
+                        'error_message' => $e->getMessage(),
+                    ]);
+                }
+            }
+
+            DB::commit();
+        } catch (\Throwable $e) {
+            DB::rollBack();
+
+            return redirect()->back()->with('error', __('Unable to ban driver.'));
+        }
 
         return redirect()->route('drivers.index')->with('success', __('Driver has been banned successfully.'));
     }
