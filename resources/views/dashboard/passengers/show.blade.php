@@ -18,6 +18,17 @@
         </div>
 
         <div class="container-fluid page__container">
+            @if($isBanned ?? false)
+                <div class="alert alert-danger">
+                    <strong>
+                        <i class="fas fa-ban"></i> {{ __('This passenger has been banned.') }}
+                    </strong>
+                    @if(!empty($banReason))
+                        <br>{{ __('Reason') }}: {{ $banReason }}
+                    @endif
+                </div>
+            @endif
+
             @if(session('success'))
                 <div class="alert alert-success">{{ session('success') }}</div>
             @endif
@@ -228,7 +239,7 @@
                                 <i class="fas fa-exclamation-circle"></i> {{ __('View Complaints') }}
                             </a>
 
-                            @if($passenger->passengerRate && $passenger->passengerRate->rate < 2)
+                            @if(!$isBanned && $passenger->passengerRate && $passenger->passengerRate->rate < 2)
                                 <button type="button" class="btn btn-danger" onclick="showBanModal()">
                                     <i class="fas fa-ban"></i> {{ __('Ban Passenger') }}
                                 </button>

@@ -117,7 +117,22 @@ class PassengerController extends Controller
             ->where('id', '!=', auth()->guard('admin')->id())
             ->get();
 
-        return view('dashboard.passengers.show', compact('passenger', 'admins'));
+        $isBanned = (int) $passenger->approval === 3;
+        $banReason = null;
+
+        if ($isBanned) {
+            $banned = PassengerBanned::query()
+                ->where(function ($query) use ($passenger) {
+                    $query->where('passenger_identity', $passenger->id)
+                        ->orWhere('passenger_no', $passenger->{'phone-no'});
+                })
+                ->latest()
+                ->first();
+
+            $banReason = $banned?->note;
+        }
+
+        return view('dashboard.passengers.show', compact('passenger', 'admins', 'isBanned', 'banReason'));
     }
 
     public function ban(User $passenger, Request $request)
@@ -161,7 +176,7 @@ class PassengerController extends Controller
 
             DB::commit();
 
-            return redirect()->route('passengers.index')->with('success', __('Passenger has been banned successfully.'));
+            return redirect()->route('passengers.show', $passenger->id)->with('success', __('Passenger has been banned successfully.'));
         } catch (\Exception $e) {
             DB::rollBack();
 

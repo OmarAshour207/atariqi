@@ -19,13 +19,13 @@
         <div class="container-fluid page__container">
 
 
-            @if ($banned)
+            @if($isBanned ?? false)
                 <div class="alert alert-danger">
                     <strong>
-                        <i class="fas fa-ban"></i> {{ __('Warning: This driver is banned before!') }}
+                        <i class="fas fa-ban"></i> {{ __('This driver has been banned.') }}
                     </strong>
-                    @if($banned->note)
-                        <br>{{ __('Reason') }}: {{ $banned->note }}
+                    @if(!empty($banReason))
+                        <br>{{ __('Reason') }}: {{ $banReason }}
                     @endif
                 </div>
             @endif
@@ -541,7 +541,7 @@
                         </div>
                     @endif
 
-                    @if($driver->approval != 3 && !$banned && $driver->driverInfo && is_numeric($driver->driverInfo->{"driver-rate"}) && floatval($driver->driverInfo->{"driver-rate"}) < 1)
+                    @if(!$isBanned && $driver->driverInfo && is_numeric($driver->driverInfo->{"driver-rate"}) && floatval($driver->driverInfo->{"driver-rate"}) < 1)
                         <div class="text-right mb-5">
                             <button type="button" class="btn btn-danger" onclick="showBanModal()">{{ __('Ban Driver') }}</button>
                         </div>

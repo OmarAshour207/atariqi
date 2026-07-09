@@ -285,11 +285,27 @@ class DriverController extends Controller
         $hasPendingUpdate = $driver->approval == 2
             || NewUserInfo::where('user-id', $driver->id)->exists();
 
-        if ($driver->driverInfo && filled($driver->driverInfo->identity_number)) {
-            $banned = DriverBanned::where('driver_identity', $driver->driverInfo->identity_number)
+        $isBanned = (int) $driver->approval === 3;
+        $banReason = null;
+
+        if ($isBanned) {
+            $banned = DriverBanned::query()
+                ->where(function ($query) use ($driver) {
+                    $query->where('driver_no', $driver->{'phone-no'});
+
+                    if (filled($driver->driverInfo?->identity_number)) {
+                        $query->orWhere('driver_identity', $driver->driverInfo->identity_number);
+                    }
+                })
                 ->latest()
                 ->first();
 
+            $banReason = $banned?->note ?: $driver->{'reject-reason'};
+        } else {
+            $banned = null;
+        }
+
+        if ($driver->driverInfo && filled($driver->driverInfo->identity_number)) {
             try {
                 $eligibilityBody = $this->waslService->buildEligibilityRequestBody($driver);
 
@@ -333,7 +349,9 @@ class DriverController extends Controller
             'neighborhoodFromNames',
             'neighborhoodToNames',
             'driverNeighborhoodName',
-            'hasPendingUpdate'
+            'hasPendingUpdate',
+            'isBanned',
+            'banReason',
         ));
     }
 
@@ -1099,6 +1117,6 @@ class DriverController extends Controller
             return redirect()->back()->with('error', __('Unable to ban driver.'));
         }
 
-        return redirect()->route('drivers.index')->with('success', __('Driver has been banned successfully.'));
+        return redirect()->route('drivers.show', $driver->id)->with('success', __('Driver has been banned successfully.'));
     }
 }
