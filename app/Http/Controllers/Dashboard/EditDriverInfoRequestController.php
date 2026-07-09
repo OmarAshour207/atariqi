@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Dashboard;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Dashboard\DriverInfo\UpdateDriverInfoRequest;
 use App\Mail\DriverInfoAcceptedMail;
-use App\Mail\DriverRejectedMail;
+use App\Mail\DriverEditInfoRejectedMail;
 use App\Models\CaptainRequestDecision;
 use App\Models\DriverType;
 use App\Models\Neighbour;
@@ -195,7 +195,7 @@ class EditDriverInfoRequestController extends Controller
 
         try {
             if ($isRejection) {
-                Mail::to($driver->email)->send(new DriverRejectedMail($driver, $rejectionReason));
+                Mail::to($driver->email)->send(new DriverEditInfoRejectedMail($driver, $rejectionReason));
             } else {
                 Mail::to($driver->email)->send(new DriverInfoAcceptedMail($driver));
             }
