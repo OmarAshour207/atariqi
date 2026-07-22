@@ -18,11 +18,6 @@ class HomeController extends Controller
         ]);
     }
 
-    public function support()
-    {
-        return view('support');
-    }
-
     public function homepageSections()
     {
         $data = [

@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\Driver\PaymentController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\SupportController;
 use App\Http\Controllers\Dashboard\HomeController as DashboardHomeController;
 use App\Http\Controllers\Dashboard\Auth\LoginController;
 use App\Http\Controllers\Dashboard\ProfileController;
@@ -18,6 +19,7 @@ use App\Http\Controllers\Dashboard\UserController;
 use App\Http\Controllers\Dashboard\DriverController;
 use App\Http\Controllers\Dashboard\PassengerController;
 use App\Http\Controllers\Dashboard\GeneralDuesPercentageController;
+use App\Http\Controllers\Dashboard\SupportTicketController;
 
 /*
 |--------------------------------------------------------------------------
@@ -31,7 +33,12 @@ use App\Http\Controllers\Dashboard\GeneralDuesPercentageController;
 */
 
 Route::get('/', [HomeController::class, 'home'])->name('home')->middleware('locale');
-Route::get('/support', [HomeController::class, 'support'])->name('support');
+Route::middleware('locale')->group(function () {
+    Route::get('/support', [SupportController::class, 'index'])->name('support');
+    Route::post('/support', [SupportController::class, 'store'])->name('support.store');
+    Route::get('/support/track', [SupportController::class, 'track'])->name('support.track');
+    Route::post('/support/track', [SupportController::class, 'lookup'])->name('support.lookup');
+});
 Route::get('/homepage-sections', [HomeController::class, 'homepageSections'])->name('homepage.sections');
 Route::get('/locale/{locale}', [HomeController::class, 'changeLocale'])->name('change.locale');
 
@@ -93,6 +100,22 @@ Route::middleware(['is_admin'])->prefix('dashboard')->group(function () {
     Route::get('passengers/{passenger}/trips', [PassengerController::class, 'trips'])->name('passengers.trips');
     Route::get('passengers-trips', [PassengerController::class, 'allTrips'])->name('passengers.all-trips');
     Route::Resource('edit-info-request', EditDriverInfoRequestController::class);
+
+    Route::get('support-tickets/{page}', [SupportTicketController::class, 'index'])
+        ->whereIn('page', ['complaints', 'inquiries', 'technical'])
+        ->name('support-tickets.index');
+    Route::get('support-tickets/{page}/{ticket}', [SupportTicketController::class, 'show'])
+        ->whereIn('page', ['complaints', 'inquiries', 'technical'])
+        ->name('support-tickets.show');
+    Route::post('support-tickets/{page}/{ticket}/reply', [SupportTicketController::class, 'reply'])
+        ->whereIn('page', ['complaints', 'inquiries', 'technical'])
+        ->name('support-tickets.reply');
+    Route::post('support-tickets/{page}/{ticket}/assign', [SupportTicketController::class, 'assign'])
+        ->whereIn('page', ['complaints', 'inquiries', 'technical'])
+        ->name('support-tickets.assign');
+    Route::post('support-tickets/{page}/{ticket}/close', [SupportTicketController::class, 'close'])
+        ->whereIn('page', ['complaints', 'inquiries', 'technical'])
+        ->name('support-tickets.close');
 
     Route::get('profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::post('profile/update', [ProfileController::class, 'update'])->name('profile.update');

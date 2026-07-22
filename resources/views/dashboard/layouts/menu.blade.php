@@ -179,6 +179,35 @@
                     </ul>
                 </li>
 
+                <!-- Technical Support -->
+                <li class="sidebar-menu-item">
+                    <a class="sidebar-menu-button" data-toggle="collapse" href="#support_tickets">
+                        <i class="sidebar-menu-icon sidebar-menu-icon--left fa fa-headset"></i>
+                        <span class="sidebar-menu-text"> {{ __('Technical Support') }} </span>
+                        <span class="ml-auto sidebar-menu-toggle-icon"></span>
+                    </a>
+                    <ul class="sidebar-submenu collapse" id="support_tickets">
+                        <li class="sidebar-menu-item">
+                            <a class="sidebar-menu-button" href="{{ route('support-tickets.index', 'complaints') }}">
+                                <i class="fa fa-exclamation-circle"></i>
+                                <span class="sidebar-menu-text"> {{ __('Complaints') }}</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-menu-item">
+                            <a class="sidebar-menu-button" href="{{ route('support-tickets.index', 'inquiries') }}">
+                                <i class="fa fa-question-circle"></i>
+                                <span class="sidebar-menu-text"> {{ __('Inquiries') }}</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-menu-item">
+                            <a class="sidebar-menu-button" href="{{ route('support-tickets.index', 'technical') }}">
+                                <i class="fa fa-wrench"></i>
+                                <span class="sidebar-menu-text"> {{ __('Technical Issues') }}</span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
                 {{-- Settings --}}
                 <li class="sidebar-menu-item">
                     <a class="sidebar-menu-button" href="{{ route('settings.index') }}">
