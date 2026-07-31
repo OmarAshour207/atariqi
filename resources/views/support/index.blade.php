@@ -114,7 +114,7 @@
                                             </div>
                                         </div>
 
-                                        <div class="text-end mt-4">
+                                        <div class="{{ session('locale', app()->getLocale()) === 'ar' ? 'text-end' : 'text-start' }} mt-4">
                                             <button type="submit" class="btn btn-brand px-4">
                                                 <i class="bi bi-send me-1"></i>{{ __('Submit') }}
                                             </button>

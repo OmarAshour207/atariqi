@@ -6,6 +6,7 @@ use App\Models\Ticket;
 use App\Models\TicketReply;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
@@ -18,6 +19,7 @@ class TicketReplyMail extends Mailable
         public Ticket $ticket,
         public TicketReply $reply
     ) {
+        $this->reply->loadMissing('attachments');
     }
 
     public function envelope(): Envelope
@@ -40,6 +42,18 @@ class TicketReplyMail extends Mailable
 
     public function attachments(): array
     {
-        return [];
+        return $this->reply->attachments
+            ->map(function ($attachment) {
+                $path = public_path($attachment->file_path);
+
+                if (!is_file($path)) {
+                    return null;
+                }
+
+                return Attachment::fromPath($path);
+            })
+            ->filter()
+            ->values()
+            ->all();
     }
 }

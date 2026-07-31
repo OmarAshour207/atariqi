@@ -98,7 +98,7 @@ class SupportController extends Controller
         }
 
         $ticket = Ticket::query()
-            ->with(['replies', 'attachments'])
+            ->with(['replies.attachments', 'ticketLevelAttachments'])
             ->where('ticket_number', trim($request->input('ticket_number')))
             ->where('customer_email', trim($request->input('email')))
             ->first();

@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Validation\Rule;
 
 class SupportTicketController extends Controller
 {
@@ -69,13 +70,15 @@ class SupportTicketController extends Controller
 
         $ticket->load([
             'replies.employee',
-            'attachments',
+            'replies.attachments',
+            'ticketLevelAttachments',
             'assignedEmployee',
             'statusLogs.changedBy',
         ]);
 
         $employees = Admin::query()
             ->where('is_active', 1)
+            ->whereIn('type', ['admin', 'support'])
             ->orderBy('name')
             ->get(['id', 'name', 'email', 'type']);
 
@@ -116,7 +119,7 @@ class SupportTicketController extends Controller
                 'created_at' => now(),
             ]);
 
-            $this->storeReplyAttachments($request, $ticket);
+            $this->storeReplyAttachments($request, $ticket, $reply);
 
             if ($ticket->status === Ticket::STATUS_NEW) {
                 $ticket->changeStatus(Ticket::STATUS_IN_PROGRESS, $employee->id);
@@ -136,6 +139,8 @@ class SupportTicketController extends Controller
                 ->with('error', __('Failed to save the reply. Please try again.'));
         }
 
+        $reply->load('attachments');
+
         $this->sendTicketEmail(
             $ticket->customer_email,
             new TicketReplyMail($ticket->fresh(), $reply),
@@ -152,11 +157,17 @@ class SupportTicketController extends Controller
         $this->assertTicketBelongsToPage($page, $ticket);
 
         $request->validate([
-            'assigned_employee_id' => ['required', 'exists:admins,id'],
+            'assigned_employee_id' => [
+                'required',
+                Rule::exists('admins', 'id')->where(function ($query) {
+                    $query->where('is_active', 1)->whereIn('type', ['admin', 'support']);
+                }),
+            ],
         ]);
 
         $assignee = Admin::query()
             ->where('is_active', 1)
+            ->whereIn('type', ['admin', 'support'])
             ->findOrFail($request->input('assigned_employee_id'));
 
         $assignedBy = auth()->guard('admin')->user();
@@ -251,7 +262,7 @@ class SupportTicketController extends Controller
         }
     }
 
-    private function storeReplyAttachments(Request $request, Ticket $ticket): void
+    private function storeReplyAttachments(Request $request, Ticket $ticket, TicketReply $reply): void
     {
         if (!$request->hasFile('attachments')) {
             return;
@@ -273,6 +284,7 @@ class SupportTicketController extends Controller
 
             TicketAttachment::create([
                 'ticket_id' => $ticket->id,
+                'ticket_reply_id' => $reply->id,
                 'uploaded_by' => Ticket::SENDER_EMPLOYEE,
                 'file_path' => 'uploads/support-tickets/' . date('Y/m') . '/' . $filename,
                 'file_type' => $extension,

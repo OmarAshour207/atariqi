@@ -1,7 +1,34 @@
 @extends('dashboard.layouts.app')
 
+@push('admin_styles')
+<style>
+    .support-ticket-page .btn-brand,
+    .support-ticket-page .btn-primary {
+        background-color: #38B2AC;
+        border-color: #38B2AC;
+        color: #fff;
+    }
+    .support-ticket-page .btn-brand:hover,
+    .support-ticket-page .btn-primary:hover {
+        background-color: #2AA199;
+        border-color: #2AA199;
+        color: #fff;
+    }
+    .support-ticket-page .btn-info {
+        background-color: #38B2AC;
+        border-color: #38B2AC;
+        color: #fff;
+    }
+    .support-ticket-page .btn-info:hover {
+        background-color: #2AA199;
+        border-color: #2AA199;
+        color: #fff;
+    }
+</style>
+@endpush
+
 @section('content')
-    <div class="mdk-drawer-layout__content page">
+    <div class="mdk-drawer-layout__content page support-ticket-page">
         <div class="container-fluid page__heading-container">
             <div class="page__heading d-flex align-items-center">
                 <div class="flex">
@@ -75,7 +102,7 @@
                                 </div>
                                 <div class="col-md-6">
                                     <div class="text-muted small">{{ __('Ticket Type') }}</div>
-                                    <div class="font-weight-bold">{{ $ticket->subtype_label }}</div>
+                                    <div class="font-weight-bold">{{ $ticket->type_label }}</div>
                                 </div>
                             </div>
 
@@ -103,9 +130,9 @@
                             <strong>{{ __('Attachments') }}</strong>
                         </div>
                         <div class="card-body">
-                            @if($ticket->attachments->count())
+                            @if($ticket->ticketLevelAttachments->count())
                                 <ul class="list-unstyled mb-0">
-                                    @foreach($ticket->attachments as $index => $attachment)
+                                    @foreach($ticket->ticketLevelAttachments as $index => $attachment)
                                         <li class="mb-2">
                                             <a href="{{ asset($attachment->file_path) }}" target="_blank" rel="noopener">
                                                 {{ __('Attachment') }} {{ $index + 1 }}
@@ -141,6 +168,20 @@
                                         <span class="text-muted small">{{ $reply->created_at?->format('Y-m-d H:i') }}</span>
                                     </div>
                                     <div style="white-space: pre-wrap;">{{ $reply->message }}</div>
+                                    @if($reply->attachments->count())
+                                        <div class="mt-3">
+                                            <div class="text-muted small">{{ __('Attachments') }}</div>
+                                            <ul class="mb-0">
+                                                @foreach($reply->attachments as $index => $attachment)
+                                                    <li>
+                                                        <a href="{{ asset($attachment->file_path) }}" target="_blank" rel="noopener">
+                                                            {{ __('Attachment') }} {{ $index + 1 }}
+                                                        </a>
+                                                    </li>
+                                                @endforeach
+                                            </ul>
+                                        </div>
+                                    @endif
                                 </div>
                             @empty
                                 <p class="text-muted mb-0">{{ __('No responses yet.') }}</p>
@@ -164,7 +205,7 @@
                                         <label for="attachments">{{ __('Attachments') }} <span class="text-muted">({{ __('Optional') }})</span></label>
                                         <input type="file" id="attachments" name="attachments[]" class="form-control" multiple accept=".jpg,.jpeg,.png,.pdf">
                                     </div>
-                                    <button type="submit" class="btn btn-primary">{{ __('Send Reply') }}</button>
+                                    <button type="submit" class="btn btn-brand">{{ __('Send Reply') }}</button>
                                 </form>
                             </div>
                         </div>
@@ -221,7 +262,7 @@
                                             @endforeach
                                         </select>
                                     </div>
-                                    <button type="submit" class="btn btn-info btn-block">{{ __('Assign Ticket') }}</button>
+                                    <button type="submit" class="btn btn-brand btn-block">{{ __('Assign Ticket') }}</button>
                                 </form>
                             </div>
                         </div>

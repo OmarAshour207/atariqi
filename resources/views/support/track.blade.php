@@ -1,5 +1,9 @@
 @extends('layouts.app')
 
+@php
+    $isRtl = session('locale', app()->getLocale()) === 'ar';
+@endphp
+
 @section('content')
 <section class="py-5">
     <div class="container py-4">
@@ -11,7 +15,7 @@
                         <p class="text-secondary mb-0">{{ __('Enter your ticket number and email to view the status of your request.') }}</p>
                     </div>
                     <a href="{{ route('support') }}" class="btn btn-outline-secondary">
-                        <i class="bi bi-arrow-right me-1"></i>{{ __('Back to Support') }}
+                        <i class="bi bi-arrow-{{ $isRtl ? 'right' : 'left' }} me-1"></i>{{ __('Back to Support') }}
                     </a>
                 </div>
 
@@ -39,7 +43,7 @@
                                     <input type="email" name="email" class="form-control" value="{{ old('email', $ticket->customer_email ?? '') }}" required>
                                 </div>
                             </div>
-                            <div class="text-end mt-4">
+                            <div class="{{ $isRtl ? 'text-end' : 'text-start' }} mt-4">
                                 <button type="submit" class="btn btn-brand px-4">
                                     <i class="bi bi-search me-1"></i>{{ __('Search') }}
                                 </button>
@@ -79,6 +83,20 @@
                                     <div class="small text-secondary">{{ __('Description') }}</div>
                                     <div>{{ $ticket->description }}</div>
                                 </div>
+                                @if($ticket->ticketLevelAttachments->count())
+                                    <div class="col-12">
+                                        <div class="small text-secondary">{{ __('Attachments') }}</div>
+                                        <ul class="mb-0">
+                                            @foreach($ticket->ticketLevelAttachments as $index => $attachment)
+                                                <li>
+                                                    <a href="{{ asset($attachment->file_path) }}" target="_blank" rel="noopener">
+                                                        {{ __('Attachment') }} {{ $index + 1 }}
+                                                    </a>
+                                                </li>
+                                            @endforeach
+                                        </ul>
+                                    </div>
+                                @endif
                             </div>
                         </div>
                     </div>
@@ -95,6 +113,20 @@
                                         <span class="small text-secondary">{{ $reply->created_at?->format('Y-m-d H:i') }}</span>
                                     </div>
                                     <div style="white-space: pre-wrap;">{{ $reply->message }}</div>
+                                    @if($reply->attachments->count())
+                                        <div class="mt-3">
+                                            <div class="small text-secondary">{{ __('Attachments') }}</div>
+                                            <ul class="mb-0">
+                                                @foreach($reply->attachments as $index => $attachment)
+                                                    <li>
+                                                        <a href="{{ asset($attachment->file_path) }}" target="_blank" rel="noopener">
+                                                            {{ __('Attachment') }} {{ $index + 1 }}
+                                                        </a>
+                                                    </li>
+                                                @endforeach
+                                            </ul>
+                                        </div>
+                                    @endif
                                 </div>
                             @empty
                                 <div class="alert alert-info mb-0">{{ __('No response yet. Our team will contact you soon.') }}</div>

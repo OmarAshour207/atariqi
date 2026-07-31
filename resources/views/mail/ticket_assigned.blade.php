@@ -10,9 +10,9 @@
         <td align="center">
             <table width="620" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:12px;overflow:hidden;border:1px solid #e5e7eb;">
                 <tr>
-                    <td align="center" style="background:#0F5CC0;padding:35px 30px;">
+                    <td align="center" style="background:#38B2AC;padding:35px 30px;">
                         <h1 style="margin:0;color:#ffffff;font-size:26px;">{{ __('Support Ticket Assigned') }}</h1>
-                        <p style="margin:10px 0 0;color:#dbeafe;">Rafiqni | رافقني</p>
+                        <p style="margin:10px 0 0;color:#e6fffb;">Rafiqni | رافقني</p>
                     </td>
                 </tr>
                 <tr>

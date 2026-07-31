@@ -10,9 +10,9 @@
         <td align="center">
             <table width="620" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:12px;overflow:hidden;border:1px solid #e5e7eb;">
                 <tr>
-                    <td align="center" style="background:#0F5CC0;padding:35px 30px;">
+                    <td align="center" style="background:#38B2AC;padding:35px 30px;">
                         <h1 style="margin:0;color:#ffffff;font-size:26px;">{{ __('Support Ticket Reply') }}</h1>
-                        <p style="margin:10px 0 0;color:#dbeafe;">Rafiqni | رافقني</p>
+                        <p style="margin:10px 0 0;color:#e6fffb;">Rafiqni | رافقني</p>
                     </td>
                 </tr>
                 <tr>
@@ -34,6 +34,20 @@
                             </tr>
                         </table>
                         <div style="margin-top:20px;padding:15px;background:#f8fafc;border-radius:8px;white-space:pre-wrap;">{{ $reply->message }}</div>
+                        @if($reply->attachments->count())
+                            <div style="margin-top:20px;">
+                                <strong>{{ __('Attachments') }}:</strong>
+                                <ul style="padding-left:20px;">
+                                    @foreach($reply->attachments as $index => $attachment)
+                                        <li>
+                                            <a href="{{ asset($attachment->file_path) }}" style="color:#38B2AC;">
+                                                {{ __('Attachment') }} {{ $index + 1 }}
+                                            </a>
+                                        </li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
                     </td>
                 </tr>
                 <tr>
@@ -42,6 +56,20 @@
                         <p>تم إضافة رد جديد على تذكرة الدعم الخاصة بك.</p>
                         <p><strong>رقم التذكرة:</strong> {{ $ticket->ticket_number }}</p>
                         <div style="margin-top:15px;padding:15px;background:#f8fafc;border-radius:8px;white-space:pre-wrap;">{{ $reply->message }}</div>
+                        @if($reply->attachments->count())
+                            <div style="margin-top:15px;">
+                                <strong>المرفقات:</strong>
+                                <ul>
+                                    @foreach($reply->attachments as $index => $attachment)
+                                        <li>
+                                            <a href="{{ asset($attachment->file_path) }}" style="color:#38B2AC;">
+                                                {{ __('Attachment') }} {{ $index + 1 }}
+                                            </a>
+                                        </li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
                     </td>
                 </tr>
             </table>

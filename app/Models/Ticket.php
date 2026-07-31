@@ -67,6 +67,11 @@ class Ticket extends Model
         return $this->hasMany(TicketAttachment::class)->orderBy('created_at');
     }
 
+    public function ticketLevelAttachments(): HasMany
+    {
+        return $this->hasMany(TicketAttachment::class)->whereNull('ticket_reply_id')->orderBy('created_at');
+    }
+
     public function statusLogs(): HasMany
     {
         return $this->hasMany(TicketStatusLog::class)->orderBy('created_at');

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class TicketReply extends Model
 {
@@ -29,5 +30,10 @@ class TicketReply extends Model
     public function employee(): BelongsTo
     {
         return $this->belongsTo(Admin::class, 'employee_id');
+    }
+
+    public function attachments(): HasMany
+    {
+        return $this->hasMany(TicketAttachment::class, 'ticket_reply_id');
     }
 }

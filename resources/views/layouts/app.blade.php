@@ -1,5 +1,9 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+@php
+    $currentLocale = session('locale', app()->getLocale());
+    $isRtl = $currentLocale === 'ar';
+@endphp
+<html lang="{{ $currentLocale }}" dir="{{ $isRtl ? 'rtl' : 'ltr' }}">
 
 <head>
   <meta charset="utf-8" />
@@ -8,7 +12,11 @@
   <meta name="description" content="رافقني | منصة على طريقي – تعريف بالشركة والتطبيق، إنجازات، تعاونات، وتعليقات العملاء." />
 
   <!-- Bootstrap 5 + Icons -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
+  @if($isRtl)
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
+  @else
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  @endif
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 
     <style>
@@ -20,12 +28,15 @@
         --bg:#F7FAFA;
         }
         body {
-        font-family: 'Tajawal', system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji"; color:var(--ink); background:var(--bg);
+        font-family: {{ $isRtl ? "'Tajawal', system-ui, -apple-system, Segoe UI, Roboto, \"Helvetica Neue\", Arial, \"Noto Sans\", \"Apple Color Emoji\", \"Segoe UI Emoji\"" : "system-ui, -apple-system, Segoe UI, Roboto, \"Helvetica Neue\", Arial, \"Noto Sans\", \"Apple Color Emoji\", \"Segoe UI Emoji\"" }}; color:var(--ink); background:var(--bg);
         }
         .btn-brand{background:var(--brand); border-color:var(--brand); color:#fff}
         .btn-brand:hover{background:var(--brand-700); border-color:var(--brand-700); color:#fff}
         .text-brand{color:var(--brand)!important}
         .bg-brand{background:var(--brand)!important}
+        .nav-pills .nav-link.active{background-color:var(--brand)}
+        .nav-pills .nav-link:not(.active){color:var(--brand)}
+        .nav-pills .nav-link:not(.active):hover{color:var(--brand-700)}
         .rounded-xxl{border-radius:2rem}
         .hero{
         background: radial-gradient(1400px 400px at 50% -100px, var(--brand) 0%, transparent 60%), #fff;

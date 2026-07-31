@@ -1,7 +1,33 @@
 @extends('dashboard.layouts.app')
 
+@push('admin_styles')
+<style>
+    .support-ticket-page .btn-brand,
+    .support-ticket-page .btn-primary {
+        background-color: #38B2AC;
+        border-color: #38B2AC;
+        color: #fff;
+    }
+    .support-ticket-page .btn-brand:hover,
+    .support-ticket-page .btn-primary:hover {
+        background-color: #2AA199;
+        border-color: #2AA199;
+        color: #fff;
+    }
+    .support-ticket-page .btn-outline-primary {
+        color: #38B2AC;
+        border-color: #38B2AC;
+    }
+    .support-ticket-page .btn-outline-primary:hover {
+        background-color: #38B2AC;
+        border-color: #38B2AC;
+        color: #fff;
+    }
+</style>
+@endpush
+
 @section('content')
-    <div class="mdk-drawer-layout__content page">
+    <div class="mdk-drawer-layout__content page support-ticket-page">
         <div class="container-fluid page__heading-container">
             <div class="page__heading d-flex align-items-center">
                 <div class="flex">
@@ -92,7 +118,7 @@
                         </div>
 
                         <div class="col-12 text-right mt-2">
-                            <button type="submit" class="btn btn-primary">{{ __('Filter') }}</button>
+                            <button type="submit" class="btn btn-brand">{{ __('Filter') }}</button>
                             <a href="{{ route('support-tickets.index', $page) }}" class="btn btn-secondary">{{ __('Clear Filters') }}</a>
                         </div>
                     </form>
@@ -106,7 +132,7 @@
                         <tr>
                             <th>{{ __('Ticket Number') }}</th>
                             <th>{{ __('Customer Email') }}</th>
-                            <th>{{ __('Ticket Type') }}</th>
+                            <th>{{ __('Ticket Title') }}</th>
                             <th>{{ __('Status') }}</th>
                             <th>{{ __('Created At') }}</th>
                             <th>{{ __('Actions') }}</th>
@@ -121,7 +147,7 @@
                                     </a>
                                 </td>
                                 <td>{{ $ticket->customer_email }}</td>
-                                <td>{{ $ticket->subtype_label }}</td>
+                                <td>{{ $ticket->title }}</td>
                                 <td>
                                     <span class="badge
                                         @if($ticket->status === 'new') badge-info
