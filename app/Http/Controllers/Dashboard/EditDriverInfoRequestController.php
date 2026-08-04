@@ -50,7 +50,10 @@ class EditDriverInfoRequestController extends Controller
         $oldDriver->load('callingKey', 'university', 'stage', 'driverInfo', 'driverCar.driverType');
 
         $newDriverInfoRecord = NewDriverInfo::where('driver-id', $driver)->first();
-        $newDriverCarRecord = NewDriverCar::with('driverType')->where('driver-id', $driver)->first();
+        $newDriverCarRecord = NewDriverCar::with('driverType')
+            ->where('driver-id', $driver)
+            ->latest('id')
+            ->first();
 
         $waslEligibility = [
             'is_valid' => null,
@@ -100,7 +103,7 @@ class EditDriverInfoRequestController extends Controller
 
         $newUserInfo = NewUserInfo::where('user-id', $driver->id)->first();
         $newDriverInfo = NewDriverInfo::where('driver-id', $driver->id)->first();
-        $newCarInfo = NewDriverCar::where('driver-id', $driver->id)->first();
+        $newCarInfo = NewDriverCar::where('driver-id', $driver->id)->latest('id')->first();
 
         if ($request->input('approval') == 3) {
             $rejectionReason = $request->input('rejection-reason', 'Request rejected by administrator');

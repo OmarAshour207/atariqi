@@ -53,32 +53,78 @@ class ProfileController extends BaseController
 
     public function updateCar(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'car_front_img'         => 'nullable|image|mimes:jpeg,jpg,png',
-            'car_back_img'          => 'nullable|image|mimes:jpeg,jpg,png',
-            'car_rside_img'         => 'nullable|image|mimes:jpeg,jpg,png',
-            'car_lside_img'         => 'nullable|image|mimes:jpeg,jpg,png',
-            'car_insideFront_img'   => 'nullable|image|mimes:jpeg,jpg,png',
-            'car_insideBack_img'    => 'nullable|image|mimes:jpeg,jpg,png',
-            'car_form_img'      => 'nullable|mimes:jpeg,jpg,png',
-        ]);
+        $fileFields = [
+            'car_front_img',
+            'car_back_img',
+            'car_rside_img',
+            'car_lside_img',
+            'car_insideFront_img',
+            'car_insideBack_img',
+            'car_form_img',
+        ];
 
-        $data = $validator->validated();
-        $data['driver-id'] = auth()->user()->id;
+        $rules = [];
+        foreach ($fileFields as $field) {
+            $rules[$field] = 'nullable|image|mimes:jpeg,jpg,png';
+        }
 
-        $images = $this->uploadImages($request, $data);
+        $validator = Validator::make($request->all(), $rules);
 
-        NewDriverCar::create(array_merge(
-            $data, $images
-        ));
+        if ($validator->fails()) {
+            return $this->sendError(__('Validation Error.'), $validator->errors()->getMessages(), 422);
+        }
+
+        $driver = auth()->user();
+        $images = $this->uploadImages($request, $fileFields, $driver->id);
+
+        if (empty($images)) {
+            return $this->sendError(__('Validation Error.'), [
+                'images' => [__('Please upload at least one car image.')],
+            ], 422);
+        }
+
+        $existingRequest = NewDriverCar::where('driver-id', $driver->id)->latest('id')->first();
+        $currentCar = $driver->driverCar;
+
+        $payload = [
+            'driver-id' => $driver->id,
+            'driver-type-id' => $existingRequest?->{'driver-type-id'}
+                ?? $currentCar?->{'driver-type-id'},
+            'date_of_add' => now()->toDateTimeString(),
+        ];
+
+        foreach ($fileFields as $field) {
+            $payload[$field] = $images[$field]
+                ?? $existingRequest?->{$field}
+                ?? $currentCar?->{$field};
+        }
+
+        if ($request->hasFile('license_img')) {
+            $licenseImages = $this->uploadImages($request, ['license_img'], $driver->id);
+            if (!empty($licenseImages['license_img'])) {
+                $payload['license_img'] = $licenseImages['license_img'];
+            }
+        } else {
+            $payload['license_img'] = $existingRequest?->license_img
+                ?? $currentCar?->license_img;
+        }
+
+        if ($existingRequest) {
+            $existingRequest->update($payload);
+            NewDriverCar::where('driver-id', $driver->id)
+                ->where('id', '!=', $existingRequest->id)
+                ->delete();
+        } else {
+            NewDriverCar::create($payload);
+        }
 
         $this->ensureNewUserInfoExists();
 
-        auth()->user()->driverCar->update([
-            'approval'  => 2
+        $driver->driverCar?->update([
+            'approval' => 2,
         ]);
 
-        auth()->user()->update(['approval' => 2]);
+        $driver->update(['approval' => 2]);
 
         return $this->sendResponse([],
             __('Your request for edit will be reviewed, and we will respond to you as soon as possible'));
@@ -100,17 +146,20 @@ class ProfileController extends BaseController
         $data = $validator->validated();
         $data['driver-id'] = auth()->user()->id;
 
-        $images = $this->uploadImages($request, $data);
+        $images = $this->uploadImages($request, ['license_img'], auth()->user()->id);
 
-        if(isset($images['license_img'])) {
+        if (isset($images['license_img'])) {
             $data['driver-license-link'] = $images['license_img'];
         } elseif (auth()->user()->driverInfo?->{'driver-license-link'}) {
             $data['driver-license-link'] = auth()->user()->driverInfo->{'driver-license-link'};
         }
 
-        NewDriverInfo::create(array_merge(
-            $data, $images
-        ));
+        unset($data['license_img']);
+
+        NewDriverInfo::updateOrCreate(
+            ['driver-id' => auth()->user()->id],
+            $data
+        );
 
         $this->ensureNewUserInfoExists();
 
@@ -147,24 +196,30 @@ class ProfileController extends BaseController
         ]);
     }
 
-    private function uploadImages(Request $request, $data): array
+    private function uploadImages(Request $request, array $fields, ?int $userId = null): array
     {
         $returnData = [];
+        $userId = $userId ?? auth()->user()->id;
 
-        $path = public_path("uploads/" . auth()->user()->id);
-        if(!File::exists($path)) {
+        $path = public_path("uploads/{$userId}");
+        if (!File::exists($path)) {
             File::makeDirectory($path, 0777, true);
         }
 
-        foreach ($data as $key => $image) {
-            if ($request->hasFile($key)) {
-                $extension = $request->{$key}->extension();
-                $imageName = $key . '_' . strtotime(now()) . '.' . $extension;
-                $request->{$key}->move($path, $imageName);
-                $returnData[$key] = $imageName;
-
-//                $this->removeOldImage($key);
+        foreach ($fields as $key) {
+            if (!$request->hasFile($key)) {
+                continue;
             }
+
+            $file = $request->file($key);
+            if (!$file->isValid()) {
+                continue;
+            }
+
+            $extension = $file->extension();
+            $imageName = $key . '_' . time() . '_' . uniqid() . '.' . $extension;
+            $file->move($path, $imageName);
+            $returnData[$key] = $imageName;
         }
 
         return $returnData;

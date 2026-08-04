@@ -34,11 +34,11 @@ class LoginController extends BaseController
         }
 
         if ($user->approval == 3) {
-            return $this->sendError(__('s_userBanned'), [__('This driver is banned')], 403);
+            return $this->sendError(__('s_userBanned'), [__('This driver is banned, please contact technical support.')], 403);
         }
 
         if ($user->approval == 4) {
-            return $this->sendError(__('s_userBanned'), [__('This driver is banned')], 403);
+            return $this->sendError(__('s_userBanned'), [__('This driver is banned, please contact technical support.')], 403);
         } elseif ($user->approval != 1) {
             return $this->sendError("s_userNotApproved",
                 [__("We are checking your registration order, please bear with us and will send on academic email or phone")], 401);
