@@ -342,6 +342,8 @@ class ImmediateDriverController extends BaseController
 
     public function rate(Request $request)
     {
+        Log::info("Rating driver with ID: " . $request->input('driver-id') . " for trip ID: " . $request->input('trip_id') . " with rate: " . $request->input('rate'));
+
         $validator = Validator::make($request->all(), [
             'rate'      => 'required|numeric|max:5',
             'driver-id' => 'required|numeric',
