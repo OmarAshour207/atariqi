@@ -17,6 +17,8 @@ class DriverAnnounce extends Model
         'title-ar',
         'title-eng',
         'content-ar',
-        'content-eng'
+        'content-eng',
+        'date-of-add',
+        'date-of-edit',
     ];
 }

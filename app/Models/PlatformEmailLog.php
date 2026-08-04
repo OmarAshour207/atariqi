@@ -15,6 +15,7 @@ class PlatformEmailLog extends Model
 
     protected $fillable = [
         'assigned_from_employee_id',
+        'user_id',
         'driver_id',
         'driver_email',
         'email_type',

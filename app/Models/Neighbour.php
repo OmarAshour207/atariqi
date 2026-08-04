@@ -14,8 +14,12 @@ class Neighbour extends Model
 
     protected $fillable = [
         'neighborhood-ar',
-        'neighborhood-en',
-        'city-id'
+        'neighborhood-eng',
+        'city_id',
     ];
 
+    public function city()
+    {
+        return $this->belongsTo(City::class, 'city_id');
+    }
 }

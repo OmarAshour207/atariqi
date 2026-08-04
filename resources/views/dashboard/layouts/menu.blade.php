@@ -208,6 +208,47 @@
                     </ul>
                 </li>
 
+                <!-- Platform Management -->
+                <li class="sidebar-menu-item">
+                    <a class="sidebar-menu-button" data-toggle="collapse" href="#platform_management">
+                        <i class="sidebar-menu-icon sidebar-menu-icon--left fa fa-cogs"></i>
+                        <span class="sidebar-menu-text"> {{ __('Platform Management') }} </span>
+                        <span class="ml-auto sidebar-menu-toggle-icon"></span>
+                    </a>
+                    <ul class="sidebar-submenu collapse" id="platform_management">
+                        <li class="sidebar-menu-item">
+                            <a class="sidebar-menu-button" href="{{ route('announcements.index') }}">
+                                <i class="fa fa-bullhorn"></i>
+                                <span class="sidebar-menu-text"> {{ __('Announcements') }}</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-menu-item">
+                            <a class="sidebar-menu-button" href="{{ route('universities.index') }}">
+                                <i class="fa fa-university"></i>
+                                <span class="sidebar-menu-text"> {{ __('Universities') }}</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-menu-item">
+                            <a class="sidebar-menu-button" href="{{ route('cities.index') }}">
+                                <i class="fa fa-map-marker"></i>
+                                <span class="sidebar-menu-text"> {{ __('Cities & Neighborhoods') }}</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-menu-item">
+                            <a class="sidebar-menu-button" href="{{ route('delivery-services.index') }}">
+                                <i class="fa fa-truck"></i>
+                                <span class="sidebar-menu-text"> {{ __('Delivery Services') }}</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-menu-item">
+                            <a class="sidebar-menu-button" href="{{ route('documents.index') }}">
+                                <i class="fa fa-file-pdf"></i>
+                                <span class="sidebar-menu-text"> {{ __('Documents Management') }}</span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
                 {{-- Settings --}}
                 <li class="sidebar-menu-item">
                     <a class="sidebar-menu-button" href="{{ route('settings.index') }}">

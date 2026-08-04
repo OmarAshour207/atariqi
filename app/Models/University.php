@@ -27,11 +27,21 @@ class University extends Model
 
     public function neighbours()
     {
-        return $this->hasMany(Neighbour::class, 'city_id', 'id');
+        return $this->hasMany(Neighbour::class, 'city_id', 'city_id');
     }
 
     public function cityUni()
     {
         return $this->belongsTo(City::class, 'city_id');
+    }
+
+    public function uniDrivingServices()
+    {
+        return $this->hasMany(UniDrivingService::class, 'university-id');
+    }
+
+    public function users()
+    {
+        return $this->hasMany(User::class, 'university-id');
     }
 }

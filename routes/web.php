@@ -20,6 +20,11 @@ use App\Http\Controllers\Dashboard\DriverController;
 use App\Http\Controllers\Dashboard\PassengerController;
 use App\Http\Controllers\Dashboard\GeneralDuesPercentageController;
 use App\Http\Controllers\Dashboard\SupportTicketController;
+use App\Http\Controllers\Dashboard\AnnouncementController;
+use App\Http\Controllers\Dashboard\UniversityController;
+use App\Http\Controllers\Dashboard\CityController;
+use App\Http\Controllers\Dashboard\DeliveryServiceController;
+use App\Http\Controllers\Dashboard\DocumentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -116,6 +121,33 @@ Route::middleware(['is_admin'])->prefix('dashboard')->group(function () {
     Route::post('support-tickets/{page}/{ticket}/close', [SupportTicketController::class, 'close'])
         ->whereIn('page', ['complaints', 'inquiries', 'technical'])
         ->name('support-tickets.close');
+
+    Route::get('announcements', [AnnouncementController::class, 'index'])->name('announcements.index');
+    Route::get('announcements/create', [AnnouncementController::class, 'create'])->name('announcements.create');
+    Route::post('announcements', [AnnouncementController::class, 'store'])->name('announcements.store');
+    Route::delete('announcements/{source}/{id}', [AnnouncementController::class, 'destroy'])->name('announcements.destroy');
+
+    Route::get('universities', [UniversityController::class, 'index'])->name('universities.index');
+    Route::get('universities/create', [UniversityController::class, 'create'])->name('universities.create');
+    Route::post('universities', [UniversityController::class, 'store'])->name('universities.store');
+    Route::get('universities/{university}/services', [UniversityController::class, 'services'])->name('universities.services');
+    Route::post('universities/{university}/services', [UniversityController::class, 'storeServices'])->name('universities.services.store');
+    Route::delete('universities/{university}', [UniversityController::class, 'destroy'])->name('universities.destroy');
+
+    Route::get('cities', [CityController::class, 'index'])->name('cities.index');
+    Route::get('cities/create', [CityController::class, 'create'])->name('cities.create');
+    Route::post('cities', [CityController::class, 'store'])->name('cities.store');
+    Route::post('cities/{city}/neighborhoods', [CityController::class, 'storeNeighborhood'])->name('cities.neighborhoods.store');
+    Route::put('neighborhoods/{neighborhood}', [CityController::class, 'updateNeighborhood'])->name('neighborhoods.update');
+    Route::delete('neighborhoods/{neighborhood}', [CityController::class, 'destroyNeighborhood'])->name('neighborhoods.destroy');
+
+    Route::get('delivery-services', [DeliveryServiceController::class, 'index'])->name('delivery-services.index');
+    Route::get('delivery-services/{deliveryService}/edit', [DeliveryServiceController::class, 'edit'])->name('delivery-services.edit');
+    Route::put('delivery-services/{deliveryService}', [DeliveryServiceController::class, 'update'])->name('delivery-services.update');
+
+    Route::get('documents', [DocumentController::class, 'index'])->name('documents.index');
+    Route::get('documents/{document}/download', [DocumentController::class, 'download'])->name('documents.download');
+    Route::post('documents/{document}/replace', [DocumentController::class, 'replace'])->name('documents.replace');
 
     Route::get('profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::post('profile/update', [ProfileController::class, 'update'])->name('profile.update');
