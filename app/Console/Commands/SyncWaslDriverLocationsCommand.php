@@ -12,7 +12,7 @@ class SyncWaslDriverLocationsCommand extends Command
                             {--dry-run : Collect locations and log payload without calling WASL}
                             {--show-details : Print collection details in the console}';
 
-    protected $description = 'Send live driver locations to WASL (service 5.6) for active and on-service drivers.';
+    protected $description = 'Send live driver locations to WASL (service 5.6) for drivers receiving rides or on ongoing trips.';
 
     public function handle(WaslService $waslService): int
     {
@@ -77,6 +77,8 @@ class SyncWaslDriverLocationsCommand extends Command
         $this->newLine();
         $this->info('Collection diagnostics:');
         $this->line('Ongoing trip driver IDs: ' . (empty($ongoingDriverIds) ? 'none' : implode(', ', $ongoingDriverIds)));
+        $receivingIds = $diagnostics['receiving_rides_driver_ids'] ?? [];
+        $this->line('Receiving rides driver IDs: ' . (empty($receivingIds) ? 'none' : implode(', ', $receivingIds)));
         $this->line('Drivers with stored location: ' . $withLocation->count());
 
         foreach ($withLocation as $info) {

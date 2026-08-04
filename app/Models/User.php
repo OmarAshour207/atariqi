@@ -26,6 +26,7 @@ class User extends Authenticatable
         'password',
         'is_admin',
         'approval',
+        'is-receiving-rides',
         'reject-reason',
         'user-type',
         'image',
@@ -38,6 +39,10 @@ class User extends Authenticatable
     protected $hidden = [
         'remember_token',
 //        'code'
+    ];
+
+    protected $casts = [
+        'is-receiving-rides' => 'boolean',
     ];
 
     // Scope

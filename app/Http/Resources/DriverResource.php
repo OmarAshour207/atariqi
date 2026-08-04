@@ -17,6 +17,7 @@ class DriverResource extends JsonResource
             'gender'            => $this->gender,
             'email'             => $this->email,
             'approval'          => $this->approval,
+            'is-receiving-rides' => (bool) $this->{'is-receiving-rides'},
             'reject-reason'     => $this->{'reject-reason'},
             'requires_abshir_update' => (int) $this->approval === 4,
             'user-type'         => $this->{"user-type"},

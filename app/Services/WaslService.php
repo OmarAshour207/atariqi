@@ -771,7 +771,7 @@ class WaslService
             ->with('driverInfo')
             ->where('user-type', 'driver')
             ->where('approval', 1)
-            ->whereHas('driverService')
+            ->where('is-receiving-rides', true)
             ->when($ongoingDriverIds, fn ($query) => $query->whereNotIn('id', $ongoingDriverIds))
             ->whereHas('driverInfo', function ($query) {
                 $query->whereNotNull('identity_number')
@@ -803,8 +803,14 @@ class WaslService
             ->where('current-lng', '!=', '')
             ->get(['driver-id', 'current-lat', 'current-lng', 'identity_number', 'sequence-number']);
 
+        $receivingDriverIds = User::query()
+            ->where('user-type', 'driver')
+            ->where('is-receiving-rides', true)
+            ->pluck('id');
+
         return [
             'ongoing_driver_ids' => $ongoingDriverIds,
+            'receiving_rides_driver_ids' => $receivingDriverIds->all(),
             'stored_locations' => $storedLocations,
             'collected_locations' => $locations,
         ];

@@ -111,6 +111,8 @@ Route::group([
 
             Route::post('service/start', [ServiceController::class, 'start']);
             Route::post('service/stop', [ServiceController::class, 'stop']);
+            Route::post('receiving-rides/toggle', [ServiceController::class, 'toggleReceivingRides']);
+            Route::get('receiving-rides/status', [ServiceController::class, 'receivingRidesStatus']);
 
             Route::post('location/update', [\App\Http\Controllers\Api\Driver\LocationController::class, 'update']);
 
