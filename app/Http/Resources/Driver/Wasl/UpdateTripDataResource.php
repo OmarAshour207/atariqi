@@ -63,10 +63,10 @@ class UpdateTripDataResource extends JsonResource
             'tripCost' => $this->resolveTripCost(),
             'driverArrivalTime' => $this->formatWaslTimestamp($pickupAt),
             'driverAssignTime' => $this->formatWaslTimestamp($assignAt),
-            'provinceId' => app(WaslService::class)->resolveProvinceIdForTrip(
-                $originCity,
-                $destinationCity
-            ),
+            // 'provinceId' => app(WaslService::class)->resolveProvinceIdForTrip(
+            //     $originCity,
+            //     $destinationCity
+            // ),
         ];
     }
 

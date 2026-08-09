@@ -25,6 +25,8 @@ use App\Http\Controllers\Dashboard\UniversityController;
 use App\Http\Controllers\Dashboard\CityController;
 use App\Http\Controllers\Dashboard\DeliveryServiceController;
 use App\Http\Controllers\Dashboard\DocumentController;
+use App\Http\Controllers\Dashboard\EmployeeController;
+use App\Http\Controllers\Dashboard\LogsManagementController;
 
 /*
 |--------------------------------------------------------------------------
@@ -50,7 +52,7 @@ Route::get('/locale/{locale}', [HomeController::class, 'changeLocale'])->name('c
 Route::get('dashboard/login', [LoginController::class, 'showLogin'])->name('dashboard.loginForm');
 Route::post('dashboard/login', [LoginController::class, 'login'])->middleware('login.throttle')->name('dashboard.login');
 
-Route::middleware(['is_admin'])->prefix('dashboard')->group(function () {
+Route::middleware(['is_admin', 'admin.page:view'])->prefix('dashboard')->group(function () {
     Route::get('index', [DashboardHomeController::class, 'index'])->name('dashboard.index');
 
     Route::Resource('homepage-sections', HomepageSectionController::class);
@@ -148,6 +150,21 @@ Route::middleware(['is_admin'])->prefix('dashboard')->group(function () {
     Route::get('documents', [DocumentController::class, 'index'])->name('documents.index');
     Route::get('documents/{document}/download', [DocumentController::class, 'download'])->name('documents.download');
     Route::post('documents/{document}/replace', [DocumentController::class, 'replace'])->name('documents.replace');
+
+    Route::middleware('company.admin')->group(function () {
+        Route::get('employees', [EmployeeController::class, 'index'])->name('employees.index');
+        Route::get('employees/create', [EmployeeController::class, 'create'])->name('employees.create');
+        Route::post('employees', [EmployeeController::class, 'store'])->name('employees.store');
+        Route::get('employees/{employee}/edit', [EmployeeController::class, 'edit'])->name('employees.edit');
+        Route::put('employees/{employee}', [EmployeeController::class, 'update'])->name('employees.update');
+        Route::get('employees/{employee}/permissions', [EmployeeController::class, 'editPermissions'])->name('employees.permissions.edit');
+        Route::put('employees/{employee}/permissions', [EmployeeController::class, 'updatePermissions'])->name('employees.permissions.update');
+        Route::get('employees/{employee}/pages', [EmployeeController::class, 'editPages'])->name('employees.pages.edit');
+        Route::put('employees/{employee}/pages', [EmployeeController::class, 'updatePages'])->name('employees.pages.update');
+
+        Route::get('logs', [LogsManagementController::class, 'index'])->name('logs.index');
+        Route::get('logs/{table}/{id}', [LogsManagementController::class, 'show'])->name('logs.show');
+    });
 
     Route::get('profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::post('profile/update', [ProfileController::class, 'update'])->name('profile.update');

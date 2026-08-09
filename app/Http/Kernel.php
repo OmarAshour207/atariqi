@@ -67,6 +67,8 @@ class Kernel extends HttpKernel
         'is_driver' => \App\Http\Middleware\IsDriver::class,
         'is_passenger' => \App\Http\Middleware\IsPassenger::class,
         'is_admin' => \App\Http\Middleware\IsAdmin::class,
+        'admin.page' => \App\Http\Middleware\EnsureAdminPageAccess::class,
+        'company.admin' => \App\Http\Middleware\EnsureCompanyAdmin::class,
         'login.throttle' => \App\Http\Middleware\LoginThrottle::class,
     ];
 }

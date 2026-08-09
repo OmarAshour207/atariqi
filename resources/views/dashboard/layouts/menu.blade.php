@@ -249,6 +249,31 @@
                     </ul>
                 </li>
 
+                @if(isset($adminAuthz) && $adminAuthz->isCompanyAdmin())
+                <!-- Admin Management -->
+                <li class="sidebar-menu-item">
+                    <a class="sidebar-menu-button" data-toggle="collapse" href="#admin_management">
+                        <i class="sidebar-menu-icon sidebar-menu-icon--left fa fa-users-cog"></i>
+                        <span class="sidebar-menu-text"> {{ __('Admin Management') }} </span>
+                        <span class="ml-auto sidebar-menu-toggle-icon"></span>
+                    </a>
+                    <ul class="sidebar-submenu collapse" id="admin_management">
+                        <li class="sidebar-menu-item">
+                            <a class="sidebar-menu-button" href="{{ route('employees.index') }}">
+                                <i class="fa fa-users"></i>
+                                <span class="sidebar-menu-text"> {{ __('Employee Management') }}</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-menu-item">
+                            <a class="sidebar-menu-button" href="{{ route('logs.index') }}">
+                                <i class="fa fa-history"></i>
+                                <span class="sidebar-menu-text"> {{ __('Logs Management') }}</span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                @endif
+
                 {{-- Settings --}}
                 <li class="sidebar-menu-item">
                     <a class="sidebar-menu-button" href="{{ route('settings.index') }}">
