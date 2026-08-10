@@ -90,7 +90,7 @@ class EmployeeController extends Controller
             'email' => $data['email'],
             'role' => $data['role'],
             'type' => $data['role'] === 'admin' ? 'admin' : 'support',
-            'is_active' => $request->boolean('is_active', true),
+            'is_active' => $request->boolean('is_active', false),
         ];
 
         $employee->update($updateData);
