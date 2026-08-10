@@ -34,17 +34,24 @@ class ProfileController extends BaseController
             'user-stage-id'     => 'nullable|numeric',
             'user-type'         => 'nullable|string|in:driver',
             'email'             => ["nullable", "email", "max:50", Rule::unique('users')->ignore(auth()->user()->id)],
-            'image'             => 'nullable|mimes:jpeg,jpg,png',
+            'image'             => 'nullable|image|mimes:jpeg,jpg,png',
         ]);
 
         if($validator->fails()) {
             return $this->sendError(__('Validation Error.'), $validator->errors()->getMessages(), 422);
         }
 
-        $data = $validator->validated();
-        $data['user-id'] = auth()->user()->id;
+        $driver = auth()->user();
+        $data = merge_pending_user_profile_data($validator->validated(), $driver);
 
-        NewUserInfo::create($data);
+        if ($request->hasFile('image')) {
+            $data['image'] = store_user_upload($request->file('image'), $driver->id, 'image');
+        }
+
+        NewUserInfo::updateOrCreate(
+            ['user-id' => $driver->id],
+            $data
+        );
         auth()->user()->update(['approval' => 2]);
 
         return $this->sendResponse([],

@@ -159,7 +159,7 @@
                                         <div class="col-12">
                                             <div class="form-group">
                                                 <label class="old-label">{{ __('User Image') }}</label>
-                                                <img src="{{ $oldDriver->image ? url('uploads/' . $oldDriver->id . '/' . $oldDriver->image) : 'https://ami-sni.com/wp-content/themes/consultix/images/no-image-found-360x250.png' }}" alt="{{ $oldDriver->{"user-first-name"} }}" class="img-fluid d-block mb-2" style="max-width: 150px; border-radius: 5px;">
+                                                <img src="{{ user_upload_url($oldDriver->id, $oldDriver->image) }}" alt="{{ $oldDriver->{"user-first-name"} }}" class="img-fluid d-block mb-2" style="max-width: 150px; border-radius: 5px;">
                                             </div>
                                         </div>
                                     </div>
@@ -236,7 +236,7 @@
                                         <div class="col-12">
                                             <div class="form-group">
                                                 <label class="new-label">{{ __('User Image') }}</label>
-                                                <img src="{{ $newDriverInfo->image ? url('uploads/' . $newDriverInfo->{"user-id"} . '/' . $newDriverInfo->image) : 'https://ami-sni.com/wp-content/themes/consultix/images/no-image-found-360x250.png' }}" alt="{{ $newDriverInfo->{"user-first-name"} }}" class="img-fluid d-block mb-2" style="max-width: 150px; border: 2px solid #ffc107; border-radius: 5px;">
+                                                <img src="{{ user_upload_url($newDriverInfo->{"user-id"}, $newDriverInfo->image) }}" alt="{{ $newDriverInfo->{"user-first-name"} }}" class="img-fluid d-block mb-2" style="max-width: 150px; border: 2px solid #ffc107; border-radius: 5px;">
                                             </div>
                                         </div>
                                     </div>
@@ -304,6 +304,17 @@
                                             </div>
                                         </div>
                                     </div>
+
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <div class="form-group">
+                                                <label class="old-label">{{ __('License Image') }}</label>
+                                                <a href="{{ user_upload_url($oldDriver->id, $oldDriver->driverInfo?->{'driver-license-link'} ?? $oldDriver->driverCar?->license_img) }}" data-lightbox="old-license-info" data-title="{{ __('License Image') }}">
+                                                    <img src="{{ user_upload_url($oldDriver->id, $oldDriver->driverInfo?->{'driver-license-link'} ?? $oldDriver->driverCar?->license_img) }}" alt="{{ __('License Image') }}" class="img-fluid d-block mb-2" style="max-width: 150px; border-radius: 5px;">
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
 
                                 <!-- NEW DATA (HIGHLIGHTED) -->
@@ -363,6 +374,17 @@
                                             </div>
                                         </div>
                                     </div>
+
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <div class="form-group highlight-new">
+                                                <label class="new-label">{{ __('License Image') }}</label>
+                                                <a href="{{ user_upload_url($newDriverInfo->{"user-id"}, $newDriverInfoRecord?->{'driver-license-link'} ?? $newDriverCarRecord?->license_img) }}" data-lightbox="new-license-info" data-title="{{ __('License Image') }}">
+                                                    <img src="{{ user_upload_url($newDriverInfo->{"user-id"}, $newDriverInfoRecord?->{'driver-license-link'} ?? $newDriverCarRecord?->license_img) }}" alt="{{ __('License Image') }}" class="img-fluid d-block mb-2" style="max-width: 150px; border: 2px solid #ffc107; border-radius: 5px;">
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -385,42 +407,42 @@
 
                                     <div class="form-group">
                                         <label class="old-label">{{ __('Car Form Image') }}</label>
-                                        <img src="{{ $oldDriver->driverCar && $oldDriver->driverCar->{"car_form_img"} ? url('uploads/' . $oldDriver->id . '/' . $oldDriver->driverCar->{"car_form_img"}) : 'https://ami-sni.com/wp-content/themes/consultix/images/no-image-found-360x250.png' }}" alt="Car Form" class="img-fluid d-block mb-2" style="max-width: 150px; border-radius: 5px;">
+                                        <img src="{{ user_upload_url($oldDriver->id, $oldDriver->driverCar?->{"car_form_img"}) }}" alt="Car Form" class="img-fluid d-block mb-2" style="max-width: 150px; border-radius: 5px;">
                                     </div>
 
                                     <div class="form-group">
                                         <label class="old-label">{{ __('License Image') }}</label>
-                                        <img src="{{ $oldDriver->driverCar && $oldDriver->driverCar->{"license_img"} ? url('uploads/' . $oldDriver->id . '/' . $oldDriver->driverCar->{"license_img"}) : 'https://ami-sni.com/wp-content/themes/consultix/images/no-image-found-360x250.png' }}" alt="License" class="img-fluid d-block mb-2" style="max-width: 150px; border-radius: 5px;">
+                                        <img src="{{ user_upload_url($oldDriver->id, $oldDriver->driverCar?->{"license_img"}) }}" alt="License" class="img-fluid d-block mb-2" style="max-width: 150px; border-radius: 5px;">
                                     </div>
 
                                     <div class="form-group">
                                         <label class="old-label">{{ __('Car Front Image') }}</label>
-                                        <img src="{{ $oldDriver->driverCar && $oldDriver->driverCar->{"car_front_img"} ? url('uploads/' . $oldDriver->id . '/' . $oldDriver->driverCar->{"car_front_img"}) : 'https://ami-sni.com/wp-content/themes/consultix/images/no-image-found-360x250.png' }}" alt="Car Front" class="img-fluid d-block mb-2" style="max-width: 150px; border-radius: 5px;">
+                                        <img src="{{ user_upload_url($oldDriver->id, $oldDriver->driverCar?->{"car_front_img"}) }}" alt="Car Front" class="img-fluid d-block mb-2" style="max-width: 150px; border-radius: 5px;">
                                     </div>
 
                                     <div class="form-group">
                                         <label class="old-label">{{ __('Car Back Image') }}</label>
-                                        <img src="{{ $oldDriver->driverCar && $oldDriver->driverCar->{"car_back_img"} ? url('uploads/' . $oldDriver->id . '/' . $oldDriver->driverCar->{"car_back_img"}) : 'https://ami-sni.com/wp-content/themes/consultix/images/no-image-found-360x250.png' }}" alt="Car Back" class="img-fluid d-block mb-2" style="max-width: 150px; border-radius: 5px;">
+                                        <img src="{{ user_upload_url($oldDriver->id, $oldDriver->driverCar?->{"car_back_img"}) }}" alt="Car Back" class="img-fluid d-block mb-2" style="max-width: 150px; border-radius: 5px;">
                                     </div>
 
                                     <div class="form-group">
                                         <label class="old-label">{{ __('Car Right Side Image') }}</label>
-                                        <img src="{{ $oldDriver->driverCar && $oldDriver->driverCar->{"car_rside_img"} ? url('uploads/' . $oldDriver->id . '/' . $oldDriver->driverCar->{"car_rside_img"}) : 'https://ami-sni.com/wp-content/themes/consultix/images/no-image-found-360x250.png' }}" alt="Car Right" class="img-fluid d-block mb-2" style="max-width: 150px; border-radius: 5px;">
+                                        <img src="{{ user_upload_url($oldDriver->id, $oldDriver->driverCar?->{"car_rside_img"}) }}" alt="Car Right" class="img-fluid d-block mb-2" style="max-width: 150px; border-radius: 5px;">
                                     </div>
 
                                     <div class="form-group">
                                         <label class="old-label">{{ __('Car Left Side Image') }}</label>
-                                        <img src="{{ $oldDriver->driverCar && $oldDriver->driverCar->{"car_lside_img"} ? url('uploads/' . $oldDriver->id . '/' . $oldDriver->driverCar->{"car_lside_img"}) : 'https://ami-sni.com/wp-content/themes/consultix/images/no-image-found-360x250.png' }}" alt="Car Left" class="img-fluid d-block mb-2" style="max-width: 150px; border-radius: 5px;">
+                                        <img src="{{ user_upload_url($oldDriver->id, $oldDriver->driverCar?->{"car_lside_img"}) }}" alt="Car Left" class="img-fluid d-block mb-2" style="max-width: 150px; border-radius: 5px;">
                                     </div>
 
                                     <div class="form-group">
                                         <label class="old-label">{{ __('Car Inside Front Image') }}</label>
-                                        <img src="{{ $oldDriver->driverCar && $oldDriver->driverCar->{"car_insideFront_img"} ? url('uploads/' . $oldDriver->id . '/' . $oldDriver->driverCar->{"car_insideFront_img"}) : 'https://ami-sni.com/wp-content/themes/consultix/images/no-image-found-360x250.png' }}" alt="Inside Front" class="img-fluid d-block mb-2" style="max-width: 150px; border-radius: 5px;">
+                                        <img src="{{ user_upload_url($oldDriver->id, $oldDriver->driverCar?->{"car_insideFront_img"}) }}" alt="Inside Front" class="img-fluid d-block mb-2" style="max-width: 150px; border-radius: 5px;">
                                     </div>
 
                                     <div class="form-group">
                                         <label class="old-label">{{ __('Car Inside Back Image') }}</label>
-                                        <img src="{{ $oldDriver->driverCar && $oldDriver->driverCar->{"car_insideBack_img"} ? url('uploads/' . $oldDriver->id . '/' . $oldDriver->driverCar->{"car_insideBack_img"}) : 'https://ami-sni.com/wp-content/themes/consultix/images/no-image-found-360x250.png' }}" alt="Inside Back" class="img-fluid d-block mb-2" style="max-width: 150px; border-radius: 5px;">
+                                        <img src="{{ user_upload_url($oldDriver->id, $oldDriver->driverCar?->{"car_insideBack_img"}) }}" alt="Inside Back" class="img-fluid d-block mb-2" style="max-width: 150px; border-radius: 5px;">
                                     </div>
                                 </div>
 
@@ -439,42 +461,42 @@
 
                                     <div class="form-group">
                                         <label class="new-label">{{ __('Car Form Image') }}</label>
-                                        <img src="{{ $newDriverCarRecord && $newDriverCarRecord->{"car_form_img"} ? url('uploads/' . $newDriverInfo->{"user-id"} . '/' . $newDriverCarRecord->{"car_form_img"}) : 'https://ami-sni.com/wp-content/themes/consultix/images/no-image-found-360x250.png' }}" alt="Car Form" class="img-fluid d-block mb-2" style="max-width: 150px; border: 2px solid #ffc107; border-radius: 5px;">
+                                        <img src="{{ user_upload_url($newDriverInfo->{"user-id"}, $newDriverCarRecord?->{"car_form_img"}) }}" alt="Car Form" class="img-fluid d-block mb-2" style="max-width: 150px; border: 2px solid #ffc107; border-radius: 5px;">
                                     </div>
 
                                     <div class="form-group">
                                         <label class="new-label">{{ __('License Image') }}</label>
-                                        <img src="{{ $newDriverCarRecord && $newDriverCarRecord->{"license_img"} ? url('uploads/' . $newDriverInfo->{"user-id"} . '/' . $newDriverCarRecord->{"license_img"}) : 'https://ami-sni.com/wp-content/themes/consultix/images/no-image-found-360x250.png' }}" alt="License" class="img-fluid d-block mb-2" style="max-width: 150px; border: 2px solid #ffc107; border-radius: 5px;">
+                                        <img src="{{ user_upload_url($newDriverInfo->{"user-id"}, $newDriverCarRecord?->license_img) }}" alt="License" class="img-fluid d-block mb-2" style="max-width: 150px; border: 2px solid #ffc107; border-radius: 5px;">
                                     </div>
 
                                     <div class="form-group">
                                         <label class="new-label">{{ __('Car Front Image') }}</label>
-                                        <img src="{{ $newDriverCarRecord && $newDriverCarRecord->{"car_front_img"} ? url('uploads/' . $newDriverInfo->{"user-id"} . '/' . $newDriverCarRecord->{"car_front_img"}) : 'https://ami-sni.com/wp-content/themes/consultix/images/no-image-found-360x250.png' }}" alt="Car Front" class="img-fluid d-block mb-2" style="max-width: 150px; border: 2px solid #ffc107; border-radius: 5px;">
+                                        <img src="{{ user_upload_url($newDriverInfo->{"user-id"}, $newDriverCarRecord?->{"car_front_img"}) }}" alt="Car Front" class="img-fluid d-block mb-2" style="max-width: 150px; border: 2px solid #ffc107; border-radius: 5px;">
                                     </div>
 
                                     <div class="form-group">
                                         <label class="new-label">{{ __('Car Back Image') }}</label>
-                                        <img src="{{ $newDriverCarRecord && $newDriverCarRecord->{"car_back_img"} ? url('uploads/' . $newDriverInfo->{"user-id"} . '/' . $newDriverCarRecord->{"car_back_img"}) : 'https://ami-sni.com/wp-content/themes/consultix/images/no-image-found-360x250.png' }}" alt="Car Back" class="img-fluid d-block mb-2" style="max-width: 150px; border: 2px solid #ffc107; border-radius: 5px;">
+                                        <img src="{{ user_upload_url($newDriverInfo->{"user-id"}, $newDriverCarRecord?->{"car_back_img"}) }}" alt="Car Back" class="img-fluid d-block mb-2" style="max-width: 150px; border: 2px solid #ffc107; border-radius: 5px;">
                                     </div>
 
                                     <div class="form-group">
                                         <label class="new-label">{{ __('Car Right Side Image') }}</label>
-                                        <img src="{{ $newDriverCarRecord && $newDriverCarRecord->{"car_rside_img"} ? url('uploads/' . $newDriverInfo->{"user-id"} . '/' . $newDriverCarRecord->{"car_rside_img"}) : 'https://ami-sni.com/wp-content/themes/consultix/images/no-image-found-360x250.png' }}" alt="Car Right" class="img-fluid d-block mb-2" style="max-width: 150px; border: 2px solid #ffc107; border-radius: 5px;">
+                                        <img src="{{ user_upload_url($newDriverInfo->{"user-id"}, $newDriverCarRecord?->{"car_rside_img"}) }}" alt="Car Right" class="img-fluid d-block mb-2" style="max-width: 150px; border: 2px solid #ffc107; border-radius: 5px;">
                                     </div>
 
                                     <div class="form-group">
                                         <label class="new-label">{{ __('Car Left Side Image') }}</label>
-                                        <img src="{{ $newDriverCarRecord && $newDriverCarRecord->{"car_lside_img"} ? url('uploads/' . $newDriverInfo->{"user-id"} . '/' . $newDriverCarRecord->{"car_lside_img"}) : 'https://ami-sni.com/wp-content/themes/consultix/images/no-image-found-360x250.png' }}" alt="Car Left" class="img-fluid d-block mb-2" style="max-width: 150px; border: 2px solid #ffc107; border-radius: 5px;">
+                                        <img src="{{ user_upload_url($newDriverInfo->{"user-id"}, $newDriverCarRecord?->{"car_lside_img"}) }}" alt="Car Left" class="img-fluid d-block mb-2" style="max-width: 150px; border: 2px solid #ffc107; border-radius: 5px;">
                                     </div>
 
                                     <div class="form-group">
                                         <label class="new-label">{{ __('Car Inside Front Image') }}</label>
-                                        <img src="{{ $newDriverCarRecord && $newDriverCarRecord->{"car_insideFront_img"} ? url('uploads/' . $newDriverInfo->{"user-id"} . '/' . $newDriverCarRecord->{"car_insideFront_img"}) : 'https://ami-sni.com/wp-content/themes/consultix/images/no-image-found-360x250.png' }}" alt="Inside Front" class="img-fluid d-block mb-2" style="max-width: 150px; border: 2px solid #ffc107; border-radius: 5px;">
+                                        <img src="{{ user_upload_url($newDriverInfo->{"user-id"}, $newDriverCarRecord?->{"car_insideFront_img"}) }}" alt="Inside Front" class="img-fluid d-block mb-2" style="max-width: 150px; border: 2px solid #ffc107; border-radius: 5px;">
                                     </div>
 
                                     <div class="form-group">
                                         <label class="new-label">{{ __('Car Inside Back Image') }}</label>
-                                        <img src="{{ $newDriverCarRecord && $newDriverCarRecord->{"car_insideBack_img"} ? url('uploads/' . $newDriverInfo->{"user-id"} . '/' . $newDriverCarRecord->{"car_insideBack_img"}) : 'https://ami-sni.com/wp-content/themes/consultix/images/no-image-found-360x250.png' }}" alt="Inside Back" class="img-fluid d-block mb-2" style="max-width: 150px; border: 2px solid #ffc107; border-radius: 5px;">
+                                        <img src="{{ user_upload_url($newDriverInfo->{"user-id"}, $newDriverCarRecord?->{"car_insideBack_img"}) }}" alt="Inside Back" class="img-fluid d-block mb-2" style="max-width: 150px; border: 2px solid #ffc107; border-radius: 5px;">
                                     </div>
                                 </div>
                             </div>

@@ -47,6 +47,30 @@
     <link href="{{ asset('dashboard/css/lightbox.css') }}" rel="stylesheet">
 
     @stack('admin_styles')
+
+    <style>
+        .modal-backdrop {
+            z-index: 9998 !important;
+            pointer-events: none !important;
+            background-color: transparent !important;
+        }
+
+        .modal-backdrop.show {
+            opacity: 0 !important;
+            z-index: 9998 !important;
+            pointer-events: none !important;
+        }
+
+        .modal.show {
+            z-index: 9999 !important;
+            pointer-events: auto !important;
+        }
+
+        .modal.show .modal-dialog,
+        .modal.show .modal-content {
+            pointer-events: auto !important;
+        }
+    </style>
 </head>
 
 <body class="layout-default">
@@ -151,6 +175,18 @@
                 ]
             });
             n.show();
+        });
+
+        $(document).on('show.bs.modal', '.modal', function () {
+            $(this).appendTo('body');
+        });
+
+        $(document).on('shown.bs.modal', '.modal', function () {
+            var $focusable = $(this).find('textarea, input:not([type=hidden]), select').filter(':visible:first');
+
+            if ($focusable.length) {
+                $focusable.trigger('focus');
+            }
         });
     });
 </script>

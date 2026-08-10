@@ -144,6 +144,69 @@ function convertArabicDateToEnglish($date)
         '٩' => '9',
     ]);
 }
+
+function user_upload_url(?int $userId, ?string $filename, ?string $placeholder = null): string
+{
+    $placeholder = $placeholder ?? 'https://ami-sni.com/wp-content/themes/consultix/images/no-image-found-360x250.png';
+
+    if (!$filename || !$userId) {
+        return $placeholder;
+    }
+
+    if (str_starts_with($filename, 'http://') || str_starts_with($filename, 'https://')) {
+        return $filename;
+    }
+
+    if (str_starts_with($filename, 'uploads/')) {
+        return url($filename);
+    }
+
+    return url("uploads/{$userId}/{$filename}");
+}
+
+function store_user_upload(\Illuminate\Http\UploadedFile $file, int $userId, string $prefix = 'image'): string
+{
+    $path = public_path("uploads/{$userId}");
+
+    if (!\Illuminate\Support\Facades\File::exists($path)) {
+        \Illuminate\Support\Facades\File::makeDirectory($path, 0777, true);
+    }
+
+    $extension = $file->extension();
+    $imageName = $prefix . '_' . time() . '_' . uniqid() . '.' . $extension;
+    $file->move($path, $imageName);
+
+    return $imageName;
+}
+
+function merge_pending_user_profile_data(array $data, User $user): array
+{
+    $fields = [
+        'user-first-name',
+        'user-last-name',
+        'phone-no',
+        'gender',
+        'email',
+        'call-key-id',
+        'user-stage-id',
+        'university-id',
+        'user-type',
+    ];
+
+    foreach ($fields as $field) {
+        if (!array_key_exists($field, $data) || $data[$field] === null || $data[$field] === '') {
+            $data[$field] = $user->{$field};
+        }
+    }
+
+    if (!array_key_exists('image', $data) || empty($data['image'])) {
+        $data['image'] = $user->image;
+    }
+
+    $data['user-id'] = $user->id;
+
+    return $data;
+}
 function generateCode(): int
 {
     $code = mt_rand(1000, 9999);

@@ -131,6 +131,21 @@
                                     <p>{{ optional($passenger->{'date-of-add'})->format('Y-m-d H:i') ?? '-' }}</p>
                                 </div>
                             </div>
+
+                            <div class="row mt-3">
+                                <div class="col-md-6">
+                                    <h6 class="text-muted">{{ __('User Image') }}</h6>
+                                    <a href="{{ user_upload_url($passenger->id, $passenger->image) }}" data-lightbox="passenger-profile" data-title="{{ __('User Image') }}">
+                                        <img src="{{ user_upload_url($passenger->id, $passenger->image) }}" alt="{{ __('User Image') }}" class="img-fluid d-block mb-2" style="max-width: 150px; border-radius: 5px;">
+                                    </a>
+                                    @if($passenger->newUserInfo && $passenger->newUserInfo->image && $passenger->newUserInfo->image !== $passenger->image)
+                                        <small class="text-info d-block">{{ __('Requested Change') }}:</small>
+                                        <a href="{{ user_upload_url($passenger->id, $passenger->newUserInfo->image) }}" data-lightbox="passenger-profile-new" data-title="{{ __('User Image') }}">
+                                            <img src="{{ user_upload_url($passenger->id, $passenger->newUserInfo->image) }}" alt="{{ __('User Image') }}" class="img-fluid d-block mb-2" style="max-width: 150px; border: 2px solid #ffc107; border-radius: 5px;">
+                                        </a>
+                                    @endif
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

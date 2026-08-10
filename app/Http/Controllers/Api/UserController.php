@@ -11,12 +11,7 @@ use App\Models\User;
 use App\Models\UserLogin;
 use App\Rules\UniquePhoneNumberForUserType;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
-use Twilio\Exceptions\TwilioException;
-use Twilio\Rest\Client;
-use Vonage\Client\Exception\Exception;
 
 class UserController extends BaseController
 {
@@ -173,18 +168,26 @@ class UserController extends BaseController
             'user-type'         => 'required|string|in:passenger,driver',
             'university-id'     => 'required|numeric',
             'user-stage-id'     => 'required|numeric',
-            'call-key-id'       => 'required|numeric'
+            'call-key-id'       => 'required|numeric',
+            'image'             => 'nullable|image|mimes:jpeg,jpg,png',
         ]);
 
         if($validator->fails())
             return $this->sendError(__('Validation Error.'), $validator->errors()->getMessages(), 422);
 
-        $data = $validator->validated();
-        $data['user-id'] = auth()->user()->id;
+        $user = auth()->user();
+        $data = merge_pending_user_profile_data($validator->validated(), $user);
 
-        NewUserInfo::create($data);
+        if ($request->hasFile('image')) {
+            $data['image'] = store_user_upload($request->file('image'), $user->id, 'image');
+        }
 
-        auth()->user()->update([
+        NewUserInfo::updateOrCreate(
+            ['user-id' => $user->id],
+            $data
+        );
+
+        $user->update([
             'approval'  => 2
         ]);
 

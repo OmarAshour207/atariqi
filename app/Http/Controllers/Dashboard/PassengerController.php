@@ -352,6 +352,7 @@ class PassengerController extends Controller
                 'call-key-id' => $newUserInfo->{'call-key-id'},
                 'university-id' => $newUserInfo->{'university-id'},
                 'user-stage-id' => $newUserInfo->{'user-stage-id'},
+                'image' => $newUserInfo->image ?? $passenger->image,
                 'approval' => $newApproval,
                 'date-of-edit' => now(),
             ]);
