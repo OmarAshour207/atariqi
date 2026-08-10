@@ -84,7 +84,6 @@ class EmployeeController extends Controller
         $data = $this->validateEmployee($request, $employee->id);
 
         $old = $employee->toArray();
-        $changed = false;
 
         $updateData = [
             'name' => $data['name'],
@@ -93,20 +92,6 @@ class EmployeeController extends Controller
             'type' => $data['role'] === 'admin' ? 'admin' : 'support',
             'is_active' => $request->boolean('is_active', true),
         ];
-
-        $changed = $employee->name !== $updateData['name']
-            || $employee->email !== $updateData['email']
-            || ($employee->role ?? 'agent') !== $updateData['role']
-            || (bool) $employee->is_active !== $updateData['is_active'];
-
-        if (!empty($data['password'])) {
-            $updateData['password'] = Hash::make($data['password']);
-            $changed = true;
-        }
-
-        if (!$changed) {
-            return back()->with('warning', __('No changes were made.'));
-        }
 
         $employee->update($updateData);
         $this->actionsLog->logEdit('admins', $employee->id, $old);

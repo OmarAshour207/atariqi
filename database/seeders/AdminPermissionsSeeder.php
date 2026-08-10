@@ -27,6 +27,7 @@ class AdminPermissionsSeeder extends Seeder
 
         $pages = [
             ['name' => 'Dashboard', 'route' => 'dashboard.index', 'sort_order' => 1],
+            ['name' => 'Homepage Sections', 'route' => 'homepage-sections.index', 'sort_order' => 2],
             ['name' => 'Drivers', 'route' => 'drivers.index', 'sort_order' => 10],
             ['name' => 'New Drivers', 'route' => 'new-drivers.index', 'sort_order' => 11],
             ['name' => 'Edit Info Requests', 'route' => 'edit-info-request.index', 'sort_order' => 12],

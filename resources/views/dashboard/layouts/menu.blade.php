@@ -3,13 +3,16 @@
         <div class="sidebar sidebar-dark sidebar-left sidebar-p-t bg-dark" data-perfect-scrollbar>
             <div class="sidebar-heading">{{ __('Menu') }}</div>
             <ul class="sidebar-menu">
+                @adminRoute('dashboard.index')
                 <li class="sidebar-menu-item open">
                     <a class="sidebar-menu-button" href="{{ route('dashboard.index', ['type' => 'ticket']) }}">
                         <i class="sidebar-menu-icon sidebar-menu-icon--left material-icons">dvr</i>
                         <span class="sidebar-menu-text"> {{ __('Dashboard') }} </span>
                     </a>
                 </li>
+                @endadminRoute
 
+                @adminAnyRoute('homepage-sections.index', 'homepage-stats.index', 'testimonials.index', 'partner-achievements.index')
                 <!-- Homepage Sections -->
                 <li class="sidebar-menu-item">
                     <a class="sidebar-menu-button" data-toggle="collapse" href="#homepage_sections">
@@ -18,58 +21,73 @@
                         <span class="ml-auto sidebar-menu-toggle-icon"></span>
                     </a>
                     <ul class="sidebar-submenu collapse" id="homepage_sections">
+                        @adminRoute('homepage-sections.edit', 'homepage-sections.index')
                         <li class="sidebar-menu-item">
                             <a class="sidebar-menu-button" href="{{ route('homepage-sections.edit', ['homepage_section' => 'about_us']) }}">
                                 <i class="fa fa-info"></i>
                                 <span class="sidebar-menu-text"> {{ __('About Us') }}</span>
                             </a>
                         </li>
+                        @endadminRoute
 
+                        @adminRoute('homepage-sections.edit', 'homepage-sections.index')
                         <li class="sidebar-menu-item">
                             <a class="sidebar-menu-button" href="{{ route('homepage-sections.edit', ['homepage_section' => 'about_app']) }}">
                                 <i class="fa fa-info"></i>
                                 <span class="sidebar-menu-text"> {{ __('About App') }}</span>
                             </a>
                         </li>
+                        @endadminRoute
 
+                        @adminRoute('homepage-sections.edit', 'homepage-sections.index')
                         <li class="sidebar-menu-item">
                             <a class="sidebar-menu-button" href="{{ route('homepage-sections.edit', ['homepage_section' => 'sliders']) }}">
                                 <i class="fa fa-info"></i>
                                 <span class="sidebar-menu-text"> {{ __('Sliders') }}</span>
                             </a>
                         </li>
+                        @endadminRoute
 
+                        @adminRoute('homepage-stats.index', 'homepage-sections.index')
                         <li class="sidebar-menu-item">
-                            <a class="sidebar-menu-button" href="{{ route('homepage-stats.index', ) }}">
+                            <a class="sidebar-menu-button" href="{{ route('homepage-stats.index') }}">
                                 <i class="fa fa-info"></i>
                                 <span class="sidebar-menu-text"> {{ __('Our Numbers') }}</span>
                             </a>
                         </li>
+                        @endadminRoute
 
+                        @adminRoute('partner-achievements.index', 'homepage-sections.index')
                         <li class="sidebar-menu-item">
                             <a class="sidebar-menu-button" href="{{ route('partner-achievements.index', ['type' => 'partners']) }}">
                                 <i class="fa fa-users"></i>
                                 <span class="sidebar-menu-text"> {{ __('Our Partners') }}</span>
                             </a>
                         </li>
+                        @endadminRoute
 
+                        @adminRoute('testimonials.index', 'homepage-sections.index')
                         <li class="sidebar-menu-item">
                             <a class="sidebar-menu-button" href="{{ route('testimonials.index') }}">
                                 <i class="fa fa-info"></i>
                                 <span class="sidebar-menu-text"> {{ __('Testimonials') }}</span>
                             </a>
                         </li>
+                        @endadminRoute
 
+                        @adminRoute('partner-achievements.index', 'homepage-sections.index')
                         <li class="sidebar-menu-item">
                             <a class="sidebar-menu-button" href="{{ route('partner-achievements.index', ['type' => 'achievements']) }}">
                                 <i class="fa fa-info"></i>
                                 <span class="sidebar-menu-text"> {{ __('Our Achievements') }}</span>
                             </a>
                         </li>
-
+                        @endadminRoute
                     </ul>
                 </li>
+                @endadminAnyRoute
 
+                @adminAnyRoute('drivers.index', 'new-drivers.index', 'edit-info-request.index', 'packages.index', 'features.index')
                 <!-- Drivers -->
                 <li class="sidebar-menu-item">
                     <a class="sidebar-menu-button" data-toggle="collapse" href="#drivers">
@@ -78,72 +96,91 @@
                         <span class="ml-auto sidebar-menu-toggle-icon"></span>
                     </a>
                     <ul class="sidebar-submenu collapse" id="drivers">
+                        @adminRoute('drivers.index')
                         <li class="sidebar-menu-item">
                             <a class="sidebar-menu-button" href="{{ route('drivers.index') }}">
                                 <i class="fa fa-user"></i>
                                 <span class="sidebar-menu-text"> {{ __('Drivers') }}</span>
                             </a>
                         </li>
+                        @endadminRoute
 
+                        @adminRoute('new-drivers.index')
                         <li class="sidebar-menu-item">
                             <a class="sidebar-menu-button" href="{{ route('new-drivers.index') }}">
                                 <i class="fa fa-user"></i>
                                 <span class="sidebar-menu-text"> {{ __('New Drivers') }}</span>
                             </a>
                         </li>
+                        @endadminRoute
 
+                        @adminRoute('edit-info-request.index')
                         <li class="sidebar-menu-item">
                             <a class="sidebar-menu-button" href="{{ route('edit-info-request.index') }}">
                                 <i class="fa fa-info"></i>
                                 <span class="sidebar-menu-text"> {{ __('Edit Info Request') }}</span>
                             </a>
                         </li>
+                        @endadminRoute
 
+                        @adminRoute('drivers.packages', 'drivers.index')
                         <li class="sidebar-menu-item">
                             <a class="sidebar-menu-button" href="{{ route('drivers.packages') }}">
                                 <i class="fa fa-gift"></i>
                                 <span class="sidebar-menu-text"> {{ __('Driver Package Management') }}</span>
                             </a>
                         </li>
+                        @endadminRoute
 
+                        @adminRoute('packages.index')
                         <li class="sidebar-menu-item">
                             <a class="sidebar-menu-button" href="{{ route('packages.index') }}">
                                 <i class="fa fa-box"></i>
                                 <span class="sidebar-menu-text"> {{ __('Packages') }}</span>
                             </a>
                         </li>
+                        @endadminRoute
 
+                        @adminRoute('features.index')
                         <li class="sidebar-menu-item">
                             <a class="sidebar-menu-button" href="{{ route('features.index') }}">
                                 <i class="fa fa-box"></i>
                                 <span class="sidebar-menu-text"> {{ __('Features') }}</span>
                             </a>
                         </li>
+                        @endadminRoute
 
+                        @adminRoute('drivers.rates', 'drivers.index')
                         <li class="sidebar-menu-item">
                             <a class="sidebar-menu-button" href="{{ route('drivers.rates') }}">
                                 <i class="fa fa-star"></i>
                                 <span class="sidebar-menu-text"> {{ __('Driver Passenger Rates') }}</span>
                             </a>
                         </li>
+                        @endadminRoute
 
+                        @adminRoute('drivers.trips', 'drivers.index')
                         <li class="sidebar-menu-item">
                             <a class="sidebar-menu-button" href="{{ route('drivers.trips') }}">
                                 <i class="fa fa-route"></i>
                                 <span class="sidebar-menu-text"> {{ __('Driver Trips') }}</span>
                             </a>
                         </li>
+                        @endadminRoute
 
+                        @adminRoute('general-dues-percentage.show', 'drivers.index')
                         <li class="sidebar-menu-item">
                             <a class="sidebar-menu-button" href="{{ route('general-dues-percentage.show') }}">
                                 <i class="fa fa-percent"></i>
                                 <span class="sidebar-menu-text"> {{ __('General Dues Percentage') }}</span>
                             </a>
                         </li>
-
+                        @endadminRoute
                     </ul>
                 </li>
+                @endadminAnyRoute
 
+                @adminAnyRoute('passengers.index', 'users.unride-rates')
                 <!-- Users -->
                 <li class="sidebar-menu-item">
                     <a class="sidebar-menu-button" data-toggle="collapse" href="#users">
@@ -152,33 +189,46 @@
                         <span class="ml-auto sidebar-menu-toggle-icon"></span>
                     </a>
                     <ul class="sidebar-submenu collapse" id="users">
+                        @adminRoute('passengers.index')
                         <li class="sidebar-menu-item">
                             <a class="sidebar-menu-button" href="{{ route('passengers.index') }}">
                                 <i class="fa fa-users"></i>
                                 <span class="sidebar-menu-text"> {{ __('Passengers') }}</span>
                             </a>
                         </li>
+                        @endadminRoute
+
+                        @adminRoute('passengers.all-trips', 'passengers.index')
                         <li class="sidebar-menu-item">
                             <a class="sidebar-menu-button" href="{{ route('passengers.all-trips') }}">
                                 <i class="fa fa-route"></i>
                                 <span class="sidebar-menu-text"> {{ __('All Passenger Trips') }}</span>
                             </a>
                         </li>
+                        @endadminRoute
+
+                        @adminRoute('passengers.profile-update-requests', 'passengers.index')
                         <li class="sidebar-menu-item">
                             <a class="sidebar-menu-button" href="{{ route('passengers.profile-update-requests') }}">
                                 <i class="fa fa-user-edit"></i>
                                 <span class="sidebar-menu-text"> {{ __('Profile Update Requests') }}</span>
                             </a>
                         </li>
+                        @endadminRoute
+
+                        @adminRoute('users.unride-rates', 'passengers.index')
                         <li class="sidebar-menu-item">
                             <a class="sidebar-menu-button" href="{{ route('users.unride-rates') }}">
                                 <i class="fa fa-star-half-alt"></i>
                                 <span class="sidebar-menu-text"> {{ __('Unride Rates') }}</span>
                             </a>
                         </li>
+                        @endadminRoute
                     </ul>
                 </li>
+                @endadminAnyRoute
 
+                @adminRoute('support-tickets.index')
                 <!-- Technical Support -->
                 <li class="sidebar-menu-item">
                     <a class="sidebar-menu-button" data-toggle="collapse" href="#support_tickets">
@@ -207,7 +257,9 @@
                         </li>
                     </ul>
                 </li>
+                @endadminRoute
 
+                @adminAnyRoute('announcements.index', 'universities.index', 'cities.index', 'delivery-services.index', 'documents.index')
                 <!-- Platform Management -->
                 <li class="sidebar-menu-item">
                     <a class="sidebar-menu-button" data-toggle="collapse" href="#platform_management">
@@ -216,38 +268,53 @@
                         <span class="ml-auto sidebar-menu-toggle-icon"></span>
                     </a>
                     <ul class="sidebar-submenu collapse" id="platform_management">
+                        @adminRoute('announcements.index')
                         <li class="sidebar-menu-item">
                             <a class="sidebar-menu-button" href="{{ route('announcements.index') }}">
                                 <i class="fa fa-bullhorn"></i>
                                 <span class="sidebar-menu-text"> {{ __('Announcements') }}</span>
                             </a>
                         </li>
+                        @endadminRoute
+
+                        @adminRoute('universities.index')
                         <li class="sidebar-menu-item">
                             <a class="sidebar-menu-button" href="{{ route('universities.index') }}">
                                 <i class="fa fa-university"></i>
                                 <span class="sidebar-menu-text"> {{ __('Universities') }}</span>
                             </a>
                         </li>
+                        @endadminRoute
+
+                        @adminRoute('cities.index')
                         <li class="sidebar-menu-item">
                             <a class="sidebar-menu-button" href="{{ route('cities.index') }}">
                                 <i class="fa fa-map-marker"></i>
                                 <span class="sidebar-menu-text"> {{ __('Cities & Neighborhoods') }}</span>
                             </a>
                         </li>
+                        @endadminRoute
+
+                        @adminRoute('delivery-services.index')
                         <li class="sidebar-menu-item">
                             <a class="sidebar-menu-button" href="{{ route('delivery-services.index') }}">
                                 <i class="fa fa-truck"></i>
                                 <span class="sidebar-menu-text"> {{ __('Delivery Services') }}</span>
                             </a>
                         </li>
+                        @endadminRoute
+
+                        @adminRoute('documents.index')
                         <li class="sidebar-menu-item">
                             <a class="sidebar-menu-button" href="{{ route('documents.index') }}">
                                 <i class="fa fa-file-pdf"></i>
                                 <span class="sidebar-menu-text"> {{ __('Documents Management') }}</span>
                             </a>
                         </li>
+                        @endadminRoute
                     </ul>
                 </li>
+                @endadminAnyRoute
 
                 @if(isset($adminAuthz) && $adminAuthz->isCompanyAdmin())
                 <!-- Admin Management -->
@@ -274,6 +341,7 @@
                 </li>
                 @endif
 
+                @adminRoute('settings.index')
                 {{-- Settings --}}
                 <li class="sidebar-menu-item">
                     <a class="sidebar-menu-button" href="{{ route('settings.index') }}">
@@ -281,6 +349,7 @@
                         <span class="sidebar-menu-text"> {{ __('Settings') }} </span>
                     </a>
                 </li>
+                @endadminRoute
 
                 {{-- Languages --}}
                 <li class="sidebar-menu-item">
@@ -304,8 +373,6 @@
                         </li>
                     </ul>
                 </li>
-
-
             </ul>
         </div>
     </div>
