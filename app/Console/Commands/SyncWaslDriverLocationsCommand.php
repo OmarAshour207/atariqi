@@ -27,13 +27,13 @@ class SyncWaslDriverLocationsCommand extends Command
             $locations = $diagnostics['collected_locations'];
             $count = count($locations);
 
-            Log::channel('wasl')->info('Driver location sync run', [
-                'dry_run' => (bool) $this->option('dry-run'),
-                'ongoing_driver_ids' => $diagnostics['ongoing_driver_ids'],
-                'stored_locations_count' => $diagnostics['stored_locations']->count(),
-                'collected_count' => $count,
-                'locations' => $locations,
-            ]);
+            // Log::channel('wasl')->info('Driver location sync run', [
+            //     'dry_run' => (bool) $this->option('dry-run'),
+            //     'ongoing_driver_ids' => $diagnostics['ongoing_driver_ids'],
+            //     'stored_locations_count' => $diagnostics['stored_locations']->count(),
+            //     'collected_count' => $count,
+            //     'locations' => $locations,
+            // ]);
 
             if ($this->option('show-details') || $this->option('dry-run') || $count === 0) {
                 $this->printDiagnostics($diagnostics);
