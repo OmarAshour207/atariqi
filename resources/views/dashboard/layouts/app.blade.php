@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ session('locale') }}" dir="{{ session('locale') == 'ar' ? 'rtl' : 'rtl' }}">
+<html lang="{{ app()->getLocale() }}" dir="{{ app()->getLocale() === 'ar' ? 'rtl' : 'ltr' }}">
 
 <head>
     <meta charset="utf-8">

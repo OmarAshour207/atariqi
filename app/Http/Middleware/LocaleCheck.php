@@ -11,15 +11,17 @@ class LocaleCheck
     {
         $locale = $request->get('locale');
 
-        if($locale == 'en')
-            session()->put('locale', 'en');
-
-        if(session()->has('locale')) {
-            app()->setLocale(session()->get('locale'));
-        } else {
-            session()->put('locale', 'ar');
-            app()->setLocale('ar');
+        if (in_array($locale, ['en', 'ar'], true)) {
+            session(['locale' => $locale]);
         }
+
+        if (session()->has('locale')) {
+            app()->setLocale(session('locale'));
+        } else {
+            session(['locale' => config('app.locale', 'ar')]);
+            app()->setLocale(config('app.locale', 'ar'));
+        }
+
         return $next($request);
     }
 }

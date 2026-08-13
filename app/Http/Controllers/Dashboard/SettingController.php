@@ -21,8 +21,13 @@ class SettingController extends Controller
 
     public function changeLocale($locale)
     {
-        app()->setLocale($locale);
-        session()->put('locale', $locale);
+        $allowed = ['en', 'ar'];
+
+        if (in_array($locale, $allowed, true)) {
+            session(['locale' => $locale]);
+            app()->setLocale($locale);
+        }
+
         return redirect()->back();
     }
 }
