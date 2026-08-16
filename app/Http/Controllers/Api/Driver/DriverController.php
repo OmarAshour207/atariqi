@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Api\Driver;
 use App\Http\Controllers\Api\BaseController;
 use App\Http\Resources\Driver\PackageResource;
 use App\Http\Resources\Driver\UserPackageResource;
+use App\Http\Resources\DriverResource;
 use App\Models\DriversServices;
+use App\Models\User;
 use App\Models\UserPackage;
 use Illuminate\Support\Facades\DB;
 
@@ -13,17 +15,26 @@ class DriverController extends BaseController
 {
     public function DriverRate()
     {
-        $success = array();
+        $user = User::with([
+            'driverInfo',
+            'driverCar.driverType',
+            'stage',
+            'callingKey',
+            'university.cityUni.neighbours',
+        ])->findOrFail(auth()->id());
 
-        $activePackage = UserPackage::where('user_id', auth()->user()->id)
+        $activePackage = UserPackage::where('user_id', $user->id)
             ->where('status', UserPackage::STATUS_ACTIVE)
             ->first();
 
-        $success['rate'] = auth()->user()->driverInfo?->{"driver-rate"} ?? 0;
-        $success['finished_rides'] = $this->getFinishedRides();
-        $success['cancelled_rides'] = $this->getCancelledRides();
-        $success['service_started'] = $this->checkStartService();
-        $success['active_package'] = $activePackage ? new UserPackageResource($activePackage) : null;
+        $success = [
+            'rate' => $user->driverInfo?->{'driver-rate'} ?? 0,
+            'finished_rides' => $this->getFinishedRides(),
+            'cancelled_rides' => $this->getCancelledRides(),
+            'service_started' => $this->checkStartService(),
+            'active_package' => $activePackage ? new UserPackageResource($activePackage) : null,
+            'driver' => new DriverResource($user),
+        ];
 
         return $this->sendResponse($success, __('Data'));
     }
