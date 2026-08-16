@@ -97,6 +97,18 @@ class AdminAuthorizationService
         $method = strtoupper($request->method());
         $routeName = (string) ($routeName ?? '');
 
+        if (in_array($method, ['GET', 'HEAD'], true)) {
+            if (preg_match('/\.create$/', $routeName)) {
+                return 'add';
+            }
+
+            if (preg_match('/\.edit$/', $routeName)) {
+                return 'edit';
+            }
+
+            return 'view';
+        }
+
         if ($method === 'DELETE') {
             return 'delete';
         }

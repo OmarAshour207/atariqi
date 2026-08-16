@@ -9,6 +9,8 @@ class HomeController extends Controller
 {
     public function index()
     {
-        return view('dashboard.home');
+        $admin = auth()->guard('admin')->user();
+
+        return view('dashboard.home', compact('admin'));
     }
 }

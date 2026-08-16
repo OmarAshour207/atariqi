@@ -53,11 +53,14 @@
                         <p class="form-control-plaintext border rounded px-3 py-2 bg-light mb-0">{{ $subscription->cost }}%</p>
                     </div>
 
+                    @adminCan('edit')
                     <div class="text-right">
                         <button type="button" class="btn btn-primary" id="btn-edit">{{ __('Edit') }}</button>
                     </div>
+                    @endadminCan
                 </div>
 
+                @adminCan('edit')
                 <div class="card card-form__body card-body d-none" id="edit-panel">
                     <form action="{{ route('general-dues-percentage.update') }}" method="post">
                         @csrf
@@ -98,6 +101,7 @@
                         </div>
                     </form>
                 </div>
+                @endadminCan
             @endif
         </div>
     </div>
@@ -111,7 +115,7 @@
             var btnEdit = document.getElementById('btn-edit');
             var btnCancel = document.getElementById('btn-cancel');
 
-            if (!viewPanel || !editPanel) {
+            if (!viewPanel || !editPanel || !btnEdit || !btnCancel) {
                 return;
             }
 

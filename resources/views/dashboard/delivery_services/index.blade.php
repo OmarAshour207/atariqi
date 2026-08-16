@@ -24,7 +24,11 @@
                         <td>{{ $service->{'road-way'} }}</td>
                         <td>{{ $service->{'service-ar'} }}</td>
                         <td>{{ $service->{'service-eng'} }}</td>
-                        <td><a href="{{ route('delivery-services.edit', $service) }}" class="btn btn-sm btn-primary">{{ __('Edit') }}</a></td>
+                        <td>
+                            @adminCan('edit')
+                            <a href="{{ route('delivery-services.edit', $service) }}" class="btn btn-sm btn-primary">{{ __('Edit') }}</a>
+                            @endadminCan
+                        </td>
                     </tr>
                 @empty
                     <tr><td colspan="6" class="text-center">{{ __('No services found.') }}</td></tr>

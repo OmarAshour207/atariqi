@@ -13,7 +13,9 @@
                     </nav>
                     <h1 class="m-0">{{ __('Features') }}</h1>
                 </div>
+                @adminCan('add')
                 <a href="{{ route('features.create') }}" class="btn btn-success">{{ __('Create Feature') }}</a>
+                @endadminCan
             </div>
         </div>
 
@@ -96,12 +98,16 @@
                                 <td>{{ \Illuminate\Support\Str::limit($feature->description_en, 60) }}</td>
                                 <td>{{ \Illuminate\Support\Str::limit($feature->description_ar, 60) }}</td>
                                 <td>
+                                    @adminCan('edit')
                                     <a href="{{ route('features.edit', $feature->id) }}" class="btn btn-sm btn-primary">{{ __('Edit') }}</a>
+                                    @endadminCan
+                                    @adminCan('delete')
                                     <form action="{{ route('features.destroy', $feature->id) }}" method="post" class="d-inline-block">
                                         @csrf
                                         @method('delete')
                                         <button type="submit" class="btn btn-sm btn-danger delete">{{ __('Delete') }}</button>
                                     </form>
+                                    @endadminCan
                                 </td>
                             </tr>
                         @empty

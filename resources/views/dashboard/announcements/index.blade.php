@@ -13,7 +13,9 @@
                 </nav>
                 <h1 class="m-0">{{ __('Announcements') }}</h1>
             </div>
+            @adminCan('add')
             <a href="{{ route('announcements.create') }}" class="btn btn-success">{{ __('Add Announcement') }}</a>
+            @endadminCan
         </div>
     </div>
 
@@ -41,7 +43,9 @@
                         <td>{{ $item['target_app'] }}</td>
                         <td>{{ $item['created_at'] }}</td>
                         <td>
+                            @adminCan('delete')
                             <button type="button" class="btn btn-sm btn-danger" data-toggle="modal" data-target="#deleteModal{{ $item['source'] }}{{ $item['id'] }}">{{ __('Delete') }}</button>
+                            @endadminCan
                         </td>
                     </tr>
                 @empty
@@ -51,6 +55,7 @@
             </table>
         </div>
 
+        @adminCan('delete')
         @foreach($announcements as $item)
             @include('dashboard.partials.delete_modal', [
                 'id' => 'deleteModal'.$item['source'].$item['id'],
@@ -58,6 +63,7 @@
                 'title' => __('Delete Announcement'),
             ])
         @endforeach
+        @endadminCan
     </div>
 </div>
 @endsection

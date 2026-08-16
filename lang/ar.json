@@ -1142,5 +1142,11 @@
     "s_userNotExist": "المستخدم غير موجود",
     "sorry you can't accept this ride, because you reach the delivery limit at the same time and date": "عذراً، لا يمكنك قبول هذه الرحلة لأنك وصلت إلى حد التسليم في نفس الوقت والتاريخ",
     "Showing": "عرض",
-    "of": "من"
+    "of": "من",
+    "Atariqi": "على طريقي",
+    "Welcome, :name": "مرحباً، :name",
+    "Atariqi Employee Dashboard": "لوحة موظفي على طريقي",
+    "Use the sidebar menu to access the sections assigned to you.": "استخدم القائمة الجانبية للوصول إلى الأقسام المصرح لك بها.",
+    "Assigned Pages": "الصفحات المصرح بها",
+    "Your starting point": "نقطة البداية"
 }

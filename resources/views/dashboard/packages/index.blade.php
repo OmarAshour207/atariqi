@@ -13,7 +13,9 @@
                     </nav>
                     <h1 class="m-0">{{ __('Packages') }}</h1>
                 </div>
+                @adminCan('add')
                 <a href="{{ route('packages.create') }}" class="btn btn-success">{{ __('Create Package') }}</a>
+                @endadminCan
             </div>
         </div>
 
@@ -173,9 +175,12 @@
                                 </td>
                                 <td>{{ optional($package->created_at)->format('Y-m-d') ?? '-' }}</td>
                                 <td>
+                                    @adminCan('edit')
                                     <a href="{{ route('packages.edit', $package->id) }}" class="btn btn-sm btn-primary">
                                         <i class="fa fa-edit"></i> {{ __('Edit') }}
                                     </a>
+                                    @endadminCan
+                                    @adminCan('delete')
                                     <form action="{{ route('packages.destroy', $package->id) }}" method="post" class="d-inline-block">
                                         @csrf
                                         @method('delete')
@@ -183,6 +188,7 @@
                                             <i class="fa fa-trash"></i> {{ __('Delete') }}
                                         </button>
                                     </form>
+                                    @endadminCan
                                 </td>
                             </tr>
                         @empty

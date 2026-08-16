@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <link rel="icon" type="image/x-icon" href="{{ asset('dashboard/images/logos/logo.jpg') }}">
+    <link rel="icon" type="image/jpeg" href="{{ asset('dashboard/images/logos/logo_2.jpg') }}">
     <title>{{ __('Login') }}</title>
 
     <!-- Prevent the demo from appearing in search engines -->
