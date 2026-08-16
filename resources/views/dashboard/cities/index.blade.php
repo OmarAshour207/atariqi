@@ -26,21 +26,24 @@
                                             @csrf @method('PUT')
                                             <input name="neighborhood-ar" class="form-control form-control-sm mr-2" value="{{ $neighborhood->{'neighborhood-ar'} }}">
                                             <input name="neighborhood-eng" class="form-control form-control-sm mr-2" value="{{ $neighborhood->{'neighborhood-eng'} }}">
-                                            <button class="btn btn-sm btn-primary">{{ __('Edit') }}</button>
+                                            <button type="submit" class="btn btn-sm btn-primary">{{ __('Edit') }}</button>
                                         </form>
                                     </td>
                                     <td>
-                                        <button class="btn btn-sm btn-danger" data-toggle="modal" data-target="#deleteNb{{ $neighborhood->id }}">{{ __('Delete') }}</button>
+                                        <button type="button" class="btn btn-sm btn-danger" data-toggle="modal" data-target="#deleteNb{{ $neighborhood->id }}">{{ __('Delete') }}</button>
                                     </td>
                                 </tr>
-                                @include('dashboard.partials.delete_modal', [
-                                    'id' => 'deleteNb'.$neighborhood->id,
-                                    'action' => route('neighborhoods.destroy', $neighborhood),
-                                    'title' => __('Delete Neighborhood'),
-                                ])
                             @endforeach
                             </tbody>
                         </table>
+
+                        @foreach($city->neighbours as $neighborhood)
+                            @include('dashboard.partials.delete_modal', [
+                                'id' => 'deleteNb'.$neighborhood->id,
+                                'action' => route('neighborhoods.destroy', $neighborhood),
+                                'title' => __('Delete Neighborhood'),
+                            ])
+                        @endforeach
                     @else
                         <p class="text-muted">{{ __('No neighborhoods found.') }}</p>
                     @endif

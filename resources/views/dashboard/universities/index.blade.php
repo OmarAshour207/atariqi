@@ -30,14 +30,9 @@
                             <a href="{{ route('universities.services', $university) }}" class="btn btn-sm btn-info">{{ __('View') }}</a>
                         </td>
                         <td>
-                            <button class="btn btn-sm btn-danger" data-toggle="modal" data-target="#deleteUni{{ $university->id }}">{{ __('Delete') }}</button>
+                            <button type="button" class="btn btn-sm btn-danger" data-toggle="modal" data-target="#deleteUni{{ $university->id }}">{{ __('Delete') }}</button>
                         </td>
                     </tr>
-                    @include('dashboard.partials.delete_modal', [
-                        'id' => 'deleteUni'.$university->id,
-                        'action' => route('universities.destroy', $university),
-                        'title' => __('Delete University'),
-                    ])
                 @empty
                     <tr><td colspan="5" class="text-center py-4">{{ __('No universities found.') }}</td></tr>
                 @endforelse
@@ -45,6 +40,14 @@
             </table>
             <div class="card-footer">{{ $universities->links('dashboard.pagination.custom') }}</div>
         </div>
+
+        @foreach($universities as $university)
+            @include('dashboard.partials.delete_modal', [
+                'id' => 'deleteUni'.$university->id,
+                'action' => route('universities.destroy', $university),
+                'title' => __('Delete University'),
+            ])
+        @endforeach
     </div>
 </div>
 @endsection

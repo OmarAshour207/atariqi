@@ -1140,5 +1140,7 @@
     "s_invalidCode": "رمز غير صحيح",
     "s_userBanned": "المستخدم محظور",
     "s_userNotExist": "المستخدم غير موجود",
-    "sorry you can't accept this ride, because you reach the delivery limit at the same time and date": "عذراً، لا يمكنك قبول هذه الرحلة لأنك وصلت إلى حد التسليم في نفس الوقت والتاريخ"
+    "sorry you can't accept this ride, because you reach the delivery limit at the same time and date": "عذراً، لا يمكنك قبول هذه الرحلة لأنك وصلت إلى حد التسليم في نفس الوقت والتاريخ",
+    "Showing": "عرض",
+    "of": "من"
 }

@@ -19,6 +19,8 @@ use Illuminate\Support\Facades\DB;
 
 class LogsManagementController extends Controller
 {
+    private const PER_PAGE = 10;
+
     private array $tables = [
         'actions_log' => [
             'title' => 'Actions Log',
@@ -112,7 +114,9 @@ class LogsManagementController extends Controller
             $sections[$key] = [
                 'title' => __($config['title']),
                 'columns' => $config['columns'],
-                'rows' => $this->queryLogTable($key, $config, $request)->limit(50)->get(),
+                'rows' => $this->queryLogTable($key, $config, $request)
+                    ->paginate(self::PER_PAGE, ['*'], "{$key}_page")
+                    ->withQueryString(),
                 'filters' => $request->only(["{$key}_employee", "{$key}_date", "{$key}_action", "{$key}_sort"]),
             ];
         }

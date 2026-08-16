@@ -41,20 +41,23 @@
                         <td>{{ $item['target_app'] }}</td>
                         <td>{{ $item['created_at'] }}</td>
                         <td>
-                            <button class="btn btn-sm btn-danger" data-toggle="modal" data-target="#deleteModal{{ $item['source'] }}{{ $item['id'] }}">{{ __('Delete') }}</button>
+                            <button type="button" class="btn btn-sm btn-danger" data-toggle="modal" data-target="#deleteModal{{ $item['source'] }}{{ $item['id'] }}">{{ __('Delete') }}</button>
                         </td>
                     </tr>
-                    @include('dashboard.partials.delete_modal', [
-                        'id' => 'deleteModal'.$item['source'].$item['id'],
-                        'action' => route('announcements.destroy', [$item['source'], $item['id']]),
-                        'title' => __('Delete Announcement'),
-                    ])
                 @empty
                     <tr><td colspan="6" class="text-center py-4">{{ __('No announcements found.') }}</td></tr>
                 @endforelse
                 </tbody>
             </table>
         </div>
+
+        @foreach($announcements as $item)
+            @include('dashboard.partials.delete_modal', [
+                'id' => 'deleteModal'.$item['source'].$item['id'],
+                'action' => route('announcements.destroy', [$item['source'], $item['id']]),
+                'title' => __('Delete Announcement'),
+            ])
+        @endforeach
     </div>
 </div>
 @endsection

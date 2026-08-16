@@ -188,6 +188,13 @@
                 $focusable.trigger('focus');
             }
         });
+
+        $(document).on('hidden.bs.modal', '.modal', function () {
+            if ($('.modal.show').length === 0) {
+                $('body').removeClass('modal-open').css('padding-right', '');
+                $('.modal-backdrop').remove();
+            }
+        });
     });
 </script>
 
