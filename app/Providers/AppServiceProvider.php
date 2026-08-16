@@ -21,11 +21,15 @@ class AppServiceProvider extends ServiceProvider
         });
 
         Blade::if('adminRoute', function (?string $route, ?string $fallback = null) {
-            return app(AdminAuthorizationService::class)->canAccessMenuRoute($route, $fallback);
+            return app(AdminAuthorizationService::class)->isPageAssigned($route);
         });
 
         Blade::if('adminAnyRoute', function (...$routes) {
             return app(AdminAuthorizationService::class)->canAccessAnyRoute($routes);
+        });
+
+        Blade::if('adminCan', function (string $permission, ?string $route = null) {
+            return app(AdminAuthorizationService::class)->hasPermission($permission, $route);
         });
     }
 }

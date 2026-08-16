@@ -34,25 +34,47 @@ class AdminAuthorizationService
             return false;
         }
 
-        if ($this->adminHasAssignedPage($routeName, $admin)) {
-            return true;
+        $current = $routeName;
+        $visited = [];
+
+        while ($current && !in_array($current, $visited, true)) {
+            $visited[] = $current;
+
+            if ($this->adminHasAssignedPage($current, $admin)) {
+                return true;
+            }
+
+            $current = $this->resolveFallbackRoute($current);
         }
 
-        $fallback = $this->resolveFallbackRoute($routeName);
-
-        return $fallback ? $this->adminHasAssignedPage($fallback, $admin) : false;
+        return false;
     }
 
     public function canAccessMenuRoute(?string $routeName, ?string $fallbackRoute = null, ?Admin $admin = null): bool
     {
-        if ($this->canAccessRoute($routeName, $admin)) {
+        if ($this->isPageAssigned($routeName, $admin)) {
             return true;
         }
 
-        if (!$fallbackRoute) {
-            return false;
+        // Menu shows only explicitly assigned pages — no fallback inheritance.
+        return false;
+    }
+
+    public function canAccessAnyRoute(array $routes, ?Admin $admin = null): bool
+    {
+        foreach ($routes as $route) {
+            $routeName = is_array($route) ? ($route[0] ?? null) : $route;
+
+            if ($routeName && $this->isPageAssigned($routeName, $admin)) {
+                return true;
+            }
         }
 
+        return false;
+    }
+
+    public function isPageAssigned(?string $routeName, ?Admin $admin = null): bool
+    {
         $admin = $admin ?? auth()->guard('admin')->user();
 
         if (!$admin || !$admin->is_active) {
@@ -63,26 +85,47 @@ class AdminAuthorizationService
             return true;
         }
 
-        return $this->adminHasAssignedPage($fallbackRoute, $admin);
-    }
-
-    public function canAccessAnyRoute(array $routes, ?Admin $admin = null): bool
-    {
-        foreach ($routes as $route) {
-            if (is_array($route)) {
-                if ($this->canAccessMenuRoute($route[0], $route[1] ?? null, $admin)) {
-                    return true;
-                }
-
-                continue;
-            }
-
-            if ($this->canAccessRoute($route, $admin)) {
-                return true;
-            }
+        if (!$routeName) {
+            return false;
         }
 
-        return false;
+        return $this->adminHasAssignedPage($routeName, $admin);
+    }
+
+    public function resolveRequiredPermission(\Illuminate\Http\Request $request, ?string $routeName): string
+    {
+        $method = strtoupper($request->method());
+        $routeName = (string) ($routeName ?? '');
+
+        if ($method === 'DELETE') {
+            return 'delete';
+        }
+
+        if (in_array($method, ['PUT', 'PATCH'], true)) {
+            return 'edit';
+        }
+
+        if ($method === 'POST') {
+            if (preg_match('/\.(store|create)$/', $routeName)) {
+                return 'add';
+            }
+
+            if (preg_match('/\.(destroy|delete)$/', $routeName)) {
+                return 'delete';
+            }
+
+            if (preg_match('/\.(approve|updateStatus|updateApproval|approve-profile-update)/', $routeName)) {
+                return 'approve';
+            }
+
+            if (preg_match('/\.(reject|reject-profile-update|ban|close)/', $routeName)) {
+                return 'reject';
+            }
+
+            return 'edit';
+        }
+
+        return 'view';
     }
 
     public function resolveFallbackRoute(?string $routeName): ?string
@@ -117,7 +160,7 @@ class AdminAuthorizationService
             'drivers.assignToAdmin' => 'drivers.index',
             'drivers.ban' => 'drivers.index',
             'general-dues-percentage.show' => 'drivers.index',
-            'general-dues-percentage.update' => 'drivers.index',
+            'general-dues-percentage.update' => 'general-dues-percentage.show',
             'edit-info-request.show' => 'edit-info-request.index',
             'edit-info-request.update' => 'edit-info-request.index',
             'passengers.all-trips' => 'passengers.index',
@@ -163,10 +206,25 @@ class AdminAuthorizationService
             return null;
         }
 
-        [$prefix] = explode('.', $routeName, 2);
-        $indexRoute = $prefix . '.index';
+        [$prefix, $action] = explode('.', $routeName, 2);
 
-        return $indexRoute !== $routeName ? $indexRoute : null;
+        $candidates = match ($action) {
+            'update', 'edit' => [$prefix . '.show', $prefix . '.index'],
+            'store', 'create', 'destroy', 'download', 'replace', 'reply', 'assign', 'close', 'ban',
+            'cancel', 'assignPackage', 'assignToAdmin', 'sendPaymentReminder', 'updateStatus',
+            'approve-profile-update', 'reject-profile-update', 'assign-to-admin', 'updateApproval',
+            'services', 'storeServices', 'storeNeighborhood', 'updateNeighborhood', 'destroyNeighborhood',
+            'packagePlans', 'driverTrips', 'earnings', 'complaints', 'trips', 'show' => [$prefix . '.index'],
+            default => [$prefix . '.index'],
+        };
+
+        foreach ($candidates as $candidate) {
+            if ($candidate !== $routeName) {
+                return $candidate;
+            }
+        }
+
+        return null;
     }
 
     private function adminHasAssignedPage(string $routeName, Admin $admin): bool
@@ -200,6 +258,11 @@ class AdminAuthorizationService
         }
 
         return $admin->permissions()->where('permissions.code', $code)->exists();
+    }
+
+    public function can(string $permission, ?string $routeName = null, ?Admin $admin = null): bool
+    {
+        return $this->hasPermission($permission, $routeName, $admin);
     }
 
     public function resolvePageForRoute(?string $routeName): ?WebPage

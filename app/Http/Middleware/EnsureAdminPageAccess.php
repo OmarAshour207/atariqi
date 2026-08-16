@@ -12,7 +12,7 @@ class EnsureAdminPageAccess
     {
     }
 
-    public function handle(Request $request, Closure $next, ?string $permission = 'view')
+    public function handle(Request $request, Closure $next, ?string $permission = null)
     {
         $admin = auth()->guard('admin')->user();
 
@@ -43,6 +43,8 @@ class EnsureAdminPageAccess
         if (!$this->authz->canAccessRoute($routeName, $admin)) {
             abort(403, __('You do not have permission to access this page.'));
         }
+
+        $permission = $permission ?? $this->authz->resolveRequiredPermission($request, $routeName);
 
         if (!$this->authz->hasPermission($permission, $routeName, $admin)) {
             abort(403, __('You do not have permission to perform this action.'));

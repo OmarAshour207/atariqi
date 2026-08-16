@@ -21,7 +21,7 @@
                         <span class="ml-auto sidebar-menu-toggle-icon"></span>
                     </a>
                     <ul class="sidebar-submenu collapse" id="homepage_sections">
-                        @adminRoute('homepage-sections.edit', 'homepage-sections.index')
+                        @adminRoute('homepage-sections.index')
                         <li class="sidebar-menu-item">
                             <a class="sidebar-menu-button" href="{{ route('homepage-sections.edit', ['homepage_section' => 'about_us']) }}">
                                 <i class="fa fa-info"></i>
@@ -30,7 +30,7 @@
                         </li>
                         @endadminRoute
 
-                        @adminRoute('homepage-sections.edit', 'homepage-sections.index')
+                        @adminRoute('homepage-sections.index')
                         <li class="sidebar-menu-item">
                             <a class="sidebar-menu-button" href="{{ route('homepage-sections.edit', ['homepage_section' => 'about_app']) }}">
                                 <i class="fa fa-info"></i>
@@ -39,7 +39,7 @@
                         </li>
                         @endadminRoute
 
-                        @adminRoute('homepage-sections.edit', 'homepage-sections.index')
+                        @adminRoute('homepage-sections.index')
                         <li class="sidebar-menu-item">
                             <a class="sidebar-menu-button" href="{{ route('homepage-sections.edit', ['homepage_section' => 'sliders']) }}">
                                 <i class="fa fa-info"></i>
@@ -48,7 +48,7 @@
                         </li>
                         @endadminRoute
 
-                        @adminRoute('homepage-stats.index', 'homepage-sections.index')
+                        @adminRoute('homepage-stats.index')
                         <li class="sidebar-menu-item">
                             <a class="sidebar-menu-button" href="{{ route('homepage-stats.index') }}">
                                 <i class="fa fa-info"></i>
@@ -57,7 +57,7 @@
                         </li>
                         @endadminRoute
 
-                        @adminRoute('partner-achievements.index', 'homepage-sections.index')
+                        @adminRoute('partner-achievements.index')
                         <li class="sidebar-menu-item">
                             <a class="sidebar-menu-button" href="{{ route('partner-achievements.index', ['type' => 'partners']) }}">
                                 <i class="fa fa-users"></i>
@@ -66,7 +66,7 @@
                         </li>
                         @endadminRoute
 
-                        @adminRoute('testimonials.index', 'homepage-sections.index')
+                        @adminRoute('testimonials.index')
                         <li class="sidebar-menu-item">
                             <a class="sidebar-menu-button" href="{{ route('testimonials.index') }}">
                                 <i class="fa fa-info"></i>
@@ -75,7 +75,7 @@
                         </li>
                         @endadminRoute
 
-                        @adminRoute('partner-achievements.index', 'homepage-sections.index')
+                        @adminRoute('partner-achievements.index')
                         <li class="sidebar-menu-item">
                             <a class="sidebar-menu-button" href="{{ route('partner-achievements.index', ['type' => 'achievements']) }}">
                                 <i class="fa fa-info"></i>
@@ -87,7 +87,7 @@
                 </li>
                 @endadminAnyRoute
 
-                @adminAnyRoute('drivers.index', 'new-drivers.index', 'edit-info-request.index', 'packages.index', 'features.index')
+                @adminAnyRoute('drivers.index', 'new-drivers.index', 'edit-info-request.index', 'drivers.packages', 'packages.index', 'features.index', 'drivers.rates', 'drivers.trips', 'general-dues-percentage.show')
                 <!-- Drivers -->
                 <li class="sidebar-menu-item">
                     <a class="sidebar-menu-button" data-toggle="collapse" href="#drivers">
@@ -123,7 +123,7 @@
                         </li>
                         @endadminRoute
 
-                        @adminRoute('drivers.packages', 'drivers.index')
+                        @adminRoute('drivers.packages')
                         <li class="sidebar-menu-item">
                             <a class="sidebar-menu-button" href="{{ route('drivers.packages') }}">
                                 <i class="fa fa-gift"></i>
@@ -150,7 +150,7 @@
                         </li>
                         @endadminRoute
 
-                        @adminRoute('drivers.rates', 'drivers.index')
+                        @adminRoute('drivers.rates')
                         <li class="sidebar-menu-item">
                             <a class="sidebar-menu-button" href="{{ route('drivers.rates') }}">
                                 <i class="fa fa-star"></i>
@@ -159,7 +159,7 @@
                         </li>
                         @endadminRoute
 
-                        @adminRoute('drivers.trips', 'drivers.index')
+                        @adminRoute('drivers.trips')
                         <li class="sidebar-menu-item">
                             <a class="sidebar-menu-button" href="{{ route('drivers.trips') }}">
                                 <i class="fa fa-route"></i>
@@ -168,7 +168,7 @@
                         </li>
                         @endadminRoute
 
-                        @adminRoute('general-dues-percentage.show', 'drivers.index')
+                        @adminRoute('general-dues-percentage.show')
                         <li class="sidebar-menu-item">
                             <a class="sidebar-menu-button" href="{{ route('general-dues-percentage.show') }}">
                                 <i class="fa fa-percent"></i>
@@ -180,7 +180,7 @@
                 </li>
                 @endadminAnyRoute
 
-                @adminAnyRoute('passengers.index', 'users.unride-rates')
+                @adminAnyRoute('passengers.index', 'passengers.all-trips', 'passengers.profile-update-requests', 'users.unride-rates')
                 <!-- Users -->
                 <li class="sidebar-menu-item">
                     <a class="sidebar-menu-button" data-toggle="collapse" href="#users">
@@ -198,7 +198,7 @@
                         </li>
                         @endadminRoute
 
-                        @adminRoute('passengers.all-trips', 'passengers.index')
+                        @adminRoute('passengers.all-trips')
                         <li class="sidebar-menu-item">
                             <a class="sidebar-menu-button" href="{{ route('passengers.all-trips') }}">
                                 <i class="fa fa-route"></i>
@@ -207,7 +207,7 @@
                         </li>
                         @endadminRoute
 
-                        @adminRoute('passengers.profile-update-requests', 'passengers.index')
+                        @adminRoute('passengers.profile-update-requests')
                         <li class="sidebar-menu-item">
                             <a class="sidebar-menu-button" href="{{ route('passengers.profile-update-requests') }}">
                                 <i class="fa fa-user-edit"></i>
@@ -216,7 +216,7 @@
                         </li>
                         @endadminRoute
 
-                        @adminRoute('users.unride-rates', 'passengers.index')
+                        @adminRoute('users.unride-rates')
                         <li class="sidebar-menu-item">
                             <a class="sidebar-menu-button" href="{{ route('users.unride-rates') }}">
                                 <i class="fa fa-star-half-alt"></i>
