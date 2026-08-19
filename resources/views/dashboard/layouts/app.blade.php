@@ -6,7 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title> {{ setting('title') }} - {{ __('Dashboard') }} </title>
-    <link rel="icon" type="image/jpeg" href="{{ asset('dashboard/images/logos/logo_2.jpg') }}">
+    <link rel="icon" type="image/jpeg" href="{{ asset('dashboard/images/logos/main-logo.png') }}">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <meta name="robots" content="noindex">
@@ -49,6 +49,23 @@
     @stack('admin_styles')
 
     <style>
+        .dashboard-flash {
+            position: fixed;
+            top: 64px;
+            left: 0;
+            right: 0;
+            z-index: 1050;
+            pointer-events: none;
+            padding: 0 1rem;
+        }
+
+        .dashboard-flash .alert {
+            pointer-events: auto;
+            max-width: 720px;
+            margin: 0.75rem auto 0;
+            box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.1);
+        }
+
         .modal-backdrop {
             z-index: 9998 !important;
             pointer-events: none !important;
@@ -77,6 +94,10 @@
 
 <div class="preloader"></div>
 
+<div id="dashboard-flash" class="dashboard-flash">
+    @include('dashboard.partials.session')
+</div>
+
 <div class="mdk-header-layout js-mdk-header-layout">
     {{-- header --}}
     @include('dashboard.layouts.header')
@@ -84,8 +105,6 @@
 
     <div class="mdk-header-layout__content">
         <div class="mdk-drawer-layout js-mdk-drawer-layout" data-push data-responsive-width="992px">
-            @include('dashboard.partials.session')
-
             @yield('content')
 
             @include('dashboard.layouts.menu')
@@ -151,6 +170,8 @@
 
 <script type="text/javascript">
     $(document).ready(function () {
+        $('body').removeClass('modal-open').css({ paddingRight: '', overflow: '' });
+        $('.modal-backdrop').remove();
 
         $.ajaxSetup({
             headers: {
@@ -191,7 +212,7 @@
 
         $(document).on('hidden.bs.modal', '.modal', function () {
             if ($('.modal.show').length === 0) {
-                $('body').removeClass('modal-open').css('padding-right', '');
+                $('body').removeClass('modal-open').css({ paddingRight: '', overflow: '' });
                 $('.modal-backdrop').remove();
             }
         });

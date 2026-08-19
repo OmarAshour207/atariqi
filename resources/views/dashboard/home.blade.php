@@ -8,7 +8,7 @@
                     <div class="card border-0 shadow-sm overflow-hidden">
                         <div class="card-body text-center p-5" style="background: linear-gradient(180deg, #f8fffe 0%, #ffffff 45%);">
                             <img
-                                src="{{ asset('dashboard/images/logos/logo_2.jpg') }}"
+                                src="{{ asset('dashboard/images/logos/main-logo.png') }}"
                                 alt="{{ __('Atariqi') }}"
                                 class="mb-4"
                                 style="max-height: 72px; width: auto;"

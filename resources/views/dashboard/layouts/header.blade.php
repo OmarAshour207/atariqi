@@ -14,7 +14,7 @@
 
                 <a href="{{ route('dashboard.index') }}" class="navbar-brand d-flex align-items-center">
                     <img
-                        src="{{ asset('dashboard/images/logos/logo_2.jpg') }}"
+                        src="{{ asset('dashboard/images/logos/main-logo.png') }}"
                         alt="{{ __('Atariqi') }}"
                         class="navbar-brand-icon mr-2"
                         style="height: 36px; width: auto;"

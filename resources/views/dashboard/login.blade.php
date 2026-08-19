@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <link rel="icon" type="image/jpeg" href="{{ asset('dashboard/images/logos/logo_2.jpg') }}">
+    <link rel="icon" type="image/jpeg" href="{{ asset('dashboard/images/logos/main-logo.png') }}">
     <title>{{ __('Login') }}</title>
 
     <!-- Prevent the demo from appearing in search engines -->
@@ -36,7 +36,7 @@
     <div class="layout-login__form bg-white" data-perfect-scrollbar>
         <div class="d-flex justify-content-center mt-2 mb-5 navbar-light">
             <a href="{{ route('dashboard.index') }}" class="navbar-brand" style="min-width: 0">
-                <img class="navbar-brand-icon" src="{{ asset('dashboard/images/logos/logo_2.jpg') }}" width="25" alt="{{ setting('title') }}">
+                <img class="navbar-brand-icon" src="{{ asset('dashboard/images/logos/main-logo.png') }}" width="25" alt="{{ setting('title') }}">
                 <span>{{ setting('title') }}</span>
             </a>
         </div>
