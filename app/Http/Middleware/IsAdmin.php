@@ -17,8 +17,11 @@ class IsAdmin
     public function handle(Request $request, Closure $next)
     {
         if (!auth()->guard('admin')->check()) {
-            return redirect()->route('dashboard.login');
+            return redirect()->route('dashboard.loginForm');
         }
+
+        auth()->shouldUse('admin');
+
         return $next($request);
     }
 }

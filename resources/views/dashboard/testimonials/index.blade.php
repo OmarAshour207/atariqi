@@ -13,7 +13,9 @@
                     </nav>
                     <h1 class="m-0"> {{ __('Testimonials') }} </h1>
                 </div>
+                @adminCan('update')
                 <a href="{{ route('testimonials.create') }}" class="btn btn-success ml-3">{{ __('Create') }} <i class="material-icons">add</i></a>
+                @endadminCan
             </div>
         </div>
 
@@ -79,15 +81,18 @@
                             </td>
 
                             <td>
+                                @adminCan('update')
                                 <a href="{{ route('testimonials.edit', $testimonial->id) }}" class="btn btn-sm btn-link">
                                     <i class="fa fa-edit fa-2x"></i>
                                 </a>
+                                @endadminCan
+                                @adminCan('delete')
                                 <form action="{{ route('testimonials.destroy', $testimonial->id) }}" method="post" style="display: inline-block">
                                     @csrf
                                     @method('delete')
-
                                     <button type="submit" class="btn btn-danger btn-sm delete"><i class="fa fa-trash"></i> </button>
                                 </form>
+                                @endadminCan
                             </td>
                         </tr>
                         @empty

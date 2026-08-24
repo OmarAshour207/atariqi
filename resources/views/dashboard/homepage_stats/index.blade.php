@@ -13,7 +13,9 @@
                     </nav>
                     <h1 class="m-0"> {{ __('Our Numbers') }} </h1>
                 </div>
+                @adminCan('update')
                 <a href="{{ route('homepage-stats.create') }}" class="btn btn-success ml-3">{{ __('Create') }} <i class="material-icons">add</i></a>
+                @endadminCan
             </div>
         </div>
 
@@ -70,15 +72,18 @@
                             </td>
 
                             <td>
+                                @adminCan('update')
                                 <a href="{{ route('homepage-stats.edit', $stat->id) }}" class="btn btn-sm btn-link">
                                     <i class="fa fa-edit fa-2x"></i>
                                 </a>
+                                @endadminCan
+                                @adminCan('delete')
                                 <form action="{{ route('homepage-stats.destroy', $stat->id) }}" method="post" style="display: inline-block">
                                     @csrf
                                     @method('delete')
-
                                     <button type="submit" class="btn btn-danger btn-sm delete"><i class="fa fa-trash"></i> </button>
                                 </form>
+                                @endadminCan
                             </td>
                         </tr>
                         @empty

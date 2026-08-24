@@ -247,7 +247,7 @@ class DriverController extends Controller
             'vehicles' => [],
         ];
         $banned = null;
-        $admins = Admin::where('type', 'admin')
+        $admins = Admin::where('role', Admin::ROLE_ADMIN)
             ->where('id', '!=', auth()->guard('admin')->id())
             ->get();
         $universities = University::all();

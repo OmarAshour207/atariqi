@@ -4,13 +4,13 @@ namespace App\Http\Controllers\Dashboard;
 
 use App\Http\Controllers\Controller;
 use App\Models\Admin;
-use App\Models\Permission;
 use App\Models\WebPage;
 use App\Services\ActionsLogService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
+use Spatie\Permission\Models\Permission;
 
 class EmployeeController extends Controller
 {
@@ -20,7 +20,7 @@ class EmployeeController extends Controller
 
     public function index()
     {
-        $employees = Admin::with(['permissions', 'pages'])
+        $employees = Admin::with(['roles', 'permissions', 'pages'])
             ->orderByDesc('id')
             ->paginate(20);
 
@@ -29,10 +29,11 @@ class EmployeeController extends Controller
 
     public function create()
     {
-        $permissions = Permission::orderBy('id')->get();
+        $permissions = Permission::where('guard_name', 'admin')->orderBy('name')->get();
         $pages = WebPage::where('is_active', true)->orderBy('sort_order')->get();
+        $roles = Admin::availableRoles();
 
-        return view('dashboard.employees.create', compact('permissions', 'pages'));
+        return view('dashboard.employees.create', compact('permissions', 'pages', 'roles'));
     }
 
     public function store(Request $request)
@@ -45,53 +46,40 @@ class EmployeeController extends Controller
                 'email' => $data['email'],
                 'password' => Hash::make($data['password']),
                 'role' => $data['role'],
-                'type' => $data['role'] === 'admin' ? 'admin' : 'support',
                 'is_active' => $request->boolean('is_active', true),
             ]);
 
-            $employee->permissions()->sync($request->input('permission_ids', []));
-            $employee->pages()->sync($request->input('page_ids', []));
-
+            $this->syncAccess($employee, $data['role'], $request->input('permissions', []), $request->input('page_ids', []));
             $this->actionsLog->logAdd('admins', $employee->id);
         });
 
-        $message = __('Employee created successfully.');
-        $flash = 'success';
-
-        if (!$request->has('permission_ids')) {
-            $message = __('Employee created successfully.') . ' ' . __('Employee saved without permissions. They will only have view access on assigned pages.');
-            $flash = 'warning';
-        }
-
-        if (!$request->has('page_ids')) {
-            $message = __('Employee created successfully.') . ' ' . __('Employee saved without pages. They will not be able to access the dashboard sections.');
-            $flash = 'warning';
-        }
-
-        return redirect()->route('employees.index')->with($flash, $message);
+        return redirect()->route('employees.index')->with('success', __('Employee created successfully.'));
     }
 
     public function edit(Admin $employee)
     {
-        $permissions = Permission::orderBy('id')->get();
+        $permissions = Permission::where('guard_name', 'admin')->orderBy('name')->get();
         $pages = WebPage::where('is_active', true)->orderBy('sort_order')->get();
+        $roles = Admin::availableRoles();
 
-        return view('dashboard.employees.edit', compact('employee', 'permissions', 'pages'));
+        return view('dashboard.employees.edit', compact('employee', 'permissions', 'pages', 'roles'));
     }
 
     public function update(Request $request, Admin $employee)
     {
         $data = $this->validateEmployee($request, $employee->id);
-
         $old = $employee->toArray();
 
         $updateData = [
             'name' => $data['name'],
             'email' => $data['email'],
             'role' => $data['role'],
-            'type' => $data['role'] === 'admin' ? 'admin' : 'support',
             'is_active' => $request->boolean('is_active', false),
         ];
+
+        if (! empty($data['password'])) {
+            $updateData['password'] = Hash::make($data['password']);
+        }
 
         $employee->update($updateData);
         $this->actionsLog->logEdit('admins', $employee->id, $old);
@@ -101,26 +89,17 @@ class EmployeeController extends Controller
 
     public function editPermissions(Admin $employee)
     {
-        $permissions = Permission::orderBy('id')->get();
-        $selected = $employee->permissions()->pluck('permissions.id')->all();
+        $permissions = Permission::where('guard_name', 'admin')->orderBy('name')->get();
+        $selected = $employee->getPermissionNames()->all();
 
         return view('dashboard.employees.permissions', compact('employee', 'permissions', 'selected'));
     }
 
     public function updatePermissions(Request $request, Admin $employee)
     {
-        $permissionIds = $request->input('permission_ids', []);
-
-        if ($employee->permissions()->pluck('permissions.id')->sort()->values()->all() === collect($permissionIds)->sort()->values()->all()) {
-            return back()->with('warning', __('No permission changes were made.'));
-        }
-
-        $employee->permissions()->sync($permissionIds);
-        $this->actionsLog->logEdit('employee_perm', $employee->id);
-
-        if (empty($permissionIds)) {
-            return redirect()->route('employees.index')->with('warning', __('Employee saved without permissions. They will only have view access on assigned pages.'));
-        }
+        $permissionNames = $request->input('permissions', []);
+        $this->syncAccess($employee, $employee->role, $permissionNames, $employee->pages()->pluck('web_pages.id')->all());
+        $this->actionsLog->logEdit('model_has_permissions', $employee->id);
 
         return redirect()->route('employees.index')->with('success', __('Employee permissions updated successfully.'));
     }
@@ -136,19 +115,31 @@ class EmployeeController extends Controller
     public function updatePages(Request $request, Admin $employee)
     {
         $pageIds = $request->input('page_ids', []);
-
-        if ($employee->pages()->pluck('web_pages.id')->sort()->values()->all() === collect($pageIds)->sort()->values()->all()) {
-            return back()->with('warning', __('No page changes were made.'));
-        }
-
-        $employee->pages()->sync($pageIds);
+        $this->syncAccess($employee, $employee->role, $employee->getPermissionNames()->all(), $pageIds);
         $this->actionsLog->logEdit('employee_page', $employee->id);
 
-        if (empty($pageIds)) {
-            return redirect()->route('employees.index')->with('warning', __('Employee saved without pages. They will not be able to access the dashboard sections.'));
+        return redirect()->route('employees.index')->with('success', __('Employee pages updated successfully.'));
+    }
+
+    private function syncAccess(Admin $employee, string $role, array $permissionNames, array $pageIds): void
+    {
+        $role = Admin::normalizeRole($role);
+        $employee->syncRoles([$role]);
+
+        if ($role === Admin::ROLE_ADMIN) {
+            $employee->syncPermissions(Admin::availableActions());
+            $employee->pages()->sync(WebPage::where('is_active', true)->pluck('id')->all());
+
+            return;
         }
 
-        return redirect()->route('employees.index')->with('success', __('Employee pages updated successfully.'));
+        $allowed = array_values(array_intersect($permissionNames, Admin::availableActions()));
+        if (! in_array(Admin::ACTION_VIEW, $allowed, true) && $allowed) {
+            $allowed[] = Admin::ACTION_VIEW;
+        }
+
+        $employee->syncPermissions($allowed);
+        $employee->pages()->sync($pageIds);
     }
 
     private function validateEmployee(Request $request, ?int $ignoreId = null): array
@@ -162,8 +153,12 @@ class EmployeeController extends Controller
                 Rule::unique('admins', 'email')->ignore($ignoreId),
             ],
             'password' => [$ignoreId ? 'nullable' : 'required', 'string', 'min:8', 'confirmed'],
-            'role' => 'required|in:agent,supervisor,admin',
+            'role' => 'required|in:' . implode(',', Admin::availableRoles()),
             'is_active' => 'nullable|boolean',
+            'permissions' => 'nullable|array',
+            'permissions.*' => 'in:' . implode(',', Admin::availableActions()),
+            'page_ids' => 'nullable|array',
+            'page_ids.*' => 'integer|exists:web_pages,id',
         ]);
     }
 }

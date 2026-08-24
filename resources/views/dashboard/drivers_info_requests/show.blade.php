@@ -520,10 +520,12 @@
                     @endif
 
                     <div class="text-right mb-5">
+                        @adminCan('update')
                         @if($waslEligibility['is_valid'] !== false)
                             <button type="submit" name="approval" value="1" class="btn btn-success">{{ __('Accept') }}</button>
                         @endif
                         <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#rejectReasonModal">{{ __('Reject') }}</button>
+                        @endadminCan
                     </div>
 
                 </form>

@@ -190,6 +190,7 @@
                     </div>
 
                     @if(!$ticket->isClosed())
+                        @adminCan('update')
                         <div class="card mb-3">
                             <div class="card-header">
                                 <strong>{{ __('Add Reply') }}</strong>
@@ -209,6 +210,7 @@
                                 </form>
                             </div>
                         </div>
+                        @endadminCan
                     @endif
                 </div>
 
@@ -244,6 +246,7 @@
                     </div>
 
                     @if(!$ticket->isClosed())
+                        @adminCan('update')
                         <div class="card mb-3">
                             <div class="card-header">
                                 <strong>{{ __('Assign Ticket') }}</strong>
@@ -266,7 +269,9 @@
                                 </form>
                             </div>
                         </div>
+                        @endadminCan
 
+                        @adminCan('update')
                         <div class="card mb-3">
                             <div class="card-header">
                                 <strong>{{ __('Close Ticket') }}</strong>
@@ -281,6 +286,7 @@
                                 </form>
                             </div>
                         </div>
+                        @endadminCan
                     @endif
                 </div>
             </div>

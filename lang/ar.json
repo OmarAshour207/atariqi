@@ -1148,5 +1148,12 @@
     "Atariqi Employee Dashboard": "لوحة موظفي على طريقي",
     "Use the sidebar menu to access the sections assigned to you.": "استخدم القائمة الجانبية للوصول إلى الأقسام المصرح لك بها.",
     "Assigned Pages": "الصفحات المصرح بها",
-    "Your starting point": "نقطة البداية"
+    "Your starting point": "نقطة البداية",
+    "Agent": "موظف",
+    "Support": "دعم فني",
+    "This role is used for permissions, manager assignment, and support assignment.": "هذا الدور يُستخدم في الصلاحيات وإسناد المدراء وإسناد الدعم.",
+    "Choose view, update and delete. Create, approve, reject and replace use update.": "اختر العرض والتحديث والحذف. الإضافة والموافقة والرفض والاستبدال تستخدم صلاحية التحديث.",
+    "Allowed Pages": "الصفحات المسموحة",
+    "Leave blank to keep the current password.": "اتركه فارغاً للإبقاء على كلمة المرور الحالية.",
+    "Actions": "الإجراءات"
 }

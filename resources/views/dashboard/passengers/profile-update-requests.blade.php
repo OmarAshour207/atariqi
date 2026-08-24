@@ -90,6 +90,7 @@
                                         <a href="{{ route('passengers.show', $profileUpdate->user->id) }}" class="btn btn-sm btn-info">
                                             <i class="fas fa-eye"></i> {{ __('Review Details') }}
                                         </a>
+                                        @adminCan('update')
                                         <form action="{{ route('passengers.approve-profile-update', $profileUpdate->id) }}" method="post" class="d-inline-block ml-1">
                                             @csrf
                                             @method('post')
@@ -110,10 +111,9 @@
                                             @method('post')
                                             <input type="hidden" name="assign_note" value="">
                                             <input type="hidden" name="assigned_admin" value="">
-                                            <button type="button" class="btn btn-sm btn-primary profile-assign-btn" data-form-id="assign-form-{{ $profileUpdate->user->id }}">
-                                                <i class="fas fa-level-up-alt"></i> {{ __('Escalate') }}
                                             </button>
                                         </form>
+                                        @endadminCan
                                     </div>
                                 </td>
                             </tr>

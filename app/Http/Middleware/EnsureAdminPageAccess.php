@@ -17,13 +17,13 @@ class EnsureAdminPageAccess
         $admin = auth()->guard('admin')->user();
 
         if (!$admin) {
-            return redirect()->route('dashboard.login');
+            return redirect()->route('dashboard.loginForm');
         }
 
         if (!$admin->is_active) {
             auth()->guard('admin')->logout();
 
-            return redirect()->route('dashboard.login')->with('error', __('Your account is inactive.'));
+            return redirect()->route('dashboard.loginForm')->with('error', __('Your account is inactive.'));
         }
 
         $routeName = $request->route()?->getName();

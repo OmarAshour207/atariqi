@@ -8,7 +8,9 @@
             <form method="POST" action="{{ route('employees.update', $employee) }}">
                 @csrf @method('PUT')
                 @include('dashboard.employees._form', ['employee' => $employee])
+                @adminCan('update')
                 <button class="btn btn-primary">{{ __('Save') }}</button>
+                @endadminCan
                 <a href="{{ route('employees.index') }}" class="btn btn-secondary">{{ __('Back') }}</a>
             </form>
         </div>

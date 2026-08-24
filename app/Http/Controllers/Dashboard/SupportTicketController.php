@@ -78,7 +78,7 @@ class SupportTicketController extends Controller
 
         $employees = Admin::query()
             ->where('is_active', 1)
-            ->whereIn('type', ['admin', 'support'])
+            ->whereIn('role', [Admin::ROLE_ADMIN, Admin::ROLE_SUPPORT])
             ->orderBy('name')
             ->get(['id', 'name', 'email', 'type']);
 
@@ -160,14 +160,14 @@ class SupportTicketController extends Controller
             'assigned_employee_id' => [
                 'required',
                 Rule::exists('admins', 'id')->where(function ($query) {
-                    $query->where('is_active', 1)->whereIn('type', ['admin', 'support']);
+                    $query->where('is_active', 1)->whereIn('role', [Admin::ROLE_ADMIN, Admin::ROLE_SUPPORT]);
                 }),
             ],
         ]);
 
         $assignee = Admin::query()
             ->where('is_active', 1)
-            ->whereIn('type', ['admin', 'support'])
+            ->whereIn('role', [Admin::ROLE_ADMIN, Admin::ROLE_SUPPORT])
             ->findOrFail($request->input('assigned_employee_id'));
 
         $assignedBy = auth()->guard('admin')->user();

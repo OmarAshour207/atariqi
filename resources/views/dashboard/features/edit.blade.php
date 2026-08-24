@@ -67,7 +67,9 @@
 
                     <div class="text-right">
                         <a href="{{ route('features.index') }}" class="btn btn-secondary">{{ __('Cancel') }}</a>
+                        @adminCan('update')
                         <button type="submit" class="btn btn-primary">{{ __('Update Feature') }}</button>
+                        @endadminCan
                     </div>
                 </form>
             </div>

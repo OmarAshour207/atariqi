@@ -113,7 +113,7 @@ class PassengerController extends Controller
             'newUserInfos.university',
             'newUserInfos.stage',
         ]);
-        $admins = Admin::where('type', 'admin')
+        $admins = Admin::where('role', Admin::ROLE_ADMIN)
             ->where('id', '!=', auth()->guard('admin')->id())
             ->get();
 
@@ -324,7 +324,7 @@ class PassengerController extends Controller
             ->orderByDesc('date-of-add')
             ->paginate(20);
 
-        $admins = Admin::where('id', '!=', auth()->guard('admin')->id())->where('type', 'admin')->get();
+        $admins = Admin::where('id', '!=', auth()->guard('admin')->id())->where('role', Admin::ROLE_ADMIN)->get();
 
         return view('dashboard.passengers.profile-update-requests', compact('passengers', 'admins'));
     }

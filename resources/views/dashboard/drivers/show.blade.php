@@ -118,9 +118,11 @@
                     <div class="mb-3 text-right">
                         <form action="{{ route('drivers.sendPaymentReminder', $driver->id) }}" method="post" class="d-inline-block" onsubmit="return confirm('{{ __('Send dues reminder to this driver?') }}');">
                             @csrf
+                            @adminCan('update')
                             <button type="submit" class="btn btn-warning">
                                 <i class="fa fa-bell"></i> {{ __('Remind') }}
                             </button>
+                            @endadminCan
                         </form>
                         <a href="{{ route('drivers.driverTrips', $driver->id) }}" class="btn btn-primary">
                             <i class="fas fa-route"></i> {{ __('View Trips') }}
@@ -533,17 +535,21 @@
 
                     @if ($driver->approval == 0)
                         <div class="text-right mb-5">
+                            @adminCan('update')
                             @if($waslEligibility['is_valid'] !== false)
                                 <button type="button" class="btn btn-success" onclick="showAcceptModal()">{{ __('Accept') }}</button>
                             @endif
                             <button type="button" class="btn btn-primary" onclick="showAssignModal()">{{ __('Assign') }}</button>
                             <button type="button" class="btn btn-danger" onclick="showRejectModal()">{{ __('Reject') }}</button>
+                            @endadminCan
                         </div>
                     @endif
 
                     @if(!$isBanned && $driver->driverInfo && is_numeric($driver->driverInfo->{"driver-rate"}) && floatval($driver->driverInfo->{"driver-rate"}) < 1)
                         <div class="text-right mb-5">
+                            @adminCan('update')
                             <button type="button" class="btn btn-danger" onclick="showBanModal()">{{ __('Ban Driver') }}</button>
+                            @endadminCan
                         </div>
                     @endif
 

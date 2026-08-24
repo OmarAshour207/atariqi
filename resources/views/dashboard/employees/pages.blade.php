@@ -13,7 +13,9 @@
                         <label for="page{{ $page->id }}">{{ __($page->name) }} <small class="text-muted">({{ $page->route }})</small></label>
                     </div>
                 @endforeach
+                @adminCan('update')
                 <button class="btn btn-primary mt-3">{{ __('Save') }}</button>
+                @endadminCan
                 <a href="{{ route('employees.index') }}" class="btn btn-secondary mt-3">{{ __('Back') }}</a>
             </form>
         </div>

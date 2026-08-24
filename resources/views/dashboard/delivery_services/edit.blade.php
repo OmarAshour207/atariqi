@@ -12,7 +12,9 @@
                 <div class="form-group"><label>{{ __('Name (EN)') }}</label><input name="service-eng" class="form-control" value="{{ old('service-eng', $service->{'service-eng'}) }}" required></div>
                 <div class="form-group"><label>{{ __('Price') }}</label><input name="cost" type="number" step="0.01" class="form-control" value="{{ old('cost', $service->cost) }}" required></div>
                 <div class="form-group"><label>{{ __('Trip Direction') }}</label><input name="road-way" class="form-control" value="{{ old('road-way', $service->{'road-way'}) }}"></div>
+                @adminCan('update')
                 <button class="btn btn-primary">{{ __('Save') }}</button>
+                @endadminCan
                 <a href="{{ route('delivery-services.index') }}" class="btn btn-secondary">{{ __('Back') }}</a>
             </form>
         </div>

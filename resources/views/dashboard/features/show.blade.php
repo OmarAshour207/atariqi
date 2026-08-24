@@ -51,7 +51,9 @@
                         </div>
                     </div>
                     <div class="text-right mt-4">
+                        @adminCan('update')
                         <a href="{{ route('features.edit', $feature->id) }}" class="btn btn-primary">{{ __('Edit') }}</a>
+                        @endadminCan
                         <a href="{{ route('features.index') }}" class="btn btn-secondary">{{ __('Back to list') }}</a>
                     </div>
                 </div>

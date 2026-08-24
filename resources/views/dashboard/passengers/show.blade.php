@@ -221,6 +221,7 @@
                                         <p class="mb-2">{{ __('This passenger has requested profile changes that need approval.') }}</p>
                                         <p class="mb-2 text-muted">{{ __('Request Date') }}: {{ optional($profileUpdate->{'date-of-add'})->format('Y-m-d H:i') ?? '-' }}</p>
                                         <div class="btn-group">
+                                            @adminCan('update')
                                             <form action="{{ route('passengers.approve-profile-update', $profileUpdate->id) }}" method="post" class="d-inline-block">
                                                 @csrf
                                                 @method('post')
@@ -236,14 +237,17 @@
                                                     <i class="fas fa-times"></i> {{ __('Reject Update') }}
                                                 </button>
                                             </form>
+                                            @endadminCan
                                         </div>
                                     </div>
                                 @endforeach
+                                @adminCan('update')
                                 <div class="mb-3">
                                     <button type="button" class="btn btn-sm btn-primary" id="open-profile-assign-modal">
                                         <i class="fas fa-level-up-alt"></i> {{ __('Escalate to Management') }}
                                     </button>
                                 </div>
+                                @endadminCan
                             @endif
 
                             <a href="{{ route('passengers.trips', $passenger->id) }}" class="btn btn-primary">
@@ -254,11 +258,13 @@
                                 <i class="fas fa-exclamation-circle"></i> {{ __('View Complaints') }}
                             </a>
 
+                            @adminCan('update')
                             @if(!$isBanned && $passenger->passengerRate && $passenger->passengerRate->rate < 2)
                                 <button type="button" class="btn btn-danger" onclick="showBanModal()">
                                     <i class="fas fa-ban"></i> {{ __('Ban Passenger') }}
                                 </button>
                             @endif
+                            @endadminCan
                             <a href="{{ route('passengers.index') }}" class="btn btn-secondary">
                                 {{ __('Back to List') }}
                             </a>

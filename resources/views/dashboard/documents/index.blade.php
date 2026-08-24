@@ -24,7 +24,9 @@
                         <td>{{ $document->{'date-of-edit'} ?? $document->{'date-of-add'} }}</td>
                         <td>
                             <a href="{{ route('documents.download', $document) }}" class="btn btn-sm btn-info">{{ __('Download') }}</a>
+                            @adminCan('update')
                             <button class="btn btn-sm btn-warning" data-toggle="modal" data-target="#replaceDoc{{ $document->id }}">{{ __('Replace') }}</button>
+                            @endadminCan
                         </td>
                     </tr>
                 @empty
@@ -34,6 +36,7 @@
             </table>
         </div>
 
+        @adminCan('update')
         @foreach($documents as $document)
             <div class="modal fade" id="replaceDoc{{ $document->id }}" tabindex="-1" role="dialog">
                 <div class="modal-dialog" role="document">
@@ -54,6 +57,7 @@
                 </div>
             </div>
         @endforeach
+        @endadminCan
     </div>
 </div>
 @endsection

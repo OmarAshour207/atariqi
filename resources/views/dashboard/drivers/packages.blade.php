@@ -60,12 +60,16 @@
                                     <button class="btn btn-sm btn-primary" type="button" data-toggle="collapse" data-target="#plan-list-{{ $driver->id }}" aria-expanded="false" aria-controls="plan-list-{{ $driver->id }}">
                                         {{ __('Show Plans') }}
                                     </button>
+                                    @adminCan('update')
                                     <button class="btn btn-sm btn-success" type="button" onclick="document.getElementById('assign-{{ $driver->id }}').style.display='block'">{{ __('Upgrade Subscription') }}</button>
+                                    @endadminCan
                                     @if($canCancelSubscription)
+                                        @adminCan('delete')
                                         <form action="{{ route('drivers.cancelPackage', $driver->id) }}" method="post" class="d-inline-block" onsubmit="return confirm('{{ __('Are you sure you want to cancel this driver subscription and move them to the free plan?') }}');">
                                             @csrf
                                             <button type="submit" class="btn btn-sm btn-danger">{{ __('Cancel Subscription') }}</button>
                                         </form>
+                                        @endadminCan
                                     @endif
                                 </td>
                             </tr>
@@ -90,6 +94,7 @@
                                     </div>
 
                                     <div id="assign-{{ $driver->id }}" style="display:none; margin-top: 12px;">
+                                        @adminCan('update')
                                         <form action="{{ route('drivers.assignPackage', $driver->id) }}" method="post">
                                             @csrf
                                             <div class="form-row align-items-end">
@@ -114,6 +119,7 @@
                                                 </div>
                                             </div>
                                         </form>
+                                        @endadminCan
                                     </div>
                                 </td>
                             </tr>
