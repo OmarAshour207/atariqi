@@ -31,20 +31,21 @@ class AdminAuthorizationService
             return false;
         }
 
-        $current = $routeName;
-        $visited = [];
+        $pageRoute = $this->resolvePageRoute($routeName);
 
-        while ($current && ! in_array($current, $visited, true)) {
-            $visited[] = $current;
-
-            if ($this->adminHasAssignedPage($current, $admin)) {
-                return true;
-            }
-
-            $current = $this->resolveFallbackRoute($current);
+        if (! $pageRoute) {
+            return false;
         }
 
-        return false;
+        if ($this->adminHasAssignedPage($pageRoute, $admin)) {
+            return true;
+        }
+
+        $resource = Admin::resourceKeyFromRoute($pageRoute);
+
+        return $resource
+            ? $admin->hasAnyPermission($this->resourcePermissions($resource))
+            : false;
     }
 
     public function canAccessAnyRoute(array $routes, ?Admin $admin = null): bool
@@ -76,7 +77,17 @@ class AdminAuthorizationService
             return false;
         }
 
-        return $this->adminHasAssignedPage($routeName, $admin);
+        $pageRoute = $this->resolvePageRoute($routeName) ?? $routeName;
+
+        if ($this->adminHasAssignedPage($pageRoute, $admin)) {
+            return true;
+        }
+
+        $resource = Admin::resourceKeyFromRoute($pageRoute);
+
+        return $resource
+            ? $admin->hasAnyPermission($this->resourcePermissions($resource))
+            : false;
     }
 
     public function resolveRequiredPermission(Request $request, ?string $routeName): string
@@ -113,28 +124,54 @@ class AdminAuthorizationService
 
         $routeName = $routeName ?? optional(request()->route())->getName();
 
+        if (str_contains(trim($code), ' ')) {
+            return $admin->hasPermissionTo(strtolower(trim($code)), 'admin');
+        }
+
+        $action = Admin::normalizePermissionAction($code);
+        $pageRoute = $this->resolvePageRoute($routeName);
+        $resource = Admin::resourceKeyFromRoute($pageRoute);
+
+        if (! $resource) {
+            return false;
+        }
+
         if ($routeName && ! $this->canAccessRoute($routeName, $admin)) {
             return false;
         }
 
-        $code = $this->normalizePermission($code);
-
-        if ($code === Admin::ACTION_VIEW) {
-            return $admin->hasAnyPermission(Admin::availableActions());
+        if ($action === Admin::ACTION_VIEW) {
+            return $admin->hasAnyPermission($this->resourcePermissions($resource));
         }
 
-        return $admin->hasPermissionTo($code, 'admin');
+        return $admin->hasPermissionTo(Admin::permissionName($action, $resource), 'admin');
     }
 
     public function normalizePermission(string $code): string
     {
-        $code = strtolower(trim($code));
+        return Admin::normalizePermissionAction($code);
+    }
 
-        return match ($code) {
-            'view', 'show' => Admin::ACTION_VIEW,
-            'delete', 'destroy', 'cancel' => Admin::ACTION_DELETE,
-            default => Admin::ACTION_UPDATE,
-        };
+    public function resolvePageRoute(?string $routeName): ?string
+    {
+        if (! $routeName) {
+            return null;
+        }
+
+        $current = $routeName;
+        $visited = [];
+
+        while ($current && ! in_array($current, $visited, true)) {
+            $visited[] = $current;
+
+            if ($this->resolvePageForRoute($current)) {
+                return $current;
+            }
+
+            $current = $this->resolveFallbackRoute($current);
+        }
+
+        return null;
     }
 
     public function resolveFallbackRoute(?string $routeName): ?string
@@ -189,6 +226,8 @@ class AdminAuthorizationService
             'passengers.ban' => 'passengers.index',
             'passengers.updateApproval' => 'passengers.index',
             'users.unride-rates' => 'users.unride-rates',
+            'users.trips' => 'users.trips',
+            'users.rates' => 'users.rates',
             'support-tickets.show' => 'support-tickets.index',
             'support-tickets.reply' => 'support-tickets.index',
             'support-tickets.assign' => 'support-tickets.index',
@@ -221,6 +260,16 @@ class AdminAuthorizationService
             'features.edit' => 'features.index',
             'features.update' => 'features.index',
             'features.destroy' => 'features.index',
+            'employees.create' => 'employees.index',
+            'employees.store' => 'employees.index',
+            'employees.edit' => 'employees.index',
+            'employees.update' => 'employees.index',
+            'roles.create' => 'roles.index',
+            'roles.store' => 'roles.index',
+            'roles.edit' => 'roles.index',
+            'roles.update' => 'roles.index',
+            'roles.destroy' => 'roles.index',
+            'logs.show' => 'logs.index',
         ];
 
         if (isset($explicit[$routeName]) && $explicit[$routeName] !== $routeName) {
@@ -235,6 +284,15 @@ class AdminAuthorizationService
         $indexRoute = $prefix . '.index';
 
         return $indexRoute !== $routeName ? $indexRoute : null;
+    }
+
+    private function resourcePermissions(string $resource): array
+    {
+        return [
+            Admin::permissionName(Admin::ACTION_VIEW, $resource),
+            Admin::permissionName(Admin::ACTION_UPDATE, $resource),
+            Admin::permissionName(Admin::ACTION_DELETE, $resource),
+        ];
     }
 
     private function adminHasAssignedPage(string $routeName, Admin $admin): bool

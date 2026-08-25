@@ -332,6 +332,12 @@
                             </a>
                         </li>
                         <li class="sidebar-menu-item">
+                            <a class="sidebar-menu-button" href="{{ route('roles.index') }}">
+                                <i class="fa fa-user-shield"></i>
+                                <span class="sidebar-menu-text"> {{ __('Roles Management') }}</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-menu-item">
                             <a class="sidebar-menu-button" href="{{ route('logs.index') }}">
                                 <i class="fa fa-history"></i>
                                 <span class="sidebar-menu-text"> {{ __('Logs Management') }}</span>

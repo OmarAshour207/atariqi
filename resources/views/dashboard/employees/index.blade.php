@@ -4,9 +4,7 @@
     <div class="container-fluid page__heading-container">
         <div class="page__heading d-flex align-items-center">
             <div class="flex"><h1 class="m-0">{{ __('Employee Management') }}</h1></div>
-            @adminCan('update')
             <a href="{{ route('employees.create') }}" class="btn btn-success">{{ __('Add Employee') }}</a>
-            @endadminCan
         </div>
     </div>
     <div class="container-fluid page__container">
@@ -20,7 +18,6 @@
                     <th>{{ __('Email') }}</th>
                     <th>{{ __('Role') }}</th>
                     <th>{{ __('Status') }}</th>
-                    <th>{{ __('Permissions') }}</th>
                     <th>{{ __('Pages') }}</th>
                     <th>{{ __('Actions') }}</th>
                 </tr>
@@ -31,20 +28,15 @@
                         <td>{{ $employee->id }}</td>
                         <td>{{ $employee->name }}</td>
                         <td>{{ $employee->email }}</td>
-                        <td>{{ __(ucfirst($employee->role ?? 'agent')) }}</td>
+                        <td>{{ __(ucfirst(str_replace('-', ' ', $employee->role ?? 'agent'))) }}</td>
                         <td>{{ $employee->is_active ? __('Active') : __('Inactive') }}</td>
-                        <td>{{ $employee->getPermissionNames()->map(fn ($name) => __(ucfirst($name)))->join(', ') ?: '-' }}</td>
                         <td>{{ $employee->pages->count() }}</td>
                         <td class="text-nowrap">
-                            @adminCan('update')
                             <a href="{{ route('employees.edit', $employee) }}" class="btn btn-sm btn-primary">{{ __('Edit Data') }}</a>
-                            <a href="{{ route('employees.permissions.edit', $employee) }}" class="btn btn-sm btn-info">{{ __('Edit Permissions') }}</a>
-                            <a href="{{ route('employees.pages.edit', $employee) }}" class="btn btn-sm btn-secondary">{{ __('Edit Pages') }}</a>
-                            @endadminCan
                         </td>
                     </tr>
                 @empty
-                    <tr><td colspan="8" class="text-center py-4">{{ __('No employees found.') }}</td></tr>
+                    <tr><td colspan="7" class="text-center py-4">{{ __('No employees found.') }}</td></tr>
                 @endforelse
                 </tbody>
             </table>

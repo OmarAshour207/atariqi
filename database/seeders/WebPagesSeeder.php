@@ -39,7 +39,9 @@ class WebPagesSeeder extends Seeder
             ['name' => 'Passengers', 'route' => 'passengers.index', 'sort_order' => 30, 'group' => 'users'],
             ['name' => 'All Passenger Trips', 'route' => 'passengers.all-trips', 'sort_order' => 31, 'group' => 'users'],
             ['name' => 'Profile Update Requests', 'route' => 'passengers.profile-update-requests', 'sort_order' => 32, 'group' => 'users'],
-            ['name' => 'Unride Rates', 'route' => 'users.unride-rates', 'sort_order' => 33, 'group' => 'users'],
+            ['name' => 'User Trips', 'route' => 'users.trips', 'sort_order' => 33, 'group' => 'users'],
+            ['name' => 'User Rates', 'route' => 'users.rates', 'sort_order' => 34, 'group' => 'users'],
+            ['name' => 'Unride Rates', 'route' => 'users.unride-rates', 'sort_order' => 35, 'group' => 'users'],
 
             // Support
             ['name' => 'Support Tickets', 'route' => 'support-tickets.index', 'sort_order' => 40, 'group' => 'support'],
@@ -54,9 +56,10 @@ class WebPagesSeeder extends Seeder
             // Settings
             ['name' => 'Settings', 'route' => 'settings.index', 'sort_order' => 60],
 
-            // Company admin only (routes still registered for reference)
+            // Company admin
             ['name' => 'Employee Management', 'route' => 'employees.index', 'sort_order' => 70, 'group' => 'admin'],
-            ['name' => 'Logs Management', 'route' => 'logs.index', 'sort_order' => 71, 'group' => 'admin'],
+            ['name' => 'Roles Management', 'route' => 'roles.index', 'sort_order' => 71, 'group' => 'admin'],
+            ['name' => 'Logs Management', 'route' => 'logs.index', 'sort_order' => 72, 'group' => 'admin'],
         ];
     }
 

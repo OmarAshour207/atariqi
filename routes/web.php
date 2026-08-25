@@ -26,6 +26,7 @@ use App\Http\Controllers\Dashboard\CityController;
 use App\Http\Controllers\Dashboard\DeliveryServiceController;
 use App\Http\Controllers\Dashboard\DocumentController;
 use App\Http\Controllers\Dashboard\EmployeeController;
+use App\Http\Controllers\Dashboard\RoleController;
 use App\Http\Controllers\Dashboard\LogsManagementController;
 
 /*
@@ -157,10 +158,13 @@ Route::middleware(['is_admin', 'admin.page:view'])->prefix('dashboard')->group(f
         Route::post('employees', [EmployeeController::class, 'store'])->name('employees.store');
         Route::get('employees/{employee}/edit', [EmployeeController::class, 'edit'])->name('employees.edit');
         Route::put('employees/{employee}', [EmployeeController::class, 'update'])->name('employees.update');
-        Route::get('employees/{employee}/permissions', [EmployeeController::class, 'editPermissions'])->name('employees.permissions.edit');
-        Route::put('employees/{employee}/permissions', [EmployeeController::class, 'updatePermissions'])->name('employees.permissions.update');
-        Route::get('employees/{employee}/pages', [EmployeeController::class, 'editPages'])->name('employees.pages.edit');
-        Route::put('employees/{employee}/pages', [EmployeeController::class, 'updatePages'])->name('employees.pages.update');
+
+        Route::get('roles', [RoleController::class, 'index'])->name('roles.index');
+        Route::get('roles/create', [RoleController::class, 'create'])->name('roles.create');
+        Route::post('roles', [RoleController::class, 'store'])->name('roles.store');
+        Route::get('roles/{role}/edit', [RoleController::class, 'edit'])->name('roles.edit');
+        Route::put('roles/{role}', [RoleController::class, 'update'])->name('roles.update');
+        Route::delete('roles/{role}', [RoleController::class, 'destroy'])->name('roles.destroy');
 
         Route::get('logs', [LogsManagementController::class, 'index'])->name('logs.index');
         Route::get('logs/{table}/{id}', [LogsManagementController::class, 'show'])->name('logs.show');
