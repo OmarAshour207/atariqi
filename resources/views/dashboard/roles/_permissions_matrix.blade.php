@@ -28,20 +28,26 @@
                                 <div class="text-muted small">{{ $row['resource'] }}</div>
                             </td>
                             <td>
-                                <div class="d-flex flex-wrap" style="gap: 10px 18px;">
+                                <div class="d-flex flex-wrap align-items-center" style="gap: 8px 16px;">
                                     @foreach($row['actions'] as $action)
-                                        @php $perm = $row['permissions'][$action]; @endphp
-                                        <label class="mb-0 d-inline-flex align-items-center" style="gap: 6px;">
+                                        @php
+                                            $perm = $row['permissions'][$action];
+                                            $inputId = 'perm_' . md5($perm);
+                                        @endphp
+                                        <div class="form-check form-check-inline m-0">
                                             <input
                                                 type="checkbox"
                                                 name="permissions[]"
                                                 value="{{ $perm }}"
-                                                class="form-check-input m-0 perm-{{ $action }}"
+                                                id="{{ $inputId }}"
+                                                class="form-check-input"
                                                 {{ in_array($perm, $selected, true) ? 'checked' : '' }}
                                                 @if($readonly) disabled @endif
                                             >
-                                            <span>{{ __($labels[$action] ?? $action) }}</span>
-                                        </label>
+                                            <label class="form-check-label" for="{{ $inputId }}">
+                                                {{ __($labels[$action] ?? $action) }}
+                                            </label>
+                                        </div>
                                     @endforeach
                                 </div>
                             </td>
