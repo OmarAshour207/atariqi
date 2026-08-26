@@ -1,55 +1,59 @@
-<div class="table-responsive">
-    <table class="table table-bordered table-sm mb-0">
-        <thead>
-        <tr>
-            <th style="min-width: 180px;">
-                {{ __('Page') }}
-                <div class="mt-1">
-                    <button type="button" class="btn btn-link btn-sm p-0" id="select-all-view">{{ __('Select all View') }}</button>
-                </div>
-            </th>
-            @foreach(\App\Models\Admin::actionLabels() as $action => $label)
-                <th class="text-center" style="min-width: 90px;">{{ __($label) }}</th>
-            @endforeach
-        </tr>
-        </thead>
-        <tbody>
-        @foreach($matrix as $row)
-            <tr>
-                <td>
-                    <strong>{{ __($row['name']) }}</strong>
-                    <div class="text-muted small">{{ $row['resource'] }}</div>
-                </td>
-                @foreach(\App\Models\Admin::availableActions() as $action)
-                    @php $perm = $row['permissions'][$action]; @endphp
-                    <td class="text-center align-middle">
-                        <input
-                            type="checkbox"
-                            name="permissions[]"
-                            value="{{ $perm }}"
-                            class="form-check-input m-0 perm-{{ $action }}"
-                            title="{{ __(\App\Models\Admin::actionLabels()[$action]) }}"
-                            {{ in_array($perm, $selected ?? [], true) ? 'checked' : '' }}
-                            @if(!empty($readonly)) disabled @endif
-                        >
-                    </td>
-                @endforeach
-            </tr>
-        @endforeach
-        </tbody>
-    </table>
-</div>
-<p class="text-muted mt-2 mb-0">
-    {{ __('View = read only. Approve/Reject = requests. Add/Delete = create & delete. Update/Remind = edit & reminders. Assign / Close / Ban = matching actions.') }}
+@php
+    $groups = \App\Models\Admin::permissionsMatrixGrouped();
+    $labels = \App\Models\Admin::actionLabels();
+    $selected = $selected ?? [];
+    $readonly = !empty($readonly);
+@endphp
+
+@foreach($groups as $group)
+    <div class="card mb-3">
+        <div class="card-header d-flex align-items-center justify-content-between">
+            <strong>{{ __($group['label']) }}</strong>
+            <span class="text-muted small">{{ count($group['pages']) }} {{ __('pages') }}</span>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-bordered table-sm mb-0">
+                    <thead class="thead-light">
+                    <tr>
+                        <th style="min-width: 220px;">{{ __('Page') }}</th>
+                        <th>{{ __('Actions') }}</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @foreach($group['pages'] as $row)
+                        <tr>
+                            <td>
+                                <strong>{{ __($row['name']) }}</strong>
+                                <div class="text-muted small">{{ $row['resource'] }}</div>
+                            </td>
+                            <td>
+                                <div class="d-flex flex-wrap" style="gap: 10px 18px;">
+                                    @foreach($row['actions'] as $action)
+                                        @php $perm = $row['permissions'][$action]; @endphp
+                                        <label class="mb-0 d-inline-flex align-items-center" style="gap: 6px;">
+                                            <input
+                                                type="checkbox"
+                                                name="permissions[]"
+                                                value="{{ $perm }}"
+                                                class="form-check-input m-0 perm-{{ $action }}"
+                                                {{ in_array($perm, $selected, true) ? 'checked' : '' }}
+                                                @if($readonly) disabled @endif
+                                            >
+                                            <span>{{ __($labels[$action] ?? $action) }}</span>
+                                        </label>
+                                    @endforeach
+                                </div>
+                            </td>
+                        </tr>
+                    @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+@endforeach
+
+<p class="text-muted mb-0">
+    {{ __('Only actions that exist for each page are shown. View = read only. Approve/Reject, Add/Delete, Update/Remind, Assign, Close and Ban appear when the page supports them.') }}
 </p>
-@once
-@push('admin_scripts')
-<script>
-    document.getElementById('select-all-view')?.addEventListener('click', function () {
-        document.querySelectorAll('.perm-view').forEach(function (el) {
-            if (!el.disabled) el.checked = true;
-        });
-    });
-</script>
-@endpush
-@endonce

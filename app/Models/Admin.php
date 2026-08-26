@@ -155,13 +155,13 @@ class Admin extends Authenticatable
     {
         $names = [];
 
-        foreach (self::resourceKeys() as $resource) {
-            foreach (self::availableActions() as $action) {
-                $names[] = self::permissionName($action, $resource);
+        foreach (self::permissionsMatrix() as $page) {
+            foreach ($page['permissions'] as $permission) {
+                $names[] = $permission;
             }
         }
 
-        return $names;
+        return array_values(array_unique($names));
     }
 
     public static function permissionsMatrix(): array
@@ -169,9 +169,17 @@ class Admin extends Authenticatable
         return collect(WebPagesSeeder::definitions())
             ->map(function (array $page) {
                 $resource = self::resourceKeyFromRoute($page['route']);
-                $permissions = [];
+                $actions = array_values(array_intersect(
+                    $page['actions'] ?? [self::ACTION_VIEW],
+                    self::availableActions()
+                ));
 
-                foreach (self::availableActions() as $action) {
+                if (! in_array(self::ACTION_VIEW, $actions, true)) {
+                    array_unshift($actions, self::ACTION_VIEW);
+                }
+
+                $permissions = [];
+                foreach ($actions as $action) {
                     $permissions[$action] = self::permissionName($action, $resource);
                 }
 
@@ -179,7 +187,26 @@ class Admin extends Authenticatable
                     'name' => $page['name'],
                     'route' => $page['route'],
                     'resource' => $resource,
+                    'group' => $page['group'] ?? 'general',
+                    'actions' => $actions,
                     'permissions' => $permissions,
+                ];
+            })
+            ->values()
+            ->all();
+    }
+
+    public static function permissionsMatrixGrouped(): array
+    {
+        $labels = WebPagesSeeder::groupLabels();
+
+        return collect(self::permissionsMatrix())
+            ->groupBy('group')
+            ->map(function ($pages, $group) use ($labels) {
+                return [
+                    'key' => $group,
+                    'label' => $labels[$group] ?? ucfirst((string) $group),
+                    'pages' => $pages->values()->all(),
                 ];
             })
             ->values()
