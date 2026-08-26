@@ -53,14 +53,14 @@
                         <p class="form-control-plaintext border rounded px-3 py-2 bg-light mb-0">{{ $subscription->cost }}%</p>
                     </div>
 
-                    @adminCan('edit')
+                    @adminCan('update')
                     <div class="text-right">
                         <button type="button" class="btn btn-primary" id="btn-edit">{{ __('Edit') }}</button>
                     </div>
                     @endadminCan
                 </div>
 
-                @adminCan('edit')
+                @adminCan('update')
                 <div class="card card-form__body card-body d-none" id="edit-panel">
                     <form action="{{ route('general-dues-percentage.update') }}" method="post">
                         @csrf

@@ -221,7 +221,7 @@
                                         <p class="mb-2">{{ __('This passenger has requested profile changes that need approval.') }}</p>
                                         <p class="mb-2 text-muted">{{ __('Request Date') }}: {{ optional($profileUpdate->{'date-of-add'})->format('Y-m-d H:i') ?? '-' }}</p>
                                         <div class="btn-group">
-                                            @adminCan('update')
+                                            @adminCan('decide')
                                             <form action="{{ route('passengers.approve-profile-update', $profileUpdate->id) }}" method="post" class="d-inline-block">
                                                 @csrf
                                                 @method('post')
@@ -241,7 +241,7 @@
                                         </div>
                                     </div>
                                 @endforeach
-                                @adminCan('update')
+                                @adminCan('assign')
                                 <div class="mb-3">
                                     <button type="button" class="btn btn-sm btn-primary" id="open-profile-assign-modal">
                                         <i class="fas fa-level-up-alt"></i> {{ __('Escalate to Management') }}
@@ -258,7 +258,7 @@
                                 <i class="fas fa-exclamation-circle"></i> {{ __('View Complaints') }}
                             </a>
 
-                            @adminCan('update')
+                            @adminCan('ban')
                             @if(!$isBanned && $passenger->passengerRate && $passenger->passengerRate->rate < 2)
                                 <button type="button" class="btn btn-danger" onclick="showBanModal()">
                                     <i class="fas fa-ban"></i> {{ __('Ban Passenger') }}

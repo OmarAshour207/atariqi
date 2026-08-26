@@ -4,7 +4,7 @@
     <div class="container-fluid page__heading-container">
         <div class="page__heading d-flex align-items-center">
             <div class="flex"><h1 class="m-0">{{ __('Universities') }}</h1></div>
-            @adminCan('add')
+            @adminCan('add-delete')
             <a href="{{ route('universities.create') }}" class="btn btn-success">{{ __('Add University') }}</a>
             @endadminCan
         </div>
@@ -32,7 +32,7 @@
                             <a href="{{ route('universities.services', $university) }}" class="btn btn-sm btn-info">{{ __('View') }}</a>
                         </td>
                         <td>
-                            @adminCan('delete')
+                            @adminCan('add-delete')
                             <button type="button" class="btn btn-sm btn-danger" data-toggle="modal" data-target="#deleteUni{{ $university->id }}">{{ __('Delete') }}</button>
                             @endadminCan
                         </td>
@@ -45,7 +45,7 @@
             <div class="card-footer">{{ $universities->links('dashboard.pagination.custom') }}</div>
         </div>
 
-        @adminCan('delete')
+        @adminCan('add-delete')
         @foreach($universities as $university)
             @include('dashboard.partials.delete_modal', [
                 'id' => 'deleteUni'.$university->id,

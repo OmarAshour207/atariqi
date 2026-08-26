@@ -2,15 +2,15 @@
     <table class="table table-bordered table-sm mb-0">
         <thead>
         <tr>
-            <th>
+            <th style="min-width: 180px;">
                 {{ __('Page') }}
                 <div class="mt-1">
                     <button type="button" class="btn btn-link btn-sm p-0" id="select-all-view">{{ __('Select all View') }}</button>
                 </div>
             </th>
-            <th class="text-center" style="width: 110px;">{{ __('View') }}</th>
-            <th class="text-center" style="width: 110px;">{{ __('Update') }}</th>
-            <th class="text-center" style="width: 110px;">{{ __('Delete') }}</th>
+            @foreach(\App\Models\Admin::actionLabels() as $action => $label)
+                <th class="text-center" style="min-width: 90px;">{{ __($label) }}</th>
+            @endforeach
         </tr>
         </thead>
         <tbody>
@@ -20,7 +20,7 @@
                     <strong>{{ __($row['name']) }}</strong>
                     <div class="text-muted small">{{ $row['resource'] }}</div>
                 </td>
-                @foreach(['view', 'update', 'delete'] as $action)
+                @foreach(\App\Models\Admin::availableActions() as $action)
                     @php $perm = $row['permissions'][$action]; @endphp
                     <td class="text-center align-middle">
                         <input
@@ -28,6 +28,7 @@
                             name="permissions[]"
                             value="{{ $perm }}"
                             class="form-check-input m-0 perm-{{ $action }}"
+                            title="{{ __(\App\Models\Admin::actionLabels()[$action]) }}"
                             {{ in_array($perm, $selected ?? [], true) ? 'checked' : '' }}
                             @if(!empty($readonly)) disabled @endif
                         >
@@ -39,7 +40,7 @@
     </table>
 </div>
 <p class="text-muted mt-2 mb-0">
-    {{ __('Create, approve, reject, replace and assign use Update. Cancel subscription uses Delete.') }}
+    {{ __('View = read only. Approve/Reject = requests. Add/Delete = create & delete. Update/Remind = edit & reminders. Assign / Close / Ban = matching actions.') }}
 </p>
 @once
 @push('admin_scripts')

@@ -28,7 +28,7 @@
                         <label for="svc{{ $service->id }}">{{ $service->{'service-ar'} ?? $service->service }}</label>
                     </div>
                 @endforeach
-                @adminCan('update')
+                @adminCan('add-delete')
                 <button class="btn btn-primary mt-3">{{ __('Save') }}</button>
                 @endadminCan
                 <a href="{{ route('universities.index') }}" class="btn btn-secondary mt-3">{{ __('Back') }}</a>

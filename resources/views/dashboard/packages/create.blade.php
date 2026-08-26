@@ -93,7 +93,7 @@
 
                     <div class="text-right">
                         <a href="{{ route('packages.index') }}" class="btn btn-secondary">{{ __('Cancel') }}</a>
-                        @adminCan('update')
+                        @adminCan('add-delete')
                         <button type="submit" class="btn btn-primary">{{ __('Save Package') }}</button>
                         @endadminCan
                     </div>

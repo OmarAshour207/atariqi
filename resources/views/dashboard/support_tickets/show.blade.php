@@ -246,7 +246,7 @@
                     </div>
 
                     @if(!$ticket->isClosed())
-                        @adminCan('update')
+                        @adminCan('assign')
                         <div class="card mb-3">
                             <div class="card-header">
                                 <strong>{{ __('Assign Ticket') }}</strong>
@@ -271,7 +271,7 @@
                         </div>
                         @endadminCan
 
-                        @adminCan('update')
+                        @adminCan('close')
                         <div class="card mb-3">
                             <div class="card-header">
                                 <strong>{{ __('Close Ticket') }}</strong>

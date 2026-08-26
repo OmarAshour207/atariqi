@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Traits\HasRoles;
@@ -20,8 +21,12 @@ class Admin extends Authenticatable
     public const ROLE_AGENT = 'agent';
 
     public const ACTION_VIEW = 'view';
+    public const ACTION_DECIDE = 'decide';
+    public const ACTION_ADD_DELETE = 'add-delete';
     public const ACTION_UPDATE = 'update';
-    public const ACTION_DELETE = 'delete';
+    public const ACTION_ASSIGN = 'assign';
+    public const ACTION_CLOSE = 'close';
+    public const ACTION_BAN = 'ban';
 
     protected $fillable = [
         'name',
@@ -65,8 +70,25 @@ class Admin extends Authenticatable
     {
         return [
             self::ACTION_VIEW,
+            self::ACTION_DECIDE,
+            self::ACTION_ADD_DELETE,
             self::ACTION_UPDATE,
-            self::ACTION_DELETE,
+            self::ACTION_ASSIGN,
+            self::ACTION_CLOSE,
+            self::ACTION_BAN,
+        ];
+    }
+
+    public static function actionLabels(): array
+    {
+        return [
+            self::ACTION_VIEW => 'View',
+            self::ACTION_DECIDE => 'Approve / Reject',
+            self::ACTION_ADD_DELETE => 'Add / Delete',
+            self::ACTION_UPDATE => 'Update / Remind',
+            self::ACTION_ASSIGN => 'Assign',
+            self::ACTION_CLOSE => 'Close',
+            self::ACTION_BAN => 'Ban',
         ];
     }
 
@@ -109,7 +131,12 @@ class Admin extends Authenticatable
 
         return match ($action) {
             'view', 'show' => self::ACTION_VIEW,
-            'delete', 'destroy', 'cancel' => self::ACTION_DELETE,
+            'decide', 'approve', 'reject', 'accept' => self::ACTION_DECIDE,
+            'add-delete', 'add', 'delete', 'destroy', 'cancel', 'manage' => self::ACTION_ADD_DELETE,
+            'assign' => self::ACTION_ASSIGN,
+            'close' => self::ACTION_CLOSE,
+            'ban' => self::ACTION_BAN,
+            'update', 'edit', 'remind', 'replace' => self::ACTION_UPDATE,
             default => self::ACTION_UPDATE,
         };
     }
@@ -142,16 +169,17 @@ class Admin extends Authenticatable
         return collect(WebPagesSeeder::definitions())
             ->map(function (array $page) {
                 $resource = self::resourceKeyFromRoute($page['route']);
+                $permissions = [];
+
+                foreach (self::availableActions() as $action) {
+                    $permissions[$action] = self::permissionName($action, $resource);
+                }
 
                 return [
                     'name' => $page['name'],
                     'route' => $page['route'],
                     'resource' => $resource,
-                    'permissions' => [
-                        self::ACTION_VIEW => self::permissionName(self::ACTION_VIEW, $resource),
-                        self::ACTION_UPDATE => self::permissionName(self::ACTION_UPDATE, $resource),
-                        self::ACTION_DELETE => self::permissionName(self::ACTION_DELETE, $resource),
-                    ],
+                    'permissions' => $permissions,
                 ];
             })
             ->values()
@@ -196,9 +224,8 @@ class Admin extends Authenticatable
         }
 
         foreach ($byResource as $resource => $actions) {
-            if (array_intersect($actions, [self::ACTION_UPDATE, self::ACTION_DELETE])
-                && ! in_array(self::ACTION_VIEW, $actions, true)
-            ) {
+            $nonView = array_diff($actions, [self::ACTION_VIEW]);
+            if ($nonView && ! in_array(self::ACTION_VIEW, $actions, true)) {
                 $permissions[] = self::permissionName(self::ACTION_VIEW, $resource);
             }
         }
@@ -208,7 +235,15 @@ class Admin extends Authenticatable
 
     public static function slugifyRoleName(string $name): string
     {
-        return Str::slug(strtolower(trim($name)), '-');
+        $name = trim($name);
+        $slug = Str::slug(strtolower($name), '-');
+
+        // Keep already-valid role keys (including non-Latin preserved names).
+        if ($slug === '' && $name !== '') {
+            return strtolower(preg_replace('/\s+/', '-', $name) ?? $name);
+        }
+
+        return $slug;
     }
 
     public static function normalizeRole(?string $role, ?string $type = null): string
@@ -224,7 +259,7 @@ class Admin extends Authenticatable
             $role = self::ROLE_SUPPORT;
         }
 
-        if ($type === 'admin' || $role === self::ROLE_ADMIN) {
+        if ($type === self::ROLE_ADMIN || $role === self::ROLE_ADMIN) {
             return self::ROLE_ADMIN;
         }
 
@@ -232,6 +267,25 @@ class Admin extends Authenticatable
             return self::ROLE_AGENT;
         }
 
-        return self::slugifyRoleName($role) ?: self::ROLE_AGENT;
+        if (self::roleExists($role)) {
+            return $role;
+        }
+
+        $slugged = self::slugifyRoleName($role);
+
+        if ($slugged !== '' && self::roleExists($slugged)) {
+            return $slugged;
+        }
+
+        return $slugged !== '' ? $slugged : self::ROLE_AGENT;
+    }
+
+    public static function roleExists(string $roleName): bool
+    {
+        if ($roleName === '' || ! Schema::hasTable('roles')) {
+            return false;
+        }
+
+        return Role::where('guard_name', 'admin')->where('name', $roleName)->exists();
     }
 }

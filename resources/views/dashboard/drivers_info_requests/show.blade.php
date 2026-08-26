@@ -520,7 +520,7 @@
                     @endif
 
                     <div class="text-right mb-5">
-                        @adminCan('update')
+                        @adminCan('decide')
                         @if($waslEligibility['is_valid'] !== false)
                             <button type="submit" name="approval" value="1" class="btn btn-success">{{ __('Accept') }}</button>
                         @endif

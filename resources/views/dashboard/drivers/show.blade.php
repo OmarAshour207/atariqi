@@ -535,11 +535,15 @@
 
                     @if ($driver->approval == 0)
                         <div class="text-right mb-5">
-                            @adminCan('update')
+                            @adminCan('decide')
                             @if($waslEligibility['is_valid'] !== false)
                                 <button type="button" class="btn btn-success" onclick="showAcceptModal()">{{ __('Accept') }}</button>
                             @endif
+                            @endadminCan
+                            @adminCan('assign')
                             <button type="button" class="btn btn-primary" onclick="showAssignModal()">{{ __('Assign') }}</button>
+                            @endadminCan
+                            @adminCan('decide')
                             <button type="button" class="btn btn-danger" onclick="showRejectModal()">{{ __('Reject') }}</button>
                             @endadminCan
                         </div>
@@ -547,7 +551,7 @@
 
                     @if(!$isBanned && $driver->driverInfo && is_numeric($driver->driverInfo->{"driver-rate"}) && floatval($driver->driverInfo->{"driver-rate"}) < 1)
                         <div class="text-right mb-5">
-                            @adminCan('update')
+                            @adminCan('ban')
                             <button type="button" class="btn btn-danger" onclick="showBanModal()">{{ __('Ban Driver') }}</button>
                             @endadminCan
                         </div>

@@ -36,41 +36,37 @@ class AdminPermissionsSeeder extends Seeder
             Admin::permissionName(Admin::ACTION_VIEW, 'dashboard'),
         ];
 
-        // Starter roles: view dashboard only unless already customized.
         if ($supportRole->permissions()->count() === 0) {
             $supportRole->syncPermissions($defaultViews);
+        } else {
+            $supportRole->syncPermissions(
+                $this->migratePermissionNames($supportRole->permissions->pluck('name')->all(), $allPermissions)
+            );
         }
 
         if ($agentRole->permissions()->count() === 0) {
             $agentRole->syncPermissions($defaultViews);
+        } else {
+            $agentRole->syncPermissions(
+                $this->migratePermissionNames($agentRole->permissions->pluck('name')->all(), $allPermissions)
+            );
         }
 
-        $legacyPermissions = [];
-        if (Schema::hasTable('legacy_permissions')) {
-            $legacyPermissions = DB::table('legacy_permissions')->pluck('code', 'id')->all();
-        }
-
-        $legacyAssignments = collect();
-        if (Schema::hasTable('legacy_employee_perm')) {
-            $legacyAssignments = DB::table('legacy_employee_perm')->get()->groupBy('employee_id');
-        }
+        Role::where('guard_name', $guard)
+            ->whereNotIn('name', Admin::systemRoleNames())
+            ->each(function (Role $role) use ($allPermissions) {
+                $role->syncPermissions(
+                    $this->migratePermissionNames($role->permissions->pluck('name')->all(), $allPermissions)
+                );
+            });
 
         $allPageIds = WebPage::where('is_active', true)->pluck('id')->all();
 
-        Admin::query()->each(function (Admin $admin) use (
-            $legacyPermissions,
-            $legacyAssignments,
-            $allPageIds,
-            $allPermissions,
-            $adminRole,
-            $supportRole,
-            $agentRole,
-            $defaultViews
-        ) {
+        Admin::query()->each(function (Admin $admin) use ($allPageIds, $allPermissions, $adminRole) {
             $roleName = Admin::normalizeRole($admin->role, $admin->type);
             $admin->role = $roleName;
             $admin->type = $roleName === Admin::ROLE_ADMIN ? Admin::ROLE_ADMIN : $roleName;
-            $admin->save();
+            $admin->saveQuietly();
 
             $role = Role::findOrCreate($roleName, 'admin');
             $admin->syncRoles([$roleName]);
@@ -81,33 +77,6 @@ class AdminPermissionsSeeder extends Seeder
                 $admin->pages()->sync($allPageIds);
 
                 return;
-            }
-
-            // First-time migration: expand old global actions onto role if role empty.
-            if ($role->permissions()->count() === 0) {
-                $actions = $this->resolveLegacyActions($admin, $legacyPermissions, $legacyAssignments);
-                $pageRoutes = $admin->pages()->pluck('web_pages.route')->all();
-
-                if (! $actions) {
-                    $actions = [Admin::ACTION_VIEW];
-                }
-
-                $resourcePermissions = [];
-                foreach ($pageRoutes as $route) {
-                    $resource = Admin::resourceKeyFromRoute($route);
-                    if (! $resource) {
-                        continue;
-                    }
-                    foreach ($actions as $action) {
-                        $resourcePermissions[] = Admin::permissionName($action, $resource);
-                    }
-                }
-
-                if ($resourcePermissions) {
-                    $role->syncPermissions(Admin::ensureViewWithMutations($resourcePermissions));
-                } elseif (in_array($roleName, [Admin::ROLE_SUPPORT, Admin::ROLE_AGENT], true)) {
-                    $role->syncPermissions($defaultViews);
-                }
             }
 
             $admin->pages()->sync(
@@ -121,36 +90,61 @@ class AdminPermissionsSeeder extends Seeder
             if ($firstAdmin) {
                 $firstAdmin->role = Admin::ROLE_ADMIN;
                 $firstAdmin->type = Admin::ROLE_ADMIN;
-                $firstAdmin->save();
+                $firstAdmin->saveQuietly();
                 $firstAdmin->syncRoles([Admin::ROLE_ADMIN]);
                 $firstAdmin->syncPermissions([]);
                 $firstAdmin->pages()->sync($allPageIds);
             }
         }
 
-        // Drop obsolete global-only permissions.
+        // Remove obsolete permission names (old view/update/delete-only set).
         Permission::where('guard_name', $guard)
-            ->whereIn('name', Admin::availableActions())
             ->whereNotIn('name', $allPermissions)
             ->delete();
 
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
     }
 
-    private function resolveLegacyActions(Admin $admin, array $legacyPermissions, $legacyAssignments): array
+    private function migratePermissionNames(array $existing, array $allPermissions): array
     {
         $mapped = [];
 
-        foreach ($legacyAssignments->get($admin->id, collect()) as $row) {
-            $code = $legacyPermissions[$row->permission_id] ?? null;
-            $mapped[] = match ($code) {
+        foreach ($existing as $name) {
+            if (in_array($name, $allPermissions, true)) {
+                $mapped[] = $name;
+                continue;
+            }
+
+            if (! str_contains($name, ' ')) {
+                continue;
+            }
+
+            [$action, $resource] = explode(' ', $name, 2);
+            $newAction = match ($action) {
                 'view' => Admin::ACTION_VIEW,
-                'delete' => Admin::ACTION_DELETE,
-                'edit', 'add', 'approve', 'reject' => Admin::ACTION_UPDATE,
+                'delete', 'destroy' => Admin::ACTION_ADD_DELETE,
+                'update', 'edit', 'add' => Admin::ACTION_UPDATE,
                 default => null,
             };
+
+            if (! $newAction) {
+                continue;
+            }
+
+            // Legacy "update" covered approve/assign/ban — keep update only; admin reassigns decide/assign/ban.
+            $candidate = Admin::permissionName($newAction, $resource);
+            if (in_array($candidate, $allPermissions, true)) {
+                $mapped[] = $candidate;
+            }
+
+            if ($action === 'delete') {
+                $addDelete = Admin::permissionName(Admin::ACTION_ADD_DELETE, $resource);
+                if (in_array($addDelete, $allPermissions, true)) {
+                    $mapped[] = $addDelete;
+                }
+            }
         }
 
-        return array_values(array_unique(array_filter($mapped)));
+        return Admin::ensureViewWithMutations(array_values(array_unique($mapped)));
     }
 }

@@ -97,14 +97,43 @@ class AdminAuthorizationService
 
         if (in_array($method, ['GET', 'HEAD'], true)) {
             if (preg_match('/\.(create)$/', $routeName)) {
-                return Admin::ACTION_UPDATE;
+                return Admin::ACTION_ADD_DELETE;
             }
 
+            // Allow opening edit screens with view; submit remains gated by update.
             return Admin::ACTION_VIEW;
         }
 
-        if ($method === 'DELETE' || preg_match('/\.(destroy|delete|cancelPackage)$/', $routeName)) {
-            return Admin::ACTION_DELETE;
+        if (preg_match('/\.(ban)$/', $routeName)) {
+            return Admin::ACTION_BAN;
+        }
+
+        if (preg_match('/\.(close)$/', $routeName)) {
+            return Admin::ACTION_CLOSE;
+        }
+
+        if (preg_match('/(assignToAdmin|assign-to-admin|support-tickets\.assign)$/', $routeName)) {
+            return Admin::ACTION_ASSIGN;
+        }
+
+        if (preg_match('/(approve|reject|updateStatus|edit-info-request\.update)/', $routeName)) {
+            return Admin::ACTION_DECIDE;
+        }
+
+        if (preg_match('/sendPaymentReminder/', $routeName)) {
+            return Admin::ACTION_UPDATE;
+        }
+
+        if ($method === 'DELETE' || preg_match('/\.(destroy|delete|cancelPackage|store)$/', $routeName)) {
+            return Admin::ACTION_ADD_DELETE;
+        }
+
+        if (preg_match('/\.(update|replace)$/', $routeName) || in_array($method, ['PUT', 'PATCH'], true)) {
+            return Admin::ACTION_UPDATE;
+        }
+
+        if (preg_match('/\.(reply|assignPackage)$/', $routeName)) {
+            return Admin::ACTION_UPDATE;
         }
 
         return Admin::ACTION_UPDATE;
@@ -207,7 +236,7 @@ class AdminAuthorizationService
             'drivers.earnings' => 'drivers.index',
             'drivers.sendPaymentReminder' => 'drivers.index',
             'drivers.updateStatus' => 'new-drivers.index',
-            'drivers.assignToAdmin' => 'drivers.index',
+            'drivers.assignToAdmin' => 'new-drivers.index',
             'drivers.ban' => 'drivers.index',
             'drivers.show' => 'drivers.index',
             'drivers.edit' => 'drivers.index',
@@ -222,7 +251,7 @@ class AdminAuthorizationService
             'passengers.complaints' => 'passengers.index',
             'passengers.approve-profile-update' => 'passengers.profile-update-requests',
             'passengers.reject-profile-update' => 'passengers.profile-update-requests',
-            'passengers.assign-to-admin' => 'passengers.index',
+            'passengers.assign-to-admin' => 'passengers.profile-update-requests',
             'passengers.ban' => 'passengers.index',
             'passengers.updateApproval' => 'passengers.index',
             'users.unride-rates' => 'users.unride-rates',
@@ -288,11 +317,10 @@ class AdminAuthorizationService
 
     private function resourcePermissions(string $resource): array
     {
-        return [
-            Admin::permissionName(Admin::ACTION_VIEW, $resource),
-            Admin::permissionName(Admin::ACTION_UPDATE, $resource),
-            Admin::permissionName(Admin::ACTION_DELETE, $resource),
-        ];
+        return array_map(
+            fn (string $action) => Admin::permissionName($action, $resource),
+            Admin::availableActions()
+        );
     }
 
     private function adminHasAssignedPage(string $routeName, Admin $admin): bool

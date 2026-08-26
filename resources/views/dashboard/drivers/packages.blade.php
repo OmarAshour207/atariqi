@@ -64,7 +64,7 @@
                                     <button class="btn btn-sm btn-success" type="button" onclick="document.getElementById('assign-{{ $driver->id }}').style.display='block'">{{ __('Upgrade Subscription') }}</button>
                                     @endadminCan
                                     @if($canCancelSubscription)
-                                        @adminCan('delete')
+                                        @adminCan('add-delete')
                                         <form action="{{ route('drivers.cancelPackage', $driver->id) }}" method="post" class="d-inline-block" onsubmit="return confirm('{{ __('Are you sure you want to cancel this driver subscription and move them to the free plan?') }}');">
                                             @csrf
                                             <button type="submit" class="btn btn-sm btn-danger">{{ __('Cancel Subscription') }}</button>

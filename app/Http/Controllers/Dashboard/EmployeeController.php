@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\PermissionRegistrar;
 
@@ -79,7 +80,7 @@ class EmployeeController extends Controller
         }
 
         DB::transaction(function () use ($employee, $updateData, $data, $old) {
-            $employee->update($updateData);
+            $employee->fill($updateData);
             $this->assignRole($employee, $data['role']);
             $this->actionsLog->logEdit('admins', $employee->id, $old);
         });
@@ -89,18 +90,31 @@ class EmployeeController extends Controller
 
     private function assignRole(Admin $employee, string $roleName): void
     {
-        $roleName = Admin::normalizeRole($roleName);
-        $role = Role::findByName($roleName, 'admin');
+        $role = Role::where('guard_name', 'admin')->where('name', $roleName)->first();
 
-        $employee->syncRoles([$roleName]);
+        if (! $role) {
+            $normalized = Admin::normalizeRole($roleName);
+            $role = Role::where('guard_name', 'admin')->where('name', $normalized)->first();
+        }
+
+        if (! $role) {
+            throw ValidationException::withMessages([
+                'role' => __('Selected role was not found.'),
+            ]);
+        }
+
+        $employee->role = $role->name;
+        $employee->type = $role->name === Admin::ROLE_ADMIN ? Admin::ROLE_ADMIN : $role->name;
+        $employee->save();
+
+        $employee->syncRoles([$role->name]);
         $employee->syncPermissions([]);
 
-        if ($roleName === Admin::ROLE_ADMIN) {
+        if ($role->name === Admin::ROLE_ADMIN) {
             $employee->pages()->sync(WebPage::where('is_active', true)->pluck('id')->all());
         } else {
-            $employee->pages()->sync(
-                Admin::pageIdsFromPermissionNames($role->permissions->pluck('name')->all())
-            );
+            $permissionNames = $role->permissions()->pluck('name')->all();
+            $employee->pages()->sync(Admin::pageIdsFromPermissionNames($permissionNames));
         }
 
         app()[PermissionRegistrar::class]->forgetCachedPermissions();

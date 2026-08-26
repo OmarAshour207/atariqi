@@ -19,7 +19,7 @@
                 </div>
                 <button type="button" class="btn btn-sm btn-secondary" onclick="addNeighborhood()">{{ __('Add Neighborhood') }}</button>
                 <hr>
-                @adminCan('update')
+                @adminCan('add-delete')
                 <button class="btn btn-primary">{{ __('Save') }}</button>
                 @endadminCan
                 <a href="{{ route('cities.index') }}" class="btn btn-secondary">{{ __('Back') }}</a>

@@ -51,7 +51,7 @@
                     </div>
 
                     <div class="text-right mb-5">
-                        @adminCan('update')
+                        @adminCan('add-delete')
                         <input type="submit" class="btn btn-success" value="{{ __('Add') }}">
                         @endadminCan
                     </div>

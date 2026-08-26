@@ -25,7 +25,7 @@
                         <td>{{ $service->{'service-ar'} }}</td>
                         <td>{{ $service->{'service-eng'} }}</td>
                         <td>
-                            @adminCan('edit')
+                            @adminCan('update')
                             <a href="{{ route('delivery-services.edit', $service) }}" class="btn btn-sm btn-primary">{{ __('Edit') }}</a>
                             @endadminCan
                         </td>

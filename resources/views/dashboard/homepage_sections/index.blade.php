@@ -13,7 +13,7 @@
                     </nav>
                     <h1 class="m-0"> {{ request('section') }} </h1>
                 </div>
-                @adminCan('update')
+                @adminCan('add-delete')
                 <a href="{{ route('homepage-sections.create', ['type' => request('type')]) }}" class="btn btn-success ml-3">{{ __('Create') }} <i class="material-icons">add</i></a>
                 @endadminCan
             </div>
@@ -78,7 +78,7 @@
                                     <i class="fa fa-edit fa-2x"></i>
                                 </a>
                                 @endadminCan
-                                @adminCan('delete')
+                                @adminCan('add-delete')
                                 <form action="{{ route('homepage-sections.destroy', $section->id) }}" method="post" style="display: inline-block">
                                     @csrf
                                     @method('delete')

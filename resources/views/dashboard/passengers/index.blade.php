@@ -156,7 +156,7 @@
                                             <i class="fas fa-route"></i>
                                         </a>
                                         @if($passenger->approval != 3 && $passenger->passengerRate && $passenger->passengerRate->rate < 2)
-                                            @adminCan('update')
+                                            @adminCan('ban')
                                             <button type="button" class="btn btn-sm btn-danger" title="{{ __('Ban') }}" onclick="showBanModal('{{ route('passengers.ban', $passenger->id) }}')">
                                                 <i class="fas fa-ban"></i>
                                             </button>

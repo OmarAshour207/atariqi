@@ -4,7 +4,7 @@
     <div class="container-fluid page__heading-container">
         <div class="page__heading d-flex align-items-center">
             <div class="flex"><h1 class="m-0">{{ __('Cities & Neighborhoods') }}</h1></div>
-            @adminCan('add')
+            @adminCan('add-delete')
             <a href="{{ route('cities.create') }}" class="btn btn-success">{{ __('Add City') }}</a>
             @endadminCan
         </div>
@@ -24,7 +24,7 @@
                             @foreach($city->neighbours as $neighborhood)
                                 <tr>
                                     <td>
-                                        @adminCan('edit')
+                                        @adminCan('update')
                                         <form method="POST" action="{{ route('neighborhoods.update', $neighborhood) }}" class="form-inline">
                                             @csrf @method('PUT')
                                             <input name="neighborhood-ar" class="form-control form-control-sm mr-2" value="{{ $neighborhood->{'neighborhood-ar'} }}">
@@ -36,7 +36,7 @@
                                         @endadminCan
                                     </td>
                                     <td>
-                                        @adminCan('delete')
+                                        @adminCan('add-delete')
                                         <button type="button" class="btn btn-sm btn-danger" data-toggle="modal" data-target="#deleteNb{{ $neighborhood->id }}">{{ __('Delete') }}</button>
                                         @endadminCan
                                     </td>
@@ -45,7 +45,7 @@
                             </tbody>
                         </table>
 
-                        @adminCan('delete')
+                        @adminCan('add-delete')
                         @foreach($city->neighbours as $neighborhood)
                             @include('dashboard.partials.delete_modal', [
                                 'id' => 'deleteNb'.$neighborhood->id,
@@ -57,7 +57,7 @@
                     @else
                         <p class="text-muted">{{ __('No neighborhoods found.') }}</p>
                     @endif
-                    @adminCan('add')
+                    @adminCan('add-delete')
                     <form method="POST" action="{{ route('cities.neighborhoods.store', $city) }}" class="mt-3">
                         @csrf
                         <div class="form-row">

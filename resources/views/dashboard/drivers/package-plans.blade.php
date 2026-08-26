@@ -41,7 +41,7 @@
                 <p>{{ __('Ends at') }}: {{ optional($driver->packages()->active()->first())->end_date?->format('Y-m-d') ?? __('-') }}</p>
 
                 @if($canCancelSubscription)
-                    @adminCan('delete')
+                    @adminCan('add-delete')
                     <form action="{{ route('drivers.cancelPackage', $driver->id) }}" method="post" class="mt-3" onsubmit="return confirm('{{ __('Are you sure you want to cancel this driver subscription and move them to the free plan?') }}');">
                         @csrf
                         <button type="submit" class="btn btn-danger">

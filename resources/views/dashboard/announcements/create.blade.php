@@ -36,7 +36,7 @@
                         <option value="both">{{ __('Both') }}</option>
                     </select>
                 </div>
-                @adminCan('update')
+                @adminCan('add-delete')
                 <button type="submit" class="btn btn-primary">{{ __('Save') }}</button>
                 @endadminCan
                 <a href="{{ route('announcements.index') }}" class="btn btn-secondary">{{ __('Back') }}</a>

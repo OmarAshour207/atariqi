@@ -31,7 +31,7 @@
                         </div>
                     @endforeach
                 </div>
-                @adminCan('update')
+                @adminCan('add-delete')
                 <button class="btn btn-primary">{{ __('Save') }}</button>
                 @endadminCan
                 <a href="{{ route('universities.index') }}" class="btn btn-secondary">{{ __('Back') }}</a>
