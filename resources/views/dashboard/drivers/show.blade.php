@@ -535,15 +535,15 @@
 
                     @if ($driver->approval == 0)
                         <div class="text-right mb-5">
-                            @adminCan('decide')
+                            @adminCan('decide', 'new-drivers.index')
                             @if($waslEligibility['is_valid'] !== false)
                                 <button type="button" class="btn btn-success" onclick="showAcceptModal()">{{ __('Accept') }}</button>
                             @endif
                             @endadminCan
-                            @adminCan('assign')
+                            @adminCan('assign', 'new-drivers.index')
                             <button type="button" class="btn btn-primary" onclick="showAssignModal()">{{ __('Assign') }}</button>
                             @endadminCan
-                            @adminCan('decide')
+                            @adminCan('decide', 'new-drivers.index')
                             <button type="button" class="btn btn-danger" onclick="showRejectModal()">{{ __('Reject') }}</button>
                             @endadminCan
                         </div>

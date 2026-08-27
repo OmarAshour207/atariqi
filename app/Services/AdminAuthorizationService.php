@@ -44,7 +44,7 @@ class AdminAuthorizationService
         $resource = Admin::resourceKeyFromRoute($pageRoute);
 
         return $resource
-            ? $admin->hasAnyPermission($this->resourcePermissions($resource))
+            ? $this->adminHasAnyNamedPermission($admin, $this->resourcePermissions($resource))
             : false;
     }
 
@@ -86,7 +86,7 @@ class AdminAuthorizationService
         $resource = Admin::resourceKeyFromRoute($pageRoute);
 
         return $resource
-            ? $admin->hasAnyPermission($this->resourcePermissions($resource))
+            ? $this->adminHasAnyNamedPermission($admin, $this->resourcePermissions($resource))
             : false;
     }
 
@@ -154,7 +154,7 @@ class AdminAuthorizationService
         $routeName = $routeName ?? optional(request()->route())->getName();
 
         if (str_contains(trim($code), ' ')) {
-            return $admin->hasPermissionTo(strtolower(trim($code)), 'admin');
+            return $this->adminHasNamedPermission($admin, strtolower(trim($code)));
         }
 
         $action = Admin::normalizePermissionAction($code);
@@ -169,11 +169,19 @@ class AdminAuthorizationService
             return false;
         }
 
+        $permissionNames = $this->resourcePermissions($resource);
+
         if ($action === Admin::ACTION_VIEW) {
-            return $admin->hasAnyPermission($this->resourcePermissions($resource));
+            return $this->adminHasAnyNamedPermission($admin, $permissionNames);
         }
 
-        return $admin->hasPermissionTo(Admin::permissionName($action, $resource), 'admin');
+        $permission = Admin::permissionName($action, $resource);
+
+        if (! in_array($permission, $permissionNames, true)) {
+            return false;
+        }
+
+        return $this->adminHasNamedPermission($admin, $permission);
     }
 
     public function normalizePermission(string $code): string
@@ -317,10 +325,35 @@ class AdminAuthorizationService
 
     private function resourcePermissions(string $resource): array
     {
-        return array_map(
-            fn (string $action) => Admin::permissionName($action, $resource),
-            Admin::availableActions()
-        );
+        $page = collect(Admin::permissionsMatrix())
+            ->firstWhere('resource', $resource);
+
+        if (! $page) {
+            return [Admin::permissionName(Admin::ACTION_VIEW, $resource)];
+        }
+
+        return array_values($page['permissions']);
+    }
+
+    private function adminHasNamedPermission(Admin $admin, string $permission): bool
+    {
+        // Never ask Spatie about a name that is not defined for this guard.
+        $owned = $admin->getAllPermissions()->pluck('name');
+
+        return $owned->contains($permission);
+    }
+
+    private function adminHasAnyNamedPermission(Admin $admin, array $permissions): bool
+    {
+        $permissions = array_values(array_filter($permissions));
+
+        if (! $permissions) {
+            return false;
+        }
+
+        $owned = $admin->getAllPermissions()->pluck('name')->all();
+
+        return (bool) array_intersect($permissions, $owned);
     }
 
     private function adminHasAssignedPage(string $routeName, Admin $admin): bool
