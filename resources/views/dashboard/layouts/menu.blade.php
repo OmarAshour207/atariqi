@@ -316,7 +316,7 @@
                 </li>
                 @endadminAnyRoute
 
-                @if(isset($adminAuthz) && $adminAuthz->isCompanyAdmin())
+                @adminAnyRoute('employees.index', 'roles.index', 'logs.index')
                 <!-- Admin Management -->
                 <li class="sidebar-menu-item">
                     <a class="sidebar-menu-button" data-toggle="collapse" href="#admin_management">
@@ -325,27 +325,35 @@
                         <span class="ml-auto sidebar-menu-toggle-icon"></span>
                     </a>
                     <ul class="sidebar-submenu collapse" id="admin_management">
+                        @adminRoute('employees.index')
                         <li class="sidebar-menu-item">
                             <a class="sidebar-menu-button" href="{{ route('employees.index') }}">
                                 <i class="fa fa-users"></i>
                                 <span class="sidebar-menu-text"> {{ __('Employee Management') }}</span>
                             </a>
                         </li>
+                        @endadminRoute
+
+                        @adminRoute('roles.index')
                         <li class="sidebar-menu-item">
                             <a class="sidebar-menu-button" href="{{ route('roles.index') }}">
                                 <i class="fa fa-user-shield"></i>
                                 <span class="sidebar-menu-text"> {{ __('Roles Management') }}</span>
                             </a>
                         </li>
+                        @endadminRoute
+
+                        @adminRoute('logs.index')
                         <li class="sidebar-menu-item">
                             <a class="sidebar-menu-button" href="{{ route('logs.index') }}">
                                 <i class="fa fa-history"></i>
                                 <span class="sidebar-menu-text"> {{ __('Logs Management') }}</span>
                             </a>
                         </li>
+                        @endadminRoute
                     </ul>
                 </li>
-                @endif
+                @endadminAnyRoute
 
                 @adminRoute('settings.index')
                 {{-- Settings --}}

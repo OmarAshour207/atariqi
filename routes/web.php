@@ -152,23 +152,21 @@ Route::middleware(['is_admin', 'admin.page:view'])->prefix('dashboard')->group(f
     Route::get('documents/{document}/download', [DocumentController::class, 'download'])->name('documents.download');
     Route::post('documents/{document}/replace', [DocumentController::class, 'replace'])->name('documents.replace');
 
-    Route::middleware('company.admin')->group(function () {
-        Route::get('employees', [EmployeeController::class, 'index'])->name('employees.index');
-        Route::get('employees/create', [EmployeeController::class, 'create'])->name('employees.create');
-        Route::post('employees', [EmployeeController::class, 'store'])->name('employees.store');
-        Route::get('employees/{employee}/edit', [EmployeeController::class, 'edit'])->name('employees.edit');
-        Route::put('employees/{employee}', [EmployeeController::class, 'update'])->name('employees.update');
+    Route::get('employees', [EmployeeController::class, 'index'])->name('employees.index');
+    Route::get('employees/create', [EmployeeController::class, 'create'])->name('employees.create');
+    Route::post('employees', [EmployeeController::class, 'store'])->name('employees.store');
+    Route::get('employees/{employee}/edit', [EmployeeController::class, 'edit'])->name('employees.edit');
+    Route::put('employees/{employee}', [EmployeeController::class, 'update'])->name('employees.update');
 
-        Route::get('roles', [RoleController::class, 'index'])->name('roles.index');
-        Route::get('roles/create', [RoleController::class, 'create'])->name('roles.create');
-        Route::post('roles', [RoleController::class, 'store'])->name('roles.store');
-        Route::get('roles/{role}/edit', [RoleController::class, 'edit'])->name('roles.edit');
-        Route::put('roles/{role}', [RoleController::class, 'update'])->name('roles.update');
-        Route::delete('roles/{role}', [RoleController::class, 'destroy'])->name('roles.destroy');
+    Route::get('roles', [RoleController::class, 'index'])->name('roles.index');
+    Route::get('roles/create', [RoleController::class, 'create'])->name('roles.create');
+    Route::post('roles', [RoleController::class, 'store'])->name('roles.store');
+    Route::get('roles/{role}/edit', [RoleController::class, 'edit'])->name('roles.edit');
+    Route::put('roles/{role}', [RoleController::class, 'update'])->name('roles.update');
+    Route::delete('roles/{role}', [RoleController::class, 'destroy'])->name('roles.destroy');
 
-        Route::get('logs', [LogsManagementController::class, 'index'])->name('logs.index');
-        Route::get('logs/{table}/{id}', [LogsManagementController::class, 'show'])->name('logs.show');
-    });
+    Route::get('logs', [LogsManagementController::class, 'index'])->name('logs.index');
+    Route::get('logs/{table}/{id}', [LogsManagementController::class, 'show'])->name('logs.show');
 
     Route::get('profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::post('profile/update', [ProfileController::class, 'update'])->name('profile.update');
