@@ -709,6 +709,8 @@
     "This passenger has been banned.": "تم حظر هذا الراكب.",
     "Driver has been banned successfully.": "تم حظر السائق بنجاح.",
     "Passenger has been banned successfully.": "تم حظر الراكب بنجاح.",
+    "Passenger is already banned.": "هذا الراكب محظور بالفعل.",
+    "This passenger is already banned.": "هذا الراكب محظور بالفعل.",
     "Driver Info Update Rejected": "رفض طلب تحديث بيانات السائق",
     "Unable to update driver in ministry system.": "تعذر تحديث بيانات السائق في نظام الوزارة.",
     "Inquiries": "الاستفسارات",

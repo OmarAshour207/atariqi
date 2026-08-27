@@ -141,6 +141,26 @@ class PassengerController extends Controller
             'ban_reason' => ['required', 'string', 'max:1000'],
         ]);
 
+        if ($passenger->{'user-type'} !== 'passenger') {
+            return redirect()->back()->with('error', __('Invalid passenger.'));
+        }
+
+        $alreadyBanned = (int) $passenger->approval === 3
+            || PassengerBanned::query()
+                ->where(function ($query) use ($passenger) {
+                    $query->where('passenger_identity', $passenger->id)
+                        ->orWhere('passenger_no', $passenger->{'phone-no'});
+                })
+                ->exists();
+
+        if ($alreadyBanned) {
+            if ((int) $passenger->approval !== 3) {
+                $passenger->update(['approval' => 3]);
+            }
+
+            return redirect()->back()->with('error', __('Passenger is already banned.'));
+        }
+
         try {
             DB::beginTransaction();
             $oldApproval = $passenger->approval;
@@ -149,7 +169,7 @@ class PassengerController extends Controller
 
             PassengerBanned::create([
                 'assigned_from_employee_id' => auth()->guard('admin')->id(),
-                'passenger_identity' => $passenger->id,
+                'passenger_identity' => (string) $passenger->id,
                 'passenger_no' => $passenger->{"phone-no"},
                 'note' => $request->input('ban_reason'),
             ]);
@@ -176,7 +196,7 @@ class PassengerController extends Controller
 
             DB::commit();
 
-            return redirect()->route('passengers.show', $passenger->id)->with('success', __('Passenger has been banned successfully.'));
+            return redirect()->back()->with('success', __('Passenger has been banned successfully.'));
         } catch (\Exception $e) {
             DB::rollBack();
 

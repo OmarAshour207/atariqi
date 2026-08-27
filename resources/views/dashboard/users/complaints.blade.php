@@ -149,17 +149,24 @@
                 </div>
             @endif
 
-            @if ($stats['total_complaints_rates'] >= 5)
+            @if(!empty($stats['is_banned']) || !empty($isBanned))
+                <div class="alert alert-danger mb-0">
+                    <i class="fa fa-ban"></i> {{ __('This passenger is already banned.') }}
+                </div>
+            @elseif($stats['total_complaints_rates'] >= 5)
+                @adminCan('ban')
                 <button type="button"
                         class="btn btn-danger"
                         onclick="showBanModal()">
                     <i class="fa fa-ban"></i> {{ __('Ban Passenger') }}
                 </button>
+                @endadminCan
             @endif
 
         </div>
     </div>
 
+    @if(empty($stats['is_banned']) && empty($isBanned) && $stats['total_complaints_rates'] >= 5)
     <div class="modal fade" id="banModal" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -250,4 +257,5 @@ function confirmBanPassenger() {
     $('#ban-form').submit();
 }
 </script>
+    @endif
 @endsection

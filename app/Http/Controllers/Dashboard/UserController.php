@@ -13,6 +13,7 @@ use App\Models\SuggestionDriver;
 use App\Models\DayUnrideRate;
 use App\Models\WeekUnrideRate;
 use App\Models\ImmediateUnrideRate;
+use App\Models\PassengerBanned;
 use App\Models\University;
 use App\Models\Stage;
 use Illuminate\Http\Request;
@@ -268,6 +269,15 @@ class UserController extends Controller
             ->sortByDesc('sort_date');
 
         // Calculate statistics
+        $isBanned = (int) $passenger->approval === 3
+            || PassengerBanned::query()
+                ->where(function ($query) use ($passenger) {
+                    $query->where('passenger_identity', $passenger->id)
+                        ->orWhere('passenger_identity', (string) $passenger->id)
+                        ->orWhere('passenger_no', $passenger->{'phone-no'});
+                })
+                ->exists();
+
         $stats = [
             'total_complaints_rates' => $allUnrideRates->count(),
             'immediate_count' => $immediateUnrideRates->count(),
@@ -279,8 +289,9 @@ class UserController extends Controller
             'weeklyTrips' => $weeklyUnride,
             'immediateTrips' => $immediateUnride,
             'passenger' => $passenger,
+            'is_banned' => $isBanned,
         ];
 
-        return view('dashboard.users.complaints', compact('allUnrideRates', 'stats'));
+        return view('dashboard.users.complaints', compact('allUnrideRates', 'stats', 'isBanned'));
     }
 }
