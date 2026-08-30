@@ -139,8 +139,9 @@ class RoleController extends Controller
         }
 
         Admin::role($role->name)->each(function (Admin $admin) use ($role, $pageIds) {
-            $admin->role = $role->name;
-            $admin->type = $role->name === Admin::ROLE_ADMIN ? Admin::ROLE_ADMIN : $role->name;
+            $resolved = Admin::resolveStoredRole($role->name);
+            $admin->role = $resolved['role'];
+            $admin->type = $resolved['type'];
             $admin->saveQuietly();
             $admin->syncPermissions([]);
             $admin->pages()->sync($pageIds);

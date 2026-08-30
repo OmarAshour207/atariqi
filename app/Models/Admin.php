@@ -50,9 +50,15 @@ class Admin extends Authenticatable
     protected static function booted(): void
     {
         static::saving(function (self $admin) {
-            $admin->role = self::normalizeRole($admin->role, $admin->type);
-            $admin->type = $admin->role === self::ROLE_ADMIN ? self::ROLE_ADMIN : $admin->role;
+            $resolved = self::resolveStoredRole($admin->role, $admin->type);
+            $admin->role = $resolved['role'];
+            $admin->type = $resolved['type'];
         });
+    }
+
+    public function scopeRole($query, string $roleName)
+    {
+        return $query->where('role', $roleName);
     }
 
     public function pages(): BelongsToMany
@@ -260,17 +266,82 @@ class Admin extends Authenticatable
         return array_values(array_unique($permissions));
     }
 
+    public static function roleLabel(string $role): string
+    {
+        $key = 'role.' . $role;
+        $translated = __($key);
+
+        if ($translated !== $key) {
+            return $translated;
+        }
+
+        return ucfirst(str_replace('-', ' ', $role));
+    }
+
+    public static function isValidRoleSlug(string $name): bool
+    {
+        return (bool) preg_match('/^[a-z0-9]+(?:-[a-z0-9]+)*$/', $name);
+    }
+
     public static function slugifyRoleName(string $name): string
     {
         $name = trim($name);
-        $slug = Str::slug(strtolower($name), '-');
 
-        // Keep already-valid role keys (including non-Latin preserved names).
-        if ($slug === '' && $name !== '') {
-            return strtolower(preg_replace('/\s+/', '-', $name) ?? $name);
+        if ($name === '') {
+            return '';
         }
 
-        return $slug;
+        if (self::isValidRoleSlug($name)) {
+            return $name;
+        }
+
+        if (preg_match('/[|\/]/', $name)) {
+            foreach (array_reverse(preg_split('/[|\/]/', $name) ?: []) as $part) {
+                $slug = Str::slug(strtolower(trim($part)), '-');
+                if ($slug !== '') {
+                    return $slug;
+                }
+            }
+        }
+
+        $slug = Str::slug(strtolower($name), '-');
+
+        if ($slug !== '') {
+            return $slug;
+        }
+
+        $ascii = preg_replace('/[^a-zA-Z0-9\s-]/', '', $name) ?? '';
+
+        return Str::slug(strtolower(trim($ascii)), '-');
+    }
+
+    public static function resolveStoredRole(?string $role, ?string $type = null): array
+    {
+        foreach (array_values(array_unique(array_filter([trim((string) $role), trim((string) $type)]))) as $candidate) {
+            $record = Role::where('guard_name', 'admin')->where('name', $candidate)->first();
+
+            if ($record) {
+                $canonical = self::isValidRoleSlug($record->name)
+                    ? $record->name
+                    : self::slugifyRoleName($record->name);
+
+                if ($canonical !== '' && self::roleExists($canonical)) {
+                    return self::storedRolePayload($canonical);
+                }
+
+                return self::storedRolePayload($record->name);
+            }
+
+            $slugged = self::slugifyRoleName($candidate);
+
+            if ($slugged !== '' && self::roleExists($slugged)) {
+                return self::storedRolePayload($slugged);
+            }
+        }
+
+        $normalized = self::normalizeRole($role, $type);
+
+        return self::storedRolePayload($normalized);
     }
 
     public static function normalizeRole(?string $role, ?string $type = null): string
@@ -294,7 +365,7 @@ class Admin extends Authenticatable
             return self::ROLE_AGENT;
         }
 
-        if (self::roleExists($role)) {
+        if (self::roleExists($role) && self::isValidRoleSlug($role)) {
             return $role;
         }
 
@@ -305,6 +376,14 @@ class Admin extends Authenticatable
         }
 
         return $slugged !== '' ? $slugged : self::ROLE_AGENT;
+    }
+
+    private static function storedRolePayload(string $role): array
+    {
+        return [
+            'role' => $role,
+            'type' => $role === self::ROLE_ADMIN ? self::ROLE_ADMIN : $role,
+        ];
     }
 
     public static function roleExists(string $roleName): bool

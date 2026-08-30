@@ -28,7 +28,7 @@
                         <td>{{ $employee->id }}</td>
                         <td>{{ $employee->name }}</td>
                         <td>{{ $employee->email }}</td>
-                        <td>{{ __(ucfirst(str_replace('-', ' ', $employee->role ?? 'agent'))) }}</td>
+                        <td>{{ \App\Models\Admin::roleLabel($employee->role ?? 'agent') }}</td>
                         <td>{{ $employee->is_active ? __('Active') : __('Inactive') }}</td>
                         <td>{{ $employee->pages->count() }}</td>
                         <td class="text-nowrap">

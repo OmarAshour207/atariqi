@@ -13,6 +13,10 @@
     "Achievements": "Achievements",
     "Contact Us": "Contact Us",
     "Support": "Support",
+    "role.admin": "Admin",
+    "role.support": "Support",
+    "role.agent": "Agent",
+    "Role name must be lowercase letters, numbers and dashes only.": "Role name must be lowercase letters, numbers and dashes only.",
     "Dashboard Login": "Dashboard Login",
     "Home": "Home",
     "Rafiqni": "Rafiqni"

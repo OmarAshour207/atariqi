@@ -22,7 +22,7 @@
     <select name="role" class="form-control" required>
         @foreach($roles as $role)
             <option value="{{ $role }}" {{ old('role', $employee->role ?? '') === $role ? 'selected' : '' }}>
-                {{ __(ucfirst(str_replace('-', ' ', $role))) }}
+                {{ \App\Models\Admin::roleLabel($role) }}
             </option>
         @endforeach
     </select>

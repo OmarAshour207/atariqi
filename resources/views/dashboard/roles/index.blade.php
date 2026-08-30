@@ -22,7 +22,7 @@
                 <tbody>
                 @forelse($roles as $role)
                     <tr>
-                        <td>{{ __(ucfirst(str_replace('-', ' ', $role->name))) }}</td>
+                        <td>{{ \App\Models\Admin::roleLabel($role->name) }}</td>
                         <td>{{ $role->permissions->count() }}</td>
                         <td>{{ $role->users_count }}</td>
                         <td class="text-nowrap">

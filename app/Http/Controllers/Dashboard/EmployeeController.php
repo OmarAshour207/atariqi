@@ -90,12 +90,7 @@ class EmployeeController extends Controller
 
     private function assignRole(Admin $employee, string $roleName): void
     {
-        $role = Role::where('guard_name', 'admin')->where('name', $roleName)->first();
-
-        if (! $role) {
-            $normalized = Admin::normalizeRole($roleName);
-            $role = Role::where('guard_name', 'admin')->where('name', $normalized)->first();
-        }
+        $role = $this->findRole($roleName);
 
         if (! $role) {
             throw ValidationException::withMessages([
@@ -103,8 +98,10 @@ class EmployeeController extends Controller
             ]);
         }
 
-        $employee->role = $role->name;
-        $employee->type = $role->name === Admin::ROLE_ADMIN ? Admin::ROLE_ADMIN : $role->name;
+        $resolved = Admin::resolveStoredRole($role->name);
+
+        $employee->role = $resolved['role'];
+        $employee->type = $resolved['type'];
         $employee->save();
 
         $employee->syncRoles([$role->name]);
@@ -120,8 +117,43 @@ class EmployeeController extends Controller
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
     }
 
+    private function findRole(string $roleName): ?Role
+    {
+        $role = Role::where('guard_name', 'admin')->where('name', $roleName)->first();
+
+        if ($role) {
+            return $role;
+        }
+
+        $slug = Admin::slugifyRoleName($roleName);
+
+        if ($slug !== '') {
+            $role = Role::where('guard_name', 'admin')->where('name', $slug)->first();
+
+            if ($role) {
+                return $role;
+            }
+        }
+
+        return Role::where('guard_name', 'admin')
+            ->get()
+            ->first(function (Role $candidate) use ($roleName) {
+                return Admin::slugifyRoleName($candidate->name) === Admin::slugifyRoleName($roleName);
+            });
+    }
+
     private function validateEmployee(Request $request, ?int $ignoreId = null): array
     {
+        $role = $this->findRole((string) $request->input('role', ''));
+
+        if (! $role) {
+            throw ValidationException::withMessages([
+                'role' => __('Selected role was not found.'),
+            ]);
+        }
+
+        $request->merge(['role' => $role->name]);
+
         return $request->validate([
             'name' => 'required|string|max:150',
             'email' => [
