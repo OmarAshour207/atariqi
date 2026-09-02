@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\NewUserInfo;
 use App\Models\User;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -181,6 +182,8 @@ function store_user_upload(\Illuminate\Http\UploadedFile $file, int $userId, str
 
 function merge_pending_user_profile_data(array $data, User $user): array
 {
+    $existing = NewUserInfo::where('user-id', $user->id)->first();
+
     $fields = [
         'user-first-name',
         'user-last-name',
@@ -193,19 +196,47 @@ function merge_pending_user_profile_data(array $data, User $user): array
         'user-type',
     ];
 
+    $merged = ['user-id' => $user->id];
+
     foreach ($fields as $field) {
-        if (!array_key_exists($field, $data) || $data[$field] === null || $data[$field] === '') {
-            $data[$field] = $user->{$field};
+        $submitted = array_key_exists($field, $data) && $data[$field] !== null && $data[$field] !== '';
+
+        if ($submitted) {
+            $merged[$field] = $data[$field];
+        } elseif ($existing && filled($existing->{$field})) {
+            $merged[$field] = $existing->{$field};
+        } else {
+            $merged[$field] = $user->{$field};
         }
     }
 
-    if (!array_key_exists('image', $data) || empty($data['image'])) {
-        $data['image'] = $user->image;
+    if (!empty($data['image'])) {
+        $merged['image'] = $data['image'];
+    } elseif ($existing && filled($existing->image)) {
+        $merged['image'] = $existing->image;
+    } else {
+        $merged['image'] = $user->image;
     }
 
-    $data['user-id'] = $user->id;
+    return $merged;
+}
 
-    return $data;
+function pending_field_value(mixed $current, mixed $pending): string
+{
+    if ($pending === null || $pending === '') {
+        return '';
+    }
+
+    return (string) $pending !== (string) $current ? (string) $pending : '';
+}
+
+function pending_image_filename(?string $current, ?string $pending): ?string
+{
+    if (!$pending || $pending === $current) {
+        return null;
+    }
+
+    return $pending;
 }
 function generateCode(): int
 {

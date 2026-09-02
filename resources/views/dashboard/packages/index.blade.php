@@ -275,8 +275,8 @@
 
 @push('admin_styles')
 <style>
-    .package-features-modal.modal {
-        z-index: 10050 !important;
+    .package-features-modal {
+        z-index: 1065 !important;
     }
 
     .package-features-modal .modal-dialog {
@@ -294,17 +294,6 @@
         max-height: calc(92vh - 130px);
         overflow-y: auto;
         background-color: #f8f9fa;
-    }
-
-    body.package-features-modal-open .modal-backdrop {
-        z-index: 10040 !important;
-        opacity: 0.45 !important;
-        pointer-events: auto !important;
-        background-color: #000 !important;
-    }
-
-    body.package-features-modal-open .modal-backdrop.show {
-        opacity: 0.45 !important;
     }
 
     .package-features-service-title {
@@ -330,15 +319,9 @@
 @push('admin_scripts')
 <script>
     $(function () {
-        $('.package-features-modal').on('show.bs.modal', function () {
-            $(this).appendTo('body');
-            $('body').addClass('package-features-modal-open');
-        });
-
-        $('.package-features-modal').on('hidden.bs.modal', function () {
-            if (!$('.package-features-modal.show').length) {
-                $('body').removeClass('package-features-modal-open');
-            }
+        $(document).on('click', '.package-features-modal [data-dismiss="modal"]', function (e) {
+            e.preventDefault();
+            $(this).closest('.package-features-modal').modal('hide');
         });
     });
 </script>

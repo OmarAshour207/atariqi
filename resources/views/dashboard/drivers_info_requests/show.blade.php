@@ -173,7 +173,7 @@
                                         <div class="col-12">
                                             <div class="form-group highlight-new">
                                                 <label class="new-label">{{ __("First Name") }}</label>
-                                                <input type="text" class="form-control" value="{{ $newDriverInfo->{"user-first-name"} }}" disabled style="background-color: transparent; border: none;">
+                                                <input type="text" class="form-control" value="{{ pending_field_value($oldDriver->{'user-first-name'}, $newDriverInfo->{'user-first-name'}) }}" disabled style="background-color: transparent; border: none;">
                                             </div>
                                         </div>
                                     </div>
@@ -182,7 +182,7 @@
                                         <div class="col-12">
                                             <div class="form-group highlight-new">
                                                 <label class="new-label">{{ __("Last Name") }}</label>
-                                                <input type="text" class="form-control" value="{{ $newDriverInfo->{"user-last-name"} }}" disabled style="background-color: transparent; border: none;">
+                                                <input type="text" class="form-control" value="{{ pending_field_value($oldDriver->{'user-last-name'}, $newDriverInfo->{'user-last-name'}) }}" disabled style="background-color: transparent; border: none;">
                                             </div>
                                         </div>
                                     </div>
@@ -191,7 +191,7 @@
                                         <div class="col-12">
                                             <div class="form-group highlight-new">
                                                 <label class="new-label">{{ __("Email") }}</label>
-                                                <input type="text" class="form-control" value="{{ $newDriverInfo->email }}" disabled style="background-color: transparent; border: none;">
+                                                <input type="text" class="form-control" value="{{ pending_field_value($oldDriver->email, $newDriverInfo->email) }}" disabled style="background-color: transparent; border: none;">
                                             </div>
                                         </div>
                                     </div>
@@ -200,7 +200,7 @@
                                         <div class="col-12">
                                             <div class="form-group highlight-new">
                                                 <label class="new-label">{{ __("Phone Number") }}</label>
-                                                <input type="text" class="form-control" value="{{ $newDriverInfo->{"phone-no"} }}" disabled style="background-color: transparent; border: none;">
+                                                <input type="text" class="form-control" value="{{ pending_field_value($oldDriver->{'phone-no'}, $newDriverInfo->{'phone-no'}) }}" disabled style="background-color: transparent; border: none;">
                                             </div>
                                         </div>
                                     </div>
@@ -209,7 +209,7 @@
                                         <div class="col-12">
                                             <div class="form-group highlight-new">
                                                 <label class="new-label">{{ __("Gender") }}</label>
-                                                <input type="text" class="form-control" value="{{ $newDriverInfo->gender }}" disabled style="background-color: transparent; border: none;">
+                                                <input type="text" class="form-control" value="{{ pending_field_value($oldDriver->gender, $newDriverInfo->gender) }}" disabled style="background-color: transparent; border: none;">
                                             </div>
                                         </div>
                                     </div>
@@ -218,7 +218,7 @@
                                         <div class="col-12">
                                             <div class="form-group highlight-new">
                                                 <label class="new-label">{{ __('University') }}</label>
-                                                <input type="text" class="form-control" value="{{ optional($newDriverInfo->university)->{"name-ar"} }}" disabled style="background-color: transparent; border: none;">
+                                                <input type="text" class="form-control" value="{{ pending_field_value($oldDriver->{'university-id'}, $newDriverInfo->{'university-id'}) ? optional($newDriverInfo->university)->{'name-ar'} : '' }}" disabled style="background-color: transparent; border: none;">
                                             </div>
                                         </div>
                                     </div>
@@ -227,16 +227,21 @@
                                         <div class="col-12">
                                             <div class="form-group highlight-new">
                                                 <label class="new-label">{{ __('Stage') }}</label>
-                                                <input type="text" class="form-control" value="{{ optional($newDriverInfo->stage)->{"name-ar"} }}" disabled style="background-color: transparent; border: none;">
+                                                <input type="text" class="form-control" value="{{ pending_field_value($oldDriver->{'user-stage-id'}, $newDriverInfo->{'user-stage-id'}) ? optional($newDriverInfo->stage)->{'name-ar'} : '' }}" disabled style="background-color: transparent; border: none;">
                                             </div>
                                         </div>
                                     </div>
 
+                                    @php($pendingUserImage = pending_image_filename($oldDriver->image, $newDriverInfo->image))
                                     <div class="row">
                                         <div class="col-12">
                                             <div class="form-group">
                                                 <label class="new-label">{{ __('User Image') }}</label>
-                                                <img src="{{ user_upload_url($newDriverInfo->{"user-id"}, $newDriverInfo->image) }}" alt="{{ $newDriverInfo->{"user-first-name"} }}" class="img-fluid d-block mb-2" style="max-width: 150px; border: 2px solid #ffc107; border-radius: 5px;">
+                                                @if($pendingUserImage)
+                                                    <img src="{{ user_upload_url($newDriverInfo->{'user-id'}, $pendingUserImage) }}" alt="{{ $newDriverInfo->{'user-first-name'} }}" class="img-fluid d-block mb-2" style="max-width: 150px; border: 2px solid #ffc107; border-radius: 5px;">
+                                                @else
+                                                    <p class="text-muted mb-0">{{ __('No change') }}</p>
+                                                @endif
                                             </div>
                                         </div>
                                     </div>
@@ -325,7 +330,7 @@
                                         <div class="col-12">
                                             <div class="form-group highlight-new">
                                                 <label class="new-label">{{ __("Car Brand") }}</label>
-                                                <input type="text" class="form-control" value="{{ $newDriverInfoRecord?->{'car-brand'} ?? '' }}" disabled style="background-color: transparent; border: none;">
+                                                <input type="text" class="form-control" value="{{ pending_field_value($oldDriver->driverInfo?->{'car-brand'}, $newDriverInfoRecord?->{'car-brand'}) }}" disabled style="background-color: transparent; border: none;">
                                             </div>
                                         </div>
                                     </div>
@@ -334,7 +339,7 @@
                                         <div class="col-12">
                                             <div class="form-group highlight-new">
                                                 <label class="new-label">{{ __("Car Model") }}</label>
-                                                <input type="text" class="form-control" value="{{ $newDriverInfoRecord?->{'car-model'} ?? '' }}" disabled style="background-color: transparent; border: none;">
+                                                <input type="text" class="form-control" value="{{ pending_field_value($oldDriver->driverInfo?->{'car-model'}, $newDriverInfoRecord?->{'car-model'}) }}" disabled style="background-color: transparent; border: none;">
                                             </div>
                                         </div>
                                     </div>
@@ -343,7 +348,7 @@
                                         <div class="col-12">
                                             <div class="form-group highlight-new">
                                                 <label class="new-label">{{ __("Car Number") }}</label>
-                                                <input type="text" class="form-control" value="{{ $newDriverInfoRecord?->{'car-number'} ?? '' }}" disabled style="background-color: transparent; border: none;">
+                                                <input type="text" class="form-control" value="{{ pending_field_value($oldDriver->driverInfo?->{'car-number'}, $newDriverInfoRecord?->{'car-number'}) }}" disabled style="background-color: transparent; border: none;">
                                             </div>
                                         </div>
                                     </div>
@@ -352,7 +357,7 @@
                                         <div class="col-12">
                                             <div class="form-group highlight-new">
                                                 <label class="new-label">{{ __("Car Letters") }}</label>
-                                                <input type="text" class="form-control" value="{{ $newDriverInfoRecord?->{'car-letters'} ?? '' }}" disabled style="background-color: transparent; border: none;">
+                                                <input type="text" class="form-control" value="{{ pending_field_value($oldDriver->driverInfo?->{'car-letters'}, $newDriverInfoRecord?->{'car-letters'}) }}" disabled style="background-color: transparent; border: none;">
                                             </div>
                                         </div>
                                     </div>
@@ -361,7 +366,7 @@
                                         <div class="col-12">
                                             <div class="form-group highlight-new">
                                                 <label class="new-label">{{ __("Car Color") }}</label>
-                                                <input type="text" class="form-control" value="{{ $newDriverInfoRecord?->{'car-color'} ?? '' }}" disabled style="background-color: transparent; border: none;">
+                                                <input type="text" class="form-control" value="{{ pending_field_value($oldDriver->driverInfo?->{'car-color'}, $newDriverInfoRecord?->{'car-color'}) }}" disabled style="background-color: transparent; border: none;">
                                             </div>
                                         </div>
                                     </div>
@@ -370,18 +375,29 @@
                                         <div class="col-12">
                                             <div class="form-group highlight-new">
                                                 <label class="new-label">{{ __("Driver Rate") }}</label>
-                                                <input type="text" class="form-control" value="{{ $newDriverInfoRecord?->{'driver-rate'} ?? '' }}" disabled style="background-color: transparent; border: none;">
+                                                <input type="text" class="form-control" value="{{ pending_field_value($oldDriver->driverInfo?->{'driver-rate'}, $newDriverInfoRecord?->{'driver-rate'}) }}" disabled style="background-color: transparent; border: none;">
                                             </div>
                                         </div>
                                     </div>
 
+                                    @php
+                                        $oldLicenseImage = $oldDriver->driverInfo?->{'driver-license-link'} ?? $oldDriver->driverCar?->license_img;
+                                        $newLicenseImage = pending_image_filename(
+                                            $oldLicenseImage,
+                                            $newDriverInfoRecord?->{'driver-license-link'} ?? $newDriverCarRecord?->license_img
+                                        );
+                                    @endphp
                                     <div class="row">
                                         <div class="col-12">
                                             <div class="form-group highlight-new">
                                                 <label class="new-label">{{ __('License Image') }}</label>
-                                                <a href="{{ user_upload_url($newDriverInfo->{"user-id"}, $newDriverInfoRecord?->{'driver-license-link'} ?? $newDriverCarRecord?->license_img) }}" data-lightbox="new-license-info" data-title="{{ __('License Image') }}">
-                                                    <img src="{{ user_upload_url($newDriverInfo->{"user-id"}, $newDriverInfoRecord?->{'driver-license-link'} ?? $newDriverCarRecord?->license_img) }}" alt="{{ __('License Image') }}" class="img-fluid d-block mb-2" style="max-width: 150px; border: 2px solid #ffc107; border-radius: 5px;">
-                                                </a>
+                                                @if($newLicenseImage)
+                                                    <a href="{{ user_upload_url($newDriverInfo->{'user-id'}, $newLicenseImage) }}" data-lightbox="new-license-info" data-title="{{ __('License Image') }}">
+                                                        <img src="{{ user_upload_url($newDriverInfo->{'user-id'}, $newLicenseImage) }}" alt="{{ __('License Image') }}" class="img-fluid d-block mb-2" style="max-width: 150px; border: 2px solid #ffc107; border-radius: 5px;">
+                                                    </a>
+                                                @else
+                                                    <p class="text-muted mb-0">{{ __('No change') }}</p>
+                                                @endif
                                             </div>
                                         </div>
                                     </div>
@@ -454,50 +470,35 @@
                                         <div class="col-12">
                                             <div class="form-group highlight-new">
                                                 <label class="new-label">{{ __("Driver Type") }}</label>
-                                                <input type="text" class="form-control" value="{{ optional($newDriverCarRecord?->driverType)->{"name-ar"} ?? '' }}" disabled style="background-color: transparent; border: none;">
+                                                <input type="text" class="form-control" value="{{ pending_field_value($oldDriver->driverCar?->{'driver-type-id'}, $newDriverCarRecord?->{'driver-type-id'}) ? optional($newDriverCarRecord?->driverType)->{'name-ar'} : '' }}" disabled style="background-color: transparent; border: none;">
                                             </div>
                                         </div>
                                     </div>
 
-                                    <div class="form-group">
-                                        <label class="new-label">{{ __('Car Form Image') }}</label>
-                                        <img src="{{ user_upload_url($newDriverInfo->{"user-id"}, $newDriverCarRecord?->{"car_form_img"}) }}" alt="Car Form" class="img-fluid d-block mb-2" style="max-width: 150px; border: 2px solid #ffc107; border-radius: 5px;">
-                                    </div>
+                                    @php
+                                        $carImageFields = [
+                                            'car_form_img' => __('Car Form Image'),
+                                            'license_img' => __('License Image'),
+                                            'car_front_img' => __('Car Front Image'),
+                                            'car_back_img' => __('Car Back Image'),
+                                            'car_rside_img' => __('Car Right Side Image'),
+                                            'car_lside_img' => __('Car Left Side Image'),
+                                            'car_insideFront_img' => __('Car Inside Front Image'),
+                                            'car_insideBack_img' => __('Car Inside Back Image'),
+                                        ];
+                                    @endphp
 
-                                    <div class="form-group">
-                                        <label class="new-label">{{ __('License Image') }}</label>
-                                        <img src="{{ user_upload_url($newDriverInfo->{"user-id"}, $newDriverCarRecord?->license_img) }}" alt="License" class="img-fluid d-block mb-2" style="max-width: 150px; border: 2px solid #ffc107; border-radius: 5px;">
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label class="new-label">{{ __('Car Front Image') }}</label>
-                                        <img src="{{ user_upload_url($newDriverInfo->{"user-id"}, $newDriverCarRecord?->{"car_front_img"}) }}" alt="Car Front" class="img-fluid d-block mb-2" style="max-width: 150px; border: 2px solid #ffc107; border-radius: 5px;">
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label class="new-label">{{ __('Car Back Image') }}</label>
-                                        <img src="{{ user_upload_url($newDriverInfo->{"user-id"}, $newDriverCarRecord?->{"car_back_img"}) }}" alt="Car Back" class="img-fluid d-block mb-2" style="max-width: 150px; border: 2px solid #ffc107; border-radius: 5px;">
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label class="new-label">{{ __('Car Right Side Image') }}</label>
-                                        <img src="{{ user_upload_url($newDriverInfo->{"user-id"}, $newDriverCarRecord?->{"car_rside_img"}) }}" alt="Car Right" class="img-fluid d-block mb-2" style="max-width: 150px; border: 2px solid #ffc107; border-radius: 5px;">
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label class="new-label">{{ __('Car Left Side Image') }}</label>
-                                        <img src="{{ user_upload_url($newDriverInfo->{"user-id"}, $newDriverCarRecord?->{"car_lside_img"}) }}" alt="Car Left" class="img-fluid d-block mb-2" style="max-width: 150px; border: 2px solid #ffc107; border-radius: 5px;">
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label class="new-label">{{ __('Car Inside Front Image') }}</label>
-                                        <img src="{{ user_upload_url($newDriverInfo->{"user-id"}, $newDriverCarRecord?->{"car_insideFront_img"}) }}" alt="Inside Front" class="img-fluid d-block mb-2" style="max-width: 150px; border: 2px solid #ffc107; border-radius: 5px;">
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label class="new-label">{{ __('Car Inside Back Image') }}</label>
-                                        <img src="{{ user_upload_url($newDriverInfo->{"user-id"}, $newDriverCarRecord?->{"car_insideBack_img"}) }}" alt="Inside Back" class="img-fluid d-block mb-2" style="max-width: 150px; border: 2px solid #ffc107; border-radius: 5px;">
-                                    </div>
+                                    @foreach($carImageFields as $field => $label)
+                                        @php($pendingCarImage = pending_image_filename($oldDriver->driverCar?->{$field}, $newDriverCarRecord?->{$field}))
+                                        <div class="form-group">
+                                            <label class="new-label">{{ $label }}</label>
+                                            @if($pendingCarImage)
+                                                <img src="{{ user_upload_url($newDriverInfo->{'user-id'}, $pendingCarImage) }}" alt="{{ $label }}" class="img-fluid d-block mb-2" style="max-width: 150px; border: 2px solid #ffc107; border-radius: 5px;">
+                                            @else
+                                                <p class="text-muted mb-0">{{ __('No change') }}</p>
+                                            @endif
+                                        </div>
+                                    @endforeach
                                 </div>
                             </div>
                         </div>

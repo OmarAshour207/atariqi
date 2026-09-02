@@ -26,21 +26,21 @@
                         <div class="col-lg card-form__body card-body">
                             <div class="form-group">
                                 <label for="title">{{ __('Website') }} / {{ __('Title') }}</label>
-                                <input id="title" dir="auto" type="text" name="title" class="form-control" value="{{ old('title', setting('title')) }}">
+                                <input id="title" dir="auto" type="text" name="title" class="form-control" value="{{ old('title', $settings['title'] ?? setting('title')) }}">
                             </div>
                         </div>
                     </div>
 
                     <div class="form-group">
                         <label for="description"> {{ __('Website') }} / {{ __('Description') }}</label>
-                        <textarea id="description" dir="auto" name="description" rows="4" class="form-control">{{ old('description', setting('description')) }}</textarea>
+                        <textarea id="description" dir="auto" name="description" rows="4" class="form-control">{{ old('description', $settings['description'] ?? setting('description')) }}</textarea>
                     </div>
 
                     <div class="row no-gutters">
                         <div class="col-lg card-form__body card-body">
                             <div class="form-group">
                                 <label for="phonenumber">{{ __('Website') }} / {{ __('Phone number') }}</label>
-                                <input id="phonenumber" type="text" placeholder="{{ __('Phone number') }}" name="phonenumber" class="form-control" value="{{ old('phonenumber', setting('phonenumber')) }}">
+                                <input id="phonenumber" type="text" placeholder="{{ __('Phone number') }}" name="phonenumber" class="form-control" value="{{ old('phonenumber', $settings['phonenumber'] ?? setting('phonenumber')) }}">
                             </div>
                         </div>
                     </div>
@@ -49,7 +49,7 @@
                         <div class="col-lg card-form__body card-body">
                             <div class="form-group">
                                 <label for="email">{{ __('Website') }} / {{ __('Email') }}</label>
-                                <input id="email" dir="ltr" type="email" name="email" class="form-control" value="{{ old('email', setting('email')) }}">
+                                <input id="email" dir="ltr" type="email" name="email" class="form-control" value="{{ old('email', $settings['email'] ?? setting('email')) }}">
                             </div>
                         </div>
                     </div>
@@ -58,7 +58,7 @@
                         <div class="col-lg card-form__body card-body">
                             <div class="form-group">
                                 <label for="address">{{ __('Website') }} / {{ __('Address') }}</label>
-                                <input id="address" dir="ltr" type="text" name="address" class="form-control" value="{{ old('address', setting('address')) }}">
+                                <input id="address" dir="ltr" type="text" name="address" class="form-control" value="{{ old('address', $settings['address'] ?? setting('address')) }}">
                             </div>
                         </div>
                     </div>
@@ -67,7 +67,7 @@
                         <div class="col-lg card-form__body card-body">
                             <div class="form-group">
                                 <label for="linkedin">{{ __('Website') }} / {{ __('Linkedin') }}</label>
-                                <input id="linkedin" type="url" name="linkedin" placeholder="{{ __('Linkedin') }}" class="form-control" value="{{ old('linkedin', setting('linkedin')) }}">
+                                <input id="linkedin" type="url" name="linkedin" placeholder="{{ __('Linkedin') }}" class="form-control" value="{{ old('linkedin', $settings['linkedin'] ?? setting('linkedin')) }}">
                             </div>
                         </div>
                     </div>
@@ -76,7 +76,7 @@
                         <div class="col-lg card-form__body card-body">
                             <div class="form-group">
                                 <label for="instagram">{{ __('Website') }} / {{ __('Instagram') }}</label>
-                                <input id="instagram" placeholder="{{ __('Instagram') }}" type="url" name="instagram" class="form-control" value="{{ old('instagram', setting('instagram')) }}">
+                                <input id="instagram" placeholder="{{ __('Instagram') }}" type="url" name="instagram" class="form-control" value="{{ old('instagram', $settings['instagram'] ?? setting('instagram')) }}">
                             </div>
                         </div>
                     </div>
@@ -85,7 +85,7 @@
                         <div class="col-lg card-form__body card-body">
                             <div class="form-group">
                                 <label for="twitter">{{ __('Website') }} / {{ __('Twitter') }}</label>
-                                <input id="twitter" placeholder="{{ __('Twitter') }}" type="url" name="twitter" class="form-control" value="{{ old('twitter', setting('twitter')) }}">
+                                <input id="twitter" placeholder="{{ __('Twitter') }}" type="url" name="twitter" class="form-control" value="{{ old('twitter', $settings['twitter'] ?? setting('twitter')) }}">
                             </div>
                         </div>
                     </div>
@@ -94,7 +94,7 @@
                         <div class="col-lg card-form__body card-body">
                             <div class="form-group">
                                 <label for="google_play">{{ __('Google Play') }}</label>
-                                <input id="google_play" placeholder="{{ __('Google Play') }}" type="url" name="google_play" class="form-control" value="{{ old('google_play', setting('google_play')) }}">
+                                <input id="google_play" placeholder="{{ __('Google Play') }}" type="url" name="google_play" class="form-control" value="{{ old('google_play', $settings['google_play'] ?? setting('google_play')) }}">
                             </div>
                         </div>
                     </div>
@@ -103,7 +103,7 @@
                         <div class="col-lg card-form__body card-body">
                             <div class="form-group">
                                 <label for="app_store">{{ __('Website') }} / {{ __('App Store') }}</label>
-                                <input id="app_store" placeholder="{{ __('App Store') }}" type="url" name="app_store" class="form-control" value="{{ old('app_store', setting('app_store')) }}">
+                                <input id="app_store" placeholder="{{ __('App Store') }}" type="url" name="app_store" class="form-control" value="{{ old('app_store', $settings['app_store'] ?? setting('app_store')) }}">
                             </div>
                         </div>
                     </div>

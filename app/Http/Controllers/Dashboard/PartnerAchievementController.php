@@ -12,7 +12,7 @@ class PartnerAchievementController extends Controller
     {
         $partnerAchievements = PartnerAchievement::when($request->input('type'), function ($query, $type) {
             return $query->where('type', $type);
-        })->paginate(20);
+        })->paginate(20)->appends($request->query());
 
         return view('dashboard.partner_achievements.index', compact('partnerAchievements'));
     }
@@ -78,9 +78,11 @@ class PartnerAchievementController extends Controller
     public function destroy($id)
     {
         $stat = PartnerAchievement::findOrFail($id);
+        $type = $stat->type;
         $stat->delete();
 
-        return redirect()->route('partner-achievements.index')
-            ->with('success', 'Stat deleted successfully.');
+        return redirect()->route('partner-achievements.index', array_filter([
+            'type' => $type,
+        ]))->with('success', 'Stat deleted successfully.');
     }
 }

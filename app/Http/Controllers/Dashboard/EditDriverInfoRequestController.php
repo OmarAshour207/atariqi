@@ -170,17 +170,50 @@ class EditDriverInfoRequestController extends Controller
             }
 
             if ($driver->driverCar && $newCarInfo) {
-                $driver->driverCar->update([
-                    'driver-type-id' => $newCarInfo->{'driver-type-id'},
-                    'car_form_img' => $newCarInfo->car_form_img,
-                    'license_img' => $newCarInfo->license_img ?? $newCarInfo->licnese_img ?? null,
-                    'car_front_img' => $newCarInfo->car_front_img,
-                    'car_back_img' => $newCarInfo->car_back_img,
-                    'car_rside_img' => $newCarInfo->car_rside_img,
-                    'car_lside_img' => $newCarInfo->car_lside_img,
-                    'car_insideFront_img' => $newCarInfo->car_insideFront_img,
-                    'car_insideBack_img' => $newCarInfo->car_insideBack_img,
-                ]);
+                $currentCar = $driver->driverCar;
+                $carUpdate = [];
+
+                if (filled($newCarInfo->{'driver-type-id'})
+                    && (string) $newCarInfo->{'driver-type-id'} !== (string) $currentCar->{'driver-type-id'}) {
+                    $carUpdate['driver-type-id'] = $newCarInfo->{'driver-type-id'};
+                }
+
+                $carImageFields = [
+                    'car_form_img',
+                    'license_img',
+                    'car_front_img',
+                    'car_back_img',
+                    'car_rside_img',
+                    'car_lside_img',
+                    'car_insideFront_img',
+                    'car_insideBack_img',
+                ];
+
+                foreach ($carImageFields as $field) {
+                    $newValue = $newCarInfo->{$field};
+
+                    if ($field === 'license_img' && !filled($newValue)) {
+                        $newValue = $newCarInfo->licnese_img ?? null;
+                    }
+
+                    if (filled($newValue) && $newValue !== $currentCar->{$field}) {
+                        $carUpdate[$field] = $newValue;
+                    }
+                }
+
+                if (!empty($carUpdate)) {
+                    $currentCar->update($carUpdate);
+                }
+            } elseif ($driver->driverCar && $newDriverInfo && filled($newDriverInfo->{'driver-license-link'})) {
+                $licenseLink = $newDriverInfo->{'driver-license-link'};
+                $currentLicense = $driver->driverInfo?->{'driver-license-link'}
+                    ?? $driver->driverCar->license_img;
+
+                if ($licenseLink !== $currentLicense) {
+                    $driver->driverCar->update([
+                        'license_img' => $licenseLink,
+                    ]);
+                }
             }
 
             $driver->refresh()->loadMissing(['driverInfo', 'callingKey']);

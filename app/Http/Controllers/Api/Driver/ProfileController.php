@@ -90,40 +90,16 @@ class ProfileController extends BaseController
             ], 422);
         }
 
-        $existingRequest = NewDriverCar::where('driver-id', $driver->id)->latest('id')->first();
-        $currentCar = $driver->driverCar;
-
-        $payload = [
-            'driver-id' => $driver->id,
-            'driver-type-id' => $existingRequest?->{'driver-type-id'}
-                ?? $currentCar?->{'driver-type-id'},
-            'date_of_add' => now()->toDateTimeString(),
-        ];
-
-        foreach ($fileFields as $field) {
-            $payload[$field] = $images[$field]
-                ?? $existingRequest?->{$field}
-                ?? $currentCar?->{$field};
-        }
+        $overrides = $images;
 
         if ($request->hasFile('license_img')) {
             $licenseImages = $this->uploadImages($request, ['license_img'], $driver->id);
             if (!empty($licenseImages['license_img'])) {
-                $payload['license_img'] = $licenseImages['license_img'];
+                $overrides['license_img'] = $licenseImages['license_img'];
             }
-        } else {
-            $payload['license_img'] = $existingRequest?->license_img
-                ?? $currentCar?->license_img;
         }
 
-        if ($existingRequest) {
-            $existingRequest->update($payload);
-            NewDriverCar::where('driver-id', $driver->id)
-                ->where('id', '!=', $existingRequest->id)
-                ->delete();
-        } else {
-            NewDriverCar::create($payload);
-        }
+        $this->syncPendingDriverCar($overrides);
 
         $this->ensureNewUserInfoExists();
 
@@ -168,6 +144,16 @@ class ProfileController extends BaseController
             $data
         );
 
+        $carOverrides = [
+            'driver-type-id' => $data['driver-type-id'],
+        ];
+
+        if (isset($images['license_img'])) {
+            $carOverrides['license_img'] = $images['license_img'];
+        }
+
+        $this->syncPendingDriverCar($carOverrides);
+
         $this->ensureNewUserInfoExists();
 
         auth()->user()->driverInfo->update([
@@ -178,6 +164,47 @@ class ProfileController extends BaseController
 
         return $this->sendResponse([],
             __('Your request for edit will be reviewed, and we will respond to you as soon as possible'));
+    }
+
+    private function syncPendingDriverCar(array $overrides = []): void
+    {
+        $driver = auth()->user();
+        $existingRequest = NewDriverCar::where('driver-id', $driver->id)->latest('id')->first();
+        $currentCar = $driver->driverCar;
+
+        $fileFields = [
+            'car_front_img',
+            'car_back_img',
+            'car_rside_img',
+            'car_lside_img',
+            'car_insideFront_img',
+            'car_insideBack_img',
+            'car_form_img',
+            'license_img',
+        ];
+
+        $payload = [
+            'driver-id' => $driver->id,
+            'driver-type-id' => $overrides['driver-type-id']
+                ?? $existingRequest?->{'driver-type-id'}
+                ?? $currentCar?->{'driver-type-id'},
+            'date_of_add' => now()->toDateTimeString(),
+        ];
+
+        foreach ($fileFields as $field) {
+            $payload[$field] = $overrides[$field]
+                ?? $existingRequest?->{$field}
+                ?? $currentCar?->{$field};
+        }
+
+        if ($existingRequest) {
+            $existingRequest->update($payload);
+            NewDriverCar::where('driver-id', $driver->id)
+                ->where('id', '!=', $existingRequest->id)
+                ->delete();
+        } else {
+            NewDriverCar::create($payload);
+        }
     }
 
     private function ensureNewUserInfoExists(): void

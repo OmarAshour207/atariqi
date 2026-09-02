@@ -105,10 +105,6 @@ class UserController extends BaseController
             return $response;
         }
 
-        $user->update(['code' => '1234']);
-
-        return $this->sendResponse('s_codeSent', __('Verification code sent'));
-
         $code = generateCode();
 
         $phoneNumber = SaudiPhone::toE164ForUser($user);
@@ -152,22 +148,6 @@ class UserController extends BaseController
             return $this->rejectNonSaudiPhone();
         }
 
-        $success['user'] = new UserResource($user);
-
-        $success['token'] = $user->createToken('atariqi')->plainTextToken;
-        $user->update([
-            'code'      => null,
-            'fcm_token' => $data['fcm_token']
-        ]);
-
-        UserLogin::create([
-            'user-id'       => $user->id,
-            'date-time'     => now(),
-            'login-logout'  => 1
-        ]);
-
-        return $this->sendResponse($success, __('User Logged Successfully.'));
-
         if($user->code != $code) {
             return $this->sendError(__('s_invalidCode'), [__('Invalid Code')], 401);
         }
@@ -177,7 +157,14 @@ class UserController extends BaseController
             'fcm_token' => $data['fcm_token']
         ]);
 
+        $success['user'] = new UserResource($user);
         $success['token'] = $user->createToken('atariqi')->plainTextToken;
+
+        UserLogin::create([
+            'user-id'       => $user->id,
+            'date-time'     => now(),
+            'login-logout'  => 1
+        ]);
 
         return $this->sendResponse($success, __('User Logged Successfully.'));
     }
