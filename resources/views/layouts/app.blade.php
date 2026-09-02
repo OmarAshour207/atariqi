@@ -10,6 +10,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>رافقني – الصفحة التعريفية</title>
   <meta name="description" content="رافقني | منصة على طريقي – تعريف بالشركة والتطبيق، إنجازات، تعاونات، وتعليقات العملاء." />
+  <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
 
   <!-- Bootstrap 5 + Icons -->
   @if($isRtl)
