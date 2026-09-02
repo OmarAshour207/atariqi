@@ -3,70 +3,32 @@
 namespace App\Http\Controllers\Api\Driver;
 
 use App\Http\Controllers\Api\BaseController;
-use App\Http\Controllers\Api\Driver\Traits\Payment;
-use App\Models\FinancialDue;
-use App\Models\Subscription;
 use App\Models\Order;
+use App\Services\DriverDuesService;
 use App\Services\TelrService;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 class DuesController extends BaseController
 {
-    use Payment;
-
     protected $telrService;
 
-    public function __construct(TelrService $telrService)
-    {
+    public function __construct(
+        TelrService $telrService,
+        private DriverDuesService $driverDuesService
+    ) {
         $this->telrService = $telrService;
     }
 
     public function getData(): JsonResponse
     {
-        $lastPayDate = FinancialDue::select('amount', 'date-of-add')
-            ->where('driver-id', auth()->user()->id)
-            ->orderBy('id', 'desc')
-            ->first();
-
-        $dates['start_date'] = $lastPayDate?->{"date-of-add"};
-        $dates['end_date'] = Carbon::now()->format('Y-m-d');
-
-        $newRevenues = $this->getRevenue(auth()->user()->id, $dates);
-
-        $duesPercentage = Subscription::generalDuesPercentageValue();
-
-        $currentDues = ($duesPercentage * $newRevenues['total']) / 100;
-
-        return $this->sendResponse([
-            'last_pay_date' => $lastPayDate?->{"date-of-add"} ? Carbon::parse($lastPayDate?->{"date-of-add"})->format('Y/m/d') : null,
-            'last_pay_cost' => $lastPayDate->amount ?? 0,
-            'new_revenues' => $newRevenues['total'],
-            'current_dues' => $currentDues,
-            'can_accept_trips' => auth()->user()->approval == 1 && auth()->user()->scopeCheckacceptTrips($currentDues),
-            'requires_abshir_update' => auth()->user()->approval == 4,
-            'abshir_message' => auth()->user()->{'reject-reason'},
-        ], __('Data'));
+        return $this->sendResponse($this->driverDuesService->summary(), __('Data'));
     }
 
     public function payDues(): JsonResponse
     {
-        $lastPayDate = FinancialDue::select('amount', 'date-of-add')
-            ->where('driver-id', auth()->user()->id)
-            ->orderBy('id', 'desc')
-            ->first();
+        $currentDues = $this->driverDuesService->currentDuesAmount();
 
-        $dates['start_date'] = $lastPayDate?->{"date-of-add"};
-        $dates['end_date'] = Carbon::now()->format('Y-m-d');
-
-        $newRevenues = $this->getRevenue(auth()->user()->id, $dates);
-
-        $duesPercentage = Subscription::generalDuesPercentageValue();
-
-        $currentDues = ($duesPercentage * $newRevenues['total']) / 100;
-
-        if($currentDues <= 0) {
+        if ($currentDues <= 0) {
             return $this->sendError(__('No dues to pay'));
         }
 

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Driver;
 
 use App\Http\Controllers\Api\BaseController;
+use App\Http\Controllers\Api\Driver\Traits\ChecksDriverDues;
 use App\Http\Controllers\Api\Driver\Traits\ChecksDriverWaslStatus;
 use App\Http\Resources\DayRideBookingResource;
 use App\Http\Resources\Driver\SugDayDriverDetailsResource;
@@ -19,7 +20,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 
 class DailyTripsController extends BaseController
 {
-    use ChecksDriverWaslStatus;
+    use ChecksDriverDues, ChecksDriverWaslStatus;
     public function get(): JsonResponse
     {
         $driverServices = DriversServices::select('service-id')
@@ -59,12 +60,8 @@ class DailyTripsController extends BaseController
             return $blocked;
         }
 
-        $dues = new DuesController();
-        $totalDues = $dues->getData();
-        $canAcceptTrips = json_decode($totalDues->getContent(), true)['data']['can_accept_trips'];
-
-        if ($request->input('action') == 1 && !$canAcceptTrips) {
-            return $this->sendError(__('Please pay your dues to activate your services again. Note: you can deliver your previously accepted rides'), [__('Please pay your dues to activate your services again. Note: you can deliver your previously accepted rides')]);
+        if ($blocked = $this->blockIfDriverCannotAcceptTripsDueToDues()) {
+            return $blocked;
         }
 
         $dayRideBooking = DayRideBooking::where('id', $request->input('id'))->first();

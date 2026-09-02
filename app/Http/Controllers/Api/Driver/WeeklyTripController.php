@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Driver;
 
 use App\Http\Controllers\Api\BaseController;
+use App\Http\Controllers\Api\Driver\Traits\ChecksDriverDues;
 use App\Http\Controllers\Api\Driver\Traits\ChecksDriverWaslStatus;
 use App\Http\Resources\Driver\WeekRideBookingGroupDetails;
 use App\Models\SugWeekDriver;
@@ -15,7 +16,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 
 class WeeklyTripController extends BaseController
 {
-    use ChecksDriverWaslStatus;
+    use ChecksDriverDues, ChecksDriverWaslStatus;
     public function get($groupId): JsonResponse
     {
         $tripsGroup = WeekRideBooking::with(['rate', 'sugDriver', 'sugDriver.deliveryInfo'])
@@ -44,12 +45,10 @@ class WeeklyTripController extends BaseController
             return $blocked;
         }
 
-        $dues = new DuesController();
-        $totalDues = $dues->getData();
-        $canAcceptTrips = json_decode($totalDues->getContent(), true)['data']['can_accept_trips'];
-
-        if ($request->input('action') == 1 && !$canAcceptTrips) {
-            return $this->sendError(__('please pay your dues to activate your services again. Note: you can deliver your previously accepted rides'), [__('please pay your dues to activate your services again. Note: you can deliver your previously accepted rides')]);
+        if ((int) $request->input('action') === 1) {
+            if ($blocked = $this->blockIfDriverCannotAcceptTripsDueToDues()) {
+                return $blocked;
+            }
         }
 
         $tripsGroup = WeekRideBooking::with('sugDriver')
