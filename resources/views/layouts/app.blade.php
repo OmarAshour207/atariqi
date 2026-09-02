@@ -124,13 +124,15 @@
         // سنة الفوتر
         document.getElementById('year').textContent = new Date().getFullYear();
 
-        // جلب بيانات الصفحة من قاعدة البيانات
+        // جلب بيانات الصفحة من قاعدة البيانات (الصفحة الرئيسية فقط)
+        const aboutUsContent = document.getElementById('about_us_content');
+        if (aboutUsContent) {
         fetch('/homepage-sections')
             .then(r => r.ok ? r.json() : Promise.reject(r))
             .then(data => {
                 // عن الشركة
                 // if locale is arabic, show content_ar, otherwise show content
-                document.getElementById('about_us_content').innerHTML = LOCALE === 'ar' ? data.about_us?.content_ar ?? '' : data.about_us?.content ?? '';
+                aboutUsContent.innerHTML = LOCALE === 'ar' ? data.about_us?.content_ar ?? '' : data.about_us?.content ?? '';
                 document.getElementById('about_us_icon').src = data.about_us?.icon ? BASE_URL + data.about_us.icon : 'https://i.pravatar.cc/80';
 
                 // عن التطبيق – المزايا
@@ -207,6 +209,7 @@
                 document.getElementById('footerAbout').innerHTML = LOCALE === 'ar' ? data.about_us?.content_ar ?? '' : data.about_us?.content ?? '';
             })
             .catch(err => console.error('API /api/homepage-sections error', err));
+        }
     </script>
 
     @stack('scripts')

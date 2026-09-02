@@ -42,7 +42,7 @@
                                     <button
                                         class="nav-link {{ $loop->first ? 'active' : '' }}"
                                         id="tab-{{ $key }}"
-                                        data-bs-toggle="pill"
+                                        data-bs-toggle="tab"
                                         data-bs-target="#panel-{{ $key }}"
                                         type="button"
                                         role="tab"
