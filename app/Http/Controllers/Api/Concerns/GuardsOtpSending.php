@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Concerns;
 
 use App\Models\User;
 use App\Services\OtpRateLimiter;
+use App\Support\OtpBypass;
 use App\Support\SaudiPhone;
 use Illuminate\Http\JsonResponse;
 
@@ -29,6 +30,10 @@ trait GuardsOtpSending
 
     protected function guardOtpForUser(User $user, OtpRateLimiter $limiter): ?JsonResponse
     {
+        if (OtpBypass::isBypassPhone((string) $user->{'phone-no'})) {
+            return null;
+        }
+
         $fullPhone = SaudiPhone::resolveForUser($user);
 
         if (! $fullPhone) {
@@ -46,6 +51,10 @@ trait GuardsOtpSending
 
     protected function guardOtpForRegistration(int $callKeyId, string $phone, OtpRateLimiter $limiter): ?JsonResponse
     {
+        if (OtpBypass::isBypassPhone($phone)) {
+            return null;
+        }
+
         $fullPhone = SaudiPhone::resolve($callKeyId, $phone);
 
         if (! $fullPhone) {

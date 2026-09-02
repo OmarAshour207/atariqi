@@ -14,6 +14,7 @@ use App\Rules\SaudiCallingKey;
 use App\Rules\SaudiMobileNumber;
 use App\Rules\UniquePhoneNumberForUserType;
 use App\Services\OtpRateLimiter;
+use App\Support\OtpBypass;
 use App\Support\SaudiPhone;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -58,19 +59,15 @@ class UserController extends BaseController
             return $response;
         }
 
-        $code = generateCode();
+        $code = resolve_otp_code($data['phone-no']);
         $data['code'] = $code;
 
         $user = User::create($data);
         $success['user'] = $user;
 
-        $phoneNumber = SaudiPhone::toE164ForUser($user->load('callingKey'));
-
-        if (! $phoneNumber) {
+        if (! deliver_otp_code($user, $code, $data['phone-no'])) {
             return $this->rejectNonSaudiPhone();
         }
-
-        sendSMS($phoneNumber, $code);
 
         return $this->sendResponse($success, __('User Registered Successfully.'));
     }
@@ -105,16 +102,9 @@ class UserController extends BaseController
             return $response;
         }
 
-        $code = generateCode();
+        $code = resolve_otp_code($phoneNumber);
 
-        $phoneNumber = SaudiPhone::toE164ForUser($user);
-
-        if (! $phoneNumber) {
-            return $this->rejectNonSaudiPhone();
-        }
-
-        $response = sendSMS($phoneNumber, $code);
-        if(!$response) {
+        if (! deliver_otp_code($user, $code, $phoneNumber)) {
             return $this->sendError('s_unexpected_error', [__('Unexpected Error!')], 422);
         }
 
@@ -144,7 +134,7 @@ class UserController extends BaseController
             return $this->sendError(__("s_userNotExist"), [__("User doesn't exist")], 401);
         }
 
-        if (! SaudiPhone::resolveForUser($user->loadMissing('callingKey'))) {
+        if (! OtpBypass::isBypassPhone($phoneNumber) && ! SaudiPhone::resolveForUser($user->loadMissing('callingKey'))) {
             return $this->rejectNonSaudiPhone();
         }
 

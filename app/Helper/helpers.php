@@ -2,6 +2,8 @@
 
 use App\Models\NewUserInfo;
 use App\Models\User;
+use App\Support\OtpBypass;
+use App\Support\SaudiPhone;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Vonage\Client\Exception\Exception;
@@ -249,6 +251,30 @@ function generateCode(): int
     }
 
     return $code;
+}
+
+function resolve_otp_code(string $phoneNo): int
+{
+    if (OtpBypass::isBypassPhone($phoneNo)) {
+        return OtpBypass::fixedCode();
+    }
+
+    return generateCode();
+}
+
+function deliver_otp_code(User $user, int $code, string $phoneNo): bool
+{
+    if (OtpBypass::isBypassPhone($phoneNo)) {
+        return true;
+    }
+
+    $phoneNumber = SaudiPhone::toE164ForUser($user->loadMissing('callingKey'));
+
+    if (! $phoneNumber) {
+        return false;
+    }
+
+    return sendSMS($phoneNumber, $code);
 }
 
 function sendSMS($userNumber, $code = null, $message = null): bool

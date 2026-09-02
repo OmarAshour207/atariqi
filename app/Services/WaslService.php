@@ -107,8 +107,8 @@ class WaslService
                 'app-id' => $this->config['app_id'],
                 'app-key' => $this->config['app_key'],
             ])
-                ->contentType('application/json')
-                ->post($this->config['api_url'] . '/api/dispatching/v2/drivers', $driverData);
+            ->contentType('application/json')
+            ->post($this->config['api_url'] . '/api/dispatching/v2/drivers', $driverData);
 
             Log::channel('wasl')->info('Received response from Wasl for driver registration', [
                 'driver_id' => $driverId,
@@ -259,7 +259,7 @@ class WaslService
                 'app-id' => $this->config['app_id'],
                 'app-key' => $this->config['app_key'],
             ])
-                ->contentType('application/json')
+            ->contentType('application/json')
                 ->post($this->config['api_url'] . '/api/dispatching/v2/drivers/eligibility', $payload);
 
             Log::channel('wasl')->info('Received response from Wasl for driver eligibility check', [
@@ -677,7 +677,7 @@ class WaslService
     private function waslHeaders(): array
     {
         return [
-            'client-id' => $this->config['client_key'],
+                'client-id' => $this->config['client_key'],
             'app-id' => $this->config['app_id'],
             'app-key' => $this->config['app_key'],
         ];

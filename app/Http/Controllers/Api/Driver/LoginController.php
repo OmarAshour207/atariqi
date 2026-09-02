@@ -5,11 +5,11 @@ namespace App\Http\Controllers\Api\Driver;
 use App\Http\Controllers\Api\BaseController;
 use App\Http\Controllers\Api\Concerns\GuardsOtpSending;
 use App\Http\Resources\DriverResource;
-use App\Models\DriverBanned;
 use App\Models\User;
 use App\Models\UserLogin;
 use App\Rules\SaudiMobileNumber;
 use App\Services\OtpRateLimiter;
+use App\Support\OtpBypass;
 use App\Support\SaudiPhone;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -58,21 +58,12 @@ class LoginController extends BaseController
             return $response;
         }
 
-        return $this->sendResponse('s_codeSent', __('Verification code sent'));
+        $code = resolve_otp_code($phoneNumber);
 
-        $code = generateCode();
-
-        $phoneNumber = SaudiPhone::toE164ForUser($user);
-
-        if (! $phoneNumber) {
-            return $this->rejectNonSaudiPhone();
-        }
-
-        $response = sendSMS($phoneNumber, $code);
-
-        if(!$response) {
+        if (! deliver_otp_code($user, $code, $phoneNumber)) {
             return $this->sendError('s_unexpected_error', [__('Unexpected Error!')], 422);
         }
+
         $user->update(['code' => $code]);
 
         return $this->sendResponse('s_codeSent', __('Verification code sent'));
@@ -110,8 +101,12 @@ class LoginController extends BaseController
             ], 403);
         }
 
-        if (! SaudiPhone::resolveForUser($user->loadMissing('callingKey'))) {
+        if (! OtpBypass::isBypassPhone($phoneNumber) && ! SaudiPhone::resolveForUser($user->loadMissing('callingKey'))) {
             return $this->rejectNonSaudiPhone();
+        }
+
+        if ((string) $user->code !== (string) $code) {
+            return $this->sendError(__('s_invalidCode'), [__('Invalid Code')], 401);
         }
 
         $success = array();
@@ -120,19 +115,6 @@ class LoginController extends BaseController
         $success['abshir_message'] = (int) $user->approval === 4
             ? ($user->{'reject-reason'} ?: __('Please update your data on the Absher platform as requested by the ministry.'))
             : null;
-
-        $success['token'] = $user->createToken('atariqi')->plainTextToken;
-        $success['driver'] = new DriverResource($user);
-        $user->update([
-            'code'      => null,
-            'fcm_token' => $data['fcm_token']
-        ]);
-
-        return $this->sendResponse($success, __('User Logged Successfully.'));
-
-        if($user->code != $code) {
-            return $this->sendError(__('s_invalidCode'), [__('Invalid Code')], 401);
-        }
 
         $user->update([
             'code'      => null,
