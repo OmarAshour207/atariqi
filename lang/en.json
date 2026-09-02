@@ -17,6 +17,11 @@
     "role.support": "Support",
     "role.agent": "Agent",
     "Role name must be lowercase letters, numbers and dashes only.": "Role name must be lowercase letters, numbers and dashes only.",
+    "s_saudiPhoneOnly": "Only Saudi phone numbers are allowed",
+    "s_otpRateLimit": "OTP request limit exceeded",
+    "Only Saudi phone numbers are allowed.": "Only Saudi phone numbers are allowed.",
+    "Only Saudi mobile numbers are allowed.": "Only Saudi mobile numbers are allowed.",
+    "You can request the verification code up to :max times every 24 hours. Please try again in about :hours hours.": "You can request the verification code up to :max times every 24 hours. Please try again in about :hours hours.",
     "Dashboard Login": "Dashboard Login",
     "Home": "Home",
     "Rafiqni": "Rafiqni"

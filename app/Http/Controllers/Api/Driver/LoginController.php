@@ -3,19 +3,29 @@
 namespace App\Http\Controllers\Api\Driver;
 
 use App\Http\Controllers\Api\BaseController;
+use App\Http\Controllers\Api\Concerns\GuardsOtpSending;
 use App\Http\Resources\DriverResource;
 use App\Models\DriverBanned;
 use App\Models\User;
 use App\Models\UserLogin;
+use App\Rules\SaudiMobileNumber;
+use App\Services\OtpRateLimiter;
+use App\Support\SaudiPhone;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
 class LoginController extends BaseController
 {
+    use GuardsOtpSending;
+
+    public function __construct(private OtpRateLimiter $otpRateLimiter)
+    {
+    }
+
     public function login(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'phone-no'      => 'required|string',
+            'phone-no'      => ['required', 'string', new SaudiMobileNumber()],
         ]);
 
         if($validator->fails()) {
@@ -44,11 +54,20 @@ class LoginController extends BaseController
                 [__("We are checking your registration order, please bear with us and will send on academic email or phone")], 401);
         }
 
+        if ($response = $this->guardOtpForUser($user, $this->otpRateLimiter)) {
+            return $response;
+        }
+
         return $this->sendResponse('s_codeSent', __('Verification code sent'));
 
         $code = generateCode();
 
-        $phoneNumber = '+' . $user->callingKey->{"call-key"} . $phoneNumber;
+        $phoneNumber = SaudiPhone::toE164ForUser($user);
+
+        if (! $phoneNumber) {
+            return $this->rejectNonSaudiPhone();
+        }
+
         $response = sendSMS($phoneNumber, $code);
 
         if(!$response) {
@@ -62,7 +81,7 @@ class LoginController extends BaseController
     public function verify(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'phone-no'      => 'required|string',
+            'phone-no'      => ['required', 'string', new SaudiMobileNumber()],
             'code'          => 'required|string',
             'fcm_token'     => 'required|nullable|string'
         ]);
@@ -89,6 +108,10 @@ class LoginController extends BaseController
             return $this->sendError('s_userNotApproved', [
                 __('We are checking your registration order, please bear with us and will send on academic email or phone'),
             ], 403);
+        }
+
+        if (! SaudiPhone::resolveForUser($user->loadMissing('callingKey'))) {
+            return $this->rejectNonSaudiPhone();
         }
 
         $success = array();

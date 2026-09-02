@@ -10,6 +10,8 @@ use App\Models\DriversCar;
 use App\Models\Package;
 use App\Models\User;
 use App\Models\UserPackage;
+use App\Rules\SaudiCallingKey;
+use App\Rules\SaudiMobileNumber;
 use App\Rules\UniquePhoneNumberForUserType;
 use App\Services\WaslService;
 use Illuminate\Http\Request;
@@ -34,13 +36,13 @@ class RegisterController extends BaseController
         $validator = Validator::make($request->all(), [
             'user-first-name'   => 'required|string|max:20',
             'user-last-name'    => 'required|string|max:20',
-            'phone-no'          => ['required', 'max:20', new UniquePhoneNumberForUserType($request->input("user-type"))],
+            'phone-no'          => ['required', 'max:20', new SaudiMobileNumber(), new UniquePhoneNumberForUserType($request->input("user-type"))],
             'gender'            => 'required|string|max:20',
             'university-id'     => 'required|numeric',
             'email'             => 'required|email|unique:users|max:50',
             'user-type'         => 'required|string|in:driver',
             'driver-type-id'    => 'required|numeric',
-            'call-key-id'       => 'required|numeric',
+            'call-key-id'       => ['required', 'numeric', new SaudiCallingKey()],
             'user-stage-id'     => 'required|numeric',
             'image'             => 'nullable|mimes:jpeg,jpg,png',
             'car-brand'         => 'required|string',
