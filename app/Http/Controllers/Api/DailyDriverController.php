@@ -372,6 +372,8 @@ class DailyDriverController extends BaseController
 
     public function selectDriver(Request $request)
     {
+        Log::info('selectDriver', $request->all());
+
         $validator = Validator::make($request->all(), [
             'lat'               => 'required|string',
             'lng'               => 'required|string',
@@ -416,6 +418,8 @@ class DailyDriverController extends BaseController
         ], $roadWay);
 
         if (isset($checkSchedule['road_way'])) {
+            Log::error('daily already booked', $checkSchedule);
+
             return $this->sendError(__('Validation Error.'),
                 [
                     __("already_booked", [

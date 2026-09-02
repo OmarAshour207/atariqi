@@ -294,6 +294,8 @@ class WeeklyDriverController extends BaseController
 
     public function selectDriver(Request $request)
     {
+        Log::info('select weekly Driver', $request->all());
+
         $validator = Validator::make($request->all(), [
             'neighborhood_id'   => 'required|numeric',
             'university_id'     => 'required|numeric',
@@ -327,6 +329,8 @@ class WeeklyDriverController extends BaseController
         $checkSchedule = $this->checkScheduleTime($weeklyDates, $roadWay);
 
         if (isset($checkSchedule['road_way'])) {
+            Log::error('weekly already booked', $checkSchedule);
+
             return $this->sendError(__('Validation Error.'),
                 [
                     __("already_booked", [
