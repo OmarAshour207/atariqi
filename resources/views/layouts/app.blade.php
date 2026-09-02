@@ -181,7 +181,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <p class="mt-3 mb-0">“${t.description}”</p>
+                            <p class="mt-3 mb-0">“${ LOCALE === 'ar' ? t.description_ar ?? t.description : t.description }”</p>
                         </div>
                     </div>
                     `);
