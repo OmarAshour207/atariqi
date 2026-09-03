@@ -380,13 +380,7 @@
                                         </div>
                                     </div>
 
-                                    @php
-                                        $oldLicenseImage = $oldDriver->driverInfo?->{'driver-license-link'} ?? $oldDriver->driverCar?->license_img;
-                                        $newLicenseImage = pending_image_filename(
-                                            $oldLicenseImage,
-                                            $newDriverInfoRecord?->{'driver-license-link'} ?? $newDriverCarRecord?->license_img
-                                        );
-                                    @endphp
+                                    @php($newLicenseImage = pending_image_filename($oldDriver->driverInfo?->{'driver-license-link'} ?? $oldDriver->driverCar?->license_img, $newDriverInfoRecord?->{'driver-license-link'} ?? $newDriverCarRecord?->license_img))
                                     <div class="row">
                                         <div class="col-12">
                                             <div class="form-group highlight-new">
