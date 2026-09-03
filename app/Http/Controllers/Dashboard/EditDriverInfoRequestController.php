@@ -82,16 +82,26 @@ class EditDriverInfoRequestController extends Controller
             }
         }
 
-        return view('dashboard.drivers_info_requests.show', compact(
-            'newDriverInfo',
-            'oldDriver',
-            'newDriverInfoRecord',
-            'newDriverCarRecord',
-            'universities',
-            'stages',
-            'neighborhoods',
-            'driverTypes',
-            'waslEligibility'
+        $comparisonData = $this->buildDriverInfoRequestComparisons(
+            $oldDriver,
+            $newDriverInfo,
+            $newDriverInfoRecord,
+            $newDriverCarRecord
+        );
+
+        return view('dashboard.drivers_info_requests.show', array_merge(
+            compact(
+                'newDriverInfo',
+                'oldDriver',
+                'newDriverInfoRecord',
+                'newDriverCarRecord',
+                'universities',
+                'stages',
+                'neighborhoods',
+                'driverTypes',
+                'waslEligibility'
+            ),
+            $comparisonData
         ));
     }
 
@@ -245,6 +255,45 @@ class EditDriverInfoRequestController extends Controller
 
         return redirect()->route('edit-info-request.index')
             ->with('success', __('Driver updated successfully.'));
+    }
+
+    private function buildDriverInfoRequestComparisons(
+        User $oldDriver,
+        NewUserInfo $newDriverInfo,
+        ?NewDriverInfo $newDriverInfoRecord,
+        ?NewDriverCar $newDriverCarRecord
+    ): array {
+        $carImageFields = [
+            'car_form_img' => __('Car Form Image'),
+            'license_img' => __('License Image'),
+            'car_front_img' => __('Car Front Image'),
+            'car_back_img' => __('Car Back Image'),
+            'car_rside_img' => __('Car Right Side Image'),
+            'car_lside_img' => __('Car Left Side Image'),
+            'car_insideFront_img' => __('Car Inside Front Image'),
+            'car_insideBack_img' => __('Car Inside Back Image'),
+        ];
+
+        $carImageComparisons = [];
+
+        foreach ($carImageFields as $field => $label) {
+            $carImageComparisons[] = [
+                'label' => $label,
+                'pending' => pending_image_filename(
+                    $oldDriver->driverCar?->{$field},
+                    $newDriverCarRecord?->{$field}
+                ),
+            ];
+        }
+
+        return [
+            'pendingUserImage' => pending_image_filename($oldDriver->image, $newDriverInfo->image),
+            'newLicenseImage' => pending_image_filename(
+                $oldDriver->driverInfo?->{'driver-license-link'} ?? $oldDriver->driverCar?->license_img,
+                $newDriverInfoRecord?->{'driver-license-link'} ?? $newDriverCarRecord?->license_img
+            ),
+            'carImageComparisons' => $carImageComparisons,
+        ];
     }
 
     private function sendEditInfoEmail(User $driver, string $emailType, ?string $rejectionReason, bool $isRejection): void

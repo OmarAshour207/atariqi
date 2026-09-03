@@ -232,12 +232,11 @@
                                         </div>
                                     </div>
 
-                                    @php($pendingUserImage = pending_image_filename($oldDriver->image, $newDriverInfo->image))
                                     <div class="row">
                                         <div class="col-12">
                                             <div class="form-group">
                                                 <label class="new-label">{{ __('User Image') }}</label>
-                                                @if($pendingUserImage)
+                                                @if(!empty($pendingUserImage))
                                                     <img src="{{ user_upload_url($newDriverInfo->{'user-id'}, $pendingUserImage) }}" alt="{{ $newDriverInfo->{'user-first-name'} }}" class="img-fluid d-block mb-2" style="max-width: 150px; border: 2px solid #ffc107; border-radius: 5px;">
                                                 @else
                                                     <p class="text-muted mb-0">{{ __('No change') }}</p>
@@ -380,12 +379,11 @@
                                         </div>
                                     </div>
 
-                                    @php($newLicenseImage = pending_image_filename($oldDriver->driverInfo?->{'driver-license-link'} ?? $oldDriver->driverCar?->license_img, $newDriverInfoRecord?->{'driver-license-link'} ?? $newDriverCarRecord?->license_img))
                                     <div class="row">
                                         <div class="col-12">
                                             <div class="form-group highlight-new">
                                                 <label class="new-label">{{ __('License Image') }}</label>
-                                                @if($newLicenseImage)
+                                                @if(!empty($newLicenseImage))
                                                     <a href="{{ user_upload_url($newDriverInfo->{'user-id'}, $newLicenseImage) }}" data-lightbox="new-license-info" data-title="{{ __('License Image') }}">
                                                         <img src="{{ user_upload_url($newDriverInfo->{'user-id'}, $newLicenseImage) }}" alt="{{ __('License Image') }}" class="img-fluid d-block mb-2" style="max-width: 150px; border: 2px solid #ffc107; border-radius: 5px;">
                                                     </a>
@@ -469,25 +467,11 @@
                                         </div>
                                     </div>
 
-                                    @php
-                                        $carImageFields = [
-                                            'car_form_img' => __('Car Form Image'),
-                                            'license_img' => __('License Image'),
-                                            'car_front_img' => __('Car Front Image'),
-                                            'car_back_img' => __('Car Back Image'),
-                                            'car_rside_img' => __('Car Right Side Image'),
-                                            'car_lside_img' => __('Car Left Side Image'),
-                                            'car_insideFront_img' => __('Car Inside Front Image'),
-                                            'car_insideBack_img' => __('Car Inside Back Image'),
-                                        ];
-                                    @endphp
-
-                                    @foreach($carImageFields as $field => $label)
-                                        @php($pendingCarImage = pending_image_filename($oldDriver->driverCar?->{$field}, $newDriverCarRecord?->{$field}))
+                                    @foreach($carImageComparisons as $carImage)
                                         <div class="form-group">
-                                            <label class="new-label">{{ $label }}</label>
-                                            @if($pendingCarImage)
-                                                <img src="{{ user_upload_url($newDriverInfo->{'user-id'}, $pendingCarImage) }}" alt="{{ $label }}" class="img-fluid d-block mb-2" style="max-width: 150px; border: 2px solid #ffc107; border-radius: 5px;">
+                                            <label class="new-label">{{ $carImage['label'] }}</label>
+                                            @if(!empty($carImage['pending']))
+                                                <img src="{{ user_upload_url($newDriverInfo->{'user-id'}, $carImage['pending']) }}" alt="{{ $carImage['label'] }}" class="img-fluid d-block mb-2" style="max-width: 150px; border: 2px solid #ffc107; border-radius: 5px;">
                                             @else
                                                 <p class="text-muted mb-0">{{ __('No change') }}</p>
                                             @endif
