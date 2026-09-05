@@ -97,26 +97,46 @@ class UniversityController extends Controller
             'service_ids.*' => 'exists:services,id',
         ]);
 
+        $selectedServiceIds = collect($data['service_ids'])
+            ->map(fn ($id) => (int) $id)
+            ->unique()
+            ->values()
+            ->all();
+
         $now = now();
 
-        foreach ($data['service_ids'] as $serviceId) {
-            $exists = UniDrivingService::where('university-id', $university->id)
-                ->where('service-id', $serviceId)
-                ->exists();
+        DB::transaction(function () use ($university, $selectedServiceIds, $now) {
+            $existingLinks = UniDrivingService::where('university-id', $university->id)->get();
+            $existingServiceIds = $existingLinks->pluck('service-id')->map(fn ($id) => (int) $id)->all();
 
-            if ($exists) {
-                continue;
+            $toRemove = $existingLinks->filter(
+                fn ($link) => ! in_array((int) $link->{'service-id'}, $selectedServiceIds, true)
+            );
+
+            foreach ($toRemove as $link) {
+                $old = $link->toArray();
+                $link->delete();
+                $this->actionsLog->logDelete(
+                    'uni-driving-services',
+                    $old['id'],
+                    $old,
+                    __('Service unlinked from university.')
+                );
             }
 
-            $link = UniDrivingService::create([
-                'id' => UniDrivingService::nextId(),
-                'university-id' => $university->id,
-                'service-id' => $serviceId,
-                'date-of-add' => $now,
-            ]);
+            $toAdd = array_diff($selectedServiceIds, $existingServiceIds);
 
-            $this->actionsLog->logAdd('uni-driving-services', $link->id);
-        }
+            foreach ($toAdd as $serviceId) {
+                $link = UniDrivingService::create([
+                    'id' => UniDrivingService::nextId(),
+                    'university-id' => $university->id,
+                    'service-id' => $serviceId,
+                    'date-of-add' => $now,
+                ]);
+
+                $this->actionsLog->logAdd('uni-driving-services', $link->id);
+            }
+        });
 
         return redirect()
             ->route('universities.services', $university)

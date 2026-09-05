@@ -21,7 +21,7 @@
             <hr>
             <form method="POST" action="{{ route('universities.services.store', $university) }}">
                 @csrf
-                <label>{{ __('Add Service') }}</label>
+                <label>{{ __('Services') }}</label>
                 @foreach($services as $service)
                     <div class="form-check">
                         <input type="checkbox" name="service_ids[]" value="{{ $service->id }}" id="svc{{ $service->id }}" {{ in_array($service->id, $linkedIds) ? 'checked' : '' }}>

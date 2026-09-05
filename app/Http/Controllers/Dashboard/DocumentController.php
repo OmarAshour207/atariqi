@@ -93,7 +93,7 @@ class DocumentController extends Controller
             ->chunk(100, function ($users) use ($document, $attachmentPath, $employeeId, &$failedCount) {
                 foreach ($users as $user) {
                     try {
-                        Mail::to($user->email)->send(new DocumentUpdatedMail($document, $user));
+                        Mail::to($user->email)->send(new DocumentUpdatedMail($document, $user, $attachmentPath));
 
                         PlatformEmailLog::create([
                             'assigned_from_employee_id' => $employeeId,

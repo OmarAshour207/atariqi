@@ -6,9 +6,11 @@ use App\Models\Document;
 use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\File;
 
 class DocumentUpdatedMail extends Mailable
 {
@@ -16,7 +18,8 @@ class DocumentUpdatedMail extends Mailable
 
     public function __construct(
         public Document $document,
-        public User $user
+        public User $user,
+        public ?string $attachmentPath = null
     ) {
     }
 
@@ -36,5 +39,23 @@ class DocumentUpdatedMail extends Mailable
                 'user' => $this->user,
             ],
         );
+    }
+
+    public function attachments(): array
+    {
+        $path = $this->attachmentPath
+            ?? public_path($this->document->getRawOriginal('file-link'));
+
+        if (! $path || ! File::exists($path)) {
+            return [];
+        }
+
+        $filename = basename($path);
+
+        return [
+            Attachment::fromPath($path)
+                ->as($filename)
+                ->withMime('application/pdf'),
+        ];
     }
 }
