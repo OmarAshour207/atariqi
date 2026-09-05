@@ -169,68 +169,20 @@
                                 <div class="new-data-section">
                                     <div class="section-title new-label"><i class="material-icons" style="vertical-align: middle; margin-right: 5px;">new_releases</i>{{ __("Requested Changes") }}</div>
 
-                                    <div class="row">
-                                        <div class="col-12">
-                                            <div class="form-group highlight-new">
-                                                <label class="new-label">{{ __("First Name") }}</label>
-                                                <input type="text" class="form-control" value="{{ pending_field_value($oldDriver->{'user-first-name'}, $newDriverInfo->{'user-first-name'}) }}" disabled style="background-color: transparent; border: none;">
+                                    @foreach($userFieldComparisons as $field)
+                                        <div class="row">
+                                            <div class="col-12">
+                                                <div class="form-group {{ $field['changed'] ? 'highlight-new' : '' }}">
+                                                    <label class="new-label">{{ $field['label'] }}</label>
+                                                    @if($field['value'] !== '')
+                                                        <input type="text" class="form-control" value="{{ $field['value'] }}" disabled style="background-color: transparent; border: none;">
+                                                    @else
+                                                        <p class="text-muted mb-0">{{ __('No change') }}</p>
+                                                    @endif
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-
-                                    <div class="row">
-                                        <div class="col-12">
-                                            <div class="form-group highlight-new">
-                                                <label class="new-label">{{ __("Last Name") }}</label>
-                                                <input type="text" class="form-control" value="{{ pending_field_value($oldDriver->{'user-last-name'}, $newDriverInfo->{'user-last-name'}) }}" disabled style="background-color: transparent; border: none;">
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="row">
-                                        <div class="col-12">
-                                            <div class="form-group highlight-new">
-                                                <label class="new-label">{{ __("Email") }}</label>
-                                                <input type="text" class="form-control" value="{{ pending_field_value($oldDriver->email, $newDriverInfo->email) }}" disabled style="background-color: transparent; border: none;">
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="row">
-                                        <div class="col-12">
-                                            <div class="form-group highlight-new">
-                                                <label class="new-label">{{ __("Phone Number") }}</label>
-                                                <input type="text" class="form-control" value="{{ pending_field_value($oldDriver->{'phone-no'}, $newDriverInfo->{'phone-no'}) }}" disabled style="background-color: transparent; border: none;">
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="row">
-                                        <div class="col-12">
-                                            <div class="form-group highlight-new">
-                                                <label class="new-label">{{ __("Gender") }}</label>
-                                                <input type="text" class="form-control" value="{{ pending_field_value($oldDriver->gender, $newDriverInfo->gender) }}" disabled style="background-color: transparent; border: none;">
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="row">
-                                        <div class="col-12">
-                                            <div class="form-group highlight-new">
-                                                <label class="new-label">{{ __('University') }}</label>
-                                                <input type="text" class="form-control" value="{{ pending_field_value($oldDriver->{'university-id'}, $newDriverInfo->{'university-id'}) ? optional($newDriverInfo->university)->{'name-ar'} : '' }}" disabled style="background-color: transparent; border: none;">
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="row">
-                                        <div class="col-12">
-                                            <div class="form-group highlight-new">
-                                                <label class="new-label">{{ __('Stage') }}</label>
-                                                <input type="text" class="form-control" value="{{ pending_field_value($oldDriver->{'user-stage-id'}, $newDriverInfo->{'user-stage-id'}) ? optional($newDriverInfo->stage)->{'name-ar'} : '' }}" disabled style="background-color: transparent; border: none;">
-                                            </div>
-                                        </div>
-                                    </div>
+                                    @endforeach
 
                                     <div class="row">
                                         <div class="col-12">
@@ -325,59 +277,20 @@
                                 <div class="new-data-section">
                                     <div class="section-title new-label"><i class="material-icons" style="vertical-align: middle; margin-right: 5px;">new_releases</i>{{ __("Requested Changes") }}</div>
 
-                                    <div class="row">
-                                        <div class="col-12">
-                                            <div class="form-group highlight-new">
-                                                <label class="new-label">{{ __("Car Brand") }}</label>
-                                                <input type="text" class="form-control" value="{{ pending_field_value($oldDriver->driverInfo?->{'car-brand'}, $newDriverInfoRecord?->{'car-brand'}) }}" disabled style="background-color: transparent; border: none;">
+                                    @foreach($driverInfoFieldComparisons as $field)
+                                        <div class="row">
+                                            <div class="col-12">
+                                                <div class="form-group {{ $field['changed'] ? 'highlight-new' : '' }}">
+                                                    <label class="new-label">{{ $field['label'] }}</label>
+                                                    @if($field['value'] !== '')
+                                                        <input type="text" class="form-control" value="{{ $field['value'] }}" disabled style="background-color: transparent; border: none;">
+                                                    @else
+                                                        <p class="text-muted mb-0">{{ __('No change') }}</p>
+                                                    @endif
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-
-                                    <div class="row">
-                                        <div class="col-12">
-                                            <div class="form-group highlight-new">
-                                                <label class="new-label">{{ __("Car Model") }}</label>
-                                                <input type="text" class="form-control" value="{{ pending_field_value($oldDriver->driverInfo?->{'car-model'}, $newDriverInfoRecord?->{'car-model'}) }}" disabled style="background-color: transparent; border: none;">
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="row">
-                                        <div class="col-12">
-                                            <div class="form-group highlight-new">
-                                                <label class="new-label">{{ __("Car Number") }}</label>
-                                                <input type="text" class="form-control" value="{{ pending_field_value($oldDriver->driverInfo?->{'car-number'}, $newDriverInfoRecord?->{'car-number'}) }}" disabled style="background-color: transparent; border: none;">
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="row">
-                                        <div class="col-12">
-                                            <div class="form-group highlight-new">
-                                                <label class="new-label">{{ __("Car Letters") }}</label>
-                                                <input type="text" class="form-control" value="{{ pending_field_value($oldDriver->driverInfo?->{'car-letters'}, $newDriverInfoRecord?->{'car-letters'}) }}" disabled style="background-color: transparent; border: none;">
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="row">
-                                        <div class="col-12">
-                                            <div class="form-group highlight-new">
-                                                <label class="new-label">{{ __("Car Color") }}</label>
-                                                <input type="text" class="form-control" value="{{ pending_field_value($oldDriver->driverInfo?->{'car-color'}, $newDriverInfoRecord?->{'car-color'}) }}" disabled style="background-color: transparent; border: none;">
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="row">
-                                        <div class="col-12">
-                                            <div class="form-group highlight-new">
-                                                <label class="new-label">{{ __("Driver Rate") }}</label>
-                                                <input type="text" class="form-control" value="{{ pending_field_value($oldDriver->driverInfo?->{'driver-rate'}, $newDriverInfoRecord?->{'driver-rate'}) }}" disabled style="background-color: transparent; border: none;">
-                                            </div>
-                                        </div>
-                                    </div>
+                                    @endforeach
 
                                     <div class="row">
                                         <div class="col-12">
@@ -460,9 +373,13 @@
 
                                     <div class="row">
                                         <div class="col-12">
-                                            <div class="form-group highlight-new">
-                                                <label class="new-label">{{ __("Driver Type") }}</label>
-                                                <input type="text" class="form-control" value="{{ pending_field_value($oldDriver->driverCar?->{'driver-type-id'}, $newDriverCarRecord?->{'driver-type-id'}) ? optional($newDriverCarRecord?->driverType)->{'name-ar'} : '' }}" disabled style="background-color: transparent; border: none;">
+                                            <div class="form-group {{ $driverTypeComparison['changed'] ? 'highlight-new' : '' }}">
+                                                <label class="new-label">{{ $driverTypeComparison['label'] }}</label>
+                                                @if($driverTypeComparison['value'] !== '')
+                                                    <input type="text" class="form-control" value="{{ $driverTypeComparison['value'] }}" disabled style="background-color: transparent; border: none;">
+                                                @else
+                                                    <p class="text-muted mb-0">{{ __('No change') }}</p>
+                                                @endif
                                             </div>
                                         </div>
                                     </div>

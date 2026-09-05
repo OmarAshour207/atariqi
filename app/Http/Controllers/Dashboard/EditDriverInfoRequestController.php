@@ -263,6 +263,45 @@ class EditDriverInfoRequestController extends Controller
         ?NewDriverInfo $newDriverInfoRecord,
         ?NewDriverCar $newDriverCarRecord
     ): array {
+        $userFieldComparisons = [
+            $this->textComparison(__('First Name'), $oldDriver->{'user-first-name'}, $newDriverInfo->{'user-first-name'}),
+            $this->textComparison(__('Last Name'), $oldDriver->{'user-last-name'}, $newDriverInfo->{'user-last-name'}),
+            $this->textComparison(__('Email'), $oldDriver->email, $newDriverInfo->email),
+            $this->textComparison(__('Phone Number'), $oldDriver->{'phone-no'}, $newDriverInfo->{'phone-no'}),
+            $this->textComparison(__('Gender'), $oldDriver->gender, $newDriverInfo->gender),
+            $this->textComparison(
+                __('University'),
+                optional($oldDriver->university)->{'name-ar'},
+                optional($newDriverInfo->university)->{'name-ar'},
+                $oldDriver->{'university-id'},
+                $newDriverInfo->{'university-id'}
+            ),
+            $this->textComparison(
+                __('Stage'),
+                optional($oldDriver->stage)->{'name-ar'},
+                optional($newDriverInfo->stage)->{'name-ar'},
+                $oldDriver->{'user-stage-id'},
+                $newDriverInfo->{'user-stage-id'}
+            ),
+        ];
+
+        $driverInfoFieldComparisons = [
+            $this->textComparison(__('Car Brand'), $oldDriver->driverInfo?->{'car-brand'}, $newDriverInfoRecord?->{'car-brand'}),
+            $this->textComparison(__('Car Model'), $oldDriver->driverInfo?->{'car-model'}, $newDriverInfoRecord?->{'car-model'}),
+            $this->textComparison(__('Car Number'), $oldDriver->driverInfo?->{'car-number'}, $newDriverInfoRecord?->{'car-number'}),
+            $this->textComparison(__('Car Letters'), $oldDriver->driverInfo?->{'car-letters'}, $newDriverInfoRecord?->{'car-letters'}),
+            $this->textComparison(__('Car Color'), $oldDriver->driverInfo?->{'car-color'}, $newDriverInfoRecord?->{'car-color'}),
+            $this->textComparison(__('Driver Rate'), $oldDriver->driverInfo?->{'driver-rate'}, $newDriverInfoRecord?->{'driver-rate'}),
+        ];
+
+        $driverTypeComparison = $this->textComparison(
+            __('Driver Type'),
+            optional($oldDriver->driverCar?->driverType)->{'name-ar'},
+            optional($newDriverCarRecord?->driverType)->{'name-ar'},
+            $oldDriver->driverCar?->{'driver-type-id'},
+            $newDriverCarRecord?->{'driver-type-id'}
+        );
+
         $carImageFields = [
             'car_form_img' => __('Car Form Image'),
             'license_img' => __('License Image'),
@@ -287,12 +326,35 @@ class EditDriverInfoRequestController extends Controller
         }
 
         return [
+            'userFieldComparisons' => $userFieldComparisons,
+            'driverInfoFieldComparisons' => $driverInfoFieldComparisons,
+            'driverTypeComparison' => $driverTypeComparison,
             'pendingUserImage' => pending_image_filename($oldDriver->image, $newDriverInfo->image),
             'newLicenseImage' => pending_image_filename(
                 $oldDriver->driverInfo?->{'driver-license-link'} ?? $oldDriver->driverCar?->license_img,
                 $newDriverInfoRecord?->{'driver-license-link'} ?? $newDriverCarRecord?->license_img
             ),
             'carImageComparisons' => $carImageComparisons,
+        ];
+    }
+
+    private function textComparison(
+        string $label,
+        mixed $oldDisplay,
+        mixed $newDisplay,
+        mixed $oldCompare = null,
+        mixed $newCompare = null
+    ): array {
+        $oldCompare ??= $oldDisplay;
+        $newCompare ??= $newDisplay;
+
+        $hasNew = $newCompare !== null && $newCompare !== '';
+        $changed = $hasNew && (string) $newCompare !== (string) $oldCompare;
+
+        return [
+            'label' => $label,
+            'value' => $hasNew ? (string) ($newDisplay ?? '') : '',
+            'changed' => $changed,
         ];
     }
 
