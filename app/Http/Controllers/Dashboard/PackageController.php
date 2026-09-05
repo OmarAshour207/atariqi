@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Dashboard;
 
 use App\Http\Controllers\Controller;
 use App\Mail\NewPackageNotificationMail;
+use App\Mail\PackageUpdateNotificationMail;
 use App\Models\Package;
 use App\Models\PlatformEmailLog;
 use App\Models\User;
@@ -202,7 +203,7 @@ class PackageController extends Controller
 
         foreach ($customers as $customer) {
             try {
-                Mail::to($customer->email)->send(new NewPackageNotificationMail($package, $customer));
+                Mail::to($customer->email)->send(new PackageUpdateNotificationMail($package, $customer));
 
                 PlatformEmailLog::create([
                     'assigned_from_employee_id' => $adminId,

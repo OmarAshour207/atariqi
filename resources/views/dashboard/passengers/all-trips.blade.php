@@ -118,7 +118,7 @@
                         <table class="table table-striped">
                             <thead>
                             <tr>
-                                <th>{{ __('ID') }}</th>
+                                <th>{{ __('Booking ID') }}</th>
                                 <th>{{ __('Passenger') }}</th>
                                 <th>{{ __('Driver') }}</th>
                                 <th>{{ __('Date') }}</th>
@@ -129,7 +129,7 @@
                             <tbody>
                             @foreach($immediateTrips as $trip)
                                 <tr>
-                                    <td>{{ $trip->id }}</td>
+                                    <td>{{ $trip->{'booking-id'} }}</td>
                                     <td>
                                         <a href="{{ route('passengers.show', $trip->passenger->id) }}" class="text-primary">
                                             {{ optional($trip->passenger)->{'user-first-name'} }} {{ optional($trip->passenger)->{'user-last-name'} }}
@@ -166,7 +166,7 @@
                         <table class="table table-striped">
                             <thead>
                             <tr>
-                                <th>{{ __('ID') }}</th>
+                                <th>{{ __('Booking ID') }}</th>
                                 <th>{{ __('Passenger') }}</th>
                                 <th>{{ __('Driver') }}</th>
                                 <th>{{ __('Date') }}</th>
@@ -177,7 +177,7 @@
                             <tbody>
                             @foreach($dailyTrips as $trip)
                                 <tr>
-                                    <td>{{ $trip->id }}</td>
+                                    <td>{{ $trip->{'booking-id'} }}</td>
                                     <td>
                                         <a href="{{ route('passengers.show', $trip->passenger->id) }}" class="text-primary">
                                             {{ optional($trip->passenger)->{'user-first-name'} }} {{ optional($trip->passenger)->{'user-last-name'} }}
@@ -214,7 +214,7 @@
                         <table class="table table-striped">
                             <thead>
                             <tr>
-                                <th>{{ __('ID') }}</th>
+                                <th>{{ __('Booking ID') }}</th>
                                 <th>{{ __('Passenger') }}</th>
                                 <th>{{ __('Driver') }}</th>
                                 <th>{{ __('Date') }}</th>
@@ -225,7 +225,7 @@
                             <tbody>
                             @foreach($weeklyTrips as $trip)
                                 <tr>
-                                    <td>{{ $trip->id }}</td>
+                                    <td>{{ $trip->{'booking-id'} }}</td>
                                     <td>
                                         <a href="{{ route('passengers.show', $trip->passenger->id) }}" class="text-primary">
                                             {{ optional($trip->passenger)->{'user-first-name'} }} {{ optional($trip->passenger)->{'user-last-name'} }}

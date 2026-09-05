@@ -83,7 +83,7 @@
                         <table class="table table-striped">
                             <thead>
                             <tr>
-                                <th>{{ __('ID') }}</th>
+                                <th>{{ __('Booking ID') }}</th>
                                 <th>{{ __('Driver') }}</th>
                                 <th>{{ __('Date') }}</th>
                                 <th>{{ __('Status') }}</th>
@@ -92,7 +92,7 @@
                             <tbody>
                             @foreach($immediateTrips as $trip)
                                 <tr>
-                                    <td>{{ $trip->id }}</td>
+                                    <td>{{ $trip->{'booking-id'} }}</td>
                                     <td>{{ optional($trip->driver)->{'user-first-name'} }} {{ optional($trip->driver)->{'user-last-name'} }}</td>
                                     <td>{{ $formatTripDate($trip, 'immediate') }}</td>
                                     <td><span class="badge badge-info">{{ __('Immediate') }}</span></td>
@@ -113,7 +113,7 @@
                         <table class="table table-striped">
                             <thead>
                             <tr>
-                                <th>{{ __('ID') }}</th>
+                                <th>{{ __('Booking ID') }}</th>
                                 <th>{{ __('Driver') }}</th>
                                 <th>{{ __('Date') }}</th>
                                 <th>{{ __('Status') }}</th>
@@ -122,7 +122,7 @@
                             <tbody>
                             @foreach($dailyTrips as $trip)
                                 <tr>
-                                    <td>{{ $trip->id }}</td>
+                                    <td>{{ $trip->{'booking-id'} }}</td>
                                     <td>{{ optional($trip->driver)->{'user-first-name'} }} {{ optional($trip->driver)->{'user-last-name'} }}</td>
                                     <td>{{ $formatTripDate($trip, 'daily') }}</td>
                                     <td><span class="badge badge-success">{{ __('Daily') }}</span></td>
@@ -143,7 +143,7 @@
                         <table class="table table-striped">
                             <thead>
                             <tr>
-                                <th>{{ __('ID') }}</th>
+                                <th>{{ __('Booking ID') }}</th>
                                 <th>{{ __('Driver') }}</th>
                                 <th>{{ __('Date') }}</th>
                                 <th>{{ __('Status') }}</th>
@@ -152,7 +152,7 @@
                             <tbody>
                             @foreach($weeklyTrips as $trip)
                                 <tr>
-                                    <td>{{ $trip->id }}</td>
+                                    <td>{{ $trip->{'booking-id'} }}</td>
                                     <td>{{ optional($trip->driver)->{'user-first-name'} }} {{ optional($trip->driver)->{'user-last-name'} }}</td>
                                     <td>{{ $formatTripDate($trip, 'weekly') }}</td>
                                     <td><span class="badge badge-primary">{{ __('Weekly') }}</span></td>
