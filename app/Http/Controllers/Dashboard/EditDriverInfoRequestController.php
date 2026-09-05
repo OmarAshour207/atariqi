@@ -55,6 +55,14 @@ class EditDriverInfoRequestController extends Controller
             ->latest('id')
             ->first();
 
+        // Build UI comparisons before any Wasl preview merge touches request data.
+        $comparisonData = $this->buildDriverInfoRequestComparisons(
+            $oldDriver,
+            $newDriverInfo,
+            $newDriverInfoRecord,
+            $newDriverCarRecord
+        );
+
         $waslEligibility = [
             'is_valid' => null,
             'api_error' => false,
@@ -81,13 +89,6 @@ class EditDriverInfoRequestController extends Controller
                 ]);
             }
         }
-
-        $comparisonData = $this->buildDriverInfoRequestComparisons(
-            $oldDriver,
-            $newDriverInfo,
-            $newDriverInfoRecord,
-            $newDriverCarRecord
-        );
 
         return view('dashboard.drivers_info_requests.show', array_merge(
             compact(
@@ -380,6 +381,7 @@ class EditDriverInfoRequestController extends Controller
 
         return [
             'label' => $label,
+            'old' => $oldDisplay !== null && $oldDisplay !== '' ? (string) $oldDisplay : '',
             'value' => $hasNew ? (string) ($newDisplay ?? '') : '',
             'changed' => $changed,
         ];

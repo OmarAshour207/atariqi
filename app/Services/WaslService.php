@@ -36,10 +36,13 @@ class WaslService
     ): User {
         $driver->loadMissing(['driverInfo', 'callingKey']);
 
+        // Clone so pending request data never overwrites the original model used in the UI.
+        $waslDriver = clone $driver;
+
         if ($newUserInfo) {
             foreach (['user-first-name', 'user-last-name', 'email', 'phone-no', 'gender'] as $field) {
                 if (filled($newUserInfo->{$field})) {
-                    $driver->{$field} = $newUserInfo->{$field};
+                    $waslDriver->{$field} = $newUserInfo->{$field};
                 }
             }
         }
@@ -61,10 +64,10 @@ class WaslService
                 }
             }
 
-            $driver->setRelation('driverInfo', $driverInfo);
+            $waslDriver->setRelation('driverInfo', $driverInfo);
         }
 
-        return $driver;
+        return $waslDriver;
     }
 
     public function syncDriverWithWasl(User $driver): array

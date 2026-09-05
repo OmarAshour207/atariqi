@@ -92,68 +92,16 @@
                                 <div class="old-data-section">
                                     <div class="section-title old-label"><i class="material-icons" style="vertical-align: middle; margin-right: 5px;">history</i>{{ __("Current Data") }}</div>
 
-                                    <div class="row">
-                                        <div class="col-12">
-                                            <div class="form-group">
-                                                <label class="old-label">{{ __("First Name") }}</label>
-                                                <input type="text" class="form-control" value="{{ $oldDriver->{"user-first-name"} }}" disabled>
+                                    @foreach($userFieldComparisons as $field)
+                                        <div class="row">
+                                            <div class="col-12">
+                                                <div class="form-group">
+                                                    <label class="old-label">{{ $field['label'] }}</label>
+                                                    <input type="text" class="form-control" value="{{ $field['old'] }}" disabled>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-
-                                    <div class="row">
-                                        <div class="col-12">
-                                            <div class="form-group">
-                                                <label class="old-label">{{ __("Last Name") }}</label>
-                                                <input type="text" class="form-control" value="{{ $oldDriver->{"user-last-name"} }}" disabled>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="row">
-                                        <div class="col-12">
-                                            <div class="form-group">
-                                                <label class="old-label">{{ __("Email") }}</label>
-                                                <input type="text" class="form-control" value="{{ $oldDriver->email }}" disabled>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="row">
-                                        <div class="col-12">
-                                            <div class="form-group">
-                                                <label class="old-label">{{ __("Phone Number") }}</label>
-                                                <input type="text" class="form-control" value="{{ $oldDriver->{"phone-no"} }}" disabled>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="row">
-                                        <div class="col-12">
-                                            <div class="form-group">
-                                                <label class="old-label">{{ __("Gender") }}</label>
-                                                <input type="text" class="form-control" value="{{ $oldDriver->gender }}" disabled>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="row">
-                                        <div class="col-12">
-                                            <div class="form-group">
-                                                <label class="old-label">{{ __('University') }}</label>
-                                                <input type="text" class="form-control" value="{{ optional($oldDriver->university)->{"name-ar"} }}" disabled>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="row">
-                                        <div class="col-12">
-                                            <div class="form-group">
-                                                <label class="old-label">{{ __('Stage') }}</label>
-                                                <input type="text" class="form-control" value="{{ optional($oldDriver->stage)->{"name-ar"} }}" disabled>
-                                            </div>
-                                        </div>
-                                    </div>
+                                    @endforeach
 
                                     <div class="row">
                                         <div class="col-12">
@@ -207,59 +155,16 @@
                                 <div class="old-data-section">
                                     <div class="section-title old-label"><i class="material-icons" style="vertical-align: middle; margin-right: 5px;">history</i>{{ __("Current Data") }}</div>
 
-                                    <div class="row">
-                                        <div class="col-12">
-                                            <div class="form-group">
-                                                <label class="old-label">{{ __("Car Brand") }}</label>
-                                                <input type="text" class="form-control" value="{{ $oldDriver->driverInfo ? $oldDriver->driverInfo->{"car-brand"} : '' }}" disabled>
+                                    @foreach($driverInfoFieldComparisons as $field)
+                                        <div class="row">
+                                            <div class="col-12">
+                                                <div class="form-group">
+                                                    <label class="old-label">{{ $field['label'] }}</label>
+                                                    <input type="text" class="form-control" value="{{ $field['old'] }}" disabled>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-
-                                    <div class="row">
-                                        <div class="col-12">
-                                            <div class="form-group">
-                                                <label class="old-label">{{ __("Car Model") }}</label>
-                                                <input type="text" class="form-control" value="{{ $oldDriver->driverInfo ? $oldDriver->driverInfo->{"car-model"} : '' }}" disabled>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="row">
-                                        <div class="col-12">
-                                            <div class="form-group">
-                                                <label class="old-label">{{ __("Car Number") }}</label>
-                                                <input type="text" class="form-control" value="{{ $oldDriver->driverInfo ? $oldDriver->driverInfo->{"car-number"} : '' }}" disabled>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="row">
-                                        <div class="col-12">
-                                            <div class="form-group">
-                                                <label class="old-label">{{ __("Car Letters") }}</label>
-                                                <input type="text" class="form-control" value="{{ $oldDriver->driverInfo ? $oldDriver->driverInfo->{"car-letters"} : '' }}" disabled>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="row">
-                                        <div class="col-12">
-                                            <div class="form-group">
-                                                <label class="old-label">{{ __("Car Color") }}</label>
-                                                <input type="text" class="form-control" value="{{ $oldDriver->driverInfo ? $oldDriver->driverInfo->{"car-color"} : '' }}" disabled>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="row">
-                                        <div class="col-12">
-                                            <div class="form-group">
-                                                <label class="old-label">{{ __("Driver Rate") }}</label>
-                                                <input type="text" class="form-control" value="{{ $oldDriver->driverInfo ? $oldDriver->driverInfo->{"driver-rate"} : '' }}" disabled>
-                                            </div>
-                                        </div>
-                                    </div>
+                                    @endforeach
 
                                     <div class="row">
                                         <div class="col-12">
@@ -320,8 +225,8 @@
                                     <div class="row">
                                         <div class="col-12">
                                             <div class="form-group">
-                                                <label class="old-label">{{ __("Driver Type") }}</label>
-                                                <input type="text" class="form-control" value="{{ $oldDriver->driverCar ? optional($oldDriver->driverCar->driverType)->{"name-ar"} : '' }}" disabled>
+                                                <label class="old-label">{{ $driverTypeComparison['label'] }}</label>
+                                                <input type="text" class="form-control" value="{{ $driverTypeComparison['old'] }}" disabled>
                                             </div>
                                         </div>
                                     </div>
