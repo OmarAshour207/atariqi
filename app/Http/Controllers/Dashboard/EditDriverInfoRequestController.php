@@ -150,33 +150,60 @@ class EditDriverInfoRequestController extends Controller
         try {
             DB::beginTransaction();
 
-            $userfields = [
-                'user-first-name' => $newUserInfo?->{'user-first-name'},
-                'user-last-name' => $newUserInfo?->{'user-last-name'},
-                'email' => $newUserInfo?->email,
-                'phone-no' => $newUserInfo?->{'phone-no'},
-                'gender' => $newUserInfo?->gender,
-                'image' => $newUserInfo?->image,
-                'university-id' => $newUserInfo?->{"university-id"},
-                'user-stage-id' => $newUserInfo?->{"user-stage-id"},
-                'approval' => 1,
-            ];
+            $userfields = ['approval' => 1];
+
+            if ($newUserInfo) {
+                foreach ([
+                    'user-first-name',
+                    'user-last-name',
+                    'email',
+                    'phone-no',
+                    'gender',
+                    'image',
+                    'university-id',
+                    'user-stage-id',
+                ] as $field) {
+                    $newValue = $newUserInfo->{$field};
+
+                    if (filled($newValue) && (string) $newValue !== (string) $driver->{$field}) {
+                        $userfields[$field] = $newValue;
+                    }
+                }
+            }
 
             $driver->update($userfields);
 
             if ($driver->driverInfo && $newDriverInfo) {
-                $driver->driverInfo->update([
-                    'car-brand' => $newDriverInfo->{'car-brand'},
-                    'car-model' => $newDriverInfo->{'car-model'},
-                    'car-number' => $newDriverInfo->{'car-number'},
-                    'car-letters' => $newDriverInfo->{'car-letters'},
-                    'car-color' => $newDriverInfo->{'car-color'},
-                    'driver-license-link' => $newDriverInfo->{'driver-license-link'}
-                        ?? $newCarInfo?->license_img
-                        ?? $newCarInfo?->licnese_img
-                        ?? $driver->driverInfo->{'driver-license-link'},
-                    'allow-disabilities' => $newDriverInfo->{'allow-disabilities'} ?? $driver->driverInfo->{'allow-disabilities'} ?? 'no',
-                ]);
+                $driverInfoUpdate = [];
+
+                foreach ([
+                    'car-brand',
+                    'car-model',
+                    'car-number',
+                    'car-letters',
+                    'car-color',
+                    'allow-disabilities',
+                ] as $field) {
+                    $newValue = $newDriverInfo->{$field};
+
+                    if (filled($newValue) && (string) $newValue !== (string) $driver->driverInfo->{$field}) {
+                        $driverInfoUpdate[$field] = $newValue;
+                    }
+                }
+
+                $newLicense = $newDriverInfo->{'driver-license-link'}
+                    ?? $newCarInfo?->license_img
+                    ?? $newCarInfo?->licnese_img
+                    ?? null;
+
+                if (filled($newLicense)
+                    && (string) $newLicense !== (string) $driver->driverInfo->{'driver-license-link'}) {
+                    $driverInfoUpdate['driver-license-link'] = $newLicense;
+                }
+
+                if (!empty($driverInfoUpdate)) {
+                    $driver->driverInfo->update($driverInfoUpdate);
+                }
             }
 
             if ($driver->driverCar && $newCarInfo) {
