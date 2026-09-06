@@ -13,9 +13,7 @@ use App\Models\SugWeekDriver;
 use App\Models\Support\QueryFilters\SortByDate;
 use App\Models\Support\QueryFilters\SortByRate;
 use App\Models\WeekRideBooking;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\AllowedSort;
@@ -36,7 +34,15 @@ class SummaryController extends BaseController
 
         $driverId = auth()->user()->id;
 
-        $weeklyRides = SugWeekDriver::with('passenger', 'booking')
+        $weeklyRides = SugWeekDriver::with([
+                'passenger',
+                'booking',
+                'booking.university',
+                'booking.neighborhood',
+                'booking.service',
+                'deliveryInfo',
+                'rate',
+            ])
             ->where('driver-id', $driverId)
             ->when($request->input('date'), function ($query) use ($request) {
                 $query->whereDate('date-of-add', $request->input('date'));
@@ -75,6 +81,11 @@ class SummaryController extends BaseController
             return $this->sendError(__('Validation Error.'), $validator->errors()->getMessages(), 422);
         }
 
+        // Weekly "send to all" trips live on bookings (no sug row until accept)
+        if ($request->input('type') == 'weekly' && (string) $request->input('filter.action') === '4') {
+            return $this->weeklyAllTripsSummary($request);
+        }
+
         $summaries = QueryBuilder::for($this->getModel($request))
             ->allowedFilters([
                 AllowedFilter::scope('date'),
@@ -85,31 +96,66 @@ class SummaryController extends BaseController
                 AllowedSort::custom('date', new SortByDate, $request->input('type')),
                 AllowedSort::custom('rate', new SortByRate, $request->input('type'))
             ])
-            ->when($request->input('type') != 'weekly', fn (Builder $query) => $query
-                ->with('booking', 'booking.passenger', 'deliveryInfo')
-                ->where('driver-id', auth()->user()->id))
-            ->when($request->input('type') == 'weekly', function ($query) use ($request) {
-                $query->with('sugDriver', 'sugDriver.deliveryInfo')
-                    ->when($request->input('filter.action') != 4, function ($query) {
-                        $query->whereHas('sugDriver', function ($q) {
-                            $q->where('driver-id', auth()->user()->id);
-                        });
-                    });
-            })
-            ->with(['rate'])
+            ->with($this->eagerLoadsForType($request->input('type')))
+            ->where('driver-id', auth()->user()->id)
             ->orderBy('date-of-add', 'desc')
             ->get();
 
         if($request->input('type') == 'daily') {
             $summaries = SugDayDriverResource::collection($summaries);
         } elseif ($request->input('type') == 'weekly') {
-            $summaries = $summaries->groupBy('group-id');
-            $summaries = WeekRideBookingGroupResource::collection($summaries);
+            $summaries = SugWeeklyDriverResource::collection($summaries);
         } else {
             $summaries = SugDriverResource::collection($summaries);
         }
 
         return $this->sendResponse($summaries, __('Data'));
+    }
+
+    private function weeklyAllTripsSummary(Request $request): JsonResponse
+    {
+        $summaries = QueryBuilder::for(WeekRideBooking::class)
+            ->allowedFilters([
+                AllowedFilter::scope('date'),
+                AllowedFilter::scope('action'),
+                AllowedFilter::scope('status'),
+            ])
+            ->with([
+                'sugDriver',
+                'sugDriver.deliveryInfo',
+                'neighborhood',
+                'passenger',
+                'university',
+                'service',
+                'rate',
+            ])
+            ->where('action', 4)
+            ->orderBy('date-of-add', 'desc')
+            ->get()
+            ->groupBy('group-id');
+
+        return $this->sendResponse(
+            WeekRideBookingGroupResource::collection($summaries),
+            __('Data')
+        );
+    }
+
+    private function eagerLoadsForType(string $type): array
+    {
+        if ($type === 'weekly') {
+            return [
+                'booking',
+                'booking.passenger',
+                'booking.university',
+                'booking.neighborhood',
+                'booking.service',
+                'passenger',
+                'deliveryInfo',
+                'rate',
+            ];
+        }
+
+        return ['booking', 'booking.passenger', 'deliveryInfo', 'rate'];
     }
 
     private function getModel(Request $request)
@@ -119,7 +165,7 @@ class SummaryController extends BaseController
         if($type == 'daily') {
             return SugDayDriver::class;
         } elseif ($type == 'weekly') {
-            return WeekRideBooking::class;
+            return SugWeekDriver::class;
         }
         return SuggestionDriver::class;
     }

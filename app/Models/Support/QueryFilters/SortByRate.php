@@ -18,7 +18,7 @@ class SortByRate implements Sort
                 , $direction);
         } elseif ($property == 'weekly') {
             $query->orderBy(
-                PassengerRate::select('rate')->whereColumn('passenger-rate.user-id', 'week-ride-booking.passenger-id')
+                PassengerRate::select('rate')->whereColumn('passenger-rate.user-id', 'sug-week-drivers.passenger-id')
                 , $direction);
         } else {
             $query->orderBy(

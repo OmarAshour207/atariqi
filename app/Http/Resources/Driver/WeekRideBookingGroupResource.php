@@ -43,7 +43,7 @@ class WeekRideBookingGroupResource extends JsonResource
                 'source_lat' => $item->{"road-way"} == 'from' ? $item->university->lat : $item->lat,
                 'source_lng' => $item->{"road-way"} == 'from' ? $item->university->lng : $item->lng,
                 'destination_lat' => $item->{"road-way"} == 'from' ? $item->lat : $item->university->lat,
-                'destination_lng' => $item->{"road-way"} == 'from' ? $item->lat : $item->university->lng
+                'destination_lng' => $item->{"road-way"} == 'from' ? $item->lng : $item->university->lng
             ];
         });
     }

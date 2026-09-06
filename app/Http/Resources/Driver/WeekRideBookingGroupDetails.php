@@ -25,7 +25,7 @@ class WeekRideBookingGroupDetails extends JsonResource
             'source_lat' => $this->{"road-way"} == 'from' ? $this->university->lat : $this->lat,
             'source_lng' => $this->{"road-way"} == 'from' ? $this->university->lng : $this->lng,
             'destination_lat' => $this->{"road-way"} == 'from' ? $this->lat : $this->university->lat,
-            'destination_lng' => $this->{"road-way"} == 'from' ? $this->lat : $this->university->lng
+            'destination_lng' => $this->{"road-way"} == 'from' ? $this->lng : $this->university->lng
         ];
     }
 }
