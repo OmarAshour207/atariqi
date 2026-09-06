@@ -3,7 +3,6 @@
 namespace App\Rules;
 
 use App\Support\OtpBypass;
-use App\Support\SaudiPhone;
 use Illuminate\Contracts\Validation\Rule;
 
 class SaudiMobileNumber implements Rule
@@ -14,7 +13,9 @@ class SaudiMobileNumber implements Rule
             return true;
         }
 
-        return SaudiPhone::normalizeMobile((string) $value) !== null;
+        // Temporarily skip Saudi (966) mobile number validation.
+        // return SaudiPhone::normalizeMobile((string) $value) !== null;
+        return true;
     }
 
     public function message(): string
