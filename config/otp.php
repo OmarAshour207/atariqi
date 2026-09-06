@@ -7,6 +7,6 @@ return [
     'bypass_code' => (int) env('OTP_BYPASS_CODE', 1234),
     'bypass_phones' => array_values(array_filter(array_map(
         'trim',
-        explode(',', env('OTP_BYPASS_PHONES', '546650866,1124988930,504774399'))
+        explode(',', env('OTP_BYPASS_PHONES', '546650866,1124988930'))
     ))),
 ];

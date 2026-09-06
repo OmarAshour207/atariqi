@@ -7,6 +7,7 @@ use App\Http\Resources\Driver\SugDayDriverResource;
 use App\Http\Resources\Driver\SugDriverResource;
 use App\Http\Resources\Driver\SugWeeklyDriverResource;
 use App\Http\Resources\Driver\WeekRideBookingGroupResource;
+use App\Http\Resources\SugWeekDriverResource;
 use App\Models\SugDayDriver;
 use App\Models\SuggestionDriver;
 use App\Models\SugWeekDriver;
@@ -103,8 +104,8 @@ class SummaryController extends BaseController
         if($request->input('type') == 'daily') {
             $summaries = SugDayDriverResource::collection($summaries);
         } elseif ($request->input('type') == 'weekly') {
-            $summaries = $summaries->groupBy('group-id');
-            $summaries = WeekRideBookingGroupResource::collection($summaries);
+            // $summaries = $summaries->groupBy('group-id');
+            $summaries = SugWeekDriverResource::collection($summaries);
         } else {
             $summaries = SugDriverResource::collection($summaries);
         }
@@ -119,7 +120,7 @@ class SummaryController extends BaseController
         if($type == 'daily') {
             return SugDayDriver::class;
         } elseif ($type == 'weekly') {
-            return WeekRideBooking::class;
+            return SugWeekDriver::class;
         }
         return SuggestionDriver::class;
     }
