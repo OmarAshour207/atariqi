@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Api\Concerns\ChecksPassengerRideConflicts;
 use App\Http\Resources\DayRideBookingResource;
 use App\Http\Resources\DriverInfoDayRideResource;
 use App\Http\Resources\NeighbourResource;
@@ -17,7 +18,6 @@ use App\Models\SugDayDriver;
 use App\Models\SuggestionDriver;
 use App\Models\University;
 use App\Models\User;
-use App\Models\WeekRideBooking;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -27,6 +27,8 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 
 class DailyDriverController extends BaseController
 {
+    use ChecksPassengerRideConflicts;
+
     public function getService($id)
     {
         return Service::whereId($id)->first();
@@ -258,116 +260,9 @@ class DailyDriverController extends BaseController
 
         $success['drivers'] = DriverInfoDayRideResource::collection($drivers);
 
+        $this->cleanupFailedSearchDailyBookings($passengerId, $date);
+
         return $this->sendResponse($success, __('Drivers'));
-    }
-
-    private function checkScheduleTime($time, $roadWay): array
-    {
-        $weeklyRide = WeekRideBooking::where('passenger-id', auth()->user()->id)
-            ->where('date-of-ser', $time['date'])
-            ->when($roadWay == 'to' || $roadWay == 'both', function ($query) use ($time) {
-                $timeGo = Carbon::parse($time['time_go']);
-
-                $subHours = $timeGo->copy()->subHours(4);
-                if ($subHours->lt($timeGo->copy()->startOfDay())) {
-                    $subHours = $timeGo->copy()->startOfDay();
-                }
-
-                // Add 4 hours, but ensure it doesn't go above the end of the day
-                $addHours = $timeGo->copy()->addHours(4);
-                if ($addHours->gt($timeGo->copy()->endOfDay())) {
-                    $addHours = $timeGo->copy()->endOfDay();
-                }
-
-                $subHours = $subHours->format('H:i:s');
-                $addHours = $addHours->format('H:i:s');
-
-                $query->whereBetween('time-go', [$subHours, $addHours]);
-            })
-            ->when($roadWay == 'from' || $roadWay == 'both', function ($query) use ($time) {
-                $timeBack = Carbon::parse($time['time_back']);
-
-                $subHours = $timeBack->copy()->subHours(4);
-                if ($subHours->lt($timeBack->copy()->startOfDay())) {
-                    $subHours = $timeBack->copy()->startOfDay();
-                }
-
-                // Add 4 hours, but ensure it doesn't go above the end of the day
-                $addHours = $timeBack->copy()->addHours(4);
-                if ($addHours->gt($timeBack->copy()->endOfDay())) {
-                    $addHours = $timeBack->copy()->endOfDay();
-                }
-
-                $subHours = $subHours->format('H:i:s');
-                $addHours = $addHours->format('H:i:s');
-
-                $query->whereBetween('time-back', [$subHours, $addHours]);
-            })
-            ->first();
-
-        if ($weeklyRide) {
-            return [
-                'time_go' => $weeklyRide->{"time-go"},
-                'time_back' => $weeklyRide->{"time-back"},
-                'date' => $weeklyRide->{"date-of-ser"},
-                'type' => 'weekly',
-                'road_way' => $weeklyRide->{"road-way"}
-            ];
-        }
-
-        $dailyRide = DayRideBooking::where('passenger-id', auth()->user()->id)
-            ->where('date-of-ser', $time['date'])
-            ->when($roadWay == 'to' || $roadWay == 'both', function ($query) use ($time) {
-                $timeGo = Carbon::parse($time['time_go']);
-
-                $subHours = $timeGo->copy()->subHours(4);
-                if ($subHours->lt($timeGo->copy()->startOfDay())) {
-                    $subHours = $timeGo->copy()->startOfDay();
-                }
-
-                // Add 4 hours, but ensure it doesn't go above the end of the day
-                $addHours = $timeGo->copy()->addHours(4);
-                if ($addHours->gt($timeGo->copy()->endOfDay())) {
-                    $addHours = $timeGo->copy()->endOfDay();
-                }
-
-                $subHours = $subHours->format('H:i:s');
-                $addHours = $addHours->format('H:i:s');
-
-                $query->whereBetween('time-go', [$subHours, $addHours]);
-            })
-            ->when($roadWay == 'from' || $roadWay == 'both', function ($query) use ($time) {
-                $timeBack = Carbon::parse($time['time_back']);
-
-                $subHours = $timeBack->copy()->subHours(4);
-                if ($subHours->lt($timeBack->copy()->startOfDay())) {
-                    $subHours = $timeBack->copy()->startOfDay();
-                }
-
-                // Add 4 hours, but ensure it doesn't go above the end of the day
-                $addHours = $timeBack->copy()->addHours(4);
-                if ($addHours->gt($timeBack->copy()->endOfDay())) {
-                    $addHours = $timeBack->copy()->endOfDay();
-                }
-
-                $subHours = $subHours->format('H:i:s');
-                $addHours = $addHours->format('H:i:s');
-
-                $query->whereBetween('time-back', [$subHours, $addHours]);
-            })
-            ->first();
-
-        if ($dailyRide) {
-            return [
-                'time_go' => $dailyRide->{"time-go"},
-                'time_back' => $dailyRide->{"time-back"},
-                'date' => $dailyRide->{"date-of-ser"},
-                'type' => 'daily',
-                'road_way' => $dailyRide->{"road-way"}
-            ];
-        }
-
-        return [];
     }
 
     public function selectDriver(Request $request)
@@ -411,11 +306,16 @@ class DailyDriverController extends BaseController
         $timeBack = isset($data['time_back']) ? convertArabicDateToEnglish($data['time_back']) : null;
         $timeGo =  isset($data['time_go']) ? convertArabicDateToEnglish($data['time_go']) : null;
 
-        $checkSchedule = $this->checkScheduleTime([
-            'date'      => $date,
-            'time_go'   => $timeGo,
-            'time_back' => $timeBack
-        ], $roadWay);
+        // Remove leftover failed-search placeholders for this passenger before conflict checks.
+        $this->cleanupFailedSearchDailyBookings($passengerId);
+
+        $checkSchedule = $this->findPassengerRideConflict(
+            $passengerId,
+            $date,
+            $roadWay,
+            $timeGo,
+            $timeBack
+        );
 
         if (isset($checkSchedule['road_way'])) {
             Log::error('daily already booked', $checkSchedule);

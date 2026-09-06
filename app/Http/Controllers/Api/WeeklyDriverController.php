@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Api\Concerns\ChecksPassengerRideConflicts;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\DriverInfoDayRideResource;
 use App\Http\Resources\NeighbourResource;
 use App\Http\Resources\SugWeekDriverResource;
 use App\Http\Resources\UniversityResource;
 use App\Http\Resources\WeekRideBookingResource;
-use App\Models\DayRideBooking;
 use App\Models\DriverInfo;
 use App\Models\DriversServices;
 use App\Models\Neighbour;
@@ -25,6 +25,8 @@ use Illuminate\Support\Facades\Validator;
 
 class WeeklyDriverController extends BaseController
 {
+    use ChecksPassengerRideConflicts;
+
     private function getService($id)
     {
         return Service::whereId($id)->first();
@@ -326,7 +328,7 @@ class WeeklyDriverController extends BaseController
         $weeklyDates = $data['weekly_dates'];
         $weeklyDates = $this->convertDate($weeklyDates);
 
-        $checkSchedule = $this->checkScheduleTime($weeklyDates, $roadWay);
+        $checkSchedule = $this->findWeeklyRideConflicts($weeklyDates, $roadWay);
 
         if (isset($checkSchedule['road_way'])) {
             Log::error('weekly already booked', $checkSchedule);
@@ -334,8 +336,8 @@ class WeeklyDriverController extends BaseController
             return $this->sendError(__('Validation Error.'),
                 [
                     __("already_booked", [
-                        'type' => $checkSchedule['type'],
-                        'road_way' => $checkSchedule['road_way'],
+                        'type' => __($checkSchedule['type']),
+                        'road_way' => __($checkSchedule['road_way']),
                         'date' => $checkSchedule['date']
                     ])
                 ], 422);
@@ -385,47 +387,21 @@ class WeeklyDriverController extends BaseController
         return $this->sendResponse($success, __('Driver selected successfully'));
     }
 
-    private function checkScheduleTime($weeklyDates, $roadWay): array
+    private function findWeeklyRideConflicts(array $weeklyDates, string $roadWay): array
     {
+        $passengerId = auth()->id();
+
         foreach ($weeklyDates as $weeklyDate) {
-            $weekRide = WeekRideBooking::where('passenger-id', auth()->user()->id)
-                ->where('date-of-ser', $weeklyDate['date'])
-                ->when($roadWay == 'to' || $roadWay == 'both', function ($query) use ($weeklyDate) {
-                    $query->where('time-go', $weeklyDate['time_go']);
-                })
-                ->when($roadWay == 'from' || $roadWay == 'both', function ($query) use ($weeklyDate) {
-                    $query->where('time-back', $weeklyDate['time_back']);
-                })
-                ->first();
+            $conflict = $this->findPassengerRideConflict(
+                $passengerId,
+                $weeklyDate['date'],
+                $roadWay,
+                $weeklyDate['time_go'] ?? null,
+                $weeklyDate['time_back'] ?? null
+            );
 
-            if ($weekRide) {
-                return [
-                    'time_go' => $weekRide->{"time-go"},
-                    'time_back' => $weekRide->{"time-back"},
-                    'date' => $weekRide->{"date-of-ser"},
-                    'type' => 'weekly',
-                    'road_way' => $weekRide->{"road-way"}
-                ];
-            }
-
-            $dailyRide = DayRideBooking::where('passenger-id', auth()->user()->id)
-                ->where('date-of-ser', $weeklyDate['date'])
-                ->when($roadWay == 'to' || $roadWay == 'both', function ($query) use ($weeklyDate) {
-                    $query->where('time-go', $weeklyDate['time_go']);
-                })
-                ->when($roadWay == 'from' || $roadWay == 'both', function ($query) use ($weeklyDate) {
-                    $query->where('time-back', $weeklyDate['time_back']);
-                })
-                ->first();
-
-            if ($dailyRide) {
-                return [
-                    'time_go' => $dailyRide->{"time-go"},
-                    'time_back' => $dailyRide->{"time-back"},
-                    'date' => $dailyRide->{"date-of-ser"},
-                    'type' => 'daily',
-                    'road_way' => $weekRide->{"road-way"}
-                ];
+            if ($conflict) {
+                return $conflict;
             }
         }
 
