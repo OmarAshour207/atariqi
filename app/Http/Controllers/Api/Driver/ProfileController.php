@@ -110,7 +110,7 @@ class ProfileController extends BaseController
             'car-letters'       => 'required|string',
             'car-color'         => 'required|string',
             'car-number'        => 'required|numeric',
-            'sequence-number'    => 'required|numeric',
+            // 'sequence-number'    => 'required|numeric',
             'driver-type-id'    => 'required|numeric',
             'license_img'       => 'nullable|mimes:jpeg,jpg,png',
             'car_form_img'      => 'nullable|mimes:jpeg,jpg,png',
