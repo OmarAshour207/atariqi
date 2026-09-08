@@ -74,7 +74,8 @@ class DeleteLateRidesCommand extends Command
             ->chunk(100, function ($trips) {
                 foreach ($trips as $trip) {
                     $trip->update([
-                        'action' => 2
+                        'action' => 2,
+                        'date-of-edit' => Carbon::now()->format('Y-m-d H:i:s'),
                     ]);
                 }
             });

@@ -82,7 +82,7 @@ class SummaryController extends BaseController
         }
 
         // Weekly "send to all" trips live on bookings (no sug row until accept)
-        if ($request->input('type') == 'weekly' && (string) $request->input('filter.action') === '4') {
+        if ($request->input('type') == 'weekly') {
             return $this->weeklyAllTripsSummary($request);
         }
 
@@ -129,7 +129,11 @@ class SummaryController extends BaseController
                 'service',
                 'rate',
             ])
-            ->where('action', 4)
+            ->when((string) $request->input('filter.action') === '0', function ($query) {
+                $query->whereHas('sugDriver', function ($q) {
+                    $q->where('driver-id', auth()->user()->id);
+                });
+            })
             ->orderBy('date-of-add', 'desc')
             ->get()
             ->groupBy('group-id');
@@ -165,7 +169,7 @@ class SummaryController extends BaseController
         if($type == 'daily') {
             return SugDayDriver::class;
         } elseif ($type == 'weekly') {
-            return SugWeekDriver::class;
+            return WeekRideBooking::class;
         }
         return SuggestionDriver::class;
     }
