@@ -534,6 +534,31 @@ class WeeklyDriverController extends BaseController
             ->orderBy('id', 'desc')
             ->get();
 
+        $groupIds = $suggestedDrivers
+            ->map(fn ($item) => $item->booking?->{"group-id"})
+            ->filter()
+            ->unique()
+            ->values();
+
+        if ($groupIds->isNotEmpty()) {
+            $dayCounts = WeekRideBooking::query()
+                ->whereIn('group-id', $groupIds)
+                ->selectRaw('`group-id`, COUNT(DISTINCT `date-of-ser`) as days_count')
+                ->groupBy('group-id')
+                ->pluck('days_count', 'group-id');
+
+            $suggestedDrivers->each(function (SugWeekDriver $sug) use ($dayCounts) {
+                if (! $sug->booking) {
+                    return;
+                }
+
+                $sug->booking->setAttribute(
+                    'weekly_days_count',
+                    max(1, (int) ($dayCounts[$sug->booking->{"group-id"}] ?? 1))
+                );
+            });
+        }
+
         $success = [];
         $success['trips'] = SugWeekDriverResource::collection($suggestedDrivers);
 
