@@ -124,12 +124,13 @@ class ProfileController extends BaseController
             'sequence-number'    => 'required|numeric',
             'driver-type-id'    => 'required|numeric',
             'license_img'       => 'nullable|mimes:jpeg,jpg,png',
+            'car_form_img'      => 'nullable|mimes:jpeg,jpg,png',
         ]);
 
         $data = $validator->validated();
         $data['driver-id'] = auth()->user()->id;
 
-        $images = $this->uploadImages($request, ['license_img'], auth()->user()->id);
+        $images = $this->uploadImages($request, ['license_img', 'car_form_img'], auth()->user()->id);
 
         if (isset($images['license_img'])) {
             $data['driver-license-link'] = $images['license_img'];
@@ -137,7 +138,7 @@ class ProfileController extends BaseController
             $data['driver-license-link'] = auth()->user()->driverInfo->{'driver-license-link'};
         }
 
-        unset($data['license_img']);
+        unset($data['license_img'], $data['car_form_img']);
 
         NewDriverInfo::updateOrCreate(
             ['driver-id' => auth()->user()->id],
@@ -150,6 +151,10 @@ class ProfileController extends BaseController
 
         if (isset($images['license_img'])) {
             $carOverrides['license_img'] = $images['license_img'];
+        }
+
+        if (isset($images['car_form_img'])) {
+            $carOverrides['car_form_img'] = $images['car_form_img'];
         }
 
         $this->syncPendingDriverCar($carOverrides);
