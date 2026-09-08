@@ -69,7 +69,7 @@ class HomeController extends BaseController
 
     public function getAnnouncement()
     {
-        $announcements = DB::table('announce')->get();
+        $announcements = DB::table('announce')->orderBy('id', 'desc')->get();
 
         return $this->sendResponse($announcements, __('Data'));
     }
