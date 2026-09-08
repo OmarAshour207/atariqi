@@ -319,7 +319,7 @@ class PassengerController extends Controller
 
         // Get filter options
         $passengers = User::where('user-type', 'passenger')->where('approval', 1)->get();
-        $drivers = User::where('user-type', 'driver')->where('approval', 1)->get();
+        $drivers = User::where('user-type', 'driver')->get();
 
         return view('dashboard.passengers.all-trips', compact(
             'immediateTrips', 'dailyTrips', 'weeklyTrips', 'passengers', 'drivers'
