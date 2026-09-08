@@ -150,16 +150,16 @@ class RoleController extends Controller
 
     private function validateRole(Request $request, ?int $ignoreId = null): array
     {
-        $request->merge([
-            'name' => Admin::slugifyRoleName((string) $request->input('name')),
-        ]);
+        $name = trim(preg_replace('/\s+/u', ' ', (string) $request->input('name')) ?? '');
+
+        $request->merge(['name' => $name]);
 
         return $request->validate([
             'name' => [
                 'required',
                 'string',
                 'max:100',
-                'regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/',
+                'regex:/^[\p{L}\p{N}]+(?:[\s\-_]*[\p{L}\p{N}]+)*$/u',
                 Rule::unique('roles', 'name')
                     ->where(fn ($q) => $q->where('guard_name', 'admin'))
                     ->ignore($ignoreId),
@@ -167,7 +167,7 @@ class RoleController extends Controller
             'permissions' => 'nullable|array',
             'permissions.*' => 'in:' . implode(',', Admin::allPermissionNames()),
         ], [
-            'name.regex' => __('Role name must be lowercase letters, numbers and dashes only.'),
+            'name.regex' => __('Role name may contain letters, numbers, spaces and dashes.'),
         ]);
     }
 }

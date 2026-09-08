@@ -4,7 +4,7 @@
     <div class="container-fluid page__container">
         @include('dashboard.partials.session')
         <div class="card card-body">
-            <h1>{{ __('Edit Role') }} - {{ __(ucfirst(str_replace('-', ' ', $role->name))) }}</h1>
+            <h1>{{ __('Edit Role') }} - {{ \App\Models\Admin::roleLabel($role->name) }}</h1>
             <form method="POST" action="{{ route('roles.update', $role) }}">
                 @csrf @method('PUT')
                 <div class="form-group">
@@ -17,6 +17,8 @@
                     >
                     @if($role->name === \App\Models\Admin::ROLE_ADMIN)
                         <small class="form-text text-muted">{{ __('The admin role name cannot be changed and always has full access.') }}</small>
+                    @else
+                        <small class="form-text text-muted">{{ __('You can use Arabic or English letters, numbers, spaces and dashes.') }}</small>
                     @endif
                 </div>
                 <hr>

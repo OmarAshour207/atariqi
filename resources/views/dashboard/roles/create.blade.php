@@ -9,8 +9,8 @@
                 @csrf
                 <div class="form-group">
                     <label>{{ __('Role Name') }}</label>
-                    <input name="name" class="form-control" value="{{ old('name') }}" placeholder="sales-agent" required>
-                    <small class="form-text text-muted">{{ __('Use lowercase letters, numbers and dashes only.') }}</small>
+                    <input name="name" class="form-control" value="{{ old('name') }}" placeholder="{{ __('e.g. دعم العملاء') }}" required>
+                    <small class="form-text text-muted">{{ __('You can use Arabic or English letters, numbers, spaces and dashes.') }}</small>
                 </div>
                 <hr>
                 <h5>{{ __('Page Permissions') }}</h5>

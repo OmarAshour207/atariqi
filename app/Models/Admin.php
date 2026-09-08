@@ -275,6 +275,11 @@ class Admin extends Authenticatable
             return $translated;
         }
 
+        // Keep Arabic (and other Unicode) role names as stored.
+        if (preg_match('/[^\x00-\x7F]/u', $role)) {
+            return $role;
+        }
+
         return ucfirst(str_replace('-', ' ', $role));
     }
 
@@ -285,10 +290,15 @@ class Admin extends Authenticatable
 
     public static function slugifyRoleName(string $name): string
     {
-        $name = trim($name);
+        $name = trim(preg_replace('/\s+/u', ' ', $name) ?? $name);
 
         if ($name === '') {
             return '';
+        }
+
+        // Do not transliterate Arabic display names (e.g. "دعم العملاء").
+        if (preg_match('/\p{Arabic}/u', $name)) {
+            return $name;
         }
 
         if (self::isValidRoleSlug($name)) {
@@ -321,20 +331,12 @@ class Admin extends Authenticatable
             $record = Role::where('guard_name', 'admin')->where('name', $candidate)->first();
 
             if ($record) {
-                $canonical = self::isValidRoleSlug($record->name)
-                    ? $record->name
-                    : self::slugifyRoleName($record->name);
-
-                if ($canonical !== '' && self::roleExists($canonical)) {
-                    return self::storedRolePayload($canonical);
-                }
-
                 return self::storedRolePayload($record->name);
             }
 
             $slugged = self::slugifyRoleName($candidate);
 
-            if ($slugged !== '' && self::roleExists($slugged)) {
+            if ($slugged !== '' && $slugged !== $candidate && self::roleExists($slugged)) {
                 return self::storedRolePayload($slugged);
             }
         }
@@ -346,18 +348,23 @@ class Admin extends Authenticatable
 
     public static function normalizeRole(?string $role, ?string $type = null): string
     {
-        $role = strtolower(trim((string) $role));
-        $type = strtolower(trim((string) $type));
+        $role = trim((string) $role);
+        $type = trim((string) $type);
+
+        $roleLower = strtolower($role);
+        $typeLower = strtolower($type);
 
         if ($role === '' && $type !== '') {
             $role = $type;
+            $roleLower = $typeLower;
         }
 
-        if ($role === 'supervisor') {
+        if ($roleLower === 'supervisor') {
             $role = self::ROLE_SUPPORT;
+            $roleLower = self::ROLE_SUPPORT;
         }
 
-        if ($type === self::ROLE_ADMIN || $role === self::ROLE_ADMIN) {
+        if ($typeLower === self::ROLE_ADMIN || $roleLower === self::ROLE_ADMIN) {
             return self::ROLE_ADMIN;
         }
 
@@ -365,7 +372,7 @@ class Admin extends Authenticatable
             return self::ROLE_AGENT;
         }
 
-        if (self::roleExists($role) && self::isValidRoleSlug($role)) {
+        if (self::roleExists($role)) {
             return $role;
         }
 
