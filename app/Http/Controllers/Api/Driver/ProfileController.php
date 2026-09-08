@@ -48,11 +48,8 @@ class ProfileController extends BaseController
             $data['image'] = store_user_upload($request->file('image'), $driver->id, 'image');
         }
 
-        NewUserInfo::updateOrCreate(
-            ['user-id' => $driver->id],
-            $data
-        );
-        auth()->user()->update(['approval' => 2]);
+        $this->replacePendingUserInfo($data);
+        $driver->update(['approval' => 2]);
 
         return $this->sendResponse([],
             __('Your request for edit will be reviewed, and we will respond to you as soon as possible'));
@@ -74,6 +71,7 @@ class ProfileController extends BaseController
         foreach ($fileFields as $field) {
             $rules[$field] = 'nullable|image|mimes:jpeg,jpg,png';
         }
+        $rules['license_img'] = 'nullable|image|mimes:jpeg,jpg,png';
 
         $validator = Validator::make($request->all(), $rules);
 
@@ -82,7 +80,7 @@ class ProfileController extends BaseController
         }
 
         $driver = auth()->user();
-        $images = $this->uploadImages($request, $fileFields, $driver->id);
+        $images = $this->uploadImages($request, array_merge($fileFields, ['license_img']), $driver->id);
 
         if (empty($images)) {
             return $this->sendError(__('Validation Error.'), [
@@ -90,16 +88,7 @@ class ProfileController extends BaseController
             ], 422);
         }
 
-        $overrides = $images;
-
-        if ($request->hasFile('license_img')) {
-            $licenseImages = $this->uploadImages($request, ['license_img'], $driver->id);
-            if (!empty($licenseImages['license_img'])) {
-                $overrides['license_img'] = $licenseImages['license_img'];
-            }
-        }
-
-        $this->syncPendingDriverCar($overrides);
+        $this->replacePendingDriverCar($images);
 
         $this->ensureNewUserInfoExists();
 
@@ -127,26 +116,35 @@ class ProfileController extends BaseController
             'car_form_img'      => 'nullable|mimes:jpeg,jpg,png',
         ]);
 
-        $data = $validator->validated();
-        $data['driver-id'] = auth()->user()->id;
+        if ($validator->fails()) {
+            return $this->sendError(__('Validation Error.'), $validator->errors()->getMessages(), 422);
+        }
 
-        $images = $this->uploadImages($request, ['license_img', 'car_form_img'], auth()->user()->id);
+        $driver = auth()->user();
+        $data = $validator->validated();
+        $data['driver-id'] = $driver->id;
+
+        $images = $this->uploadImages($request, ['license_img', 'car_form_img'], $driver->id);
+        $pendingInfo = NewDriverInfo::where('driver-id', $driver->id)->latest('id')->first();
+        $pendingCar = NewDriverCar::where('driver-id', $driver->id)->latest('id')->first();
 
         if (isset($images['license_img'])) {
             $data['driver-license-link'] = $images['license_img'];
-        } elseif (auth()->user()->driverInfo?->{'driver-license-link'}) {
-            $data['driver-license-link'] = auth()->user()->driverInfo->{'driver-license-link'};
+        } elseif (filled($pendingInfo?->{'driver-license-link'})) {
+            $data['driver-license-link'] = $pendingInfo->{'driver-license-link'};
+        } elseif (filled($pendingCar?->license_img)) {
+            $data['driver-license-link'] = $pendingCar->license_img;
+        } elseif (filled($driver->driverInfo?->{'driver-license-link'})) {
+            $data['driver-license-link'] = $driver->driverInfo->{'driver-license-link'};
         }
 
-        unset($data['license_img'], $data['car_form_img']);
+        $driverTypeId = $data['driver-type-id'];
+        unset($data['license_img'], $data['car_form_img'], $data['driver-type-id'], $data['sequence-number']);
 
-        NewDriverInfo::updateOrCreate(
-            ['driver-id' => auth()->user()->id],
-            $data
-        );
+        $this->replacePendingDriverInfo($data);
 
         $carOverrides = [
-            'driver-type-id' => $data['driver-type-id'],
+            'driver-type-id' => $driverTypeId,
         ];
 
         if (isset($images['license_img'])) {
@@ -157,21 +155,48 @@ class ProfileController extends BaseController
             $carOverrides['car_form_img'] = $images['car_form_img'];
         }
 
-        $this->syncPendingDriverCar($carOverrides);
+        $this->replacePendingDriverCar($carOverrides);
 
         $this->ensureNewUserInfoExists();
 
-        auth()->user()->driverInfo->update([
+        $driver->driverInfo->update([
             'approval'  => 2
         ]);
 
-        auth()->user()->update(['approval' => 2]);
+        $driver->update(['approval' => 2]);
 
         return $this->sendResponse([],
             __('Your request for edit will be reviewed, and we will respond to you as soon as possible'));
     }
 
-    private function syncPendingDriverCar(array $overrides = []): void
+    /**
+     * Keep a single pending user-info row and overwrite it with the latest request.
+     */
+    private function replacePendingUserInfo(array $data): void
+    {
+        $userId = $data['user-id'];
+
+        NewUserInfo::where('user-id', $userId)->delete();
+        NewUserInfo::create($data);
+    }
+
+    /**
+     * Keep a single pending driver-info row and overwrite it with the latest request.
+     */
+    private function replacePendingDriverInfo(array $data): void
+    {
+        $driverId = $data['driver-id'];
+
+        NewDriverInfo::where('driver-id', $driverId)->delete();
+        NewDriverInfo::create($data);
+    }
+
+    /**
+     * Keep a single pending driver-car row.
+     * Newly uploaded images/text overwrite previous pending values;
+     * fields not sent in this request keep the latest pending (or approved) value.
+     */
+    private function replacePendingDriverCar(array $overrides = []): void
     {
         $driver = auth()->user();
         $existingRequest = NewDriverCar::where('driver-id', $driver->id)->latest('id')->first();
@@ -197,19 +222,13 @@ class ProfileController extends BaseController
         ];
 
         foreach ($fileFields as $field) {
-            $payload[$field] = $overrides[$field]
-                ?? $existingRequest?->{$field}
-                ?? $currentCar?->{$field};
+            $payload[$field] = array_key_exists($field, $overrides)
+                ? $overrides[$field]
+                : ($existingRequest?->{$field} ?? $currentCar?->{$field});
         }
 
-        if ($existingRequest) {
-            $existingRequest->update($payload);
-            NewDriverCar::where('driver-id', $driver->id)
-                ->where('id', '!=', $existingRequest->id)
-                ->delete();
-        } else {
-            NewDriverCar::create($payload);
-        }
+        NewDriverCar::where('driver-id', $driver->id)->delete();
+        NewDriverCar::create($payload);
     }
 
     private function ensureNewUserInfoExists(): void
