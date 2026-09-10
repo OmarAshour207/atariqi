@@ -129,7 +129,7 @@ class SummaryController extends BaseController
                 'service',
                 'rate',
             ])
-            ->when((string) $request->input('filteraction') === '0', function ($query) {
+            ->when((string) $request->input('filter.action') === '0', function ($query) {
                 $query->whereHas('sugDriver', function ($q) {
                     $q->where('driver-id', auth()->user()->id);
                 });
