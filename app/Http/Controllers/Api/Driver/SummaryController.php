@@ -73,7 +73,7 @@ class SummaryController extends BaseController
         $validator = Validator::make($request->all(), [
             'type' => 'required|string',
             'filter.date' => 'nullable|date_format:Y-m-d',
-            'action' => 'nullable|string',
+            'filter.action' => 'nullable|string',
             'filter.status' => 'nullable|numeric'
         ]);
 
@@ -89,6 +89,7 @@ class SummaryController extends BaseController
         $summaries = QueryBuilder::for($this->getModel($request))
             ->allowedFilters([
                 AllowedFilter::scope('date'),
+                AllowedFilter::scope('action'),
                 AllowedFilter::scope('status'),
             ])
             ->allowedSorts([
@@ -96,9 +97,6 @@ class SummaryController extends BaseController
                 AllowedSort::custom('rate', new SortByRate, $request->input('type'))
             ])
             ->with($this->eagerLoadsForType($request->input('type')))
-            ->when($request->has('action'), function ($query) use ($request) {
-                $query->where('action', $request->input('action'));
-            })
             ->where('driver-id', auth()->user()->id)
             ->orderBy('date-of-add', 'desc')
             ->get();
@@ -119,6 +117,7 @@ class SummaryController extends BaseController
         $summaries = QueryBuilder::for(WeekRideBooking::class)
             ->allowedFilters([
                 AllowedFilter::scope('date'),
+                AllowedFilter::scope('action'),
                 AllowedFilter::scope('status'),
             ])
             ->with([
@@ -130,14 +129,9 @@ class SummaryController extends BaseController
                 'service',
                 'rate',
             ])
-            ->when((string) $request->input('action') === '0', function ($query) {
+            ->when((string) $request->input('filteraction') === '0', function ($query) {
                 $query->whereHas('sugDriver', function ($q) {
                     $q->where('driver-id', auth()->user()->id);
-                });
-            })
-            ->when($request->has('action'), function ($query) use ($request) {
-                $query->whereHas('sugDriver', function ($q) use ($request) {
-                    $q->where('action', $request->input('action'));
                 });
             })
             ->orderBy('date-of-add', 'desc')
