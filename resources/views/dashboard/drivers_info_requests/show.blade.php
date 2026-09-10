@@ -310,7 +310,7 @@
                                     </div>
 
                                     @foreach($carImageComparisons as $index => $carImage)
-                                        <div class="form-group">
+                                        <div class="form-group {{ !empty($carImage['pending']) ? 'highlight-new' : '' }}">
                                             <label class="new-label">{{ $carImage['label'] }}</label>
                                             @if(!empty($carImage['pending']))
                                                 <a href="{{ user_upload_url($newDriverInfo->{'user-id'}, $carImage['pending']) }}" data-lightbox="requested-car-{{ $index }}" data-title="{{ $carImage['label'] }}">

@@ -428,8 +428,8 @@
                             <div class="form-group">
                                 <label for="car_form_img"> {{ __('Car Form Image') }}</label>
                                 @if($driver->driverCar && $driver->driverCar->{"car_form_img"})
-                                    <a href="{{ url('uploads/' . $driver->id . '/' . $driver->driverCar->{"car_form_img"}) }}" data-lightbox="car-form-image" data-title="{{ __('Car Form Image') }}">
-                                        <img id="car-form-img" class="img-fluid d-block mb-2" style="max-width: 150px;" src="{{ url('uploads/' . $driver->id . '/' . $driver->driverCar->{"car_form_img"}) }}"/>
+                                    <a href="{{ user_upload_url($driver->id, $driver->driverCar->{"car_form_img"}) }}" data-lightbox="car-form-image" data-title="{{ __('Car Form Image') }}">
+                                        <img id="car-form-img" class="img-fluid d-block mb-2" style="max-width: 150px;" src="{{ user_upload_url($driver->id, $driver->driverCar->{"car_form_img"}) }}"/>
                                     </a>
                                 @else
                                     <img id="car-form-img" src="https://ami-sni.com/wp-content/themes/consultix/images/no-image-found-360x250.png" width="100px" />
@@ -439,8 +439,8 @@
                             <div class="form-group">
                                 <label for="license_img"> {{ __('License Image') }}</label>
                                 @if($driver->driverCar && $driver->driverCar->{"license_img"})
-                                    <a href="{{ url('uploads/' . $driver->id . '/' . $driver->driverCar->{"license_img"}) }}" data-lightbox="license-image" data-title="{{ __('License Image') }}">
-                                        <img id="license-img" class="img-fluid d-block mb-2" style="max-width: 150px;" src="{{ url('uploads/' . $driver->id . '/' . $driver->driverCar->{"license_img"}) }}"/>
+                                    <a href="{{ user_upload_url($driver->id, $driver->driverCar->{"license_img"}) }}" data-lightbox="license-image" data-title="{{ __('License Image') }}">
+                                        <img id="license-img" class="img-fluid d-block mb-2" style="max-width: 150px;" src="{{ user_upload_url($driver->id, $driver->driverCar->{"license_img"}) }}"/>
                                     </a>
                                 @else
                                     <img id="license-img" src="https://ami-sni.com/wp-content/themes/consultix/images/no-image-found-360x250.png" width="100px" />
@@ -452,8 +452,8 @@
                                     <div class="form-group">
                                         <label for="car_front_img"> {{ __('Car Front Image') }}</label>
                                         @if($driver->driverCar && $driver->driverCar->{"car_front_img"})
-                                            <a href="{{ url('uploads/' . $driver->id . '/' . $driver->driverCar->{"car_front_img"}) }}" data-lightbox="car-front-image" data-title="{{ __('Car Front Image') }}">
-                                                <img id="car-front-img" class="img-fluid d-block mb-2" style="max-width: 150px;" src="{{ url('uploads/' . $driver->id . '/' . $driver->driverCar->{"car_front_img"}) }}"/>
+                                            <a href="{{ user_upload_url($driver->id, $driver->driverCar->{"car_front_img"}) }}" data-lightbox="car-front-image" data-title="{{ __('Car Front Image') }}">
+                                                <img id="car-front-img" class="img-fluid d-block mb-2" style="max-width: 150px;" src="{{ user_upload_url($driver->id, $driver->driverCar->{"car_front_img"}) }}"/>
                                             </a>
                                         @else
                                             <img id="car-front-img" src="https://ami-sni.com/wp-content/themes/consultix/images/no-image-found-360x250.png" width="100px" />
@@ -465,8 +465,8 @@
                                     <div class="form-group">
                                         <label for="car_back_img"> {{ __('Car Back Image') }}</label>
                                         @if($driver->driverCar && $driver->driverCar->{"car_back_img"})
-                                            <a href="{{ url('uploads/' . $driver->id . '/' . $driver->driverCar->{"car_back_img"}) }}" data-lightbox="car-back-image" data-title="{{ __('Car Back Image') }}">
-                                                <img id="car-back-img" class="img-fluid d-block mb-2" style="max-width: 150px;" src="{{ url('uploads/' . $driver->id . '/' . $driver->driverCar->{"car_back_img"}) }}"/>
+                                            <a href="{{ user_upload_url($driver->id, $driver->driverCar->{"car_back_img"}) }}" data-lightbox="car-back-image" data-title="{{ __('Car Back Image') }}">
+                                                <img id="car-back-img" class="img-fluid d-block mb-2" style="max-width: 150px;" src="{{ user_upload_url($driver->id, $driver->driverCar->{"car_back_img"}) }}"/>
                                             </a>
                                         @else
                                             <img id="car-back-img" src="https://ami-sni.com/wp-content/themes/consultix/images/no-image-found-360x250.png" width="100px" />
@@ -480,8 +480,8 @@
                                     <div class="form-group">
                                         <label for="car_rside_img"> {{ __('Car Right Side Image') }}</label>
                                         @if($driver->driverCar && $driver->driverCar->{"car_rside_img"})
-                                            <a href="{{ url('uploads/' . $driver->id . '/' . $driver->driverCar->{"car_rside_img"}) }}" data-lightbox="car-right-side-image" data-title="{{ __('Car Right Side Image') }}">
-                                                <img id="car-rside-img" class="img-fluid d-block mb-2" style="max-width: 150px;" src="{{ url('uploads/' . $driver->id . '/' . $driver->driverCar->{"car_rside_img"}) }}"/>
+                                            <a href="{{ user_upload_url($driver->id, $driver->driverCar->{"car_rside_img"}) }}" data-lightbox="car-right-side-image" data-title="{{ __('Car Right Side Image') }}">
+                                                <img id="car-rside-img" class="img-fluid d-block mb-2" style="max-width: 150px;" src="{{ user_upload_url($driver->id, $driver->driverCar->{"car_rside_img"}) }}"/>
                                             </a>
                                         @else
                                             <img id="car-rside-img" src="https://ami-sni.com/wp-content/themes/consultix/images/no-image-found-360x250.png" width="100px" />
@@ -493,8 +493,8 @@
                                     <div class="form-group">
                                         <label for="car_lside_img"> {{ __('Car Left Side Image') }}</label>
                                         @if($driver->driverCar && $driver->driverCar->{"car_lside_img"})
-                                            <a href="{{ url('uploads/' . $driver->id . '/' . $driver->driverCar->{"car_lside_img"}) }}" data-lightbox="car-left-side-image" data-title="{{ __('Car Left Side Image') }}">
-                                                <img id="car-lside-img" class="img-fluid d-block mb-2" style="max-width: 150px;" src="{{ url('uploads/' . $driver->id . '/' . $driver->driverCar->{"car_lside_img"}) }}"/>
+                                            <a href="{{ user_upload_url($driver->id, $driver->driverCar->{"car_lside_img"}) }}" data-lightbox="car-left-side-image" data-title="{{ __('Car Left Side Image') }}">
+                                                <img id="car-lside-img" class="img-fluid d-block mb-2" style="max-width: 150px;" src="{{ user_upload_url($driver->id, $driver->driverCar->{"car_lside_img"}) }}"/>
                                             </a>
                                         @else
                                             <img id="car-lside-img" src="https://ami-sni.com/wp-content/themes/consultix/images/no-image-found-360x250.png" width="100px" />
@@ -508,8 +508,8 @@
                                     <div class="form-group">
                                         <label for="car_insideFront_img"> {{ __('Car Inside Front Image') }}</label>
                                         @if($driver->driverCar && $driver->driverCar->{"car_insideFront_img"})
-                                            <a href="{{ url('uploads/' . $driver->id . '/' . $driver->driverCar->{"car_insideFront_img"}) }}" data-lightbox="car-inside-front-image" data-title="{{ __('Car Inside Front Image') }}">
-                                                <img id="car-inside-front-img" class="img-fluid d-block mb-2" style="max-width: 150px;" src="{{ url('uploads/' . $driver->id . '/' . $driver->driverCar->{"car_insideFront_img"}) }}"/>
+                                            <a href="{{ user_upload_url($driver->id, $driver->driverCar->{"car_insideFront_img"}) }}" data-lightbox="car-inside-front-image" data-title="{{ __('Car Inside Front Image') }}">
+                                                <img id="car-inside-front-img" class="img-fluid d-block mb-2" style="max-width: 150px;" src="{{ user_upload_url($driver->id, $driver->driverCar->{"car_insideFront_img"}) }}"/>
                                             </a>
                                         @else
                                             <img id="car-inside-front-img" src="https://ami-sni.com/wp-content/themes/consultix/images/no-image-found-360x250.png" width="100px" />
@@ -521,8 +521,8 @@
                                     <div class="form-group">
                                         <label for="car_insideBack_img"> {{ __('Car Inside Back Image') }}</label>
                                         @if($driver->driverCar && $driver->driverCar->{"car_insideBack_img"})
-                                            <a href="{{ url('uploads/' . $driver->id . '/' . $driver->driverCar->{"car_insideBack_img"}) }}" data-lightbox="car-inside-back-image" data-title="{{ __('Car Inside Back Image') }}">
-                                                <img id="car-inside-back-img" class="img-fluid d-block mb-2" style="max-width: 150px;" src="{{ url('uploads/' . $driver->id . '/' . $driver->driverCar->{"car_insideBack_img"}) }}"/>
+                                            <a href="{{ user_upload_url($driver->id, $driver->driverCar->{"car_insideBack_img"}) }}" data-lightbox="car-inside-back-image" data-title="{{ __('Car Inside Back Image') }}">
+                                                <img id="car-inside-back-img" class="img-fluid d-block mb-2" style="max-width: 150px;" src="{{ user_upload_url($driver->id, $driver->driverCar->{"car_insideBack_img"}) }}"/>
                                             </a>
                                         @else
                                             <img id="car-inside-back-img" src="https://ami-sni.com/wp-content/themes/consultix/images/no-image-found-360x250.png" width="100px" />

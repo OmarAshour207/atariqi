@@ -104,7 +104,18 @@ class ProfileController extends BaseController
 
     public function updateInfo(Request $request)
     {
-        $validator = Validator::make($request->all(), [
+        $carImageFields = [
+            'car_front_img',
+            'car_back_img',
+            'car_rside_img',
+            'car_lside_img',
+            'car_insideFront_img',
+            'car_insideBack_img',
+            'car_form_img',
+            'license_img',
+        ];
+
+        $rules = [
             'car-brand'         => 'required|string',
             'car-model'         => 'required|numeric',
             'car-letters'       => 'required|string',
@@ -112,9 +123,13 @@ class ProfileController extends BaseController
             'car-number'        => 'required|numeric',
             // 'sequence-number'    => 'required|numeric',
             'driver-type-id'    => 'required|numeric',
-            'license_img'       => 'nullable|mimes:jpeg,jpg,png',
-            'car_form_img'      => 'nullable|mimes:jpeg,jpg,png',
-        ]);
+        ];
+
+        foreach ($carImageFields as $field) {
+            $rules[$field] = 'nullable|image|mimes:jpeg,jpg,png';
+        }
+
+        $validator = Validator::make($request->all(), $rules);
 
         if ($validator->fails()) {
             return $this->sendError(__('Validation Error.'), $validator->errors()->getMessages(), 422);
@@ -124,7 +139,7 @@ class ProfileController extends BaseController
         $data = $validator->validated();
         $data['driver-id'] = $driver->id;
 
-        $images = $this->uploadImages($request, ['license_img', 'car_form_img'], $driver->id);
+        $images = $this->uploadImages($request, $carImageFields, $driver->id);
         $pendingInfo = NewDriverInfo::where('driver-id', $driver->id)->latest('id')->first();
         $pendingCar = NewDriverCar::where('driver-id', $driver->id)->latest('id')->first();
 
@@ -139,21 +154,16 @@ class ProfileController extends BaseController
         }
 
         $driverTypeId = $data['driver-type-id'];
-        unset($data['license_img'], $data['car_form_img'], $data['driver-type-id'], $data['sequence-number']);
+        foreach ($carImageFields as $field) {
+            unset($data[$field]);
+        }
+        unset($data['driver-type-id'], $data['sequence-number']);
 
         $this->replacePendingDriverInfo($data);
 
-        $carOverrides = [
+        $carOverrides = array_merge($images, [
             'driver-type-id' => $driverTypeId,
-        ];
-
-        if (isset($images['license_img'])) {
-            $carOverrides['license_img'] = $images['license_img'];
-        }
-
-        if (isset($images['car_form_img'])) {
-            $carOverrides['car_form_img'] = $images['car_form_img'];
-        }
+        ]);
 
         $this->replacePendingDriverCar($carOverrides);
 

@@ -199,26 +199,26 @@
 
                             <div class="form-group">
                                 <label for="car_form_img"> {{ __('Car Form Image') }}</label>
-                                <img src="{{ $driver->driverCar && $driver->driverCar->{"car_form_img"} ? url($driver->driverCar->{"car_form_img"}) : 'https://i.pravatar.cc/80' }}" alt="{{ $driver->fullName }}" class="img-fluid d-block mb-2" style="max-width: 150px;">
+                                <img src="{{ user_upload_url($driver->id, $driver->driverCar?->{"car_form_img"}, 'https://i.pravatar.cc/80') }}" alt="{{ $driver->fullName }}" class="img-fluid d-block mb-2" style="max-width: 150px;">
                             </div>
 
                             <div class="form-group">
                                 <label for="license_img"> {{ __('License Image') }}</label>
-                                <img src="{{ $driver->driverCar && $driver->driverCar->{"license_img"} ? url($driver->driverCar->{"license_img"}) : 'https://i.pravatar.cc/80' }}" alt="{{ $driver->fullName }}" class="img-fluid d-block mb-2" style="max-width: 150px;">
+                                <img src="{{ user_upload_url($driver->id, $driver->driverCar?->{"license_img"}, 'https://i.pravatar.cc/80') }}" alt="{{ $driver->fullName }}" class="img-fluid d-block mb-2" style="max-width: 150px;">
                             </div>
 
                             <div class="row">
                                 <div class="col-6">
                                     <div class="form-group">
                                         <label for="car_front_img"> {{ __('Car Front Image') }}</label>
-                                        <img src="{{ $driver->driverCar && $driver->driverCar->{"car_front_img"} ? url($driver->driverCar->{"car_front_img"}) : 'https://i.pravatar.cc/80' }}" alt="{{ $driver->fullName }}" class="img-fluid d-block mb-2" style="max-width: 150px;">
+                                        <img src="{{ user_upload_url($driver->id, $driver->driverCar?->{"car_front_img"}, 'https://i.pravatar.cc/80') }}" alt="{{ $driver->fullName }}" class="img-fluid d-block mb-2" style="max-width: 150px;">
                                     </div>
                                 </div>
 
                                 <div class="col-6">
                                     <div class="form-group">
                                         <label for="car_back_img"> {{ __('Car Back Image') }}</label>
-                                        <img src="{{ $driver->driverCar && $driver->driverCar->{"car_back_img"} ? url($driver->driverCar->{"car_back_img"}) : 'https://i.pravatar.cc/80' }}" alt="{{ $driver->fullName }}" class="img-fluid d-block mb-2" style="max-width: 150px;">
+                                        <img src="{{ user_upload_url($driver->id, $driver->driverCar?->{"car_back_img"}, 'https://i.pravatar.cc/80') }}" alt="{{ $driver->fullName }}" class="img-fluid d-block mb-2" style="max-width: 150px;">
                                     </div>
                                 </div>
                             </div>
@@ -227,14 +227,14 @@
                                 <div class="col-6">
                                     <div class="form-group">
                                         <label for="car_rside_img"> {{ __('Car Right Side Image') }}</label>
-                                        <img src="{{ $driver->driverCar && $driver->driverCar->{"car_rside_img"} ? url($driver->driverCar->{"car_rside_img"}) : 'https://i.pravatar.cc/80' }}" alt="{{ $driver->fullName }}" class="img-fluid d-block mb-2" style="max-width: 150px;">
+                                        <img src="{{ user_upload_url($driver->id, $driver->driverCar?->{"car_rside_img"}, 'https://i.pravatar.cc/80') }}" alt="{{ $driver->fullName }}" class="img-fluid d-block mb-2" style="max-width: 150px;">
                                     </div>
                                 </div>
 
                                 <div class="col-6">
                                     <div class="form-group">
                                         <label for="car_lside_img"> {{ __('Car Left Side Image') }}</label>
-                                        <img src="{{ $driver->driverCar && $driver->driverCar->{"car_lside_img"} ? url($driver->driverCar->{"car_lside_img"}) : 'https://i.pravatar.cc/80' }}" alt="{{ $driver->fullName }}" class="img-fluid d-block mb-2" style="max-width: 150px;">
+                                        <img src="{{ user_upload_url($driver->id, $driver->driverCar?->{"car_lside_img"}, 'https://i.pravatar.cc/80') }}" alt="{{ $driver->fullName }}" class="img-fluid d-block mb-2" style="max-width: 150px;">
                                     </div>
                                 </div>
                             </div>
@@ -243,14 +243,14 @@
                                 <div class="col-6">
                                     <div class="form-group">
                                         <label for="car_insideFront_img"> {{ __('Car Inside Front Image') }}</label>
-                                        <img src="{{ $driver->driverCar && $driver->driverCar->{"car_insideFront_img"} ? url($driver->driverCar->{"car_insideFront_img"}) : 'https://i.pravatar.cc/80' }}" alt="{{ $driver->fullName }}" class="img-fluid d-block mb-2" style="max-width: 150px;">
+                                        <img src="{{ user_upload_url($driver->id, $driver->driverCar?->{"car_insideFront_img"}, 'https://i.pravatar.cc/80') }}" alt="{{ $driver->fullName }}" class="img-fluid d-block mb-2" style="max-width: 150px;">
                                     </div>
                                 </div>
 
                                 <div class="col-6">
                                     <div class="form-group">
                                         <label for="car_insideBack_img"> {{ __('Car Inside Back Image') }}</label>
-                                        <img src="{{ $driver->driverCar && $driver->driverCar->{"car_insideBack_img"} ? url($driver->driverCar->{"car_insideBack_img"}) : 'https://i.pravatar.cc/80' }}" alt="{{ $driver->fullName }}" class="img-fluid d-block mb-2" style="max-width: 150px;">
+                                        <img src="{{ user_upload_url($driver->id, $driver->driverCar?->{"car_insideBack_img"}, 'https://i.pravatar.cc/80') }}" alt="{{ $driver->fullName }}" class="img-fluid d-block mb-2" style="max-width: 150px;">
                                     </div>
                                 </div>
                             </div>

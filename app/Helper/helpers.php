@@ -234,7 +234,22 @@ function pending_field_value(mixed $current, mixed $pending): string
 
 function pending_image_filename(?string $current, ?string $pending): ?string
 {
-    if (!$pending || $pending === $current) {
+    if (!$pending) {
+        return null;
+    }
+
+    $normalize = static function (?string $value): ?string {
+        if (!$value) {
+            return null;
+        }
+
+        $path = parse_url($value, PHP_URL_PATH);
+        $path = is_string($path) && $path !== '' ? $path : $value;
+
+        return basename(str_replace('\\', '/', $path));
+    };
+
+    if ($normalize($pending) === $normalize($current)) {
         return null;
     }
 
