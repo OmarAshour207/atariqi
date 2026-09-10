@@ -80,19 +80,19 @@ class DeleteLateRidesCommand extends Command
                 }
             });
 
-        $weekRides = WeekRideBooking::whereDate('date-of-ser', '<', $today)
-            ->whereIn('action', [0, 4])
-            ->get();
+        // $weekRides = WeekRideBooking::whereDate('date-of-ser', '<', $today)
+        //     ->whereIn('action', [0, 4])
+        //     ->get();
 
-        foreach ($weekRides as $weekRide) {
-            WeekRideBooking::where('group-id', $weekRide->{"group-id"})->chunk(10, function ($rides) {
-                foreach ($rides as $ride) {
-                    $ride->update([
-                        'action' => 2
-                    ]);
-                }
-            });
-        }
+        // foreach ($weekRides as $weekRide) {
+        //     WeekRideBooking::where('group-id', $weekRide->{"group-id"})->chunk(10, function ($rides) {
+        //         foreach ($rides as $ride) {
+        //             $ride->update([
+        //                 'action' => 2
+        //             ]);
+        //         }
+        //     });
+        // }
 //            ->chunk(100, function ($rides) {
 //                foreach ($rides as $ride) {
 //                    $ride->update([
