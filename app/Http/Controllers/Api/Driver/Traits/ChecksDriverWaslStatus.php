@@ -20,7 +20,7 @@ trait ChecksDriverWaslStatus
         }
 
         if ((int) $driver->approval !== 1) {
-            return $this->sendError('s_userNotApproved', [
+            return $this->sendError('We are checking your registration order, please bear with us and will send on academic email or phone', [
                 __('We are checking your registration order, please bear with us and will send on academic email or phone'),
             ], 403);
         }
