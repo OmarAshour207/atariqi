@@ -61,6 +61,7 @@
                                     <th>{{ __('Driver') }}</th>
                                     <th>{{ __('Passenger') }}</th>
                                     <th>{{ __('Trip Type') }}</th>
+                                    <th>{{ __('Trip Action') }}</th>
                                     <th>{{ __('Date') }}</th>
                                     <th>{{ __('Cost') }}</th>
                                     <th>{{ __('Location') }}</th>
@@ -92,6 +93,9 @@
                                                 {{ ucfirst($trip->trip_type) }}
                                             </span>
                                         </td>
+                                        <td>
+                                            @include('dashboard.partials.trip_action_badge', ['trip' => $trip, 'tripType' => $trip->trip_type])
+                                        </td>
                                         <td>{{ \Carbon\Carbon::parse($trip->{'date-of-add'})->format('Y-m-d H:i') }}</td>
                                         <td>{{ $trip->booking->service->cost ?? 0 }}</td>
                                         <td>{{ $trip->booking->{"road-way"} == 'from' ? $trip->booking->university->{"name-ar"} : $trip->booking->neighborhood->{"neighborhood-ar"} }}</td>
@@ -99,7 +103,7 @@
 
                                 @empty
                                     <tr>
-                                        <td colspan="8" class="text-center">{{ __('No trips found') }}</td>
+                                        <td colspan="9" class="text-center">{{ __('No trips found') }}</td>
                                     </tr>
                                 @endforelse
                             </tbody>

@@ -300,7 +300,7 @@ class PassengerController extends Controller
             ->appends($request->query());
 
         // Get weekly trips
-        $weeklyTrips = SugWeekDriver::with(['passenger', 'driver'])
+        $weeklyTrips = SugWeekDriver::with(['passenger', 'driver', 'booking'])
             ->when($request->filled('passenger_id'), function($q) use ($request) {
                 $q->where('passenger-id', $request->passenger_id);
             })

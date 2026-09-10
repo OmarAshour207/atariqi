@@ -303,3 +303,85 @@ function sendSMS($userNumber, $code = null, $message = null): bool
 
     return true;
 }
+
+/**
+ * Human-readable trip action label by trip type (daily|weekly|immediate).
+ */
+function trip_action_label($action, string $type = 'daily'): string
+{
+    $action = (int) $action;
+
+    if ($type === 'immediate') {
+        return match ($action) {
+            0 => __('trip_action.immediate.0'),
+            1 => __('trip_action.immediate.1'),
+            2 => __('trip_action.immediate.2'),
+            3 => __('trip_action.immediate.3'),
+            4 => __('trip_action.immediate.4'),
+            5 => __('trip_action.immediate.5'),
+            7 => __('trip_action.immediate.7'),
+            default => __('Unknown') . " ($action)",
+        };
+    }
+
+    // daily & weekly share the same lifecycle
+    return match ($action) {
+        0 => __('trip_action.scheduled.0'),
+        1 => __('trip_action.scheduled.1'),
+        2 => __('trip_action.scheduled.2'),
+        3 => __('trip_action.scheduled.3'),
+        4 => __('trip_action.scheduled.4'),
+        5 => __('trip_action.scheduled.5'),
+        6 => __('trip_action.scheduled.6'),
+        default => __('Unknown') . " ($action)",
+    };
+}
+
+function trip_action_badge_class($action, string $type = 'daily'): string
+{
+    $action = (int) $action;
+
+    if ($type === 'immediate') {
+        return match ($action) {
+            1 => 'success',
+            2 => 'primary',
+            3, 4, 0 => 'danger',
+            5 => 'dark',
+            7 => 'secondary',
+            default => 'light',
+        };
+    }
+
+    return match ($action) {
+        0 => 'secondary',
+        1 => 'success',
+        2, 5 => 'danger',
+        3 => 'primary',
+        4 => 'info',
+        6 => 'dark',
+        default => 'light',
+    };
+}
+
+/**
+ * Weekly group status (booking.status), not the individual trip action.
+ */
+function weekly_group_status_label($status): string
+{
+    return match ((int) $status) {
+        0 => __('trip_status.weekly.0'),
+        1 => __('trip_status.weekly.1'),
+        2 => __('trip_status.weekly.2'),
+        default => __('Unknown') . " ($status)",
+    };
+}
+
+function weekly_group_status_badge_class($status): string
+{
+    return match ((int) $status) {
+        0 => 'secondary',
+        1 => 'success',
+        2 => 'danger',
+        default => 'light',
+    };
+}

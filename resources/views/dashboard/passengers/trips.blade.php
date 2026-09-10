@@ -86,7 +86,7 @@
                                 <th>{{ __('Booking ID') }}</th>
                                 <th>{{ __('Driver') }}</th>
                                 <th>{{ __('Date') }}</th>
-                                <th>{{ __('Status') }}</th>
+                                <th>{{ __('Trip Action') }}</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -95,7 +95,7 @@
                                     <td>{{ $trip->{'booking-id'} }}</td>
                                     <td>{{ optional($trip->driver)->{'user-first-name'} }} {{ optional($trip->driver)->{'user-last-name'} }}</td>
                                     <td>{{ $formatTripDate($trip, 'immediate') }}</td>
-                                    <td><span class="badge badge-info">{{ __('Immediate') }}</span></td>
+                                    <td>@include('dashboard.partials.trip_action_badge', ['trip' => $trip, 'tripType' => 'immediate'])</td>
                                 </tr>
                             @endforeach
                             </tbody>
@@ -116,7 +116,7 @@
                                 <th>{{ __('Booking ID') }}</th>
                                 <th>{{ __('Driver') }}</th>
                                 <th>{{ __('Date') }}</th>
-                                <th>{{ __('Status') }}</th>
+                                <th>{{ __('Trip Action') }}</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -125,7 +125,7 @@
                                     <td>{{ $trip->{'booking-id'} }}</td>
                                     <td>{{ optional($trip->driver)->{'user-first-name'} }} {{ optional($trip->driver)->{'user-last-name'} }}</td>
                                     <td>{{ $formatTripDate($trip, 'daily') }}</td>
-                                    <td><span class="badge badge-success">{{ __('Daily') }}</span></td>
+                                    <td>@include('dashboard.partials.trip_action_badge', ['trip' => $trip, 'tripType' => 'daily'])</td>
                                 </tr>
                             @endforeach
                             </tbody>
@@ -146,7 +146,7 @@
                                 <th>{{ __('Booking ID') }}</th>
                                 <th>{{ __('Driver') }}</th>
                                 <th>{{ __('Date') }}</th>
-                                <th>{{ __('Status') }}</th>
+                                <th>{{ __('Trip Action') }}</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -155,7 +155,7 @@
                                     <td>{{ $trip->{'booking-id'} }}</td>
                                     <td>{{ optional($trip->driver)->{'user-first-name'} }} {{ optional($trip->driver)->{'user-last-name'} }}</td>
                                     <td>{{ $formatTripDate($trip, 'weekly') }}</td>
-                                    <td><span class="badge badge-primary">{{ __('Weekly') }}</span></td>
+                                    <td>@include('dashboard.partials.trip_action_badge', ['trip' => $trip, 'tripType' => 'weekly'])</td>
                                 </tr>
                             @endforeach
                             </tbody>

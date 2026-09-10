@@ -68,7 +68,7 @@
                                 <th>{{ __('Date') }}</th>
                                 <th>{{ __('Cost') }}</th>
                                 <th style="min-width: 260px;">{{ __('Trip Route') }}</th>
-                                <th>{{ __('Status') }}</th>
+                                <th>{{ __('Trip Action') }}</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -85,7 +85,7 @@
                                     <td>{{ $trip->{'date-of-add'} ? \Carbon\Carbon::parse($trip->{'date-of-add'})->format('Y-m-d H:i') : '-' }}</td>
                                     <td>{{ $trip->booking?->service?->cost ?? 0 }} {{ __('SAR') }}</td>
                                     <td>@include('dashboard.drivers.partials.trip_endpoints', ['trip' => $trip])</td>
-                                    <td><span class="badge badge-info">{{ __('Immediate') }}</span></td>
+                                    <td>@include('dashboard.partials.trip_action_badge', ['trip' => $trip, 'tripType' => 'immediate'])</td>
                                 </tr>
                             @endforeach
                             </tbody>
@@ -108,7 +108,7 @@
                                 <th>{{ __('Date') }}</th>
                                 <th>{{ __('Cost') }}</th>
                                 <th style="min-width: 260px;">{{ __('Trip Route') }}</th>
-                                <th>{{ __('Status') }}</th>
+                                <th>{{ __('Trip Action') }}</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -125,7 +125,7 @@
                                     <td>{{ $trip->{'date-of-add'} ? \Carbon\Carbon::parse($trip->{'date-of-add'})->format('Y-m-d H:i') : '-' }}</td>
                                     <td>{{ $trip->booking?->service?->cost ?? 0 }} {{ __('SAR') }}</td>
                                     <td>@include('dashboard.drivers.partials.trip_endpoints', ['trip' => $trip])</td>
-                                    <td><span class="badge badge-success">{{ __('Daily') }}</span></td>
+                                    <td>@include('dashboard.partials.trip_action_badge', ['trip' => $trip, 'tripType' => 'daily'])</td>
                                 </tr>
                             @endforeach
                             </tbody>
@@ -148,7 +148,7 @@
                                 <th>{{ __('Date') }}</th>
                                 <th>{{ __('Cost') }}</th>
                                 <th style="min-width: 260px;">{{ __('Trip Route') }}</th>
-                                <th>{{ __('Status') }}</th>
+                                <th>{{ __('Trip Action') }}</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -165,7 +165,7 @@
                                     <td>{{ $trip->{'date-of-add'} ? \Carbon\Carbon::parse($trip->{'date-of-add'})->format('Y-m-d H:i') : '-' }}</td>
                                     <td>{{ $trip->booking?->service?->cost ?? 0 }} {{ __('SAR') }}</td>
                                     <td>@include('dashboard.drivers.partials.trip_endpoints', ['trip' => $trip])</td>
-                                    <td><span class="badge badge-primary">{{ __('Weekly') }}</span></td>
+                                    <td>@include('dashboard.partials.trip_action_badge', ['trip' => $trip, 'tripType' => 'weekly'])</td>
                                 </tr>
                             @endforeach
                             </tbody>
