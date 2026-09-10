@@ -37,7 +37,7 @@ class DriverDuesService
             'last_pay_cost' => $lastPayDate->amount ?? 0,
             'new_revenues' => $newRevenues['total'],
             'current_dues' => $currentDues,
-            'can_accept_trips' => (int) $driver->approval === 1 && $driver->scopeCheckAcceptTrips($currentDues),
+            'can_accept_trips' => $driver->checkAcceptTrips($currentDues),
             'requires_abshir_update' => (int) $driver->approval === 4,
             'abshir_message' => $driver->{'reject-reason'},
         ];

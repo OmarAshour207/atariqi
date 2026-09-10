@@ -45,24 +45,17 @@ class User extends Authenticatable
         'is-receiving-rides' => 'boolean',
     ];
 
-    // Scope
-    public function scopeCheckAcceptTrips($due): bool
+    public function checkAcceptTrips($due): bool
     {
         if ($due <= 50) {
             return true;
         }
 
-        $firstReminder = $this->paymentReminders()
-            ->select('created_at')
-            ->where('driver-id', $this->id)
-            ->whereRaw("DATEDIFF(CURDATE(), created_at) >= 7")
-            ->first();
+        $hasOverdueReminder = $this->paymentReminders()
+            ->whereRaw('DATEDIFF(CURDATE(), created_at) >= 7')
+            ->exists();
 
-        if ($firstReminder) {
-            return false;
-        }
-
-        return true;
+        return ! $hasOverdueReminder;
     }
 
     // Relations

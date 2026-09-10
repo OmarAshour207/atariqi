@@ -43,7 +43,7 @@ $body .= '<h2>3. Driver Dues Payment</h2>';
 $body .= ep('GET', 'api/driver/dues', 'Get Dues Summary', [
     ['Test Case 1: View Dues Data', 'Driver with outstanding dues', ['Login as approved driver with revenue since last payment', 'GET api/driver/dues'], '200 response with: last_pay_date, last_pay_cost, new_revenues, current_dues (percentage × revenue), can_accept_trips, requires_abshir_update, abshir_message.'],
     ['Test Case 2: No Previous Payment', 'First-time dues check', ['Login as driver with no FinancialDue records but with trip revenue', 'GET dues'], 'last_pay_date=null, last_pay_cost=0. current_dues calculated from all revenue.'],
-    ['Test Case 3: Can Accept Trips Flag', 'Dues threshold check', ['Check can_accept_trips when dues exceed limit vs when within limit'], 'can_accept_trips=true when approval=1 AND dues within acceptable range per scopeCheckacceptTrips(). false when dues too high.'],
+    ['Test Case 3: Can Accept Trips Flag', 'Dues threshold check', ['Check can_accept_trips when dues exceed limit vs when within limit'], 'can_accept_trips=true when dues <= 50, or dues > 50 but no payment reminder older than 7 days. false when dues > 50 and a reminder is 7+ days old (via User::checkAcceptTrips()).'],
     ['Test Case 4: Absher Update Required', 'approval=4 driver', ['Login as driver with approval=4', 'GET dues'], 'requires_abshir_update=true. abshir_message contains reject-reason.'],
     ['Test Case 5: Unauthenticated', 'Auth required', ['GET without token'], '401 Unauthorized.'],
 ]);
