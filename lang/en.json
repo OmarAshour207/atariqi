@@ -48,5 +48,6 @@
     "trip_action.immediate.7": "New",
     "trip_status.weekly.0": "New",
     "trip_status.weekly.1": "Accepted",
-    "trip_status.weekly.2": "Rejected"
+    "trip_status.weekly.2": "Rejected",
+    "You cannot accept or reject trips while your edit request is under review.": "You cannot accept or reject trips while your edit request is under review."
 }

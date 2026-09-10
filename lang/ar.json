@@ -1200,5 +1200,6 @@
     "trip_action.immediate.7": "جديد",
     "trip_status.weekly.0": "جديد",
     "trip_status.weekly.1": "مقبول",
-    "trip_status.weekly.2": "مرفوض"
+    "trip_status.weekly.2": "مرفوض",
+    "You cannot accept or reject trips while your edit request is under review.": "لا يمكنك قبول أو رفض الرحلات بينما طلب تعديل بياناتك قيد المراجعة."
 }

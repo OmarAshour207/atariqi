@@ -19,6 +19,12 @@ trait ChecksDriverWaslStatus
             ], 403);
         }
 
+        if ((int) $driver->approval === 2) {
+            return $this->sendError('You cannot accept or reject trips while your edit request is under review.', [
+                __('You cannot accept or reject trips while your edit request is under review.'),
+            ], 403);
+        }
+
         if ((int) $driver->approval !== 1) {
             return $this->sendError('We are checking your registration order, please bear with us and will send on academic email or phone', [
                 __('We are checking your registration order, please bear with us and will send on academic email or phone'),
