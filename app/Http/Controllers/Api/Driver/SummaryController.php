@@ -134,6 +134,11 @@ class SummaryController extends BaseController
                     $q->where('driver-id', auth()->user()->id);
                 });
             })
+            ->when($request->has('filter.action'), function ($query) use ($request) {
+                $query->whereHas('sugDriver', function ($q) use ($request) {
+                    $q->where('action', $request->input('filter.action'));
+                });
+            })
             ->orderBy('date-of-add', 'desc')
             ->get()
             ->groupBy('group-id');
