@@ -117,7 +117,6 @@ class SummaryController extends BaseController
         $summaries = QueryBuilder::for(WeekRideBooking::class)
             ->allowedFilters([
                 AllowedFilter::scope('date'),
-                AllowedFilter::scope('action'),
                 AllowedFilter::scope('status'),
             ])
             ->with([
