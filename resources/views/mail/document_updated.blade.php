@@ -43,7 +43,7 @@
                         <table width="100%" cellpadding="10" cellspacing="0" style="margin-top:20px;border:1px solid #e5e7eb;border-collapse:collapse;">
                             <tr style="background:#f8fafc;">
                                 <td width="35%"><strong>{{ __('Document Type') }}</strong></td>
-                                <td>{{ $document->{'title-eng'} ?? $document->{'title-ar'} }}</td>
+                                <td>{{ $documentTitleEn }}</td>
                             </tr>
                         </table>
 
@@ -80,7 +80,7 @@
                         <table width="100%" cellpadding="10" cellspacing="0" style="margin-top:20px;border:1px solid #e5e7eb;border-collapse:collapse;text-align:right;">
                             <tr style="background:#f8fafc;">
                                 <td width="35%"><strong>نوع المستند</strong></td>
-                                <td>{{ $document->{'title-ar'} ?? $document->{'title-eng'} }}</td>
+                                <td>{{ $documentTitleAr }}</td>
                             </tr>
                         </table>
 

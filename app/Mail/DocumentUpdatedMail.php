@@ -25,18 +25,41 @@ class DocumentUpdatedMail extends Mailable
 
     public function envelope(): Envelope
     {
+        $title = (string) ($this->document->{'title-ar'} ?? $this->document->{'title-eng'} ?? '');
+        $title = $this->normalizeDocumentTitle($title);
+
         return new Envelope(
-            subject: __('Document Updated') . ' - ' . ($this->document->{'title-ar'} ?? $this->document->{'title-eng'}),
+            subject: __('Document Updated') . ' - ' . $title,
         );
+    }
+
+    private function normalizeDocumentTitle(string $title): string
+    {
+        $normalized = preg_replace('/\s+/u', ' ', trim($title)) ?? $title;
+
+        // Fix known Arabic title typo: "شروطو الأحكام" / extra spaces.
+        if (preg_match('/شروط\s*و\s*الأ?حكام/u', $normalized)
+            || preg_match('/^شروطو\s*الأ?حكام$/u', $normalized)
+        ) {
+            return 'الشروط و الأحكام';
+        }
+
+        return $normalized;
     }
 
     public function content(): Content
     {
+        $title = $this->normalizeDocumentTitle(
+            (string) ($this->document->{'title-ar'} ?? $this->document->{'title-eng'} ?? '')
+        );
+
         return new Content(
             view: 'mail.document_updated',
             with: [
                 'document' => $this->document,
                 'user' => $this->user,
+                'documentTitleAr' => $title,
+                'documentTitleEn' => (string) ($this->document->{'title-eng'} ?? $title),
             ],
         );
     }

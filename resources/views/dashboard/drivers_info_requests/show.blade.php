@@ -107,7 +107,9 @@
                                         <div class="col-12">
                                             <div class="form-group">
                                                 <label class="old-label">{{ __('User Image') }}</label>
-                                                <img src="{{ user_upload_url($oldDriver->id, $oldDriver->image) }}" alt="{{ $oldDriver->{"user-first-name"} }}" class="img-fluid d-block mb-2" style="max-width: 150px; border-radius: 5px;">
+                                                <a href="{{ user_upload_url($oldDriver->id, $oldDriver->image) }}" data-lightbox="current-user-image" data-title="{{ __('User Image') }}">
+                                                    <img src="{{ user_upload_url($oldDriver->id, $oldDriver->image) }}" alt="{{ $oldDriver->{"user-first-name"} }}" class="img-fluid d-block mb-2" style="max-width: 150px; border-radius: 5px;">
+                                                </a>
                                             </div>
                                         </div>
                                     </div>
@@ -137,7 +139,9 @@
                                             <div class="form-group">
                                                 <label class="new-label">{{ __('User Image') }}</label>
                                                 @if(!empty($pendingUserImage))
-                                                    <img src="{{ user_upload_url($newDriverInfo->{'user-id'}, $pendingUserImage) }}" alt="{{ $newDriverInfo->{'user-first-name'} }}" class="img-fluid d-block mb-2" style="max-width: 150px; border: 2px solid #ffc107; border-radius: 5px;">
+                                                    <a href="{{ user_upload_url($newDriverInfo->{'user-id'}, $pendingUserImage) }}" data-lightbox="requested-user-image" data-title="{{ __('User Image') }}">
+                                                        <img src="{{ user_upload_url($newDriverInfo->{'user-id'}, $pendingUserImage) }}" alt="{{ $newDriverInfo->{'user-first-name'} }}" class="img-fluid d-block mb-2" style="max-width: 150px; border: 2px solid #ffc107; border-radius: 5px;">
+                                                    </a>
                                                 @else
                                                     <p class="text-muted mb-0">{{ __('No change') }}</p>
                                                 @endif
@@ -233,42 +237,58 @@
 
                                     <div class="form-group">
                                         <label class="old-label">{{ __('Car Form Image') }}</label>
-                                        <img src="{{ user_upload_url($oldDriver->id, $oldDriver->driverCar?->{"car_form_img"}) }}" alt="Car Form" class="img-fluid d-block mb-2" style="max-width: 150px; border-radius: 5px;">
+                                        <a href="{{ user_upload_url($oldDriver->id, $oldDriver->driverCar?->{"car_form_img"}) }}" data-lightbox="current-car-form" data-title="{{ __('Car Form Image') }}">
+                                            <img src="{{ user_upload_url($oldDriver->id, $oldDriver->driverCar?->{"car_form_img"}) }}" alt="Car Form" class="img-fluid d-block mb-2" style="max-width: 150px; border-radius: 5px;">
+                                        </a>
                                     </div>
 
                                     <div class="form-group">
                                         <label class="old-label">{{ __('License Image') }}</label>
-                                        <img src="{{ user_upload_url($oldDriver->id, $oldDriver->driverCar?->{"license_img"}) }}" alt="License" class="img-fluid d-block mb-2" style="max-width: 150px; border-radius: 5px;">
+                                        <a href="{{ user_upload_url($oldDriver->id, $oldDriver->driverCar?->{"license_img"}) }}" data-lightbox="current-car-license" data-title="{{ __('License Image') }}">
+                                            <img src="{{ user_upload_url($oldDriver->id, $oldDriver->driverCar?->{"license_img"}) }}" alt="License" class="img-fluid d-block mb-2" style="max-width: 150px; border-radius: 5px;">
+                                        </a>
                                     </div>
 
                                     <div class="form-group">
                                         <label class="old-label">{{ __('Car Front Image') }}</label>
-                                        <img src="{{ user_upload_url($oldDriver->id, $oldDriver->driverCar?->{"car_front_img"}) }}" alt="Car Front" class="img-fluid d-block mb-2" style="max-width: 150px; border-radius: 5px;">
+                                        <a href="{{ user_upload_url($oldDriver->id, $oldDriver->driverCar?->{"car_front_img"}) }}" data-lightbox="current-car-front" data-title="{{ __('Car Front Image') }}">
+                                            <img src="{{ user_upload_url($oldDriver->id, $oldDriver->driverCar?->{"car_front_img"}) }}" alt="Car Front" class="img-fluid d-block mb-2" style="max-width: 150px; border-radius: 5px;">
+                                        </a>
                                     </div>
 
                                     <div class="form-group">
                                         <label class="old-label">{{ __('Car Back Image') }}</label>
-                                        <img src="{{ user_upload_url($oldDriver->id, $oldDriver->driverCar?->{"car_back_img"}) }}" alt="Car Back" class="img-fluid d-block mb-2" style="max-width: 150px; border-radius: 5px;">
+                                        <a href="{{ user_upload_url($oldDriver->id, $oldDriver->driverCar?->{"car_back_img"}) }}" data-lightbox="current-car-back" data-title="{{ __('Car Back Image') }}">
+                                            <img src="{{ user_upload_url($oldDriver->id, $oldDriver->driverCar?->{"car_back_img"}) }}" alt="Car Back" class="img-fluid d-block mb-2" style="max-width: 150px; border-radius: 5px;">
+                                        </a>
                                     </div>
 
                                     <div class="form-group">
                                         <label class="old-label">{{ __('Car Right Side Image') }}</label>
-                                        <img src="{{ user_upload_url($oldDriver->id, $oldDriver->driverCar?->{"car_rside_img"}) }}" alt="Car Right" class="img-fluid d-block mb-2" style="max-width: 150px; border-radius: 5px;">
+                                        <a href="{{ user_upload_url($oldDriver->id, $oldDriver->driverCar?->{"car_rside_img"}) }}" data-lightbox="current-car-right" data-title="{{ __('Car Right Side Image') }}">
+                                            <img src="{{ user_upload_url($oldDriver->id, $oldDriver->driverCar?->{"car_rside_img"}) }}" alt="Car Right" class="img-fluid d-block mb-2" style="max-width: 150px; border-radius: 5px;">
+                                        </a>
                                     </div>
 
                                     <div class="form-group">
                                         <label class="old-label">{{ __('Car Left Side Image') }}</label>
-                                        <img src="{{ user_upload_url($oldDriver->id, $oldDriver->driverCar?->{"car_lside_img"}) }}" alt="Car Left" class="img-fluid d-block mb-2" style="max-width: 150px; border-radius: 5px;">
+                                        <a href="{{ user_upload_url($oldDriver->id, $oldDriver->driverCar?->{"car_lside_img"}) }}" data-lightbox="current-car-left" data-title="{{ __('Car Left Side Image') }}">
+                                            <img src="{{ user_upload_url($oldDriver->id, $oldDriver->driverCar?->{"car_lside_img"}) }}" alt="Car Left" class="img-fluid d-block mb-2" style="max-width: 150px; border-radius: 5px;">
+                                        </a>
                                     </div>
 
                                     <div class="form-group">
                                         <label class="old-label">{{ __('Car Inside Front Image') }}</label>
-                                        <img src="{{ user_upload_url($oldDriver->id, $oldDriver->driverCar?->{"car_insideFront_img"}) }}" alt="Inside Front" class="img-fluid d-block mb-2" style="max-width: 150px; border-radius: 5px;">
+                                        <a href="{{ user_upload_url($oldDriver->id, $oldDriver->driverCar?->{"car_insideFront_img"}) }}" data-lightbox="current-car-inside-front" data-title="{{ __('Car Inside Front Image') }}">
+                                            <img src="{{ user_upload_url($oldDriver->id, $oldDriver->driverCar?->{"car_insideFront_img"}) }}" alt="Inside Front" class="img-fluid d-block mb-2" style="max-width: 150px; border-radius: 5px;">
+                                        </a>
                                     </div>
 
                                     <div class="form-group">
                                         <label class="old-label">{{ __('Car Inside Back Image') }}</label>
-                                        <img src="{{ user_upload_url($oldDriver->id, $oldDriver->driverCar?->{"car_insideBack_img"}) }}" alt="Inside Back" class="img-fluid d-block mb-2" style="max-width: 150px; border-radius: 5px;">
+                                        <a href="{{ user_upload_url($oldDriver->id, $oldDriver->driverCar?->{"car_insideBack_img"}) }}" data-lightbox="current-car-inside-back" data-title="{{ __('Car Inside Back Image') }}">
+                                            <img src="{{ user_upload_url($oldDriver->id, $oldDriver->driverCar?->{"car_insideBack_img"}) }}" alt="Inside Back" class="img-fluid d-block mb-2" style="max-width: 150px; border-radius: 5px;">
+                                        </a>
                                     </div>
                                 </div>
 
@@ -289,11 +309,13 @@
                                         </div>
                                     </div>
 
-                                    @foreach($carImageComparisons as $carImage)
+                                    @foreach($carImageComparisons as $index => $carImage)
                                         <div class="form-group">
                                             <label class="new-label">{{ $carImage['label'] }}</label>
                                             @if(!empty($carImage['pending']))
-                                                <img src="{{ user_upload_url($newDriverInfo->{'user-id'}, $carImage['pending']) }}" alt="{{ $carImage['label'] }}" class="img-fluid d-block mb-2" style="max-width: 150px; border: 2px solid #ffc107; border-radius: 5px;">
+                                                <a href="{{ user_upload_url($newDriverInfo->{'user-id'}, $carImage['pending']) }}" data-lightbox="requested-car-{{ $index }}" data-title="{{ $carImage['label'] }}">
+                                                    <img src="{{ user_upload_url($newDriverInfo->{'user-id'}, $carImage['pending']) }}" alt="{{ $carImage['label'] }}" class="img-fluid d-block mb-2" style="max-width: 150px; border: 2px solid #ffc107; border-radius: 5px;">
+                                                </a>
                                             @else
                                                 <p class="text-muted mb-0">{{ __('No change') }}</p>
                                             @endif
