@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Driver;
 
 use App\Http\Controllers\Api\BaseController;
 use App\Http\Controllers\Api\Driver\Traits\ChecksDriverDues;
+use App\Http\Controllers\Api\Driver\Traits\ChecksDriverSameTimeTrips;
 use App\Http\Controllers\Api\Driver\Traits\ChecksDriverWaslStatus;
 use App\Http\Resources\DayRideBookingResource;
 use App\Http\Resources\Driver\SugDayDriverDetailsResource;
@@ -20,7 +21,8 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 
 class DailyTripsController extends BaseController
 {
-    use ChecksDriverDues, ChecksDriverWaslStatus;
+    use ChecksDriverDues, ChecksDriverWaslStatus, ChecksDriverSameTimeTrips;
+
     public function get(): JsonResponse
     {
         $driverServices = DriversServices::select('service-id')
@@ -66,9 +68,13 @@ class DailyTripsController extends BaseController
 
         $dayRideBooking = DayRideBooking::where('id', $request->input('id'))->first();
 
-        if ($this->checkTripsLimit($dayRideBooking)) {
-            return $this->sendError(__("sorry you can't accept this ride, because you reach the delivery limit at the same time and date"), [
-                __("sorry you can't accept this ride, because you reach the delivery limit at the same time and date")
+        if ($this->hasTripAtSameDateTime(
+            (string) $dayRideBooking->{"date-of-ser"},
+            $dayRideBooking->{"time-go"},
+            $dayRideBooking->{"time-back"}
+        )) {
+            return $this->sendError(__("sorry you can't accept this ride, because you already have another trip at the same time and date"), [
+                __("sorry you can't accept this ride, because you already have another trip at the same time and date")
             ], 402);
         }
 
@@ -86,25 +92,6 @@ class DailyTripsController extends BaseController
         Log::info("Add suggested driver and update day ride booking");
 
         return $this->sendResponse([], __('Success'));
-    }
-
-    private function checkTripsLimit(DayRideBooking $dayRideBooking): bool
-    {
-        $sugDrivers = SugDayDriver::whereHas('booking', function ($query) use($dayRideBooking) {
-            $query->whereDate('date-of-ser', $dayRideBooking->{"date-of-ser"})
-                ->where(function ($q) use ($dayRideBooking) {
-                    $q->where('time-go', $dayRideBooking->{"time-go"})
-                        ->orWhere('time-back', $dayRideBooking->{"time-back"});
-            });
-        })
-            ->where('driver-id', auth()->user()->id)
-            ->get();
-
-        if ($sugDrivers->count() > 2) {
-            return true;
-        }
-
-        return false;
     }
 
     public function reject(Request $request)

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Driver;
 
 use App\Http\Controllers\Api\BaseController;
 use App\Http\Controllers\Api\Driver\Traits\ChecksDriverDues;
+use App\Http\Controllers\Api\Driver\Traits\ChecksDriverSameTimeTrips;
 use App\Http\Controllers\Api\Driver\Traits\ChecksDriverWaslStatus;
 use App\Http\Resources\Driver\WeekRideBookingGroupDetails;
 use App\Models\SugWeekDriver;
@@ -16,7 +17,8 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 
 class WeeklyTripController extends BaseController
 {
-    use ChecksDriverDues, ChecksDriverWaslStatus;
+    use ChecksDriverDues, ChecksDriverWaslStatus, ChecksDriverSameTimeTrips;
+
     public function get($groupId): JsonResponse
     {
         $tripsGroup = WeekRideBooking::with(['rate', 'sugDriver', 'sugDriver.deliveryInfo'])
@@ -54,6 +56,24 @@ class WeeklyTripController extends BaseController
         $tripsGroup = WeekRideBooking::with('sugDriver')
             ->where('group-id', $request->input('group_id'))
             ->get();
+
+        $isAccepting = (int) $request->input('action') === 1 || $request->input('tag') === 'all';
+
+        if ($isAccepting) {
+            foreach ($tripsGroup as $booking) {
+                if ($this->hasTripAtSameDateTime(
+                    (string) $booking->{"date-of-ser"},
+                    $booking->{"time-go"},
+                    $booking->{"time-back"},
+                    null,
+                    $booking->sugDriver?->id
+                )) {
+                    return $this->sendError(__("sorry you can't accept this ride, because you already have another trip at the same time and date"), [
+                        __("sorry you can't accept this ride, because you already have another trip at the same time and date")
+                    ], 402);
+                }
+            }
+        }
 
         foreach ($tripsGroup as $tripGroup) {
             // move from all trips to my trips

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Driver;
 
 use App\Http\Controllers\Api\BaseController;
 use App\Http\Controllers\Api\Driver\Traits\ChecksDriverDues;
+use App\Http\Controllers\Api\Driver\Traits\ChecksDriverSameTimeTrips;
 use App\Http\Controllers\Api\Driver\Traits\ChecksDriverWaslStatus;
 use App\Http\Resources\Driver\SugDayDriverResource;
 use App\Http\Resources\Driver\SugWeeklyDriverResource;
@@ -26,7 +27,8 @@ use Illuminate\Support\Facades\Validator;
 
 class TripController extends BaseController
 {
-    use ChecksDriverDues, ChecksDriverWaslStatus;
+    use ChecksDriverDues, ChecksDriverWaslStatus, ChecksDriverSameTimeTrips;
+
     public function updateAction(Request $request): JsonResponse
     {
         Log::info("Update action with type {$request->input('type')} with Action: {$request->input('action')}");
@@ -62,6 +64,23 @@ class TripController extends BaseController
         if(!$trip) {
             Log::info("Trip not found when updating action");
             return $this->sendError(__('Trip not found!'), [__('Trip not found!')]);
+        }
+
+        if ((int) $request->input('action') === 1
+            && in_array($request->input('type'), ['daily', 'weekly'], true)
+            && $trip->booking
+        ) {
+            if ($this->hasTripAtSameDateTime(
+                (string) $trip->booking->{"date-of-ser"},
+                $trip->booking->{"time-go"},
+                $trip->booking->{"time-back"},
+                $request->input('type') === 'daily' ? (int) $trip->id : null,
+                $request->input('type') === 'weekly' ? (int) $trip->id : null
+            )) {
+                return $this->sendError(__("sorry you can't accept this ride, because you already have another trip at the same time and date"), [
+                    __("sorry you can't accept this ride, because you already have another trip at the same time and date")
+                ], 402);
+            }
         }
 
         if ($request->input('type') == 'immediate') {
