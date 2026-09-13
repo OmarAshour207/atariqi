@@ -320,6 +320,24 @@ function sendSMS($userNumber, $code = null, $message = null): bool
 }
 
 /**
+ * Prefer booking service date (date-of-ser); fall back to trip date-of-add (e.g. immediate).
+ */
+function format_trip_service_date($trip, string $format = 'Y-m-d'): string
+{
+    $dateValue = $trip->booking?->{'date-of-ser'} ?? $trip->{'date-of-add'} ?? null;
+
+    if (blank($dateValue)) {
+        return '-';
+    }
+
+    try {
+        return \Carbon\Carbon::parse($dateValue)->format($format);
+    } catch (\Exception $e) {
+        return '-';
+    }
+}
+
+/**
  * Human-readable trip action label by trip type (daily|weekly|immediate).
  */
 function trip_action_label($action, string $type = 'daily'): string

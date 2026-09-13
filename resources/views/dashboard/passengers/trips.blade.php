@@ -20,22 +20,8 @@
 
         <div class="container-fluid page__container">
             @php
-                $formatTripDate = function ($trip, ?string $type = null) {
-                    $dateValue = $trip->{'date-of-add'};
-
-                    if (in_array($type, ['daily', 'weekly'], true) && !empty($trip->booking?->{'date-of-ser'})) {
-                        $dateValue = $trip->booking->{'date-of-ser'};
-                    }
-
-                    if (blank($dateValue)) {
-                        return '-';
-                    }
-
-                    try {
-                        return \Carbon\Carbon::parse($dateValue)->format('Y-m-d H:i');
-                    } catch (\Exception $e) {
-                        return '-';
-                    }
+                $formatTripDate = function ($trip) {
+                    return format_trip_service_date($trip);
                 };
             @endphp
 
@@ -94,7 +80,7 @@
                                 <tr>
                                     <td>{{ $trip->{'booking-id'} }}</td>
                                     <td>{{ optional($trip->driver)->{'user-first-name'} }} {{ optional($trip->driver)->{'user-last-name'} }}</td>
-                                    <td>{{ $formatTripDate($trip, 'immediate') }}</td>
+                                    <td>{{ $formatTripDate($trip) }}</td>
                                     <td>@include('dashboard.partials.trip_action_badge', ['trip' => $trip, 'tripType' => 'immediate'])</td>
                                 </tr>
                             @endforeach
@@ -124,7 +110,7 @@
                                 <tr>
                                     <td>{{ $trip->{'booking-id'} }}</td>
                                     <td>{{ optional($trip->driver)->{'user-first-name'} }} {{ optional($trip->driver)->{'user-last-name'} }}</td>
-                                    <td>{{ $formatTripDate($trip, 'daily') }}</td>
+                                    <td>{{ $formatTripDate($trip) }}</td>
                                     <td>@include('dashboard.partials.trip_action_badge', ['trip' => $trip, 'tripType' => 'daily'])</td>
                                 </tr>
                             @endforeach
@@ -154,7 +140,7 @@
                                 <tr>
                                     <td>{{ $trip->{'booking-id'} }}</td>
                                     <td>{{ optional($trip->driver)->{'user-first-name'} }} {{ optional($trip->driver)->{'user-last-name'} }}</td>
-                                    <td>{{ $formatTripDate($trip, 'weekly') }}</td>
+                                    <td>{{ $formatTripDate($trip) }}</td>
                                     <td>@include('dashboard.partials.trip_action_badge', ['trip' => $trip, 'tripType' => 'weekly'])</td>
                                 </tr>
                             @endforeach
