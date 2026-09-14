@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\SnapshotsAtariqiPercentage;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -9,6 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 class SugWeekDriver extends Model
 {
     use HasFactory;
+    use SnapshotsAtariqiPercentage;
 
     public $timestamps = false;
 
@@ -19,6 +21,7 @@ class SugWeekDriver extends Model
         'driver-id',
         'passenger-id',
         'action',
+        'atariqi_percentage',
         'viewed',
         'date-of-add',
         'date-of-edit'

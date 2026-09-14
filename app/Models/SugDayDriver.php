@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\SnapshotsAtariqiPercentage;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -11,6 +12,7 @@ use Illuminate\Support\Facades\Log;
 class SugDayDriver extends Model
 {
     use HasFactory;
+    use SnapshotsAtariqiPercentage;
 
     protected $table = 'sug-day-drivers';
 
@@ -21,6 +23,7 @@ class SugDayDriver extends Model
         'driver-id',
         'passenger-id',
         'action',
+        'atariqi_percentage',
         'date-of-add',
         'date-of-edit',
         'viewed'

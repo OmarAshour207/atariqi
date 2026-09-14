@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Driver\Traits;
 
 use App\Models\Service;
+use App\Models\Subscription;
 use App\Models\SugDayDriver;
 use App\Models\SugWeekDriver;
 use App\Models\SuggestionDriver;
@@ -28,7 +29,13 @@ trait Payment
             'daily' => $detailed['daily']['revenue'],
             'weekly' => $detailed['weekly']['revenue'],
             'total' => $detailed['total'],
+            'total_dues' => $detailed['total_dues'],
         ];
+    }
+
+    public function getDuesAmount($userId, $dates): float
+    {
+        return (float) $this->getDetailedRevenue($userId, $dates)['total_dues'];
     }
 
     public function getDetailedRevenue($userId, $dates): array
@@ -78,24 +85,39 @@ trait Payment
             ->with('booking.service')
             ->get();
 
-        $immediateRevenue = $immediateTrips->sum(fn ($trip) => (float) ($trip->booking?->service?->cost ?? 0));
-        $dailyRevenue = $dailyTrips->sum(fn ($trip) => (float) ($trip->booking?->service?->cost ?? 0));
-        $weeklyRevenue = $weeklyTrips->sum(fn ($trip) => (float) ($trip->booking?->service?->cost ?? 0));
+        $fallbackPercentage = Subscription::generalDuesPercentageValue();
+
+        $summarize = function ($trips) use ($fallbackPercentage) {
+            $revenue = 0.0;
+            $dues = 0.0;
+
+            foreach ($trips as $trip) {
+                $cost = (float) ($trip->booking?->service?->cost ?? 0);
+                $percentage = $trip->atariqi_percentage !== null
+                    ? (float) $trip->atariqi_percentage
+                    : $fallbackPercentage;
+
+                $revenue += $cost;
+                $dues += ($cost * $percentage) / 100;
+            }
+
+            return [
+                'count' => $trips->count(),
+                'revenue' => $revenue,
+                'dues' => $dues,
+            ];
+        };
+
+        $immediate = $summarize($immediateTrips);
+        $daily = $summarize($dailyTrips);
+        $weekly = $summarize($weeklyTrips);
 
         return [
-            'immediate' => [
-                'count' => $immediateTrips->count(),
-                'revenue' => $immediateRevenue,
-            ],
-            'daily' => [
-                'count' => $dailyTrips->count(),
-                'revenue' => $dailyRevenue,
-            ],
-            'weekly' => [
-                'count' => $weeklyTrips->count(),
-                'revenue' => $weeklyRevenue,
-            ],
-            'total' => $immediateRevenue + $dailyRevenue + $weeklyRevenue,
+            'immediate' => $immediate,
+            'daily' => $daily,
+            'weekly' => $weekly,
+            'total' => $immediate['revenue'] + $daily['revenue'] + $weekly['revenue'],
+            'total_dues' => $immediate['dues'] + $daily['dues'] + $weekly['dues'],
         ];
     }
 }

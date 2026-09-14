@@ -400,7 +400,7 @@ class DriverController extends Controller
         $revenueBreakdown = $this->getDetailedRevenue($driver->id, $lifetimeDates);
         $duesPercentage = Subscription::generalDuesPercentageValue();
 
-        $totalDues = round(($duesPercentage * $revenueBreakdown['total']) / 100, 2);
+        $totalDues = round((float) $revenueBreakdown['total_dues'], 2);
         $totalPaid = round((float) FinancialDue::where('driver-id', $driver->id)->sum('amount'), 2);
         $remainingDues = round(max(0, $totalDues - $totalPaid), 2);
         $currentUnpaidDues = round($this->calculateCurrentDues($driver), 2);
@@ -859,10 +859,7 @@ class DriverController extends Controller
             'end_date' => Carbon::now()->format('Y-m-d'),
         ];
 
-        $duesPercentage = Subscription::generalDuesPercentageValue();
-        $revenue = $this->getRevenue($driver->id, $dates);
-
-        return ($duesPercentage * $revenue['total']) / 100;
+        return $this->getDuesAmount($driver->id, $dates);
     }
 
     public function edit(User $driver)

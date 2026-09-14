@@ -5,7 +5,6 @@ namespace App\Console\Commands;
 use App\Http\Controllers\Api\Driver\Traits\Payment;
 use App\Mail\PaymentReminderMail;
 use App\Models\FinancialDue;
-use App\Models\Subscription;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
@@ -89,12 +88,6 @@ class PaymentReminder extends Command
 
     private function getDues($driverId, $dates)
     {
-        $totalRevenue = $this->getRevenue($driverId, $dates)['total'];
-
-        if (!$this->subscriptionCost) {
-            $this->subscriptionCost = Subscription::generalDuesPercentageValue();
-        }
-
-        return ($this->subscriptionCost * $totalRevenue) / 100;
+        return $this->getDuesAmount($driverId, $dates);
     }
 }

@@ -27,8 +27,8 @@ class DriverDuesService
         ];
 
         $newRevenues = $this->getRevenue($driver->id, $dates);
+        $currentDues = $newRevenues['total_dues'];
         $duesPercentage = Subscription::generalDuesPercentageValue();
-        $currentDues = ($duesPercentage * $newRevenues['total']) / 100;
 
         return [
             'last_pay_date' => $lastPayDate?->{"date-of-add"}
@@ -37,6 +37,7 @@ class DriverDuesService
             'last_pay_cost' => $lastPayDate->amount ?? 0,
             'new_revenues' => $newRevenues['total'],
             'current_dues' => $currentDues,
+            'dues_percentage' => $duesPercentage,
             'can_accept_trips' => $driver->checkAcceptTrips($currentDues),
             'requires_abshir_update' => (int) $driver->approval === 4,
             'abshir_message' => $driver->{'reject-reason'},
