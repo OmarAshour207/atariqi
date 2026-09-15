@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Driver;
 
+use App\Http\Resources\Concerns\ResolvesTripCost;
 use App\Http\Resources\NeighbourResource;
 use App\Http\Resources\ServiceResource;
 use App\Http\Resources\UniversityResource;
@@ -10,6 +11,8 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class WeekRideBookingGroupResource extends JsonResource
 {
+    use ResolvesTripCost;
+
     public function toArray($request)
     {
         return [
@@ -33,6 +36,7 @@ class WeekRideBookingGroupResource extends JsonResource
                 'action'        => $item->{"action"},
                 'date_of_add'   => $item->{"date-of-add"},
                 'status'        => $item->status,
+                'trip_cost'     => $this->tripCostFromSug($item->sugDriver, $item->service),
                 'neighborhood'  => new NeighbourResource($item->neighborhood),
                 'passenger'     => new UserSampleResource($item->passenger),
                 'university'    => new UniversityResource($item->university),

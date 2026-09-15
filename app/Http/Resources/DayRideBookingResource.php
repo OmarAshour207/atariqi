@@ -2,10 +2,13 @@
 
 namespace App\Http\Resources;
 
+use App\Http\Resources\Concerns\ResolvesTripCost;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class DayRideBookingResource extends JsonResource
 {
+    use ResolvesTripCost;
+
     public function toArray($request)
     {
         return [
@@ -22,6 +25,7 @@ class DayRideBookingResource extends JsonResource
             'date_of_add'       => $this->{"date-of-add"},
             'lat'               => $this->lat,
             'lng'               => $this->lng,
+            'trip_cost'         => $this->resolveTripCost(),
             'neighborhood'      => new NeighbourResource($this->neighborhood),
             'university'        => new UniversityResource($this->university),
             'passenger'         => new UserSampleResource($this->whenLoaded('passenger')),

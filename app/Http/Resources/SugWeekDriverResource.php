@@ -2,10 +2,13 @@
 
 namespace App\Http\Resources;
 
+use App\Http\Resources\Concerns\ResolvesTripCost;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class SugWeekDriverResource extends JsonResource
 {
+    use ResolvesTripCost;
+
     public function toArray($request)
     {
         return [
@@ -13,7 +16,7 @@ class SugWeekDriverResource extends JsonResource
             'action'        => $this->action,
             'date-of-add'   => $this->{"date-of-add"},
             'viewed'        => $this->viewed,
-            'trip'          => new WeekRideBookingResource($this->booking),
+            'trip'          => $this->bookingResourceWithTripCost(WeekRideBookingResource::class),
             'driver'        => new UserSampleResource($this->whenLoaded('driver')),
             'driverinfo'    => new DriverInfoResource($this->whenLoaded('driverinfo')),
             'delivery_info' => $this->whenLoaded('deliveryInfo')

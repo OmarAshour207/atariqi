@@ -2,14 +2,16 @@
 
 namespace App\Http\Resources\Driver;
 
+use App\Http\Resources\Concerns\ResolvesTripCost;
 use App\Http\Resources\NeighbourResource;
-use App\Http\Resources\ServiceResource;
 use App\Http\Resources\UniversityResource;
 use App\Http\Resources\UserSampleResource;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class WeekRideBookingGroupDetails extends JsonResource
 {
+    use ResolvesTripCost;
+
     public function toArray($request)
     {
         return [
@@ -17,6 +19,7 @@ class WeekRideBookingGroupDetails extends JsonResource
             'group_id'      => $this->{"group-id"},
             'date_of_ser'   => $this->{"date-of-ser"},
             'action'        => $this->{"action"},
+            'trip_cost'     => $this->resolveTripCost(),
             'neighborhood'  => new NeighbourResource($this->neighborhood),
             'passenger'     => new UserSampleResource($this->passenger),
             'university'    => new UniversityResource($this->university),

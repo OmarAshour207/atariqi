@@ -2,11 +2,14 @@
 
 namespace App\Http\Resources;
 
+use App\Http\Resources\Concerns\ResolvesTripCost;
 use App\Models\WeekRideBooking;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class WeekRideBookingResource extends JsonResource
 {
+    use ResolvesTripCost;
+
     /** @var array<string, int> */
     private static array $weeklyDaysCountCache = [];
 
@@ -23,6 +26,7 @@ class WeekRideBookingResource extends JsonResource
             'lng'           => $this->{"lng"},
             'action'        => $this->{"action"},
             'weekly_days_count' => $this->resolveWeeklyDaysCount(),
+            'trip_cost'     => $this->resolveTripCost(),
             'neighborhood'  => new NeighbourResource($this->neighborhood),
             'passenger'     => new UserSampleResource($this->passenger),
             'university'    => new UniversityResource($this->university),

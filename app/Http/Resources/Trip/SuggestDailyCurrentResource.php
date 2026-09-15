@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Trip;
 
+use App\Http\Resources\Concerns\ResolvesTripCost;
 use App\Http\Resources\DayRideBookingResource;
 use App\Http\Resources\DriverInfoResource;
 use App\Http\Resources\UserSampleResource;
@@ -9,6 +10,8 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class SuggestDailyCurrentResource extends JsonResource
 {
+    use ResolvesTripCost;
+
     /**
      * Transform the resource into an array.
      *
@@ -30,7 +33,7 @@ class SuggestDailyCurrentResource extends JsonResource
                 'action'        => $this->action,
                 'date-of-add'   => $this->{"date-of-add"},
                 'viewed'        => $this->viewed,
-                'trip'          => new DayRideBookingResource($this->booking),
+                'trip'          => $this->bookingResourceWithTripCost(DayRideBookingResource::class),
                 'driver'        => new UserSampleResource($this->driver),
                 'delivery_info' => $this->whenLoaded('deliveryInfo'),
                 'driverinfo'    => new DriverInfoResource($this->whenLoaded('driverinfo'))

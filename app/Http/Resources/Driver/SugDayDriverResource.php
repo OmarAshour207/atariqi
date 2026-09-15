@@ -2,12 +2,15 @@
 
 namespace App\Http\Resources\Driver;
 
+use App\Http\Resources\Concerns\ResolvesTripCost;
 use App\Http\Resources\DayRideBookingResource;
 use App\Http\Resources\UserSampleResource;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class SugDayDriverResource extends JsonResource
 {
+    use ResolvesTripCost;
+
     public function toArray($request)
     {
         $roadWay = $this->booking->{"road-way"};
@@ -21,7 +24,7 @@ class SugDayDriverResource extends JsonResource
             'source_lat'    => $roadWay == 'from' ? $this->booking->university->lat : $this->booking->lat,
             'source_lng'    => $roadWay == 'from' ? $this->booking->university->lng : $this->booking->lng,
             'passenger'     => new UserSampleResource($this->whenLoaded('passenger')),
-            'trip'          => new DayRideBookingResource($this->booking),
+            'trip'          => $this->bookingResourceWithTripCost(DayRideBookingResource::class),
             'delivery_info' => $this->whenLoaded('deliveryInfo'),
             'general_passenger_rate' => $this->whenLoaded('rate'),
         ];
