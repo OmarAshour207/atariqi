@@ -48,13 +48,31 @@ class SummaryController extends BaseController
                 $query->whereDate('date-of-add', $request->input('date'));
             })->get();
 
-        $dailyRides = SugDayDriver::with('passenger', 'booking')
+        $dailyRides = SugDayDriver::with([
+                'passenger',
+                'booking',
+                'booking.university',
+                'booking.neighborhood',
+                'booking.service',
+                'booking.passenger',
+                'deliveryInfo',
+                'rate',
+            ])
             ->where('driver-id', $driverId)
             ->when($request->input('date'), function ($query) use ($request) {
                 $query->whereDate('date-of-add', $request->input('date'));
             })->get();
 
-        $immediateRides = SuggestionDriver::with('passenger', 'booking')
+        $immediateRides = SuggestionDriver::with([
+                'passenger',
+                'booking',
+                'booking.university',
+                'booking.neighborhood',
+                'booking.service',
+                'booking.passenger',
+                'deliveryInfo',
+                'rate',
+            ])
             ->where('driver-id', $driverId)
             ->when($request->input('date'), function ($query) use ($request) {
                 $query->whereDate('date-of-add', $request->input('date'));
@@ -159,7 +177,16 @@ class SummaryController extends BaseController
             ];
         }
 
-        return ['booking', 'booking.passenger', 'deliveryInfo', 'rate'];
+        return [
+            'booking',
+            'booking.passenger',
+            'booking.university',
+            'booking.neighborhood',
+            'booking.service',
+            'passenger',
+            'deliveryInfo',
+            'rate',
+        ];
     }
 
     private function getModel(Request $request)
