@@ -68,7 +68,7 @@
                         <table class="table table-striped">
                             <thead>
                             <tr>
-                                <th>{{ __('ID') }}</th>
+                                <th>{{ __('Booking ID') }}</th>
                                 <th>{{ __('Driver') }}</th>
                                 <th>{{ __('Comment') }}</th>
                             </tr>
@@ -76,7 +76,7 @@
                             <tbody>
                             @foreach($stats['immediateTrips'] as $trip)
                                 <tr>
-                                    <td>{{ $trip->{"sug-id"} }}</td>
+                                    <td>{{ optional($trip->ride)->{'booking-id'} }}</td>
                                     <td>{{ $trip->ride->driver->{'user-first-name'} }} {{ $trip->ride->driver->{'user-last-name'} }}</td>
                                     <td>{{ $trip->comment }}</td>
                                 </tr>
@@ -96,7 +96,7 @@
                         <table class="table table-striped">
                             <thead>
                             <tr>
-                                <th>{{ __('ID') }}</th>
+                                <th>{{ __('Booking ID') }}</th>
                                 <th>{{ __('Driver') }}</th>
                                 <th>{{ __('Comment') }}</th>
                             </tr>
@@ -104,7 +104,7 @@
                             <tbody>
                             @foreach($stats['dailyTrips'] as $trip)
                                 <tr>
-                                    <td>{{ $trip->{"sug-id"} }}</td>
+                                    <td>{{ optional($trip->ride)->{'booking-id'} }}</td>
                                     <td>{{ $trip->ride->driver->{'user-first-name'} }} {{ $trip->ride->driver->{'user-last-name'} }}</td>
                                     <td>{{ $trip->comment }}</td>
                                 </tr>
@@ -124,7 +124,7 @@
                         <table class="table table-striped">
                             <thead>
                             <tr>
-                                <th>{{ __('ID') }}</th>
+                                <th>{{ __('Booking ID') }}</th>
                                 <th>{{ __('Driver') }}</th>
                                 <th>{{ __('Comment') }}</th>
                             </tr>
@@ -132,7 +132,7 @@
                             <tbody>
                             @foreach($stats['weeklyTrips'] as $trip)
                                 <tr>
-                                    <td>{{ $trip->{"sug-id"} }}</td>
+                                    <td>{{ optional($trip->ride)->{'booking-id'} }}</td>
                                     <td>{{ $trip->ride->driver->{'user-first-name'} }} {{ $trip->ride->driver->{'user-last-name'} }}</td>
                                     <td>{{ $trip->comment }}</td>
                                 </tr>
