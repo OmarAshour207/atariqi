@@ -11,7 +11,7 @@
                             <li class="breadcrumb-item active" aria-current="page">{{ __('Sections') }}</li>
                         </ol>
                     </nav>
-                    <h1 class="m-0"> {{ request('section') }} </h1>
+                    <h1 class="m-0"> {{ __(ucwords(str_replace('_', ' ', request('section', 'Sections')))) }} </h1>
                 </div>
                 @adminCan('add-delete')
                 <a href="{{ route('homepage-sections.create', ['type' => request('type')]) }}" class="btn btn-success ml-3">{{ __('Create') }} <i class="material-icons">add</i></a>

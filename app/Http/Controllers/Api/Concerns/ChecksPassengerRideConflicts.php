@@ -115,6 +115,9 @@ trait ChecksPassengerRideConflicts
         [$from, $to] = $this->timeWindowBounds($time, $timeWindowHours);
 
         return WeekRideBooking::where('passenger-id', $passengerId)
+            ->whereHas('sugDriver', function ($sug) {
+                $sug->whereNotIn('action', [2, 5]);
+            })
             ->whereDate('date-of-ser', $date)
             ->whereNotNull($timeField)
             ->whereBetween($timeField, [$from, $to])
