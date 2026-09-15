@@ -338,6 +338,25 @@ function format_trip_service_date($trip, string $format = 'Y-m-d'): string
 }
 
 /**
+ * Trip reference number shown in dashboards.
+ * Weekly trips use group-id (same as driver/passenger apps); others use booking-id.
+ */
+function trip_display_id($trip, ?string $type = null): string
+{
+    $type = $type ?? ($trip->trip_type ?? null);
+
+    if ($type === 'weekly') {
+        $groupId = $trip->booking?->{'group-id'} ?? null;
+
+        if ($groupId !== null && $groupId !== '') {
+            return (string) $groupId;
+        }
+    }
+
+    return (string) ($trip->{'booking-id'} ?? $trip->id ?? '-');
+}
+
+/**
  * Human-readable trip action label by trip type (daily|weekly|immediate).
  */
 function trip_action_label($action, string $type = 'daily'): string

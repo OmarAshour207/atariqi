@@ -138,7 +138,7 @@
                             <tbody>
                             @foreach($weeklyTrips as $trip)
                                 <tr>
-                                    <td>{{ $trip->{'booking-id'} }}</td>
+                                    <td>{{ trip_display_id($trip, 'weekly') }}</td>
                                     <td>{{ optional($trip->driver)->{'user-first-name'} }} {{ optional($trip->driver)->{'user-last-name'} }}</td>
                                     <td>{{ $formatTripDate($trip) }}</td>
                                     <td>@include('dashboard.partials.trip_action_badge', ['trip' => $trip, 'tripType' => 'weekly'])</td>

@@ -132,7 +132,7 @@
                             <tbody>
                             @foreach($stats['weeklyTrips'] as $trip)
                                 <tr>
-                                    <td>{{ optional($trip->ride)->{'booking-id'} }}</td>
+                                    <td>{{ optional($trip->ride)->booking?->{'group-id'} ?? optional($trip->ride)->{'booking-id'} }}</td>
                                     <td>{{ $trip->ride->driver->{'user-first-name'} }} {{ $trip->ride->driver->{'user-last-name'} }}</td>
                                     <td>{{ $trip->comment }}</td>
                                 </tr>

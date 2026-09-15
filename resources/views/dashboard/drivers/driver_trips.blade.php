@@ -154,7 +154,7 @@
                             <tbody>
                             @foreach($weeklyTrips as $trip)
                                 <tr>
-                                    <td>{{ $trip->{'booking-id'} }}</td>
+                                    <td>{{ trip_display_id($trip, 'weekly') }}</td>
                                     <td>
                                         @if($trip->passenger)
                                             {{ $trip->passenger->{'user-first-name'} }} {{ $trip->passenger->{'user-last-name'} }}

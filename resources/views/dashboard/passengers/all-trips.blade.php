@@ -225,7 +225,7 @@
                             <tbody>
                             @foreach($weeklyTrips as $trip)
                                 <tr>
-                                    <td>{{ $trip->{'booking-id'} }}</td>
+                                    <td>{{ trip_display_id($trip, 'weekly') }}</td>
                                     <td>
                                         <a href="{{ route('passengers.show', $trip->passenger->id) }}" class="text-primary">
                                             {{ optional($trip->passenger)->{'user-first-name'} }} {{ optional($trip->passenger)->{'user-last-name'} }}

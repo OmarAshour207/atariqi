@@ -252,7 +252,7 @@ class UserController extends Controller
             });
 
         // Get weekly unride rates
-        $weeklyUnride = WeekUnrideRate::with(['ride.driver', 'ride.passenger'])
+        $weeklyUnride = WeekUnrideRate::with(['ride.driver', 'ride.passenger', 'ride.booking'])
             ->whereHas('ride', function($query) use ($passenger) {
                 $query->where('passenger-id', $passenger->id);
             })

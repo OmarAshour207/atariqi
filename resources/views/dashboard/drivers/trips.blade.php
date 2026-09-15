@@ -71,7 +71,7 @@
                                 @forelse($paginatedTrips as $index => $trip)
                                     <tr>
                                         <td>{{ $paginatedTrips->firstItem() + $index }}</td>
-                                        <td>{{ $trip->{"booking-id"} }}</td>
+                                        <td>{{ trip_display_id($trip) }}</td>
                                         <td>
                                             @if($trip->driver)
                                                 <a href="{{ route('drivers.show', $trip->driver->id) }}">
