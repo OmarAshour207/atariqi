@@ -66,6 +66,11 @@ class TripController extends BaseController
             return $this->sendError(__('Trip not found!'), [__('Trip not found!')]);
         }
 
+        if($trip->action == 3) {
+            Log::info("Trip already cancelled when updating action");
+            return $this->sendError(__('Trip already cancelled!'), [__('Trip already cancelled!')]);
+        }
+
         if ((int) $request->input('action') === 1
             && in_array($request->input('type'), ['daily', 'weekly'], true)
             && $trip->booking

@@ -1203,5 +1203,6 @@
     "trip_status.weekly.2": "مرفوض",
     "You cannot accept or reject trips while your edit request is under review.": "لا يمكنك قبول أو رفض الرحلات بينما طلب تعديل بياناتك قيد المراجعة.",
     "Current Dues Percentage": "نسبة المستحقات الحالية",
-    "Applies to new trips only": "تُطبق على الرحلات الجديدة فقط"
+    "Applies to new trips only": "تُطبق على الرحلات الجديدة فقط",
+    "Trip already cancelled!": "الرحلة ملغاة بالفعل!"
 }
