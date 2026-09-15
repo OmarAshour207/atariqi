@@ -4,11 +4,13 @@ namespace App\Http\Controllers\Dashboard;
 
 use App\Http\Controllers\Controller;
 use App\Mail\NewPackageNotificationMail;
+use App\Mail\PackageDeletedNotificationMail;
 use App\Mail\PackageUpdateNotificationMail;
 use App\Models\Package;
 use App\Models\PlatformEmailLog;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Mail\Mailable;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 
@@ -105,37 +107,11 @@ class PackageController extends Controller
             return redirect()->route('packages.index')->with('error', __('Unable to create package.'));
         }
 
-        $customers = User::where('user-type', 'passenger')
-            ->whereNotNull('email')
-            ->get();
-
-        $sentCount = 0;
-        $failedCount = 0;
-
-        foreach ($customers as $customer) {
-            try {
-                Mail::to($customer->email)->send(new NewPackageNotificationMail($package, $customer));
-                PlatformEmailLog::create([
-                    'assigned_from_employee_id' => $adminId,
-                    'driver_id' => $customer->id,
-                    'driver_email' => $customer->email,
-                    'email_type' => 'new_package_notification',
-                    'status' => 'success'
-                ]);
-
-                $sentCount++;
-            } catch (\Throwable $e) {
-                PlatformEmailLog::create([
-                    'assigned_from_employee_id' => $adminId,
-                    'driver_id' => $customer->id,
-                    'driver_email' => $customer->email,
-                    'email_type' => 'new_package_notification',
-                    'status' => 'failed',
-                    'error_message' => $e->getMessage()
-                ]);
-                $failedCount++;
-            }
-        }
+        $failedCount = $this->notifyDrivers(
+            $adminId,
+            'new_package_notification',
+            fn (User $driver) => new NewPackageNotificationMail($package, $driver)
+        );
 
         $message = __('Package created successfully.');
         if ($failedCount > 0) {
@@ -194,40 +170,11 @@ class PackageController extends Controller
             return redirect()->route('packages.index')->with('error', __('Unable to update package.'));
         }
 
-        $customers = User::where('user-type', 'passenger')
-            ->whereNotNull('email')
-            ->get();
-
-        $sentCount = 0;
-        $failedCount = 0;
-
-        foreach ($customers as $customer) {
-            try {
-                Mail::to($customer->email)->send(new PackageUpdateNotificationMail($package, $customer));
-
-                PlatformEmailLog::create([
-                    'assigned_from_employee_id' => $adminId,
-                    'driver_id' => $customer->id,
-                    'driver_email' => $customer->email,
-                    'email_type' => 'package_update_notification',
-                    'status' => 'sent',
-                    'error_message' => null,
-                ]);
-
-                $sentCount++;
-            } catch (\Throwable $e) {
-                PlatformEmailLog::create([
-                    'assigned_from_employee_id' => $adminId,
-                    'driver_id' => $customer->id,
-                    'driver_email' => $customer->email,
-                    'email_type' => 'package_update_notification',
-                    'status' => 'failed',
-                    'error_message' => $e->getMessage(),
-                ]);
-
-                $failedCount++;
-            }
-        }
+        $failedCount = $this->notifyDrivers(
+            $adminId,
+            'package_update_notification',
+            fn (User $driver) => new PackageUpdateNotificationMail($package, $driver)
+        );
 
         $message = __('Package updated successfully.');
         if ($failedCount > 0) {
@@ -239,11 +186,73 @@ class PackageController extends Controller
 
     public function destroy(Package $package)
     {
+        $adminId = auth()->guard('admin')->id();
+        $packageSnapshot = clone $package;
+
         try {
+            DB::table('subscription_employee_log')->insert([
+                'employee_id' => $adminId,
+                'package_id' => $package->id,
+                'action_type' => 'deleted',
+                'description' => __('Package deleted by employee.'),
+                'payload' => json_encode($package->toArray()),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
             $package->delete();
-            return redirect()->route('packages.index')->with('success', __('Package deleted successfully.'));
         } catch (\Exception $e) {
             return redirect()->route('packages.index')->with('error', __('Unable to delete package.'));
         }
+
+        $failedCount = $this->notifyDrivers(
+            $adminId,
+            'package_deleted_notification',
+            fn (User $driver) => new PackageDeletedNotificationMail($packageSnapshot, $driver)
+        );
+
+        $message = __('Package deleted successfully.');
+        if ($failedCount > 0) {
+            $message .= ' ' . __(':count emails failed to send.', ['count' => $failedCount]);
+        }
+
+        return redirect()->route('packages.index')->with('success', $message);
+    }
+
+    /**
+     * @param  callable(User): Mailable  $mailableFactory
+     */
+    private function notifyDrivers(?int $adminId, string $emailType, callable $mailableFactory): int
+    {
+        $drivers = User::where('user-type', 'driver')
+            ->whereNotNull('email')
+            ->get();
+
+        $failedCount = 0;
+
+        foreach ($drivers as $driver) {
+            try {
+                Mail::to($driver->email)->send($mailableFactory($driver));
+                PlatformEmailLog::create([
+                    'assigned_from_employee_id' => $adminId,
+                    'driver_id' => $driver->id,
+                    'driver_email' => $driver->email,
+                    'email_type' => $emailType,
+                    'status' => 'success',
+                ]);
+            } catch (\Throwable $e) {
+                PlatformEmailLog::create([
+                    'assigned_from_employee_id' => $adminId,
+                    'driver_id' => $driver->id,
+                    'driver_email' => $driver->email,
+                    'email_type' => $emailType,
+                    'status' => 'failed',
+                    'error_message' => $e->getMessage(),
+                ]);
+                $failedCount++;
+            }
+        }
+
+        return $failedCount;
     }
 }

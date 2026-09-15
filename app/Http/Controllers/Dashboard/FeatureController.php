@@ -109,7 +109,7 @@ class FeatureController extends Controller
             'updated_at' => now(),
         ]);
 
-        $customers = User::where('user-type', 'passenger')
+        $customers = User::where('user-type', 'driver')
             ->whereNotNull('email')
             ->get();
 

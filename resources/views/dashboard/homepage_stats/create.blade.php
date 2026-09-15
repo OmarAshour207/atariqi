@@ -11,7 +11,7 @@
                             <li class="breadcrumb-item active" aria-current="page">{{ __('Create') }}</li>
                         </ol>
                     </nav>
-                    <h1 class="m-0"> {{ __('Homepage Stats') }} </h1>
+                    <h1 class="m-0"> {{ __('Our Numbers') }} </h1>
                 </div>
             </div>
         </div>
