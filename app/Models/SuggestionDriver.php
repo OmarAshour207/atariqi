@@ -22,6 +22,7 @@ class SuggestionDriver extends Model
         'passenger-id',
         'action',
         'atariqi_percentage',
+        'trip_cost',
         'date-of-add',
         'date-of-edit'
     ];

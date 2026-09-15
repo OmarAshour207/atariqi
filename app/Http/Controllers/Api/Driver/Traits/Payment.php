@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api\Driver\Traits;
 
 use App\Models\Service;
-use App\Models\Subscription;
 use App\Models\SugDayDriver;
 use App\Models\SugWeekDriver;
 use App\Models\SuggestionDriver;
@@ -85,20 +84,14 @@ trait Payment
             ->with('booking.service')
             ->get();
 
-        $fallbackPercentage = Subscription::generalDuesPercentageValue();
-
-        $summarize = function ($trips) use ($fallbackPercentage) {
+        $summarize = function ($trips) {
             $revenue = 0.0;
             $dues = 0.0;
 
             foreach ($trips as $trip) {
-                $cost = (float) ($trip->booking?->service?->cost ?? 0);
-                $percentage = $trip->atariqi_percentage !== null
-                    ? (float) $trip->atariqi_percentage
-                    : $fallbackPercentage;
-
+                $cost = $trip->snapshottedTripCost();
+                $dues += $trip->duesAmountForCost($cost);
                 $revenue += $cost;
-                $dues += ($cost * $percentage) / 100;
             }
 
             return [

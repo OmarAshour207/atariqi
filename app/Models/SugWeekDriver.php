@@ -22,6 +22,7 @@ class SugWeekDriver extends Model
         'passenger-id',
         'action',
         'atariqi_percentage',
+        'trip_cost',
         'viewed',
         'date-of-add',
         'date-of-edit'
