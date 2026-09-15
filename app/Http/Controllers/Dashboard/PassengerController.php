@@ -282,7 +282,7 @@ class PassengerController extends Controller
             ->appends($request->query());
 
         // Get daily trips
-        $dailyTrips = SugDayDriver::with(['passenger', 'driver'])
+        $dailyTrips = SugDayDriver::with(['passenger', 'driver', 'booking'])
             ->when($request->filled('passenger_id'), function($q) use ($request) {
                 $q->where('passenger-id', $request->passenger_id);
             })
@@ -290,12 +290,21 @@ class PassengerController extends Controller
                 $q->where('driver-id', $request->driver_id);
             })
             ->when($request->filled('date_from'), function($q) use ($request) {
-                $q->where('date-of-add', '>=', $request->date_from);
+                $q->whereHas('booking', function ($bookingQuery) use ($request) {
+                    $bookingQuery->whereDate('date-of-ser', '>=', $request->date_from);
+                });
             })
             ->when($request->filled('date_to'), function($q) use ($request) {
-                $q->where('date-of-add', '<=', $request->date_to . ' 23:59:59');
+                $q->whereHas('booking', function ($bookingQuery) use ($request) {
+                    $bookingQuery->whereDate('date-of-ser', '<=', $request->date_to);
+                });
             })
-            ->latest('date-of-add')
+            ->whereHas('booking')
+            ->orderByDesc(
+                \App\Models\DayRideBooking::select('date-of-ser')
+                    ->whereColumn('day-ride-booking.id', 'sug-day-drivers.booking-id')
+                    ->limit(1)
+            )
             ->paginate(20, ['*'], 'daily_page')
             ->appends($request->query());
 
@@ -308,12 +317,21 @@ class PassengerController extends Controller
                 $q->where('driver-id', $request->driver_id);
             })
             ->when($request->filled('date_from'), function($q) use ($request) {
-                $q->where('date-of-add', '>=', $request->date_from);
+                $q->whereHas('booking', function ($bookingQuery) use ($request) {
+                    $bookingQuery->whereDate('date-of-ser', '>=', $request->date_from);
+                });
             })
             ->when($request->filled('date_to'), function($q) use ($request) {
-                $q->where('date-of-add', '<=', $request->date_to . ' 23:59:59');
+                $q->whereHas('booking', function ($bookingQuery) use ($request) {
+                    $bookingQuery->whereDate('date-of-ser', '<=', $request->date_to);
+                });
             })
-            ->latest('date-of-add')
+            ->whereHas('booking')
+            ->orderByDesc(
+                \App\Models\WeekRideBooking::select('date-of-ser')
+                    ->whereColumn('week-ride-booking.id', 'sug-week-drivers.booking-id')
+                    ->limit(1)
+            )
             ->paginate(20, ['*'], 'weekly_page')
             ->appends($request->query());
 

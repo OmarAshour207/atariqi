@@ -140,7 +140,7 @@
                                             {{ optional($trip->driver)->{'user-first-name'} }} {{ optional($trip->driver)->{'user-last-name'} }}
                                         </a>
                                     </td>
-                                    <td>{{ optional(\Carbon\Carbon::parse($trip->{'date-of-add'}))->format('Y-m-d H:i') ?? '-' }}</td>
+                                    <td>{{ format_trip_service_date($trip) }}</td>
                                     <td>@include('dashboard.partials.trip_action_badge', ['trip' => $trip, 'tripType' => 'immediate'])</td>
                                     <td>
                                         <a href="{{ route('passengers.show', $trip->passenger->id) }}" class="btn btn-sm btn-info">{{ __('View Passenger') }}</a>
@@ -188,7 +188,7 @@
                                             {{ optional($trip->driver)->{'user-first-name'} }} {{ optional($trip->driver)->{'user-last-name'} }}
                                         </a>
                                     </td>
-                                    <td>{{ optional(\Carbon\Carbon::parse($trip->{'date-of-add'}))->format('Y-m-d H:i') ?? '-' }}</td>
+                                    <td>{{ format_trip_service_date($trip) }}</td>
                                     <td>@include('dashboard.partials.trip_action_badge', ['trip' => $trip, 'tripType' => 'daily'])</td>
                                     <td>
                                         <a href="{{ route('passengers.show', $trip->passenger->id) }}" class="btn btn-sm btn-info">{{ __('View Passenger') }}</a>
@@ -236,7 +236,7 @@
                                             {{ optional($trip->driver)->{'user-first-name'} }} {{ optional($trip->driver)->{'user-last-name'} }}
                                         </a>
                                     </td>
-                                    <td>{{ optional(\Carbon\Carbon::parse($trip->{'date-of-add'}))->format('Y-m-d H:i') ?? '-' }}</td>
+                                    <td>{{ format_trip_service_date($trip) }}</td>
                                     <td>@include('dashboard.partials.trip_action_badge', ['trip' => $trip, 'tripType' => 'weekly'])</td>
                                     <td>
                                         <a href="{{ route('passengers.show', $trip->passenger->id) }}" class="btn btn-sm btn-info">{{ __('View Passenger') }}</a>

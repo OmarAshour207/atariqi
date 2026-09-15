@@ -732,7 +732,7 @@ class DriverController extends Controller
             $dailyTrips = $query->get()->map(function ($trip) {
                 $trip->trip_type = 'daily';
                 $trip->revenue = $trip->deliveryInfo ? $trip->deliveryInfo->passenger_rate : 0;
-                $trip->sort_date = $trip->{'date-of-add'};
+                $trip->sort_date = $trip->booking?->{'date-of-ser'} ?? $trip->{'date-of-add'};
                 return $trip;
             });
 
@@ -749,7 +749,7 @@ class DriverController extends Controller
             $weeklyTrips = $query->get()->map(function ($trip) {
                 $trip->trip_type = 'weekly';
                 $trip->revenue = $trip->deliveryInfo ? $trip->deliveryInfo->passenger_rate : 0;
-                $trip->sort_date = $trip->{'date-of-add'};
+                $trip->sort_date = $trip->booking?->{'date-of-ser'} ?? $trip->{'date-of-add'};
                 return $trip;
             });
 

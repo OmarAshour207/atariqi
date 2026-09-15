@@ -82,7 +82,7 @@
                                             {{ __('N/A') }}
                                         @endif
                                     </td>
-                                    <td>{{ $trip->{'date-of-add'} ? \Carbon\Carbon::parse($trip->{'date-of-add'})->format('Y-m-d H:i') : '-' }}</td>
+                                    <td>{{ format_trip_service_date($trip) }}</td>
                                     <td>{{ $trip->booking?->service?->cost ?? 0 }} {{ __('SAR') }}</td>
                                     <td>@include('dashboard.drivers.partials.trip_endpoints', ['trip' => $trip])</td>
                                     <td>@include('dashboard.partials.trip_action_badge', ['trip' => $trip, 'tripType' => 'immediate'])</td>
@@ -122,7 +122,7 @@
                                             {{ __('N/A') }}
                                         @endif
                                     </td>
-                                    <td>{{ $trip->{'date-of-add'} ? \Carbon\Carbon::parse($trip->{'date-of-add'})->format('Y-m-d H:i') : '-' }}</td>
+                                    <td>{{ format_trip_service_date($trip) }}</td>
                                     <td>{{ $trip->booking?->service?->cost ?? 0 }} {{ __('SAR') }}</td>
                                     <td>@include('dashboard.drivers.partials.trip_endpoints', ['trip' => $trip])</td>
                                     <td>@include('dashboard.partials.trip_action_badge', ['trip' => $trip, 'tripType' => 'daily'])</td>
@@ -162,7 +162,7 @@
                                             {{ __('N/A') }}
                                         @endif
                                     </td>
-                                    <td>{{ $trip->{'date-of-add'} ? \Carbon\Carbon::parse($trip->{'date-of-add'})->format('Y-m-d H:i') : '-' }}</td>
+                                    <td>{{ format_trip_service_date($trip) }}</td>
                                     <td>{{ $trip->booking?->service?->cost ?? 0 }} {{ __('SAR') }}</td>
                                     <td>@include('dashboard.drivers.partials.trip_endpoints', ['trip' => $trip])</td>
                                     <td>@include('dashboard.partials.trip_action_badge', ['trip' => $trip, 'tripType' => 'weekly'])</td>

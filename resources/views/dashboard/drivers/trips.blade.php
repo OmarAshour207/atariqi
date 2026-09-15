@@ -96,7 +96,7 @@
                                         <td>
                                             @include('dashboard.partials.trip_action_badge', ['trip' => $trip, 'tripType' => $trip->trip_type])
                                         </td>
-                                        <td>{{ \Carbon\Carbon::parse($trip->{'date-of-add'})->format('Y-m-d H:i') }}</td>
+                                        <td>{{ format_trip_service_date($trip) }}</td>
                                         <td>{{ $trip->booking->service->cost ?? 0 }}</td>
                                         <td>{{ $trip->booking->{"road-way"} == 'from' ? $trip->booking->university->{"name-ar"} : $trip->booking->neighborhood->{"neighborhood-ar"} }}</td>
                                     </tr>
