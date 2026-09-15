@@ -8,7 +8,8 @@ use App\Models\SugWeekDriver;
 trait ChecksDriverSameTimeTrips
 {
     /**
-     * True if driver already has a daily or weekly trip on the same date and time.
+     * True if driver already has an active daily/weekly trip on the same date and time.
+     * Rejected (2) and cancelled (5) trips are ignored.
      */
     protected function hasTripAtSameDateTime(
         string $date,
@@ -18,6 +19,7 @@ trait ChecksDriverSameTimeTrips
         ?int $excludeWeeklySugId = null
     ): bool {
         $driverId = auth()->id();
+        $inactiveActions = [2, 5];
 
         $sameTime = function ($query) use ($date, $timeGo, $timeBack) {
             $query->whereDate('date-of-ser', $date)
@@ -32,7 +34,7 @@ trait ChecksDriverSameTimeTrips
         };
 
         $hasDaily = SugDayDriver::where('driver-id', $driverId)
-            ->where('action', '!=', 2)
+            ->whereNotIn('action', $inactiveActions)
             ->when($excludeDailySugId, fn ($q) => $q->where('id', '!=', $excludeDailySugId))
             ->whereHas('booking', $sameTime)
             ->exists();
@@ -42,7 +44,7 @@ trait ChecksDriverSameTimeTrips
         }
 
         return SugWeekDriver::where('driver-id', $driverId)
-            ->where('action', '!=', 2)
+            ->whereNotIn('action', $inactiveActions)
             ->when($excludeWeeklySugId, fn ($q) => $q->where('id', '!=', $excludeWeeklySugId))
             ->whereHas('booking', $sameTime)
             ->exists();
