@@ -29,8 +29,9 @@
                 </div>
                 <div class="col-md-4">
                     <div class="card card-body text-center">
-                        <h6 class="text-muted mb-2">{{ __('Dues Percentage') }}</h6>
+                        <h6 class="text-muted mb-2">{{ __('Current Dues Percentage') }}</h6>
                         <h3 class="mb-0">{{ number_format($duesPercentage, 2) }}%</h3>
+                        <small class="text-muted">{{ __('Applies to new trips only') }}</small>
                     </div>
                 </div>
                 <div class="col-md-4">

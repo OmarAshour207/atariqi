@@ -97,7 +97,7 @@
                                             @include('dashboard.partials.trip_action_badge', ['trip' => $trip, 'tripType' => $trip->trip_type])
                                         </td>
                                         <td>{{ format_trip_service_date($trip) }}</td>
-                                        <td>{{ $trip->booking->service->cost ?? 0 }}</td>
+                                        <td>{{ number_format($trip->snapshottedTripCost(), 2) }}</td>
                                         <td>{{ $trip->booking->{"road-way"} == 'from' ? $trip->booking->university->{"name-ar"} : $trip->booking->neighborhood->{"neighborhood-ar"} }}</td>
                                     </tr>
 
