@@ -34,9 +34,9 @@ class WeeklyDriverController extends BaseController
 
     private function getGroupId()
     {
-        $weekRideBooking = WeekRideBooking::where('passenger-id', auth()->user()->id)
-            ->orderBy('id', 'desc')
+        $weekRideBooking = WeekRideBooking::orderBy('id', 'desc')
             ->first();
+            
         if (!$weekRideBooking)
             return 1;
         return $weekRideBooking->{"group-id"} + 1;
