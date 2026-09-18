@@ -1,19 +1,38 @@
 # مصادقة الداشبورد
 
-**الملف:** `Dashboard\Auth\LoginController`
+**الكلاس:** `App\Http\Controllers\Dashboard\Auth\LoginController`  
+**السطح:** dashboard  
+**الملف:** `app/Http/Controllers/Dashboard/Auth/LoginController.php`
 
-## GET /dashboard/login — `dashboard.loginForm`
+---
 
-نموذج الدخول · عام
+### GET /dashboard/login — `dashboard.loginForm`
 
-## POST /dashboard/login — `dashboard.login`
+- **الكود:** `LoginController@showLogin`
+- **الغرض:** عرض نموذج دخول الموظفين
+- **Auth:** ضيف (خارج مجموعة `is_admin`)
+- **View:** `dashboard.auth.login`
+- **Side effects:** لا
 
-- Middleware: `login.throttle`
-- Validation: إيميل موجود في `admins`، كلمة مرور ≥6
-- يشترط أدمن نشط
-- Response: JSON نجاح جلسة `admin`
-- عند تجاوز المحاولات: تعطيل مؤقت + `UnauthorizedLoginAttempt` mail (من middleware)
+---
 
-## POST /dashboard/logout — `dashboard.logout`
+### POST /dashboard/login — `dashboard.login`
 
-إنهاء جلسة الأدمن · ضمن مجموعة الداشبورد ومعفى من فحص الصفحة
+- **الكود:** `LoginController@login`
+- **Middleware إضافي:** `login.throttle`
+- **الغرض:** مصادقة أدمن نشط وإرجاع JSON مع رابط التحويل
+- **Validation:** `email` required|email|exists:admins,email؛ `password` required|string|min:6
+- **الخطوات:** `Auth::guard('admin')->attempt(..., ['is_active'=>1])`
+- **Response نجاح:** JSON يتضمن `redirect_url` نحو `/dashboard/index`
+- **فشل:** JSON 401
+- **Side effects عند تجاوز المحاولات:** من `LoginThrottle` — تعطيل مؤقت + بريد `UnauthorizedLoginAttempt` (راجع الميدلوير)
+
+---
+
+### POST /dashboard/logout — `dashboard.logout`
+
+- **الكود:** `LoginController@logout`
+- **Auth:** داخل مجموعة الداشبورد (معفى من ACL الصفحة)
+- **الغرض:** إنهاء الجلسة
+- **الخطوات:** `Session::flush()` + `Auth::guard('admin')->logout()`
+- **Redirect:** نموذج الدخول

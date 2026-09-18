@@ -1,18 +1,42 @@
-# الداشبورد — فهرس
+# الداشبورد — فهرس مفصّل
 
 **البادئة:** `/dashboard`  
-**Middleware:** `web` + `is_admin` + `admin.page:view` (مع استثناءات)  
+**Middleware الافتراضي:** `web` + `is_admin` + `admin.page:view`  
+**Guard:** `admin`  
 **الكود:** `app/Http/Controllers/Dashboard/`
 
-| الملف | يغطي |
-|-------|------|
-| [auth.md](auth.md) | دخول/خروج الأدمن |
-| [home-cms.md](home-cms.md) | أقسام الصفحة، أرقامنا، شهادات، إنجازات |
-| [packages-features.md](packages-features.md) | باقات وميزات |
-| [drivers.md](drivers.md) | السائقون، الباقات، الرحلات، الأرباح، الحظر |
-| [passengers-users.md](passengers-users.md) | الركاب، الشكاوى، الرحلات |
-| [support-announcements.md](support-announcements.md) | تذاكر وإعلانات |
-| [geo-services-docs.md](geo-services-docs.md) | جامعات، مدن، خدمات، مستندات |
-| [employees-roles-logs-settings.md](employees-roles-logs-settings.md) | موظفون، أدوار، سجلات، إعدادات، ملف شخصي |
+## الملفات (ملف لكل مجال / كنترولر رئيسي)
 
-**ملاحظة Resource ناقصة:** بعض مسارات `create/store/show/destroy` مسجّلة عبر `Route::resource` بدون ميثود في الكنترولر — ستُرجع خطأ إن استُدعيت. موثّقة في كل ملف.
+| الملف | الكنترولر(ات) |
+|-------|----------------|
+| [auth.md](auth.md) | `Auth\LoginController` |
+| [home.md](home.md) | `HomeController` |
+| [homepage-sections.md](homepage-sections.md) | `HomepageSectionController` |
+| [homepage-stats.md](homepage-stats.md) | `HomepageStatController` |
+| [testimonials.md](testimonials.md) | `TestimonialController` |
+| [partner-achievements.md](partner-achievements.md) | `PartnerAchievementController` |
+| [packages.md](packages.md) | `PackageController` |
+| [features.md](features.md) | `FeatureController` |
+| [general-dues-percentage.md](general-dues-percentage.md) | `GeneralDuesPercentageController` |
+| [drivers.md](drivers.md) | `DriverController` (كامل) |
+| [edit-driver-info-request.md](edit-driver-info-request.md) | `EditDriverInfoRequestController` |
+| [passengers.md](passengers.md) | `PassengerController` |
+| [users.md](users.md) | `UserController` |
+| [support-tickets.md](support-tickets.md) | `SupportTicketController` |
+| [announcements.md](announcements.md) | `AnnouncementController` |
+| [universities.md](universities.md) | `UniversityController` |
+| [cities.md](cities.md) | `CityController` |
+| [delivery-services.md](delivery-services.md) | `DeliveryServiceController` |
+| [documents.md](documents.md) | `DocumentController` |
+| [employees.md](employees.md) | `EmployeeController` |
+| [roles.md](roles.md) | `RoleController` |
+| [logs.md](logs.md) | `LogsManagementController` |
+| [profile.md](profile.md) | `ProfileController` |
+| [settings.md](settings.md) | `SettingController` |
+
+## ملاحظات عامة
+
+- صلاحيات الصفحة تُحسم عبر `EnsureAdminPageAccess` + `AdminAuthorizationService`.
+- مسارات معفاة من فحص الصفحة: `dashboard.index`, `dashboard.logout`, `profile.edit`, `profile.update`, `language`.
+- بعض `Route::resource` تسجّل أفعالاً بلا ميثود في الكنترولر → استدعاؤها يفشل؛ موثّق في كل ملف.
+- الملفات القديمة المختصرة (`home-cms.md`, `packages-features.md`, …) أُلغيت دلاليًا لصالح الملفات أعلاه — راجع هذا الفهرس فقط.

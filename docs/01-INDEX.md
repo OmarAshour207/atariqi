@@ -16,7 +16,7 @@
 | باقات Telr ومستحقات | `shared/payments-dues-packages.md` + `driver/dues-revenue-packages.md` |
 | إشعارات FCM/بريد | `shared/notifications.md` |
 | إغلاق متأخر / تذكير / Wasl | `shared/cron-jobs-and-schedulers.md` |
-| موافقات داشبورد | `dashboard/drivers.md`, `passengers-users.md` |
+| موافقات داشبورد | `dashboard/drivers.md`, `dashboard/passengers.md` |
 
 ---
 
@@ -37,7 +37,7 @@
 | shared | `third-party-integrations.md` | Telr/Wasl/FCM |
 | driver | `README.md` + ملفات الكنترولر | كل API سائق |
 | passenger | `README.md` + ملفات | كل API راكب |
-| dashboard | `README.md` + ملفات | لوحة التحكم |
+| dashboard | `README.md` + ملف لكل كنترولر | لوحة التحكم بالكامل |
 | website | `README.md` | الموقع العام |
 
 ---
@@ -130,18 +130,29 @@
 | GET | `/locale/{locale}` | `website/README.md` |
 | GET/POST | `/dashboard/login` | `dashboard/auth.md` |
 | POST | `/dashboard/logout` | `dashboard/auth.md` |
-| GET | `/dashboard/index` | `dashboard/README.md` |
-| * | `/dashboard/homepage-sections*` | `dashboard/home-cms.md` |
-| * | `/dashboard/homepage-stats*` | `dashboard/home-cms.md` |
-| * | `/dashboard/testimonials*` | `dashboard/home-cms.md` |
-| * | `/dashboard/partner-achievements*` | `dashboard/home-cms.md` |
-| * | `/dashboard/packages*` | `dashboard/packages-features.md` |
-| * | `/dashboard/features*` | `dashboard/packages-features.md` |
-| * | مسارات السائقين المخصّصة + Resource | `dashboard/drivers.md` |
-| * | الركاب/المستخدمون/الشكاوى/الرحلات | `dashboard/passengers-users.md` |
-| * | الدعم والإعلانات | `dashboard/support-announcements.md` |
-| * | جامعات/مدن/خدمات/مستندات | `dashboard/geo-services-docs.md` |
-| * | موظفون/أدوار/سجلات/إعدادات/ملف | `dashboard/employees-roles-logs-settings.md` |
+| GET | `/dashboard/index` | `dashboard/home.md` |
+| * | `/dashboard/homepage-sections*` | `dashboard/homepage-sections.md` |
+| * | `/dashboard/homepage-stats*` | `dashboard/homepage-stats.md` |
+| * | `/dashboard/testimonials*` | `dashboard/testimonials.md` |
+| * | `/dashboard/partner-achievements*` | `dashboard/partner-achievements.md` |
+| * | `/dashboard/packages*` | `dashboard/packages.md` |
+| * | `/dashboard/features*` | `dashboard/features.md` |
+| * | `/dashboard/general-dues-percentage*` | `dashboard/general-dues-percentage.md` |
+| * | سائقون + new-drivers + باقات/رحلات/أرباح/حظر | `dashboard/drivers.md` |
+| * | `edit-info-request*` | `dashboard/edit-driver-info-request.md` |
+| * | ركاب + رحلات + موافقات/حظر/تعديل ملف | `dashboard/passengers.md` |
+| * | users / rates / unride / complaints | `dashboard/users.md` |
+| * | `support-tickets/{page}*` | `dashboard/support-tickets.md` |
+| * | `announcements*` | `dashboard/announcements.md` |
+| * | جامعات | `dashboard/universities.md` |
+| * | مدن/أحياء | `dashboard/cities.md` |
+| * | خدمات توصيل | `dashboard/delivery-services.md` |
+| * | مستندات | `dashboard/documents.md` |
+| * | موظفون | `dashboard/employees.md` |
+| * | أدوار | `dashboard/roles.md` |
+| * | سجلات | `dashboard/logs.md` |
+| * | ملف أدمن | `dashboard/profile.md` |
+| * | إعدادات + لغة | `dashboard/settings.md` |
 | GET | `/payment/telr/{success\|failed\|declined}` | `driver/payments-webhook.md` |
 
 توسعة Resource الكاملة مذكورة في `dashboard/README.md` مع الميثودات الناقصة.
